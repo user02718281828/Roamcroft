@@ -63,7 +63,7 @@ Dokunmatik cihazlarda haritaya dokunma, sürükleme, ekran yön tuşları ve sal
 - 30 karakter seviyesi; beş ustalık; altı ayrı, beş kademeli yetenek. Yetenek seçimi sınırlı seviye puanlarıyla yapılır.
 - Üç köylü, günlük sipariş ve hediye sınırları, 100 puanlık dostluk. Dostluk gerçek fiyat, üretim ve balıkçılık avantajları verir.
 - 18 görev, 12 başarım ve üç ödüllü keşif noktası. Kadim feneri 3. seviyeye yükseltmek akınları bitirir; serbest köy yaşamı devam eder.
-- 3. seviyede açılan beş katlı Kadim Maden. Her oyun günü bir keşif; her katta düşmanları temizleyip dört cevher birimi kazdıktan sonra kuzey geçidinden ilerleme. Güney asansörü ganimetle dönüş sağlar. Beşinci katın Derinlik Muhafızı yarı canında hızlanır; son geçit keşif ödülünü verir.
+- - Madenin üçüncü seviyesinde açılan beş katlı Kadim Maden. Her oyun günü bir keşif; her katta düşmanları temizleyip dört cevher birimi kazdıktan sonra kuzey geçidinden ilerleme. Güney asansörü ganimetle dönüş sağlar. Beşinci katın Derinlik Muhafızı yarı canında hızlanır; son geçit keşif ödülünü verir.
 - Bozkurt, mağara peltesi, kül büyücüsü, taş muhafız ve bölüm sonu muhafızı. Saldırı öncesi yere çizilen halkalar hedef alanı gösterir; hareket ederek kaçılabilir. Düşman can çubukları gerçek sağlık değerini gösterir.
 - Madendeyken vadi saati, tarlalar ve hayvanlar bekler. Açlık, savaş ve eldeki üretim kuyruğu çalışır. Maden katı, kalan düşmanlar, hazırlanmakta olan saldırılar ve yüzeydeki köy birlikte kaydedilir. Yenilgi köyü geri yükler.
 
