@@ -1,5 +1,7 @@
 # Roamcroft
 
+🎮 **Canlı oyun:** https://roamcroft.roamcroft.workers.dev
+
 Türkçe, tek oyunculu, izometrik bir çiftçilik ve hayatta kalma oyunu. Oyun dünyası Three.js ile gerçek zamanlı çizilir; tüm oyun kuralları tarayıcıda çalışan, görüntü motorundan bağımsız TypeScript simülasyonunda tutulur.
 
 ## Çalıştırma
