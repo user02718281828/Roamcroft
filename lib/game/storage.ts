@@ -1,0 +1,94 @@
+import type { State } from './model.ts';
+import {
+  serialize,
+  deserialize,
+  loadLocal,
+  saveLocal,
+  SAVE_KEY,
+} from './save.ts';
+
+type Snapshot = { state: State; savedAt: number };
+let database: Promise<IDBDatabase> | null = null;
+function openDatabase() {
+  if (!database)
+    database = new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('ocak-vadisi-worlds', 1);
+      request.onupgradeneeded = () => request.result.createObjectStore('saves');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => {
+        database = null;
+        reject(request.error);
+      };
+      request.onblocked = () => {
+        database = null;
+        reject(new Error('Kayıt veritabanı başka bir sekmede meşgul.'));
+      };
+    });
+  return database;
+}
+async function readSnapshot(key: string) {
+  const db = await openDatabase();
+  return new Promise<Snapshot | undefined>((resolve, reject) => {
+    const request = db
+      .transaction('saves', 'readonly')
+      .objectStore('saves')
+      .get(key);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+export async function loadStored() {
+  try {
+    const current = await readSnapshot('current');
+    if (current) {
+      // A page-close checkpoint may be newer than the last asynchronous transaction.
+      try {
+        const local = localStorage.getItem(SAVE_KEY);
+        if (local && Date.parse(JSON.parse(local).savedAt) > current.savedAt)
+          return {
+            state: deserialize(local),
+            message: 'Son oyun kaydın yüklendi.',
+          };
+      } catch {}
+      try {
+        return {
+          state: deserialize(serialize(current.state)),
+          message: 'Kayıtlı dünyana hoş geldin.',
+        };
+      } catch {
+        const backup = await readSnapshot('backup');
+        if (backup)
+          return {
+            state: deserialize(serialize(backup.state)),
+            message: 'Yedek dünya kaydı geri yüklendi.',
+          };
+      }
+    }
+  } catch {}
+  return loadLocal();
+}
+let writing = false;
+export async function saveStored(state: State): Promise<boolean> {
+  if (writing) return false;
+  writing = true;
+  try {
+    const db = await openDatabase();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction('saves', 'readwrite'),
+        store = tx.objectStore('saves');
+      const previous = store.get('current');
+      previous.onsuccess = () => {
+        if (previous.result) store.put(previous.result, 'backup');
+        store.put({ state, savedAt: Date.now() } satisfies Snapshot, 'current');
+      };
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+    return true;
+  } catch {
+    return saveLocal(state);
+  } finally {
+    writing = false;
+  }
+}
