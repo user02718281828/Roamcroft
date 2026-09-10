@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {sunlight,humanPose,animalPose,type HumanAction} from './living.ts';
 import { PointerDrag, FrameBudget } from './interaction.ts';
 import { WorldBatches, compactModel, releaseModel } from './batches.ts';
 import { BUILDINGS, CROPS } from './data.ts';
@@ -39,6 +40,9 @@ export class ValleyScene {
   terrainTiles: Tile[] | null = null;
   river!: T.InstancedMesh;
   bankBlend!: T.InstancedMesh;
+  shoreFoam!:T.InstancedMesh;
+  bankLight={value:1};
+  windowLights?:T.InstancedMesh;
   buildingShadows!: T.InstancedMesh;
   confetti?: T.InstancedMesh;
   confettiLife = 0;
@@ -67,6 +71,12 @@ export class ValleyScene {
   handTool = new T.Group();
   lastPlayer = new T.Vector2(15, 19);
   villagers: T.Group[] = [];
+  remotePlayers = new Map<string,T.Group>();
+  butterflies?: T.InstancedMesh;
+  fishSchool?: T.InstancedMesh;
+  affectionHearts?: T.InstancedMesh;
+  ambienceDummy=new T.Object3D();
+  waterSpots:{x:number;z:number}[]=[];
   landmarkGroups: T.Group[] = [];
   engine: Engine;
   renderer: T.WebGLRenderer;
@@ -97,8 +107,6 @@ export class ValleyScene {
   lastSeason = -1;
   lastWeather = '';
   hoverTile: { x: number; z: number } | null = null;
-  mouseDown: { x: number; y: number; button: number } | null = null;
-  dragged = false;
   tileVisuals = new T.Group();
   pickables: T.Object3D[] = [];
   shadowClock = 0;
@@ -172,12 +180,12 @@ export class ValleyScene {
     this.sun.target.position.set(16, 0, 16);
     this.scene.add(this.sun.target);
     this.sun.castShadow = true;
-    this.sun.shadow.mapSize.set(1024, 1024);
+    this.sun.shadow.mapSize.set(512, 512);
     Object.assign(this.sun.shadow.camera, {
-      left: -30,
-      right: 30,
-      top: 30,
-      bottom: -30,
+      left: -14,
+      right: 14,
+      top: 14,
+      bottom: -14,
       near: 1,
       far: 100,
     });
@@ -401,7 +409,7 @@ export class ValleyScene {
     this.river = new T.InstancedMesh(
       this.geo('box'),
       new T.MeshStandardMaterial({
-        color: 0x719f91,
+        color: 0x469cbd,
         roughness: 0.55,
         metalness: 0.02,
       }),
@@ -418,7 +426,8 @@ export class ValleyScene {
       new T.PlaneGeometry(1.05, 0.6),
       new T.ShaderMaterial({
         vertexShader,
-        fragmentShader: `varying vec2 surfaceUV; void main() { float edge=1.0-smoothstep(0.0,0.5,abs(surfaceUV.y-0.5)); float grain=0.95+0.05*sin(surfaceUV.x*93.0+surfaceUV.y*71.0); gl_FragColor=vec4(vec3(0.66,0.59,0.39)*grain, edge*0.65); }`,
+        uniforms:{bankLight:this.bankLight},
+        fragmentShader: `uniform float bankLight;varying vec2 surfaceUV; void main() { float edge=1.0-smoothstep(0.0,0.5,abs(surfaceUV.y-0.5)); float grain=0.95+0.05*sin(surfaceUV.x*93.0+surfaceUV.y*71.0); gl_FragColor=vec4(vec3(0.66,0.59,0.39)*grain*bankLight, edge*0.65); }`,
         transparent: true,
         depthWrite: false,
         polygonOffset: true,
@@ -427,6 +436,11 @@ export class ValleyScene {
       WINDOW * WINDOW * 4,
     );
     this.bankBlend.count = 0;
+    this.shoreFoam=new T.InstancedMesh(new T.PlaneGeometry(1,.22),new T.ShaderMaterial({uniforms:{streamTime:this.waterTime,bankLight:this.bankLight},vertexShader,
+      fragmentShader:'varying vec2 surfaceUV;uniform float streamTime;uniform float bankLight;void main(){float ripple=sin(surfaceUV.x*27.0-streamTime*1.6+sin(surfaceUV.y*9.0));float edge=1.0-smoothstep(0.0,0.5,abs(surfaceUV.y-0.5));gl_FragColor=vec4(vec3(0.76,0.92,0.97)*bankLight,edge*smoothstep(-0.4,0.9,ripple)*0.35);}',
+      transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}),WINDOW*WINDOW*4);
+    this.shoreFoam.count=0;this.root.add(this.shoreFoam);
+
     this.buildingShadows = new T.InstancedMesh(
       new T.PlaneGeometry(2.9, 2.2),
       new T.ShaderMaterial({
@@ -457,11 +471,12 @@ export class ValleyScene {
         '#include <color_fragment>',
         `#include <color_fragment>
         float wave = sin(streamPosition.x * 5.0 + sin(streamPosition.y * 3.0 + streamTime * 0.7)) * sin(streamPosition.y * 7.0 - streamTime * 0.6);
-        diffuseColor.rgb *= 0.94 + wave * 0.06;
-        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.72, 0.80, 0.61), smoothstep(0.85, 1.0, wave) * 0.22);`,
+        diffuseColor.rgb *= 0.91 + wave * 0.09;
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.79, 0.93, 1.0), smoothstep(0.77, 1.0, wave) * 0.32);`,
       );
     };
     this.refreshGround();
+    this.waterSpots=this.engine.s.tiles.filter(t=>t.terrain==='water').filter((_,i)=>i%13===0).map(t=>({x:t.x,z:t.z}));
     if (!this.engine.s.mine) {
       for (let x = 23; x < 31; x++) {
         this.box(this.bridge, 0xb19a70, x, 0.22, 19, 0.95, 0.17, 0.95);
@@ -532,6 +547,14 @@ export class ValleyScene {
           this.bankBlend.setMatrixAt(edge++, dummy.matrix);
         }
       }
+    let foam=0;
+    for(const t of s.tiles)if(t.terrain==='water'){
+      for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const other=tileAt(s,t.x+dx,t.z+dz);if(!other||other.terrain==='water')continue;
+        dummy.position.set(t.x+dx*.48,.235,t.z+dz*.48);dummy.rotation.set(-Math.PI/2,0,dx?Math.PI/2:0);dummy.scale.set(1,1,1);dummy.updateMatrix();this.shoreFoam.setMatrixAt(foam++,dummy.matrix);
+      }
+    }
+    this.shoreFoam.count=foam;this.shoreFoam.instanceMatrix.needsUpdate=true;this.shoreFoam.computeBoundingSphere();
     this.bankBlend.count = edge;
     this.bankBlend.instanceMatrix.needsUpdate = true;
     this.bankBlend.computeBoundingSphere();
@@ -627,6 +650,15 @@ export class ValleyScene {
   shore(t: Tile, g: T.Group) {
     if (this.engine.s.mine) return;
     const n = noise(t.x, t.z, this.engine.s.seed);
+    if(t.terrain==='path'){
+      for(let i=0;i<3;i++)this.mesh(g,'rock',0xaaa087,(n-.5)*.7+i*.09,.12,(i-1)*.25,.045,.025,.035);
+      for(const x of [-.27,.27])this.box(g,0x9a8a64,x,.101,0,.025,.006,.78);
+    }
+    if(t.terrain==='grass'&&!t.resource&&!t.crop&&!t.tilled){
+      if(t.source==='tree')this.mesh(g,'cylinder',0x94623d,0,.18,0,.18,.28,.18);
+      else if(n<.035)this.mesh(g,'rock',0xaba98a,.15,.12,.1,.14,.06,.11);
+      else if(n>.96){this.mesh(g,'sphere',0x789454,0,.17,0,.3,.2,.24);this.mesh(g,'sphere',0xedd4a9,.13,.33,0,.045,.04,.045);}
+    }
     if (t.terrain === 'sand') {
       for (let i = 0; i < 3; i++) {
         const x = (n - 0.5) * 0.65 + i * 0.08;
@@ -730,7 +762,7 @@ export class ValleyScene {
   resource(t: Tile, g: T.Group) {
     const n = noise(t.x + 31, t.z + 17, this.engine.s.seed);
     if (t.resource === 'tree') {
-      const pine = n < 0.52,
+      const pine = n < 0.48,
         height = 1.8 + n * 1.1;
       this.mesh(g, 'cylinder', 0x75543b, 0, 0.65, 0, 0.13, 1.3, 0.13);
       if (pine) {
@@ -738,7 +770,7 @@ export class ValleyScene {
           this.mesh(
             g,
             'cone',
-            [0x3d7355, 0x4c895c, 0x619661][i],
+            (n<.24?[0x3d7355,0x4c895c,0x619661]:[0x477d74,0x58968a,0x77a799])[i],
             0,
             0.85 + i * 0.49,
             0,
@@ -752,7 +784,7 @@ export class ValleyScene {
           this.mesh(
             g,
             'sphere',
-            [0x79a666, 0x93b16a, 0x6b9858, 0x83a558][i],
+            (n<.75?[0x79a666,0x93b16a,0x6b9858,0x83a558]:[0xd8ac61,0xe5bd73,0xbca35e,0xd1b46c])[i],
             Math.sin(a) * 0.3,
             1.3 + i * 0.23,
             Math.cos(a) * 0.27,
@@ -1003,6 +1035,12 @@ export class ValleyScene {
         } else this.box(g,row%2 ? 0x9da691 : 0x8a9683,0,y,0,1,.25,.24);
       }
       return;
+    }
+    if(b.type==='chest'){
+      this.box(g,0x925e36,0,.32,0,.9,.55,.65);
+      this.box(g,0xbb884b,0,.65,0,.95,.16,.7);
+      for(const x of [-.32,.32])this.box(g,0x515b59,x,.4,0,.065,.67,.72);
+      this.box(g,0xe8c16d,0,.47,.365,.13,.17,.035);return;
     }
     if (b.type === 'fence' && b.corner) {
       for (const [x,z] of [[0,0],[.5,0],[0,.5]]) this.box(g,0x896447,x,.65,z,.13,1,.13);
@@ -1640,7 +1678,7 @@ export class ValleyScene {
     if (this.bridge) this.bridge.visible = !s.mine && !!tileAt(s, 26, 19);
     if (this.lastSeason !== season(s)) this.updateTerrain();
     const shifted = this.terrainTiles !== s.tiles;
-    if (shifted) this.refreshGround();
+    if (shifted) {this.refreshGround();this.waterSpots=s.tiles.filter(t=>t.terrain==='water').filter((_,i)=>i%13===0).map(t=>({x:t.x,z:t.z}));}
     let changed = shifted;
     const active = new Set(s.tiles.map((t) => tileKey(t.x, t.z)));
     const activeChunks = new Set(s.tiles.map((t) => chunkKey(t.x, t.z)));
@@ -1673,9 +1711,10 @@ export class ValleyScene {
     }
     const visibleBuildings = s.buildings.filter((b) => tileAt(s, b.x, b.z));
     const shadow = new T.Object3D();
-    visibleBuildings.forEach((b, i) => {
+    const nearbyShadows=visibleBuildings.filter(b=>Math.hypot(b.x-s.player.x,b.z-s.player.z)<18).slice(0,2048),light=sunlight(s.time);
+    nearbyShadows.forEach((b, i) => {
       shadow.position.set(
-        b.x + 0.28,
+        b.x - light.x*.015,
         (tileAt(s, b.x, b.z)?.height || 0) + 0.138,
         b.z + 0.22,
       );
@@ -1686,7 +1725,7 @@ export class ValleyScene {
       shadow.updateMatrix();
       this.buildingShadows.setMatrixAt(i, shadow.matrix);
     });
-    this.buildingShadows.count = visibleBuildings.length;
+    this.buildingShadows.count = nearbyShadows.length;
     this.buildingShadows.instanceMatrix.needsUpdate = true;
     this.buildingShadows.computeBoundingSphere();
     const ids = new Set(visibleBuildings.map((b) => b.id));
@@ -2070,6 +2109,65 @@ export class ValleyScene {
       );
     this.confetti.instanceColor!.needsUpdate = true;
   }
+  animateHuman(g:T.Group,action:HumanAction,time:number) {
+    const pose=humanPose(action,time);
+    for(const name of ['leftLeg','rightLeg','leftArm','rightArm'] as const){const limb=g.getObjectByName(name);if(limb)limb.rotation.x=pose[name];}
+    const arm=g.getObjectByName('rightArm');if(arm)arm.rotation.z=pose.armSide;
+    g.rotation.x=pose.lean;g.position.y+=pose.height;
+  }
+  syncRemotePlayers(dt:number) {
+    const peers=this.engine.network?.peers||[],active=new Set(peers.map(p=>p.id));
+    for(const [id,g] of this.remotePlayers)if(!active.has(id)){this.root.remove(g);releaseModel(g);this.remotePlayers.delete(id);}
+    for(const peer of peers){
+      let g=this.remotePlayers.get(peer.id);
+      if(!g){g=new T.Group();this.makeCharacter(g,0xb88bb3);compactModel(g);this.nameTag(g,peer.name,1.9);g.position.set(peer.player.x,0,peer.player.z);this.remotePlayers.set(peer.id,g);this.root.add(g);}
+      const moving=Math.hypot(peer.player.x-g.position.x,peer.player.z-g.position.z)>.025;
+      g.position.x+=(peer.player.x-g.position.x)*Math.min(1,dt*9);g.position.z+=(peer.player.z-g.position.z)*Math.min(1,dt*9);
+      g.position.y=tileAt(this.engine.s,g.position.x,g.position.z)?.height||0;g.rotation.y=peer.player.facing;
+      this.animateHuman(g,moving?'walking':'idle',this.time);
+    }
+  }
+  animateNature(daylight:number) {
+    if(!this.butterflies){
+      this.butterflies=new T.InstancedMesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({color:0xf2c66f,side:T.DoubleSide}),24);
+      this.fishSchool=new T.InstancedMesh(new T.SphereGeometry(1,6,4),new T.MeshStandardMaterial({color:0xbdd9d9,roughness:.4}),4);
+      this.butterflies.frustumCulled=false;this.fishSchool.frustumCulled=false;this.root.add(this.butterflies,this.fishSchool);
+      const heart=new T.Shape();heart.moveTo(0,-.55);heart.bezierCurveTo(-1,.05,-.65,.9,0,.4);heart.bezierCurveTo(.65,.9,1,.05,0,-.55);
+      this.affectionHearts=new T.InstancedMesh(new T.ShapeGeometry(heart,6),new T.MeshBasicMaterial({color:0xf2a8a6,side:T.DoubleSide}),32);
+      this.affectionHearts.frustumCulled=false;this.root.add(this.affectionHearts);
+    }
+    const s=this.engine.s,p=s.player,d=this.ambienceDummy;
+    if(!this.windowLights){this.windowLights=new T.InstancedMesh(new T.BoxGeometry(.19,.22,.008),new T.MeshBasicMaterial({color:0xffcf85}),128);this.root.add(this.windowLights);this.windowLights.frustumCulled=false;}
+    this.windowLights.count=0;
+    if(daylight<.15)for(const [id] of this.structures){
+      const building=s.buildings.find(b=>b.id===id); 
+      if(!building || building.type!=='home'||Math.hypot(building.x-p.x,building.z-p.z)>18)continue;
+      const angle=(building.rotation||0)*Math.PI/2;
+      for(const x of [-.36,.36]){if(this.windowLights.count>=128)break;d.position.set(building.x+x*Math.cos(angle)+.605*Math.sin(angle),(tileAt(s,building.x,building.z)?.height||0)+.94,building.z-x*Math.sin(angle)+.605*Math.cos(angle));d.rotation.set(0,angle,0);d.scale.set(1,1,1);d.updateMatrix();this.windowLights.setMatrixAt(this.windowLights.count++,d.matrix);}
+    }
+    this.windowLights.instanceMatrix.needsUpdate=true;
+    this.affectionHearts!.count=0;
+    for(const a of s.animals){if(this.affectionHearts!.count>=32)break;if((this.engine.animalMotion.get(a.id)?.happy||0)<=0||Math.hypot(a.x-p.x,a.z-p.z)>15)continue;
+      d.position.set(a.x,(tileAt(s,a.x,a.z)?.height||0)+1.3+Math.sin(this.time*3)*.1,a.z);d.rotation.copy(this.camera.rotation);d.scale.setScalar(.2);d.updateMatrix();this.affectionHearts!.setMatrixAt(this.affectionHearts!.count++,d.matrix);
+    }this.affectionHearts!.instanceMatrix.needsUpdate=true;
+    this.butterflies.visible=!s.mine&&daylight>.2&&this.budget.tier<3;
+    if(this.butterflies.visible){
+      for(let i=0;i<24;i++){
+        const x=p.x+Math.sin(i*4.7)*10+Math.sin(this.time*.24+i),z=p.z+Math.cos(i*3.2)*10+Math.cos(this.time*.2+i);
+        d.position.set(x,(tileAt(s,x,z)?.height||0)+.65+Math.sin(this.time*2+i)*.12,z);
+        d.rotation.set(-.4,Math.sin(this.time*12+i),i);d.scale.set(.13,.07,1);d.updateMatrix();this.butterflies.setMatrixAt(i,d.matrix);
+      }this.butterflies.instanceMatrix.needsUpdate=true;
+    }
+    this.fishSchool!.visible=!s.mine&&this.budget.tier<3;this.fishSchool!.count=0;
+    if(this.fishSchool!.visible){
+      // Four fish at most; tile lookup bounds the effect without scanning the map.
+      for(let i=0;i<4;i++){
+        const spot=this.waterSpots[(Math.floor(this.time/12)+i*7)%this.waterSpots.length];if(!spot||Math.hypot(spot.x-p.x,spot.z-p.z)>15)continue;
+        const phase=(this.time+i*2.7)%12;if(phase>1.2)continue;
+        d.position.set(spot.x+phase*.3,.1+Math.sin(phase/1.2*Math.PI)*.6,spot.z);d.rotation.set(0,.6,Math.cos(phase*2.6));d.scale.set(.12,.045,.04);d.updateMatrix();this.fishSchool!.setMatrixAt(this.fishSchool!.count++,d.matrix);
+      }this.fishSchool!.instanceMatrix.needsUpdate=true;
+    }
+  }
   render(dt: number, frameDuration = dt) {
     if (this.contextLost) return;
     if (this.confetti && this.confettiLife > 0) {
@@ -2134,11 +2232,10 @@ export class ValleyScene {
             Math.cos(motion.facing - g.rotation.y),
           );
           g.rotation.y += difference * Math.min(1, dt * 7);
-          g.rotation.x =
-            motion.mood === 'grazing'
-              ? Math.sin(this.time * 1.8 + a.id) * 0.065
-              : 0;
-          if (motion.mood === 'sleeping') g.scale.y *= 0.75;
+          const pose=animalPose(motion.mood,this.time+a.id);
+          g.rotation.x=pose.pitch;g.rotation.z=pose.roll;g.scale.y*=pose.squash;
+          g.position.y=(tileAt(s,a.x,a.z)?.height||0)+.04+pose.height;
+
         }
       }
     }
@@ -2196,21 +2293,9 @@ export class ValleyScene {
     const moving =
       Math.hypot(p.x - this.lastPlayer.x, p.z - this.lastPlayer.y) > 0.002;
     this.lastPlayer.set(p.x, p.z);
-    this.player.getObjectByName('leftLeg')!.rotation.x = moving
-      ? Math.sin(this.time * 12) * 0.5
-      : 0;
-    this.player.getObjectByName('rightLeg')!.rotation.x = moving
-      ? -Math.sin(this.time * 12) * 0.5
-      : 0;
-    this.player.getObjectByName('leftArm')!.rotation.x = moving
-      ? -Math.sin(this.time * 12) * 0.3
-      : 0;
-    this.player.getObjectByName('rightArm')!.rotation.x =
-      this.engine.actionCooldown > 0
-        ? -Math.sin(this.engine.actionCooldown * 8) * 0.8
-        : moving
-          ? Math.sin(this.time * 12) * 0.3
-          : 0;
+    const action:HumanAction=moving?(this.engine.sprinting?'running':'walking'):this.engine.playerAction.remaining>0?this.engine.playerAction.kind:this.engine.fishing?'fishing':this.engine.resting?'sitting':this.engine.actionCooldown>0?'working':'idle';
+    this.animateHuman(this.player,action,action==='standing'?1-this.engine.playerAction.remaining:this.time);
+    this.syncRemotePlayers(frameDuration);
     if (this.activeTool !== this.heldTool) {
       this.handTool.clear();
       this.heldTool = this.activeTool;
@@ -2261,14 +2346,10 @@ export class ValleyScene {
       this.engine.actionCooldown > 0
         ? -Math.sin(this.engine.actionCooldown * 8)
         : 0;
-    for (const g of this.villagers) {
-      g.position.y =
-        (tileAt(s, g.position.x, g.position.z)?.height || 0) +
-        Math.sin(this.time * 1.7 + g.position.x) * 0.015;
-      for (const child of g.children)
-        if (child.userData.nameTag)
-          child.visible =
-            Math.hypot(g.position.x - p.x, g.position.z - p.z) < 8;
+    for(const g of this.villagers){
+      const actor=this.engine.npcMotion.get(g.userData.npc);
+      if(actor){g.position.set(actor.x,tileAt(s,actor.x,actor.z)?.height||0,actor.z);g.rotation.y=actor.facing;g.userData.tile={x:Math.round(actor.x),z:Math.round(actor.z)};this.animateHuman(g,actor.action,this.time);}
+      for(const child of g.children)if(child.userData.nameTag)child.visible=Math.hypot(g.position.x-p.x,g.position.z-p.z)<8;
     }
     for (const g of [...this.villagers, ...this.landmarkGroups]) {
       g.visible = !!tileAt(s, g.position.x, g.position.z);
@@ -2358,15 +2439,17 @@ export class ValleyScene {
           );
       });
     }
-    const daylight = Math.max(
-      0.16,
-      Math.sin((s.time - 0.23) * Math.PI * 2) * 0.7 + 0.5,
-    );
-    this.sun.intensity = s.mine ? 0.8 : daylight * 3;
-    this.ambient.intensity = s.mine ? 1.9 : 0.9 + daylight * 1.5;
+    const light=sunlight(s.time),daylight=light.daylight;
+    this.bankLight.value=.13+daylight*.87;
+    this.sun.intensity=s.mine?.8:light.direct;
+    this.sun.color.set(light.night?0x8aaee8:daylight<.3?0xffbd85:0xffedbf);
+    this.ambient.intensity=s.mine?1.9:light.ambient;
+    this.buildingShadows.visible=!light.night;
+    (this.river.material as T.MeshStandardMaterial).color.set(light.night?0x28436d:daylight<.3?0x699ab0:0x469cbd);
+    this.animateNature(daylight);
     const sky = s.mine
       ? new T.Color(0x151c2b)
-      : new T.Color(0x173340).lerp(
+      : new T.Color(0x0c172e).lerp(
           new T.Color(s.weather === 'rain' ? 0x526e70 : 0xa6b18e),
           daylight,
         );
@@ -2403,11 +2486,11 @@ export class ValleyScene {
       }
     }
     this.shadowClock += dt;
-    if (this.highQuality && this.shadowClock > 0.3) {
+    if (this.renderer.shadowMap.enabled && this.shadowClock > 0.3) {
       this.renderer.shadowMap.needsUpdate = true;
       this.shadowClock = 0;
     }
-    this.sun.position.set(p.x - 20, 35, p.z - 1);
+    this.sun.position.set(p.x+light.x,light.y,p.z-8);
     this.sun.target.position.set(p.x, 0, p.z);
     this.renderer.render(this.scene, this.camera);
     this.metrics.activeTiles = s.tiles.length;

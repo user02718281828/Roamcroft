@@ -8,7 +8,8 @@ export const rooms=sqliteTable('coop_rooms',{
 export const members=sqliteTable('coop_members',{
   id:text('id').primaryKey(),room:text('room').notNull().references(()=>rooms.id,{onDelete:'cascade'}),
   user:text('user').notNull(),secret:text('secret').notNull(),name:text('name').notNull(),
-  pose:text('pose').notNull().default('{}'),seen:integer('seen').notNull(),
+  pose:text('pose').notNull().default('{}'),lastSeq:integer('last_seq').notNull().default(0),
+  seen:integer('seen').notNull(),
 },t=>[index('coop_members_room_seen').on(t.room,t.seen)]);
 export const commands=sqliteTable('coop_commands',{
   id:integer('id').primaryKey({autoIncrement:true}),room:text('room').notNull().references(()=>rooms.id,{onDelete:'cascade'}),

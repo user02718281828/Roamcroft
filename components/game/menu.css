@@ -1,0 +1,33 @@
+.game-panel[data-slot='sheet-content'] { inset:50% auto auto 50% !important;transform:translate(-50%,-50%) !important;width:min(820px,calc(100vw - 28px)) !important;max-width:820px !important;height:min(760px,calc(100dvh - 36px)) !important;border:1px solid #ddbd7860 !important;border-radius:20px;box-shadow:0 24px 80px #091c22a6;overflow:hidden; }
+.game-panel .panel-header {padding:18px 24px 10px !important;flex-shrink:0;}
+.game-panel .panel-header [data-slot='sheet-title'] {font-size:24px !important;margin:3px 0;}
+.game-panel .panel-header [data-slot='sheet-description'] {font-size:12px;line-height:1.4;}
+.unified-tabs {display:grid !important;grid-template-columns:repeat(5,minmax(0,1fr));width:calc(100% - 40px) !important;margin:0 20px 10px;padding:4px !important;height:auto !important;background:#10261fc9 !important;gap:3px;border-radius:12px;}
+.unified-tabs [data-slot='tabs-trigger'] {min-width:0;font-size:12px;padding:8px 3px;height:34px;color:#c6d0b5;border-radius:8px;}
+.unified-tabs [data-active],.unified-tabs [aria-selected='true'] {background:#667349 !important;color:#fff0c9 !important;box-shadow:inset 0 0 0 1px #d6c67e66;}
+.game-panel .panel-pause {flex-shrink:0;margin:0 20px 10px;font-size:10px;}
+.game-panel .panel-body {padding:0 22px 22px;overscroll-behavior:contain;}
+.main-menu-screen {position:absolute;inset:0;z-index:45;display:grid;place-items:center;background:linear-gradient(120deg,#102c32d9,#273b299e,#182735d9);padding:16px;overflow:auto;}
+.main-menu-card {width:min(360px,100%);padding:24px;display:flex;flex-direction:column;gap:9px;text-align:center;border-radius:22px;background:linear-gradient(155deg,#3d513ae8,#172e27f5);border:1px solid #d8bc7866;box-shadow:0 24px 70px #07191388;color:#f1e6c6;}
+.main-menu-card .main-menu-emblem {width:60px;height:60px;align-self:center;}
+.main-menu-card h1 {font:500 43px Georgia,serif;letter-spacing:-2px;margin:0;color:#ffe7ac;text-shadow:0 3px #162c24;}
+.main-menu-card p {margin:0 0 9px;font-size:13px;color:#c0c9ac;}
+.main-menu-card button {width:100%;min-height:37px;justify-content:center;}
+.main-menu-card small,.main-menu-card output {font-size:10px;line-height:1.5;color:#b5c3a6;}
+.hud-left .side-actions {grid-template-columns:repeat(3,minmax(0,1fr));}
+.hud-collapsed .hud-left .side-actions {grid-template-columns:1fr;}
+.storage-section {margin:16px 0;padding:15px;border:1px solid #dec78430;background:#12292180;border-radius:12px;}
+.storage-section h3 {font-size:15px;color:#f4db9b;}
+.storage-section p {font-size:12px;color:#b8c5ab;line-height:1.6;margin:8px 0 12px;}
+.storage-list {display:grid;gap:5px;margin-top:12px;max-height:300px;overflow:auto;}
+.storage-list>div {display:flex;align-items:center;gap:8px;padding:6px;background:#dde19a08;border-radius:6px;}
+.storage-list>div>span {flex:1;font-size:12px;}
+.storage-list small {display:block;color:#aebc9e;font-size:10px;}
+.storage-list button {font-size:11px;padding:6px 8px;border:1px solid #d6c78a33;border-radius:5px;background:#63794d55;white-space:nowrap;}
+.storage-list button:disabled {opacity:.35;cursor:not-allowed;}
+.storage-list .game-icon {width:28px;height:28px;}
+.npc-routine {font-size:12px;padding:10px;border-radius:9px;background:#e8ca7010;color:#d0d8b7;line-height:1.6;}
+@media(max-height:640px){.main-menu-card{padding:14px;gap:5px}.main-menu-card .main-menu-emblem{width:36px;height:36px}.main-menu-card h1{font-size:34px}.main-menu-card button{min-height:30px}.game-panel .panel-header{padding-top:10px!important}.game-panel .panel-header [data-slot='sheet-description']{display:none}}
+@media(max-width:600px){.game-panel[data-slot='sheet-content']{width:calc(100vw - 12px)!important;height:calc(100dvh - 12px)!important;border-radius:13px}.unified-tabs{width:calc(100% - 24px)!important;margin:0 12px 8px}.unified-tabs [data-slot='tabs-trigger']{font-size:11px}.game-panel .panel-body{padding:0 14px 18px}}
+
+.online-panel {display:flex;flex-direction:column;gap:12px;}.online-panel form{display:grid;gap:10px;padding:16px;border:1px solid #dec78430;border-radius:10px;}.online-panel label{font-size:12px;color:#d0d6b4}.online-players{display:grid;grid-template-columns:1fr 1fr;gap:6px}.online-players p{background:#71885733;padding:8px;border-radius:8px;font-size:12px;}

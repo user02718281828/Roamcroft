@@ -1,5 +1,8 @@
 'use client';
 import GameIcon from './GameIcon';
+import './menu.css';
+import MainMenu from './MainMenu';
+import { CoopClient } from '@/lib/coop/client';
 import { nextMilestone, settlementRank } from '@/lib/game/settlement';
 import { inventoryUsed, inventoryCapacity } from '@/lib/game/progression';
 import { useEffect, useRef, useState } from 'react';
@@ -34,6 +37,7 @@ import {
   X,
   Check,
   Bird,
+  Users,
 } from 'lucide-react';
 import {
   Engine,
@@ -78,7 +82,8 @@ export default function Game() {
     audio = useRef<ValleyAudio | null>(null),
     keys = useRef(new Set<string>()),
     nextState = useRef<State | null>(null),
-    allowSave = useRef(true);
+    allowSave = useRef(true),
+    coop = useRef<CoopClient | null>(null);
   const renderSettings = useRef({ high: true });
   const [storageReady, setStorageReady] = useState(false);
   const initialMessage = useRef('');
@@ -104,6 +109,7 @@ export default function Game() {
     [rotation, setRotation] = useState(0),
     [corner, setCorner] = useState(false),
     [paused, setPaused] = useState(false),
+    [mainMenu,setMainMenu] = useState(true),
     [panel, setPanel] = useState<Panel>(null),
     [selectedBuilding, setSelectedBuilding] = useState<number | null>(null),
     [selectedNPC, setSelectedNPC] = useState('narin'),
@@ -125,7 +131,7 @@ export default function Game() {
   control.current = {
     tool,
     selection: tool === 'build' ? build : seed,
-    paused: paused || !!panel,
+    paused: paused || mainMenu || (!!panel && !coop.current?.active),
     panel,
     sound,
   };
@@ -142,6 +148,10 @@ export default function Game() {
     });
   };
   const doSave = async () => {
+    if(coop.current?.active) {
+      try {await coop.current.publish();setSaveStatus('Ortak dünya sunucuya kaydedildi.');} catch(error){setSaveStatus(error instanceof Error ? error.message : 'Kayıt bekleniyor.');throw error;}
+      return;
+    }
     if (engine.current) {
       allowSave.current = true;
       const ok = await saveStored(engine.current.s);
@@ -154,6 +164,7 @@ export default function Game() {
         ok ? 'Vadin kaydedildi.' : 'Tarayıcı kaydı kullanılamıyor.',
         ok ? 'good' : 'bad',
       );
+      if(!ok)throw Error('Kayıt yapılamadı. Ayarlar bölümünden dosya indir.');
     }
   };
   const doExport = () => {
@@ -170,6 +181,7 @@ export default function Game() {
     engine.current.emit('Kayıt dosyası indirildi.', 'good');
   };
   const doImport = async (file: File) => {
+    if(coop.current?.active){engine.current?.emit('Kayıt yüklemek için önce ortak odadan ayrıl.','bad');return;}
     try {
       if (file.size > 32_000_000) throw new Error('Kayıt dosyası çok büyük.');
       const state = deserialize(await file.text());
@@ -178,6 +190,7 @@ export default function Game() {
       saveLocal(state);
       await saveStored(state);
       setPanel(null);
+      setMainMenu(false);
       setPaused(false);
       setEpoch((n) => n + 1);
     } catch (e) {
@@ -188,6 +201,8 @@ export default function Game() {
     }
   };
   const doReset = () => {
+    if(coop.current?.active){engine.current?.emit('Yeni oyun için önce ortak odadan ayrıl.','bad');return;}
+    setMainMenu(false);
     const seed = new Uint32Array(1);
     crypto.getRandomValues(seed);
     nextState.current = createState(seed[0]);
@@ -199,6 +214,13 @@ export default function Game() {
     setPaused(false);
     setEpoch((n) => n + 1);
   };
+  useEffect(()=>{
+    const client=new CoopClient(()=>engine.current,state=>{
+      nextState.current=state;setMainMenu(false);setPaused(false);setPanel(null);setEpoch(n=>n+1);
+    },()=>refresh(n=>n+1));
+    coop.current=client;
+    return()=>{client.dispose();coop.current=null;};
+  },[]);
   useEffect(() => {
     if (!storageReady) return;
     let disposed = false,
@@ -217,8 +239,9 @@ export default function Game() {
     initialMessage.current = '';
     const e = new Engine(loaded.state);
     engine.current = e;
+    coop.current?.bind(e);
     e.emit(loaded.message);
-    allowSave.current = !loaded.message.startsWith('Kayıt okunamadı');
+    allowSave.current = !coop.current?.active && !loaded.message.startsWith('Kayıt okunamadı');
     setReady(false);
     setError('');
     keys.current.clear();
@@ -259,7 +282,7 @@ export default function Game() {
                   return;
                 }
               }
-              const npc = !e.s.mine && NPCS.find((n) => n.x === x && n.z === z);
+              const npc = !e.s.mine && NPCS.find((n) => {const pos=e.npcMotion.get(n.id)||n;return Math.round(pos.x)===x&&Math.round(pos.z)===z;});
               if (npc && control.current.tool === 'hand') {
                 setSelectedNPC(npc.id);
                 setPanel('villagers');
@@ -271,6 +294,7 @@ export default function Game() {
                 setPanel('building');
                 return;
               }
+              if(e.s.enemies.some(enemy=>Math.hypot(enemy.x-x,enemy.z-z)<.8) && Math.hypot(e.s.player.x-x,e.s.player.z-z)<2.2){e.attack();return;}
               e.go(x, z, control.current.tool, control.current.selection);
             },
             (x, z) =>
@@ -283,7 +307,7 @@ export default function Game() {
             if (disposed) return;
             if (e.worldRevision > 0) {
               nextState.current = e.s;
-              if (allowSave.current) void saveStored(e.s);
+              if (allowSave.current && !coop.current?.active) void saveStored(e.s);
               setPanel(null);
               setHover(null);
               setEpoch((n) => n + 1);
@@ -307,6 +331,7 @@ export default function Game() {
                 horizontal -= 1;
               if (keys.current.has('d') || keys.current.has('arrowright'))
                 horizontal += 1;
+              e.sprinting=keys.current.has('shift');
               const angle = view.angle;
               if (horizontal || vertical)
                 e.move(
@@ -378,7 +403,7 @@ export default function Game() {
                 );
               ui = 0;
             }
-            if (saveClock >= 15 && allowSave.current) {
+            if (saveClock >= 15 && allowSave.current && !coop.current?.active) {
               const storeSave = async () => {
                 if (disposed) return;
                 const saved = await saveStored(e.s);
@@ -414,46 +439,39 @@ export default function Game() {
         else setPaused((p) => !p);
         return;
       }
-      if (control.current.paused) return;
-      if (
-        ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(
-          ev.key,
-        ) &&
-        tag !== 'BUTTON'
-      )
-        ev.preventDefault();
-      keys.current.add(key);
-      const t = TOOLS.find((t) => t.key === ev.key);
-      if (t && !ev.repeat) setTool(t.id);
-      if (ev.repeat) return;
-      if (key === 'r') {
-        e.path = [];
-        e.pending = null;
-        e.fishing = null;
-        e.resting = !e.resting;
+      if(key==='tab') {ev.preventDefault();setMainMenu(false);if(!ev.repeat)setPanel(p=>p?null:'inventory');return;}
+      if(control.current.panel) {
+        if(['q','e','arrowleft','arrowright'].includes(key) && !(key.startsWith('arrow')&&(ev.target as HTMLElement).getAttribute('role')==='tab')) {
+          ev.preventDefault();const tabs:Panel[]=['inventory','craft','build','quests','ranch','villagers','bundles','mine','online','settings'];
+          const current=Math.max(0,tabs.indexOf(control.current.panel));setPanel(tabs[(current+(['q','arrowleft'].includes(key)?tabs.length-1:1))%tabs.length]);
+        }
+        return;
       }
-      if (key === ' ' && tag !== 'BUTTON') e.attack();
-      if (key === 'q' && scene.current) scene.current.angle -= Math.PI / 2;
-      if (key === 'e' && scene.current) scene.current.angle += Math.PI / 2;
-      if (key === 'f') scene.current?.recenter();
-      if (key === 't' && control.current.tool === 'build') setRotation(r => (r + 1) % 4);
-      const p: Record<string, Panel> = {
-        b: 'build',
-        c: 'craft',
-        i: 'inventory',
-        j: 'quests',
-        u: 'bundles',
-        m: 'market',
-        h: 'guide',
-        l: 'ranch',
-      };
-      if (p[key]) setPanel(p[key]);
+      if (control.current.paused) return;
+      if(control.current.tool==='build' && ['arrowleft','arrowright','arrowup','arrowdown'].includes(key)) {
+        ev.preventDefault();if(!ev.repeat)setRotation(r=>(r+(['arrowleft','arrowdown'].includes(key)?3:1))%4);return;
+      }
+      if(['arrowup','arrowdown','arrowleft','arrowright','control'].includes(key))ev.preventDefault();
+      keys.current.add(key);if(ev.repeat)return;
+      if(key==='control')e.attack();
+      if(key==='e') {
+        const p=e.s.player;
+        const person=NPCS.find(n=>{const position=e.npcMotion?.get(n.id) || n;return Math.hypot(position.x-p.x,position.z-p.z)<2.2;});
+        if(person){setSelectedNPC(person.id);setPanel('villagers');return;}
+        const animal=e.s.animals.find(a=>Math.hypot(a.x-p.x,a.z-p.z)<1.8);
+        if(animal){if(animal.ready)e.harvestAnimal(animal.id);else e.petAnimal(animal.id);return;}
+        const building=e.s.buildings.find(b=>Math.hypot(b.x-p.x,b.z-p.z)<1.8);
+        if(building){setSelectedBuilding(building.id);setPanel('building');return;}
+        const target=e.s.tiles.filter(t=>(t.resource || t.crop) && Math.hypot(t.x-p.x,t.z-p.z)<1.8).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0];
+        if(target)e.act(target.x,target.z,'hand');else setPanel('inventory');
+      }
+
     };
     const up = (ev: KeyboardEvent) => keys.current.delete(ev.key.toLowerCase());
     const blur = () => keys.current.clear();
     const persist = () => {
       keys.current.clear();
-      if (allowSave.current) saveLocal(e.s);
+      if (allowSave.current && !coop.current?.active) saveLocal(e.s);
     };
     window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
@@ -482,7 +500,7 @@ export default function Game() {
     b = hover && s ? buildingAt(s, hover.x, hover.z) : undefined;
   const npc =
     hover && !s?.mine
-      ? NPCS.find((n) => n.x === hover.x && n.z === hover.z)
+      ? NPCS.find((n) => {const pos=engine.current?.npcMotion.get(n.id)||n;return Math.round(pos.x)===hover.x&&Math.round(pos.z)===hover.z;})
       : undefined;
   const portalLabel =
     hover && engine.current?.isPortal(hover.x, hover.z)
@@ -565,6 +583,7 @@ export default function Game() {
       )}
       {s && (
         <>
+          {mainMenu && !panel && <MainMenu onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onCoop={()=>{setMainMenu(false);setPanel('online');}} onSave={doSave}/>}
           <header className="game-header">
             <div className="brand">
               <div className="brand-icon">
@@ -611,8 +630,8 @@ export default function Game() {
               </button>
               <button
                 className="icon-button"
-                aria-label="Kamp menüsü"
-                onClick={() => setPanel('settings')}
+                aria-label="Ana menü"
+                onClick={() => setMainMenu(true)}
               >
                 <Settings />
               </button>
@@ -762,30 +781,9 @@ export default function Game() {
             className="main-actions glass"
             aria-label="Oyun menüleri"
           >
-            {(
-              [
-                { id: 'build', name: 'İnşa', icon: House, key: 'B' },
-                { id: 'craft', name: 'Üretim', icon: Hammer, key: 'C' },
-                { id: 'inventory', name: 'Çanta', icon: Backpack, key: 'I' },
-                { id: 'quests', name: 'Günlük', icon: BookOpen, key: 'J' },
-                { id: 'market', name: 'Pazar', icon: ShoppingBasket, key: 'M' },
-                { id: 'ranch', name: 'Çiftlik', icon: Bird, key: 'L' },
-                { id: 'bundles', name: 'Emanet', icon: BookOpen, key: 'U' },
-              ] as const
-            ).map((a) => (
-              <button
-                key={a.id}
-                onClick={() => setPanel(a.id)}
-                title={`${a.name} (${a.key})`}
-              >
-                <a.icon />
-                <span>{a.name}</span>
-                <kbd>{a.key}</kbd>
-                {a.id === 'craft' && s.jobs.length > 0 && (
-                  <i>{s.jobs.length}</i>
-                )}
-              </button>
-            ))}
+            <button onClick={()=>setPanel('inventory')} title="Menü (Tab)"><Backpack/><span>Menü</span></button>
+            <button onClick={()=>setPanel('online')} title={coop.current?.status || 'Birlikte oyna'}><Users/><span>Co-op</span></button>
+            <button onClick={()=>{if(engine.current)engine.current.toggleRest();}} title="Otur / kalk"><Pause/><span>Dinlen</span></button>
           </nav>
           </div>
           <div className="calendar glass">
@@ -969,7 +967,7 @@ export default function Game() {
                 <b>{BUILDINGS[build].name}</b>
                 <small>Boş kareye yerleştir · {rotation * 90}°</small>
               </div>
-              <button onClick={() => setRotation(r => (r + 1) % 4)} title="90 derece döndür (T)">Döndür · T</button>
+              <button onClick={() => setRotation(r => (r + 1) % 4)} title="90 derece döndür (yön tuşları)">Döndür</button>
               {['fence','wall'].includes(build) && <button onClick={() => setCorner(v=>!v)}>{corner ? 'L köşe' : 'Düz'}</button>}
               <button
                 onClick={() => setTool('hand')}
@@ -999,9 +997,9 @@ export default function Game() {
                   aria-pressed={tool === t.id}
                   className={tool === t.id ? 'selected' : ''}
                   onClick={() => setTool(t.id)}
-                  title={`${t.name} (${t.key})`}
+                  title={t.name}
                 >
-                  <kbd>{t.key}</kbd>
+
                   <span>
                     <GameIcon id={t.id === 'fish' ? 'rod' : t.id} />
                   </span>
@@ -1051,7 +1049,7 @@ export default function Game() {
                   <Moon size={15} /> Dinleniyorsun · Enerji yenileniyor{' '}
                   <button
                     onClick={() => {
-                      if (engine.current) engine.current.resting = false;
+                      if (engine.current) engine.current.toggleRest();
                     }}
                   >
                     Kalk
@@ -1116,13 +1114,14 @@ export default function Game() {
           )}
           <Panels
             engine={engine.current!}
+            coop={coop.current}
             panel={panel}
             setPanel={setPanel}
             onBuild={chooseBuild}
             onSeed={chooseSeed}
             onImport={doImport}
             onExport={doExport}
-            onSave={doSave}
+            onSave={()=>void doSave().catch(()=>{})}
             onReset={doReset}
             selectedBuilding={selectedBuilding}
             sound={sound}

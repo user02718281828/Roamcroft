@@ -134,6 +134,9 @@ export function deserialize(text: string): State {
   assert(number(s.player.facing, -100, 100));
   assert(object(s.inventory));
   if (s.overflow === undefined) s.overflow = {};
+  if (s.storage === undefined) s.storage = {};
+  assert(object(s.storage));
+  for(const [key,value] of Object.entries(s.storage))assert(own(ITEMS,key)&&number(value,0,10000000,true));
   if (s.talks === undefined) s.talks = {};
   if (s.bundles === undefined) s.bundles = { donations: {}, completed: [] };
   assert(object(s.overflow) && object(s.talks) && object(s.bundles));
@@ -328,6 +331,7 @@ export function deserialize(text: string): State {
     if (a.name !== undefined)
       assert(typeof a.name === 'string' && a.name.length <= 24);
     if (a.bond !== undefined) assert(number(a.bond, 0, 100));
+    if(a.parent!==undefined)assert(number(a.parent,1,1e9,true));
     for (const key of ['pettedDay', 'bornDay', 'breedDay'])
       if (a[key] !== undefined)
         assert(number(a[key], 0, s.day as number, true));

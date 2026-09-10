@@ -75,6 +75,7 @@ const sheets = [
   ],
 ];
 const aliases: Record<string, string> = {
+  chest:'bag',wall:'brick',
   sprinkler: 'water',
   harvest: 'wheat',
   forage: 'wood',

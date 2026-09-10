@@ -1,6 +1,6 @@
 import {BUILDINGS,ITEMS,RECIPES,TALENTS,ANIMALS} from '../game/data.ts';
 import type {State} from '../game/model.ts';
-export type Pose=Pick<State['player'],'x'|'z'|'facing'>;
+export type Pose=Pick<State['player'],'x'|'z'|'facing'> & {sprinting?:boolean};
 export type Peer={id:string;name:string;player:State['player'];message?:string;messageId?:number};
 export type Command={seq:number;method:string;args:unknown[]};
 export type RoomSession={room:string;member:string;token:string;role:'host'|'guest';revision:number};
@@ -10,7 +10,7 @@ const id=(v:unknown)=>num(v,1,1e9) && Number.isInteger(v);
 const key=(data:object,v:unknown)=>typeof v==='string' && Object.hasOwn(data,v);
 export function validPose(v:unknown): v is Pose {
   if(!v || typeof v!=='object') return false;
-  const p=v as Pose; return num(p.x) && num(p.z) && num(p.facing,-100,100);
+  const p=v as Pose; return num(p.x) && num(p.z) && num(p.facing,-100,100) && (p.sprinting===undefined || typeof p.sprinting==='boolean');
 }
 export function validCommand(v:unknown): v is Command {
   if(!v || typeof v!=='object') return false;
@@ -20,6 +20,8 @@ export function validCommand(v:unknown): v is Command {
   switch(c.method) {
     case 'act': return a.length===4 && num(a[0]) && num(a[1]) && ['hand','axe','pickaxe','hoe','water','seed','fertilize','fish','sword'].includes(String(a[2])) && typeof a[3]==='string' && a[3].length<=32;
     case 'build': return a.length===5 && key(BUILDINGS,a[0]) && num(a[1]) && num(a[2]) && num(a[3],0,3) && Number.isInteger(a[3]) && typeof a[4]==='boolean';
+    case 'transferStorage':return a.length===3 && key(ITEMS,a[0]) && id(a[1]) && typeof a[2]==='boolean';
+    case 'toggleRest':case 'depositMaterials':return a.length===0;
     case 'trade':return a.length===3 && key(ITEMS,a[0]) && id(a[1]) && (a[1] as number)<=9999 && typeof a[2]==='boolean';
     case 'craft':return a.length===1 && key(RECIPES,a[0]);
     case 'eat':return a.length===1 && key(ITEMS,a[0]);

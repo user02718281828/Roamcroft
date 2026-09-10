@@ -1,6 +1,6 @@
 import {validCommand,validPose} from './protocol.ts';
 type Room={id:string;owner:string;name:string;host:string;snapshot:string;revision:number;ack:number;updated:number};
-type Member={id:string;room:string;user:string;secret:string;name:string;pose:string;seen:number};
+type Member={id:string;room:string;user:string;secret:string;name:string;pose:string;seen:number;last_seq:number};
 const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 const random=(bytes=16)=>Array.from(crypto.getRandomValues(new Uint8Array(bytes)),n=>n.toString(16).padStart(2,'0')).join('');
 const hash=async(value:string)=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value))),n=>n.toString(16).padStart(2,'0')).join('');
@@ -70,19 +70,21 @@ export async function handleCoop(request:Request,db:D1Database,now=Date.now()):P
   if(body.op==='publish') {
     if(!host) return reply({error:'Dünya kaydını yalnızca ev sahibi yazabilir.'},403);
     if(typeof body.snapshot!=='string' || body.snapshot.length>800000 || !/^[A-Za-z0-9+/=]+$/.test(body.snapshot) || !Number.isSafeInteger(body.revision) || Number(body.revision)<1 || !Number.isSafeInteger(body.ack) || Number(body.ack)<0) return reply({error:'Dünya kaydı geçersiz.'},400);
-    await db.batch([
+    const written=await db.batch([
       db.prepare('UPDATE coop_rooms SET snapshot=?,revision=?,ack=?,updated=? WHERE id=? AND host=? AND revision<?').bind(body.snapshot,body.revision,body.ack,now,room.id,member.id,body.revision),
       db.prepare('DELETE FROM coop_commands WHERE room=? AND id<=? AND EXISTS (SELECT 1 FROM coop_rooms WHERE id=? AND revision=? AND ack=?)').bind(room.id,body.ack,room.id,body.revision,body.ack),
       db.prepare('UPDATE coop_members SET seen=? WHERE id=?').bind(now,member.id),
     ]);
+    if(!written[0].meta.changes)return reply({error:'Dünya sürümü değişti; kayıt tekrar denenmeli.',revision:room.revision},409);
     return reply({ok:true});
   }
   if(body.op!=='pulse') return reply({error:'Bilinmeyen işlem.'},400);
   if(body.pose!==undefined && !validPose(body.pose)) return reply({error:'Konum geçersiz.'},400);
   const commands=body.commands ?? [];
-  if(!Array.isArray(commands) || commands.length>8 || !commands.every(validCommand)) return reply({error:'Oyun eylemi geçersiz.'},400);
+  if(!Array.isArray(commands) || commands.length>8 || !commands.every(validCommand) || commands.some((c,i)=>i>0&&c.seq<=commands[i-1].seq)) return reply({error:'Oyun eylemi geçersiz.'},400);
   const statements=[db.prepare('UPDATE coop_members SET seen=?,pose=? WHERE id=?').bind(now,JSON.stringify(body.pose || {}),member.id)];
-  if(!host) for(const c of commands) statements.push(db.prepare('INSERT OR IGNORE INTO coop_commands (room,member,seq,payload) SELECT ?,?,?,? WHERE (SELECT count(*) FROM coop_commands WHERE member=?)<32').bind(room.id,member.id,c.seq,JSON.stringify(c),member.id));
+  if(!host) for(const c of commands) statements.push(db.prepare('INSERT OR IGNORE INTO coop_commands (room,member,seq,payload) SELECT ?,?,?,? WHERE (SELECT count(*) FROM coop_commands WHERE member=?)<32 AND ?>(SELECT last_seq FROM coop_members WHERE id=?)').bind(room.id,member.id,c.seq,JSON.stringify(c),member.id,c.seq,member.id));
+  statements.push(db.prepare('UPDATE coop_members SET last_seq=MAX(last_seq,COALESCE((SELECT MAX(seq) FROM coop_commands WHERE member=?),0)) WHERE id=?').bind(member.id,member.id));
   await db.batch(statements);
   if(host) {
     const [peers,pending]=await Promise.all([
@@ -91,5 +93,6 @@ export async function handleCoop(request:Request,db:D1Database,now=Date.now()):P
     ]);
     return reply({members:peers.results,commands:pending.results});
   }
-  return reply({online:!!room.host && room.updated>now-20000,revision:room.revision,snapshot:Number(body.revision)===room.revision ? null : room.snapshot});
+  const accepted=await db.prepare('SELECT last_seq FROM coop_members WHERE id=?').bind(member.id).first<{last_seq:number}>();
+  return reply({acceptedSeq:accepted?.last_seq||0,online:!!room.host && room.updated>now-20000,revision:room.revision,snapshot:Number(body.revision)===room.revision ? null : room.snapshot});
 }

@@ -1,3 +1,5 @@
+import { schedule, type HumanAction, type AnimalAction } from './living.ts';
+import { findRoute } from './pathfinding.ts';
 import type { Peer } from '../coop/protocol.ts';
 import {
   BUNDLES,
@@ -71,6 +73,7 @@ export type Building = {
   enabled: boolean;
 };
 export type Animal = {
+  parent?: number;
   name?: string;
   bond?: number;
   pettedDay?: number;
@@ -104,6 +107,7 @@ export type State = {
   settlement: { name: string; milestones: string[] };
   bundles: { donations: Record<string, Bag>; completed: string[] };
   overflow: Bag;
+  storage: Bag;
   talks: Bag;
   world: World;
   mine: null | {
@@ -313,6 +317,7 @@ export function createState(seed = 84621): State {
     gifts: {},
     talks: {},
     overflow: {},
+    storage: {},
     bundles: { donations: {}, completed: [] },
     discoveries: [],
     achievements: [],
@@ -383,6 +388,10 @@ export class Engine {
   worldRevision = 0;
   placementRotation = 0;
   placementCorner = false;
+  sprinting = false;
+  playerAction: {kind:HumanAction;remaining:number} = {kind:'idle',remaining:0};
+  npcMeetings = new Map<string,number>();
+  npcMotion = new Map<string,{x:number;z:number;facing:number;action:HumanAction;path:{x:number;z:number}[];destination:string;wait:number}>();
   s: State;
   events: Event[] = [];
   path: { x: number; z: number }[] = [];
@@ -399,7 +408,8 @@ export class Engine {
       follow: number;
       facing: number;
       moving: boolean;
-      mood: 'grazing' | 'walking' | 'following' | 'sleeping';
+      mood: AnimalAction;
+      happy?: number;
     }
   >();
   fishing: { x: number; z: number; timer: number } | null = null;
@@ -412,6 +422,7 @@ export class Engine {
     state.settlement ??= { name: 'Yuvam', milestones: [] };
     state.talks ??= {};
     state.overflow ??= {};
+    state.storage ??= {};
     state.bundles ??= { donations: {}, completed: [] };
     if (!hasBaseline(state.seed)) createState(state.seed);
     if (!state.mine) shiftWindow(state);
@@ -435,13 +446,16 @@ export class Engine {
       this.s.inventory[key] = (this.s.inventory[key] || 0) + accepted;
       space -= accepted;
       if (amount > accepted) {
-        this.s.overflow[key] = (this.s.overflow[key] || 0) + amount - accepted;
+        const free=Math.max(0,this.storageCapacity()-Object.values(this.s.storage).reduce((n,v)=>n+v,0));
+        const stored=Math.min(free,amount-accepted);
+        if(stored)this.s.storage[key]=(this.s.storage[key]||0)+stored;
+        if(amount-accepted-stored>0)this.s.overflow[key]=(this.s.overflow[key]||0)+amount-accepted-stored;
         full = true;
       }
     }
     if (full)
       this.emit(
-        'ÇANTA DOLU · Fazla ürünler teslimat sandığında. Çantadan alabilirsin.',
+        'ÇANTA DOLU · Fazla ürünler depoya veya teslimat sandığına kaldırıldı.',
         'bad',
       );
     return !full;
@@ -470,6 +484,26 @@ export class Engine {
     this.add(milestone.reward);
     this.celebrate(`${this.s.settlement.name} · ${milestone.name}!`);
     return true;
+  }
+  storageCapacity() {
+    const buildings=this.s.mine?this.s.mine.surface.buildings:this.s.buildings;
+    return buildings.filter(b=>b.type==='chest').reduce((n,b)=>n+b.level*1200,0);
+  }
+  transferStorage(item:string,quantity:number,deposit:boolean) {
+    if(this.network?.guest)return this.network.send('transferStorage',[item,quantity,deposit]);
+    if(!Object.hasOwn(ITEMS,item)||!Number.isSafeInteger(quantity)||quantity<=0||!this.storageCapacity())return false;
+    const source=deposit?this.s.inventory:this.s.storage,target=deposit?this.s.storage:this.s.inventory;
+    const room=deposit?this.storageCapacity()-Object.values(this.s.storage).reduce((n,v)=>n+v,0):inventoryCapacity(this.s)-inventoryUsed(this.s);
+    if((source[item]||0)<quantity||room<quantity){this.emit(deposit?'Depoda yeterli yer yok.':'ÇANTA DOLU · Daha küçük miktar al.','bad');return false;}
+    source[item]-=quantity;target[item]=(target[item]||0)+quantity;
+    this.emit(deposit?'Ürünler ortak depoya kaldırıldı.':'Ürünler çantana alındı.','good');return true;
+  }
+  depositMaterials() {
+    if(this.network?.guest)return this.network.send('depositMaterials',[]);
+    for(const item of ['wood','stone','fiber','copper','iron','coal','crystal','plank','brick','flour','wool']){
+      const quantity=Math.min(this.s.inventory[item]||0,this.storageCapacity()-Object.values(this.s.storage).reduce((n,v)=>n+v,0));
+      if(quantity>0)this.transferStorage(item,quantity,true);
+    }
   }
   collectDelivery() {
     if(this.network?.guest) return this.network.send('collectDelivery',[]);
@@ -517,6 +551,7 @@ export class Engine {
   talk(id: string) {
     if(this.network?.guest) return this.network.send('talk',[id]);
     const npc = NPCS.find((n) => n.id === id);
+    const actor=this.npcMotion.get(id);if(actor){actor.action='greeting';actor.wait=3;}
     if (!npc || this.s.mine) return false;
     if (this.s.talks[id] !== this.s.day) {
       this.s.talks[id] = this.s.day;
@@ -572,61 +607,12 @@ export class Engine {
     tx: number,
     tz: number,
     adjacent = false,
-    origin = this.s.player,
+    origin: {x:number;z:number} = this.s.player,
     maxNodes = this.s.tiles.length,
   ) {
-    const s = this.s,
-      start = tileAt(s, origin.x, origin.z);
-    if (!start) return null;
-    const offset = worldOrigin(s);
-    const queue = [{ x: start.x, z: start.z }],
-      visited = new Set([tileIndex(s, start.x, start.z)]),
-      parent = new Map<number, number>();
-    let found = -1;
-    for (let i = 0; i < queue.length && i < maxNodes; i++) {
-      const p = queue[i];
-      if (
-        adjacent
-          ? Math.hypot(p.x - tx, p.z - tz) <= 1.5
-          : p.x === tx && p.z === tz
-      ) {
-        found = tileIndex(s, p.x, p.z);
-        break;
-      }
-      for (const [dx, dz] of [
-        [0, 1],
-        [1, 0],
-        [0, -1],
-        [-1, 0],
-      ]) {
-        const x = p.x + dx,
-          z = p.z + dz,
-          k = tileIndex(s, x, z);
-        if (!visited.has(k) && walkable(s, x, z)) {
-          visited.add(k);
-          parent.set(k, tileIndex(s, p.x, p.z));
-          queue.push({ x, z });
-        }
-      }
-    }
-    if (found < 0) return null;
-    const path = [];
-    const originKey = tileIndex(s, start.x, start.z);
-    while (found !== originKey) {
-      path.unshift({
-        x: offset.x + (found % worldSize(s)),
-        z: offset.z + Math.floor(found / worldSize(s)),
-      });
-      found = parent.get(found)!;
-    }
-    if (
-      !path.length &&
-      adjacent &&
-      Math.hypot(origin.x - tx, origin.z - tz) > 1.8
-    )
-      path.push({ x: start.x, z: start.z });
-    return path;
+    return findRoute(this.s,{x:Math.round(tx),z:Math.round(tz)},origin,adjacent,maxNodes);
   }
+
   go(x: number, z: number, tool = 'hand', selection = 'wheat') {
     const t = tileAt(this.s, x, z);
     if (!t) return;
@@ -651,6 +637,7 @@ export class Engine {
       this.act(a.x, a.z, a.tool, a.selection);
     }
   }
+  travelSpeed() {return movementSpeed(this.s.player.energy)*(this.sprinting && this.s.player.energy>20 ? 1.5 : 1);}
   move(dx: number, dz: number, dt: number) {
     this.path = [];
     this.pending = null;
@@ -658,12 +645,13 @@ export class Engine {
     this.fishing = null;
     const p = this.s.player,
       d = Math.hypot(dx, dz) || 1,
-      x = p.x + (dx / d) * movementSpeed(p.energy) * dt,
-      z = p.z + (dz / d) * movementSpeed(p.energy) * dt;
+      x = p.x + (dx / d) * this.travelSpeed() * dt,
+      z = p.z + (dz / d) * this.travelSpeed() * dt;
     if (walkable(this.s, x, p.z))
       p.x = this.s.mine ? Math.max(0, Math.min(SIZE - 1, x)) : x;
     if (walkable(this.s, p.x, z))
       p.z = this.s.mine ? Math.max(0, Math.min(SIZE - 1, z)) : z;
+    if(this.sprinting && (dx || dz)) p.energy=Math.max(0,p.energy-dt*1.8);
     p.facing = Math.atan2(dx, dz);
     this.streamWorld();
   }
@@ -882,7 +870,7 @@ export class Engine {
   energy(cost: number) {
     cost *= 1 - 0.08 * (this.s.talents.vigor || 0);
     if (this.s.player.energy < cost) {
-      this.emit('Enerjin azaldı. R ile dinlen veya yiyecek tüket.', 'bad');
+      this.emit('Enerjin azaldı. Dinlen düğmesini kullan veya yiyecek tüket.', 'bad');
       return false;
     }
     this.s.player.energy -= cost;
@@ -937,6 +925,7 @@ export class Engine {
         return;
       }
       if (!this.energy(3)) return;
+      this.playerAction={kind:'working',remaining:.7};
       const power = Math.min(t.amount, 1 + (this.s.upgrades[required] || 0));
       const count =
         ((r === 'tree' ? 3 : r === 'stone' ? 3 : r === 'bush' ? 3 : 2) +
@@ -960,6 +949,7 @@ export class Engine {
     }
     if (t.crop && t.growth >= CROPS[t.crop].grow) {
       if (!this.energy(2)) return;
+      this.playerAction={kind:'harvesting',remaining:.8};
       const crop = t.crop,
         c = CROPS[crop],
         count =
@@ -1223,6 +1213,7 @@ export class Engine {
       return false;
     }
     this.s.inventory[id]--;
+    this.playerAction={kind:'eating',remaining:1.6};
     p.hunger = Math.min(100, p.hunger + (i.food || 0));
     p.energy = Math.min(100, p.energy + (i.energy || 0));
     p.health = Math.min(100, p.health + (i.heal || 0));
@@ -1321,6 +1312,7 @@ export class Engine {
     const motion = this.animalMotion.get(id);
     if (motion) {
       motion.follow = 18;
+      motion.happy = 3;
       motion.idle = 0;
       motion.path = [];
     }
@@ -1376,6 +1368,7 @@ export class Engine {
       timer: 0,
       fed: false,
       bornDay: s.day,
+      parent: a.id,
       bond: 0,
     });
     this.stat('animals');
@@ -1391,6 +1384,7 @@ export class Engine {
     if(this.network?.guest) return this.network.send('completeContract',[id]);
     if (this.s.mine) return false;
     const npc = NPCS.find((n) => n.id === id);
+    const actor=this.npcMotion.get(id);if(actor){actor.action='greeting';actor.wait=3;}
     if (!npc || this.s.contracts[id] === this.s.day) return false;
     if (!this.spend(npc.contract.input)) {
       this.emit('Sipariş için istenen ürünler eksik.', 'bad');
@@ -1410,6 +1404,7 @@ export class Engine {
     if(this.network?.guest) return this.network.send('gift',[id]);
     if (this.s.mine) return false;
     const npc = NPCS.find((n) => n.id === id);
+    const actor=this.npcMotion.get(id);if(actor){actor.action='greeting';actor.wait=3;}
     if (!npc || this.s.gifts[id] === this.s.day) return false;
     if (!this.spend({ [npc.gift]: 1 })) {
       this.emit(`${ITEMS[npc.gift].name} çantanda yok.`, 'bad');
@@ -1610,7 +1605,7 @@ export class Engine {
       return false;
     }
     if (s.time >= 0.25 && s.time < 0.65) {
-      this.emit('Uyumak için akşamı bekle. R ile dinlenebilirsin.');
+      this.emit('Uyumak için akşamı bekle. Dinlen düğmesini kullanabilirsin.');
       return false;
     }
     this.path = [];
@@ -1634,6 +1629,7 @@ export class Engine {
     p.health = 100;
     p.energy = 100;
     p.hunger = Math.max(0, p.hunger - 10);
+    this.playerAction={kind:'sleeping',remaining:2};
     this.emit('Dinlendin. Yeni bir gün seni bekliyor.', 'good');
     return true;
   }
@@ -1776,6 +1772,48 @@ export class Engine {
       }
     }
   }
+  toggleRest() {
+    if(this.network?.guest){if(!this.network.send('toggleRest',[]))return false;}
+    this.resting=!this.resting;this.path=[];this.pending=null;this.fishing=null;
+    if(!this.resting)this.playerAction={kind:'standing',remaining:1};
+    return true;
+  }
+  updateVillagers(dt:number) {
+    if(this.s.mine)return;
+    let budget=1;
+    NPCS.forEach((npc,index)=>{
+      let actor=this.npcMotion.get(npc.id);
+      if(!actor){actor={x:npc.x,z:npc.z,facing:0,action:'idle',path:[],destination:'',wait:0};this.npcMotion.set(npc.id,actor);}
+      if(!tileAt(this.s,actor.x,actor.z))return;
+      if(actor.wait>0){actor.wait-=dt;return;}
+      const goal=schedule(index,this.s.time,npc),key=goal.x+','+goal.z;
+      if(actor.destination!==key && budget>0){
+        budget--; const route=this.findPath(goal.x,goal.z,false,actor,384);
+        actor.path=route || this.findPath(goal.x,goal.z,true,actor,384) || [];
+        actor.destination=key;
+      }
+      const next=actor.path[0];
+      if(next){
+        if(!walkable(this.s,next.x,next.z)){actor.path=[];actor.destination='';return;}
+        const dx=next.x-actor.x,dz=next.z-actor.z,d=Math.hypot(dx,dz),step=dt*.9;
+        actor.facing=Math.atan2(dx,dz);actor.action='walking';
+        if(d<=step){actor.x=next.x;actor.z=next.z;actor.path.shift();}
+        else {actor.x+=dx/d*step;actor.z+=dz/d*step;}
+      }else{
+        actor.action=goal.action;
+        if(goal.action!=='sleeping' && Math.hypot(actor.x-this.s.player.x,actor.z-this.s.player.z)<2){
+          actor.action='talking';actor.facing=Math.atan2(this.s.player.x-actor.x,this.s.player.z-actor.z);
+        }
+      }
+    });
+    const actors=[...this.npcMotion.entries()],hour=this.s.day*24+this.s.time*24;
+    for(let i=0;i<actors.length;i++)for(let j=i+1;j<actors.length;j++){
+      const [id,a]=actors[i],[other,b]=actors[j],key=id+other;
+      if(a.wait<=0&&b.wait<=0&&a.action==='walking'&&b.action==='walking'&&Math.hypot(a.x-b.x,a.z-b.z)<1.3&&hour-(this.npcMeetings.get(key)||0)>.5){
+        a.action=b.action='talking';a.wait=b.wait=2.2;a.facing=Math.atan2(b.x-a.x,b.z-a.z);b.facing=a.facing-Math.PI;this.npcMeetings.set(key,hour);
+      }
+    }
+  }
   wanderAnimals(dt: number) {
     const s = this.s;
     if (s.mine) return;
@@ -1799,6 +1837,9 @@ export class Engine {
         this.animalMotion.set(a.id, motion);
       }
       motion.follow = Math.max(0, motion.follow - dt);
+      motion.happy = Math.max(0,(motion.happy||0)-dt);
+      const threat=s.enemies.find(e=>Math.hypot(e.x-a.x,e.z-a.z)<4);
+      const mother=s.day-(a.bornDay??-3)<2?s.animals.find(v=>v.id===a.parent):undefined;
       motion.idle = Math.max(0, motion.idle - dt);
       motion.moving = false;
       const nearHome = Math.hypot(a.x - home.x, a.z - home.z) < 2.5;
@@ -1808,9 +1849,9 @@ export class Engine {
         const follow =
           motion.follow > 0 &&
           Math.hypot(s.player.x - home.x, s.player.z - home.z) < 12;
-        const center = follow ? s.player : home;
-        const radius = follow || night ? 2 : 8;
-        if (!night || !nearHome || follow) {
+        const center = threat?{x:a.x+(a.x-threat.x)*2,z:a.z+(a.z-threat.z)*2}:mother || (follow ? s.player : home);
+        const radius = threat?1:mother||follow||night?2:8;
+        if (!night || !nearHome || follow || threat) {
           for (let attempt = 0; attempt < 5; attempt++) {
             const x = Math.round(center.x + (this.random() - 0.5) * radius * 2);
             const z = Math.round(center.z + (this.random() - 0.5) * radius * 2);
@@ -1841,7 +1882,7 @@ export class Engine {
           distance = Math.hypot(dx, dz);
         const step =
           dt *
-          (a.type === 'chicken' ? 1.15 : 0.8) *
+          (threat?2.2:motion.follow>0?1.45:a.type === 'chicken' ? 1.15 : 0.8) *
           (s.day - (a.bornDay ?? -3) < 2 ? 0.8 : 1);
         motion.facing = Math.atan2(dx, dz);
         motion.moving = distance > 0.001;
@@ -1854,13 +1895,13 @@ export class Engine {
           a.z += (dz / distance) * step;
         }
       }
-      motion.mood = motion.moving
-        ? motion.follow > 0
-          ? 'following'
+      motion.mood = motion.happy ? 'happy' : motion.moving
+        ? threat ? 'fleeing' : mother ? 'following' : motion.follow > 0
+          ? 'running'
           : 'walking'
         : night && nearHome
           ? 'sleeping'
-          : 'grazing';
+          : a.id%3===0 && motion.idle>4 ? 'lying' : 'grazing';
     }
     const living = new Set(s.animals.map((a) => a.id));
     for (const id of this.animalMotion.keys())
@@ -2024,12 +2065,41 @@ export class Engine {
       if (!s.enemies.some((e) => e.id === id)) this.enemyPaths.delete(id);
     if (p.health <= 0) this.recover();
   }
+  updateFishing(dt:number) {
+    const s=this.s;
+    if (this.fishing) {
+      this.fishing.timer -= dt;
+      if (this.fishing.timer <= 0) {
+        const chance = Math.min(
+          0.98,
+          0.72 +
+            (skillLevel(s, 'fishing') - 1) * 0.02 +
+            0.03 * (s.talents.angler || 0) +
+            0.0005 * (s.friendship.lale || 0),
+        );
+        if (this.random() < chance) {
+          this.add({ fish: 1 });
+          if (this.random() < 0.02 * (s.talents.angler || 0)) {
+            this.add({ crystal: 1 });
+            this.emit('Nehirden bir ay kristali çıktı!', 'good');
+          }
+          this.stat('fish');
+          this.gainXp(13, 'fishing');
+          this.emit('+1 Nehir balığı', 'good', this.fishing.x, this.fishing.z);
+        } else this.emit('Balık kaçtı. Yeniden deneyebilirsin.');
+        this.fishing = null;
+      }
+    }
+  }
   tick(dt: number) {
     dt = Math.max(0, Math.min(dt, 0.1));
     this.actionCooldown = Math.max(0, this.actionCooldown - dt);
+    this.playerAction.remaining=Math.max(0,this.playerAction.remaining-dt);
+    this.updateVillagers(dt);
     const s = this.s,
       p = s.player;
     if (this.path.length) {
+      if(this.sprinting && p.energy>20)p.energy=Math.max(0,p.energy-dt*1.8);
       const next = this.path[0],
         dx = next.x - p.x,
         dz = next.z - p.z,
@@ -2037,13 +2107,13 @@ export class Engine {
       if (!walkable(s, next.x, next.z)) {
         this.path = [];
         this.pending = null;
-      } else if (d < dt * movementSpeed(p.energy)) {
+      } else if (d < dt * this.travelSpeed()) {
         p.x = next.x;
         p.z = next.z;
         this.path.shift();
       } else {
-        p.x += (dx / d) * dt * movementSpeed(p.energy);
-        p.z += (dz / d) * dt * movementSpeed(p.energy);
+        p.x += (dx / d) * dt * this.travelSpeed();
+        p.z += (dz / d) * dt * this.travelSpeed();
         p.facing = Math.atan2(dx, dz);
       }
     }
@@ -2073,29 +2143,7 @@ export class Engine {
       p.energy = Math.min(100, p.energy + dt * 0.12);
     p.hunger = Math.max(0, p.hunger - dt * 0.06);
     if (p.hunger <= 0) p.health = Math.max(0, p.health - dt * 0.7);
-    if (this.fishing) {
-      this.fishing.timer -= dt;
-      if (this.fishing.timer <= 0) {
-        const chance = Math.min(
-          0.98,
-          0.72 +
-            (skillLevel(s, 'fishing') - 1) * 0.02 +
-            0.03 * (s.talents.angler || 0) +
-            0.0005 * (s.friendship.lale || 0),
-        );
-        if (this.random() < chance) {
-          this.add({ fish: 1 });
-          if (this.random() < 0.02 * (s.talents.angler || 0)) {
-            this.add({ crystal: 1 });
-            this.emit('Nehirden bir ay kristali çıktı!', 'good');
-          }
-          this.stat('fish');
-          this.gainXp(13, 'fishing');
-          this.emit('+1 Nehir balığı', 'good', this.fishing.x, this.fishing.z);
-        } else this.emit('Balık kaçtı. Yeniden deneyebilirsin.');
-        this.fishing = null;
-      }
-    }
+    this.updateFishing(dt);
     if (s.time >= 0.78) this.raid();
     this.combat(dt);
     this.wanderAnimals(dt);

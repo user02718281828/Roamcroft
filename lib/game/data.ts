@@ -285,6 +285,7 @@ export const BUILDINGS: Record<string, BuildingDef> = {
     color: 0xe5ca92,
     production: { input: { wheat: 3 }, output: { flour: 2 }, time: 45 },
   },
+  chest: {name:'Ortak depo sandığı',icon:'',desc:'1.200 ürün saklar. Yükseltmeyle büyür. Çanta dolunca fazla kaynakları otomatik toplar; bütün sandıklar aynı depoya erişir.',cost:{wood:12,stone:4},level:1,hp:160,category:'Köy',color:0xb27b43},
   fence: {
     name: 'Ahşap sur',
     icon: '🪵',

@@ -3,7 +3,7 @@ import type {Command,Peer,RoomSession,RoomInfo} from './protocol';
 import {validCommand} from './protocol';
 import {CoopAuthority,applySharedState} from './authority';
 import type {WorldPacket} from './codec';
-type Pulse={members?:{id:string;name:string;pose:string}[];commands?:{id:number;member:string;payload:string}[];online?:boolean;revision?:number;snapshot?:string|null};
+type Pulse={acceptedSeq?:number;members?:{id:string;name:string;pose:string}[];commands?:{id:number;member:string;payload:string}[];online?:boolean;revision?:number;snapshot?:string|null};
 export class CoopClient {
   session:RoomSession|null=null;
   status='Tek oyunculu';
@@ -18,6 +18,7 @@ export class CoopClient {
   private commandId=0;
   private timer:ReturnType<typeof setTimeout>|null=null;
   private publishAt=0;
+  private publishing:Promise<void>|null=null;
   private pulseAt=0;
   private lastMessage=0;
   private stopped=false;
@@ -26,7 +27,7 @@ export class CoopClient {
   get active(){return !!this.session;}
   async api<T>(body:Record<string,unknown>,session=this.session):Promise<T> {
     const response=await fetch('/api/coop',{method:'POST',headers:{'Content-Type':'application/json','X-Roamcroft':'1',...(session ? {Authorization:`Bearer ${session.token}`} : {})},body:JSON.stringify({...body,...(session ? {member:session.member} : {})}),signal:AbortSignal.timeout(12000)});
-    const result=await response.json() as T & {error?:string};if(!response.ok) throw Error(result.error || 'Oda bağlantısı kesildi.');return result;
+    const result=await response.json() as T & {error?:string;revision?:number};if(!response.ok) throw Object.assign(Error(result.error || 'Oda bağlantısı kesildi.'),{revision:result.revision});return result;
   }
   list(){return this.api<{rooms:RoomInfo[]}>({op:'list'},null);}
   private codec<T>(op:'encode'|'decode',data:Record<string,unknown>):Promise<T> {
@@ -76,9 +77,10 @@ export class CoopClient {
     const started=performance.now(),outgoing=this.queue.slice(0,8);
     try {
       this.bind(e);
-      const result=await this.api<Pulse>({op:'pulse',pose:{x:e.s.player.x,z:e.s.player.z,facing:e.s.player.facing},commands:outgoing,revision:session.revision});
+      const result=await this.api<Pulse>({op:'pulse',pose:{x:e.s.player.x,z:e.s.player.z,facing:e.s.player.facing,sprinting:e.sprinting},commands:outgoing,revision:session.revision});
       if(this.stopped || this.session!==session)return;
-      this.queue.splice(0,outgoing.length);
+      if(session.role==='host')this.queue.splice(0,outgoing.length);
+      else this.queue=this.queue.filter(c=>c.seq>(result.acceptedSeq||0));
       if(session.role==='host') {
         if(!result.members || !result.commands)throw Error('Odanın ev sahibi değişti. Odadan ayrılıp yeniden katıl.');
         this.authority.update(e,session.member,result.members,result.commands,Math.min(.75,(started-this.pulseAt)/1000));
@@ -104,10 +106,16 @@ export class CoopClient {
     } catch(error) {this.connected=false;this.status=error instanceof Error ? error.message : 'Bağlantı bekleniyor.';}
     this.changed();this.schedule(this.connected ? Math.max(150,300-(performance.now()-started)) : 2000);
   }
-  async publish() {
+  publish():Promise<void> {
+    if(this.publishing)return this.publishing;
+    this.publishing=this.publishSnapshot().finally(()=>{this.publishing=null;});return this.publishing;
+  }
+  private async publishSnapshot() {
     const session=this.session,e=this.engine();if(!session || session.role!=='host' || !e)return;
+    const ack=this.authority.ack;
     const snapshot=await this.codec<string>('encode',{packet:{state:e.s,peers:this.peers}});
-    await this.api({op:'publish',snapshot,revision:session.revision+1,ack:this.authority.ack});
+    try {await this.api({op:'publish',snapshot,revision:session.revision+1,ack});}
+    catch(error){const revision=(error as {revision?:number}).revision;if(!Number.isSafeInteger(revision)||revision!<session.revision)throw error;session.revision=revision!;await this.api({op:'publish',snapshot,revision:session.revision+1,ack});}
     session.revision++;
   }
   async leave(force=false) {

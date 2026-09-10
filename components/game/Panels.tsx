@@ -1,5 +1,9 @@
 'use client';
 import GameIcon from './GameIcon';
+import StoragePanel from './StoragePanel';
+import {timedGreeting,schedule} from '@/lib/game/living';
+import OnlinePanel from './OnlinePanel';
+import type { CoopClient } from '@/lib/coop/client';
 import {
   BundlesPanel,
   MinePanel,
@@ -79,6 +83,7 @@ export type Panel =
   | 'ranch'
   | 'bundles'
   | 'mine'
+  | 'online'
   | null;
 export function Cost({ bag, inventory }: { bag: Bag; inventory: Bag }) {
   return (
@@ -100,6 +105,7 @@ export function Cost({ bag, inventory }: { bag: Bag; inventory: Bag }) {
 }
 export default function Panels({
   engine,
+  coop,
   panel,
   setPanel,
   onBuild,
@@ -118,6 +124,7 @@ export default function Panels({
   setQuality,
 }: {
   engine: Engine;
+  coop: CoopClient | null;
   panel: Panel;
   quality: boolean;
   setQuality: (q: boolean) => void;
@@ -140,6 +147,7 @@ export default function Panels({
     [quantity, setQuantity] = useState(1),
     file = useRef<HTMLInputElement>(null);
   const titles: Record<NonNullable<Panel>, [string, string]> = {
+    online: ['Birlikte oyna','Odanı aç veya arkadaşının dünyasına katıl.'],
     bundles: [
       'Köy emanetleri',
       'Ortak sandıkları doldur, vadine kalıcı iyileştirmeler kazandır.',
@@ -178,10 +186,16 @@ export default function Panels({
             <SheetTitle>{panel ? titles[panel][0] : ''}</SheetTitle>
             <SheetDescription>{panel ? titles[panel][1] : ''}</SheetDescription>
           </SheetHeader>
+          <Tabs value={panel || 'inventory'} onValueChange={value=>setPanel(value as Panel)}>
+            <TabsList className="unified-tabs">
+              {([['inventory','Çanta'],['craft','Üretim'],['build','İnşa'],['quests','Günlük'],['ranch','Çiftlik'],['villagers','Dostlar'],['bundles','Emanet'],['mine','Maden'],['online','Co-op'],['settings','Ayarlar']] as const).map(([id,label])=><TabsTrigger key={id} value={id}>{label}</TabsTrigger>)}
+            </TabsList>
+          </Tabs>
           <div className="panel-pause">
-            <Clock size={13} /> Zaman duraklatıldı · Dünyaya dönünce devam eder
+            <Clock size={13} /> {coop?.active ? 'Ortak dünya · Ev sahibi zamanın akışını yönetir' : 'Duraklatıldı'} · Tab: kapat · Q / E: sekme değiştir
           </div>
           <div className="panel-body">
+            {panel === 'online' && coop && <OnlinePanel client={coop} onClose={()=>setPanel(null)}/>}
             {panel === 'bundles' && <BundlesPanel engine={engine} />}
             {panel === 'mine' && (
               <MinePanel
@@ -250,7 +264,7 @@ export default function Panels({
                           {
                             (
                               {
-                                walking: 'Dolaşıyor',
+                                walking: 'Dolaşıyor',running:'Koşuyor',happy:'Mutlu',lying:'Uzanıyor',fleeing:'Tehlikeden kaçıyor',
                                 grazing: 'Otluyor',
                                 sleeping: 'Uyuyor',
                                 following: 'Seni takip ediyor',
@@ -1056,6 +1070,7 @@ export default function Panels({
                 </Tabs>
               </>
             )}
+            {panel==='inventory' && engine.storageCapacity()>0 && <StoragePanel engine={engine}/>}
             {panel === 'building' && b && d && (
               <>
                 <div className="building-detail">
@@ -1099,6 +1114,7 @@ export default function Panels({
                     </button>
                   </div>
                 )}
+                {b.type==='chest' && <StoragePanel engine={engine}/>}
                 <div className="building-buttons">
                   <button className="secondary-button" onClick={() => engine.rotateBuilding(b.id)}>90° döndür · {(b.rotation || 0)*90}°</button>
                   {['fence','wall'].includes(b.type) && <button className="secondary-button" onClick={()=>engine.reshapeBuilding(b.id)}>{b.corner ? 'Düz parçaya dönüştür' : 'L köşe yap'}</button>}
@@ -1226,7 +1242,7 @@ export default function Panels({
                             ? `Dostluk avantajı: el üretimleri %${Math.floor(friendship * 0.1)} daha kısa sürer.`
                             : `Dostluk avantajı: balık yakalama şansı +%${Math.floor(friendship * 0.05)}.`}
                       </p>
-                      <div className="dialogue-box">
+                      <p className="npc-routine">{schedule(NPCS.indexOf(n),s.time,n).label} · {timedGreeting(s.time)}</p><div className="dialogue-box">
                         <p>
                           {
                             n.dialogue[stage][
@@ -1283,7 +1299,7 @@ export default function Panels({
                       </div>
                       <button
                         className="secondary-button full-width"
-                        onClick={() => onApproach(n.x, n.z)}
+                        onClick={() => onApproach(engine.npcMotion.get(n.id)?.x??n.x, engine.npcMotion.get(n.id)?.z??n.z)}
                       >
                         {n.name} yanına yürü
                       </button>
@@ -1367,13 +1383,13 @@ export default function Panels({
                   <div className="key-guide">
                     {[
                       ['W A S D / Oklar', 'Yürü'],
-                      ['1 – 8', 'Araç seç'],
+                      ['Tab', 'Tek pencere menüsü'],
                       ['Sol tık', 'Yürü / aracı kullan'],
-                      ['Boşluk', 'Yakındaki düşmana saldır'],
-                      ['R', 'Dinlen / kalk'],
-                      ['B / C / I / J', 'İnşa / üretim / çanta / günlük'],
-                      ['Q / E', 'Görüşü döndür'],
-                      ['F', 'Karaktere odaklan'],
+                      ['Ctrl', 'Yakındaki düşmana saldır'],
+                      ['Shift', 'Koş (enerji tüketir)'],
+                      ['E', 'Yakındaki kişi / ürün / yapı ile etkileşim'],
+                      ['Menüde Q / E veya ← / →', 'Sekme değiştir'],
+                      ['İnşada ← / →', 'Nesneyi 90° döndür'],
                       ['Fare tekerleği', 'Yakınlaştır / uzaklaştır'],
                       ['Sürükle', 'Haritayı taşı'],
                       ['Esc', 'Menüyü kapat / duraklat'],
@@ -1399,7 +1415,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.1
+                  Roamcroft · 1.2
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />
@@ -1438,7 +1454,7 @@ export default function Panels({
                   [
                     '06',
                     'Hayatta kal',
-                    'Sağlık, enerji ve doygunluğunu izle. Çantadan yiyecek tüket. R ile dinlen; kamp ateşi yanında daha hızlı toparlanırsın. Akşam evin yakınına gelerek uyuyabilirsin. Yenilirsen köylüler seni eve taşır; altınının %10’unu kaybedersin.',
+                    'Sağlık, enerji ve doygunluğunu izle. Çantadan yiyecek tüket. Dinlen düğmesiyle otur; kamp ateşi yanında daha hızlı toparlanırsın. Akşam evin yakınına gelerek uyuyabilirsin. Yenilirsen köylüler seni eve taşır; altınının %10’unu kaybedersin.',
                   ],
                   [
                     '07',

@@ -18,6 +18,7 @@ CREATE TABLE `coop_members` (
 	`name` text NOT NULL,
 	`pose` text DEFAULT '{}' NOT NULL,
 	`seen` integer NOT NULL,
+	`last_seq` integer DEFAULT 0 NOT NULL,
 	FOREIGN KEY (`room`) REFERENCES `coop_rooms`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint

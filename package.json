@@ -1,6 +1,6 @@
 {
   "name": "roamcroft",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -12,7 +12,8 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "test": "node --test tests/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
