@@ -1,3 +1,4 @@
+import {blocksTile} from './collision.ts';
 import type {State} from './model.ts';
 import {tileIndex,worldOrigin,worldSize} from './world.ts';
 type Point={x:number;z:number};
@@ -10,7 +11,7 @@ export function findRoute(s:State,target:Point,origin:Point,adjacent=false,maxNo
   const start=tileIndex(s,origin.x,origin.z),size=worldSize(s),offset=worldOrigin(s),count=s.tiles.length;
   if(start<0)return null;
   const blocked=new Uint8Array(count);
-  for(let i=0;i<count;i++){const t=s.tiles[i];blocked[i]=+(t.terrain==='water'||t.terrain==='wall'||!!t.resource);}
+  for(let i=0;i<count;i++){const t=s.tiles[i];blocked[i]=+blocksTile(t);}
   for(const b of s.buildings){const i=tileIndex(s,b.x,b.z);if(i>=0)blocked[i]=1;}
   const dist=new Float64Array(count);dist.fill(Infinity);dist[start]=0;
   const parent=new Int32Array(count);parent.fill(-1);

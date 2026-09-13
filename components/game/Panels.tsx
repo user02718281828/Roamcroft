@@ -1,4 +1,6 @@
 'use client';
+import AudioSettings from './AudioSettings';
+import type {ValleyAudio} from '@/lib/game/audio';
 import GameIcon from './GameIcon';
 import StoragePanel from './StoragePanel';
 import {timedGreeting,schedule} from '@/lib/game/living';
@@ -105,6 +107,7 @@ export function Cost({ bag, inventory }: { bag: Bag; inventory: Bag }) {
 }
 export default function Panels({
   engine,
+  audio,
   coop,
   panel,
   setPanel,
@@ -124,6 +127,7 @@ export default function Panels({
   setQuality,
 }: {
   engine: Engine;
+  audio: ValleyAudio | null;
   coop: CoopClient | null;
   panel: Panel;
   quality: boolean;
@@ -1370,6 +1374,7 @@ export default function Panels({
                 <div className="settings-section">
                   <h3>Ses</h3>
                   <p>Vadinin müziği, kuşlar ve oyun sesleri.</p>
+                  <AudioSettings audio={audio}/>
                   <button
                     className="secondary-button"
                     onClick={() => setSound(!sound)}
@@ -1384,6 +1389,7 @@ export default function Panels({
                     {[
                       ['W A S D / Oklar', 'Yürü'],
                       ['Tab', 'Tek pencere menüsü'],
+                      ['1 – 8', 'Araç seç'],
                       ['Sol tık', 'Yürü / aracı kullan'],
                       ['Ctrl', 'Yakındaki düşmana saldır'],
                       ['Shift', 'Koş (enerji tüketir)'],

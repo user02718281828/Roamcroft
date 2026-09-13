@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {WATER_SURFACE_Y,WORLD_BASE_TOP,addWind} from './visuals.ts';
 import {PinchGesture} from './touch.ts';
 import {sunlight,humanPose,animalPose,type HumanAction} from './living.ts';
 import { PointerDrag, FrameBudget } from './interaction.ts';
@@ -389,7 +390,7 @@ export class ValleyScene {
       this.root,
       0x45594a,
       17.5,
-      -0.85,
+      WORLD_BASE_TOP-.8,
       17.5,
       WINDOW,
       1.6,
@@ -415,8 +416,9 @@ export class ValleyScene {
       this.geo('box'),
       new T.MeshStandardMaterial({
         color: 0x469cbd,
-        roughness: 0.55,
-        metalness: 0.02,
+        roughness: 0.28,
+        metalness: 0.12,
+        emissive:0x246f88,emissiveIntensity:.12,
       }),
       WINDOW * WINDOW,
     );
@@ -479,6 +481,7 @@ export class ValleyScene {
         diffuseColor.rgb *= 0.91 + wave * 0.09;
         diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.79, 0.93, 1.0), smoothstep(0.77, 1.0, wave) * 0.32);`,
       );
+      shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_begin>','#include <normal_fragment_begin>\nnormal=normalize(normal+vec3(sin(streamPosition.x*3.0+streamTime)*0.13,cos(streamPosition.y*4.0-streamTime)*0.13,0.0));\nfloat rim=pow(1.0-clamp(dot(normal,normalize(vViewPosition)),0.0,1.0),3.0);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.65,0.88,0.93),rim*0.25);');
     };
     this.refreshGround();
     this.waterSpots=this.engine.s.tiles.filter(t=>t.terrain==='water').filter((_,i)=>i%13===0).map(t=>({x:t.x,z:t.z}));
@@ -517,10 +520,12 @@ export class ValleyScene {
       );
       dummy.updateMatrix();
       this.ground.setMatrixAt(i, dummy.matrix);
-      dummy.position.y = -0.12;
+      dummy.position.y = WATER_SURFACE_Y-.04;
       dummy.scale.set(1, t.terrain === 'water' ? 0.08 : 0, 1);
       dummy.updateMatrix();
       this.river.setMatrixAt(i, dummy.matrix);
+      const shallow=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dz])=>tileAt(s,t.x+dx,t.z+dz)?.terrain!=='water');
+      this.river.setColorAt(i,new T.Color(shallow?0xc9f1e9:0x83c4dc));
       this.updateTurf(t, i, dummy);
     }
     for (const m of [
@@ -533,6 +538,7 @@ export class ValleyScene {
       m.instanceMatrix.needsUpdate = true;
       m.computeBoundingSphere();
     }
+    this.river.instanceColor!.needsUpdate=true;
     let edge = 0;
     for (const t of s.tiles)
       if (t.terrain === 'grass') {
@@ -556,7 +562,7 @@ export class ValleyScene {
     for(const t of s.tiles)if(t.terrain==='water'){
       for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
         const other=tileAt(s,t.x+dx,t.z+dz);if(!other||other.terrain==='water')continue;
-        dummy.position.set(t.x+dx*.48,.235,t.z+dz*.48);dummy.rotation.set(-Math.PI/2,0,dx?Math.PI/2:0);dummy.scale.set(1,1,1);dummy.updateMatrix();this.shoreFoam.setMatrixAt(foam++,dummy.matrix);
+        dummy.position.set(t.x+dx*.48,WATER_SURFACE_Y+.008,t.z+dz*.48);dummy.rotation.set(-Math.PI/2,0,dx?Math.PI/2:0);dummy.scale.set(1,1,1);dummy.updateMatrix();this.shoreFoam.setMatrixAt(foam++,dummy.matrix);
       }
     }
     this.shoreFoam.count=foam;this.shoreFoam.instanceMatrix.needsUpdate=true;this.shoreFoam.computeBoundingSphere();
@@ -613,6 +619,8 @@ export class ValleyScene {
       });
     }
     this.worldBatches.replace(key, objects);
+    this.renderer.shadowMap.needsUpdate=true;
+    for(const {mesh} of this.worldBatches.buckets.values())if(!mesh.userData.wind){addWind(mesh.material as T.MeshStandardMaterial,this.waterTime);mesh.userData.wind=true;}
     this.chunkMeshes.set(key, new T.Group());
     this.pickables = [...this.tiles.values()]
       .filter((t) => t.group.children.length)
@@ -1017,18 +1025,9 @@ export class ValleyScene {
           0.12,
           0.13,
         );
-      for (let i = 0; i < 3; i++)
-        this.mesh(
-          g,
-          'cone',
-          [0xf1953b, 0xffca61, 0xf4e598][i],
-          0,
-          0.45 + i * 0.12,
-          0,
-          0.23 - i * 0.05,
-          0.55 - i * 0.08,
-          0.22 - i * 0.04,
-        );
+      const flame=new T.Group();flame.name='flame';flame.userData.animated=true;
+      for(let i=0;i<3;i++){const part=this.mesh(flame,'cone',[0xf1953b,0xffca61,0xf4e598][i],0,.45+i*.12,0,.23-i*.05,.55-i*.08,.22-i*.04);part.material=this.mat([0xf1953b,0xffca61,0xf4e598][i],1,[0xf1953b,0xffca61,0xf4e598][i]);part.castShadow=false;}
+      g.add(flame);
       return;
     }
     if (b.type === 'wall') {
@@ -1519,7 +1518,7 @@ export class ValleyScene {
     );
     for (const x of [-size * 0.35, size * 0.35])
       for (const z of [-size * 0.45, size * 0.45])
-        this.box(g, 0x6f6758, x, size * 0.3, z, 0.07, size * 0.5, 0.07);
+        {const leg=new T.Group();leg.name='leg-'+(x<0?'l':'r')+(z<0?'b':'f');leg.userData.animated=true;leg.position.set(x,size*.52,z);this.box(leg,0x6f6758,0,-size*.22,0,.07,size*.5,.07);g.add(leg);}
     if (!cow && !sheep) {
       this.mesh(
         g,
@@ -2232,6 +2231,7 @@ export class ValleyScene {
           a.z,
         );
         if (motion) {
+          for(const name of ['leg-lb','leg-lf','leg-rb','leg-rf']){const leg=g.getObjectByName(name);if(leg){leg.visible=Math.hypot(a.x-this.target.x,a.z-this.target.z)<12&&this.budget.tier<3;const target=motion.moving?Math.sin(this.time*(motion.mood==='fleeing'||motion.mood==='running'?16:9)+a.id+(name==='leg-lb'||name==='leg-rf'?Math.PI:0))*.5:0;leg.rotation.x+=(target-leg.rotation.x)*(1-Math.exp(-dt*18));}}
           const difference = Math.atan2(
             Math.sin(motion.facing - g.rotation.y),
             Math.cos(motion.facing - g.rotation.y),
@@ -2446,11 +2446,12 @@ export class ValleyScene {
     }
     const light=sunlight(s.time),daylight=light.daylight;
     this.bankLight.value=.13+daylight*.87;
+    (this.river.material as T.MeshStandardMaterial).emissiveIntensity=.02+daylight*.13;
     this.sun.intensity=s.mine?.8:light.direct;
     this.sun.color.set(light.night?0x8aaee8:daylight<.3?0xffbd85:0xffedbf);
     this.ambient.intensity=s.mine?1.9:light.ambient;
     this.buildingShadows.visible=!light.night;
-    (this.river.material as T.MeshStandardMaterial).color.set(light.night?0x28436d:daylight<.3?0x699ab0:0x469cbd);
+    (this.river.material as T.MeshStandardMaterial).color.set(light.night?0x28436d:daylight<.3?0x75b4bf:0x5bb5c9);
     this.animateNature(daylight);
     const sky = s.mine
       ? new T.Color(0x151c2b)
@@ -2461,6 +2462,8 @@ export class ValleyScene {
     this.scene.background = sky;
     (this.scene.fog as T.FogExp2).color.copy(sky);
     for (const wheel of this.wheels) wheel.rotation.z = this.time * 0.35;
+    for(const {group} of this.structures.values()){const flame=group.getObjectByName('flame');if(flame){flame.scale.set(1+Math.sin(this.time*8)*.1,1+Math.sin(this.time*11)*.17,1);flame.rotation.z=Math.sin(this.time*7)*.08;}}
+
     for (const c of this.clouds.children) {
       c.position.x += dt * 0.07;
       if (c.position.x > 48) c.position.x = -10;

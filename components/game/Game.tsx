@@ -341,6 +341,7 @@ export default function Game() {
                   dt,
                 );
               e.tick(dt);
+              music.footsteps(e.s);
               saveClock += dt;
               music.tick(dt, e.s.time > 0.77 || e.s.time < 0.24);
             }
@@ -386,14 +387,14 @@ export default function Game() {
                   ].slice(-3),
                 );
                 events.forEach((m) => {
-                  music.effect(m.kind);
+                  if(m.sound) music.action(m.sound); else music.effect(m.kind);
                   if (m.celebration)
                     view.celebrate(m.x ?? e.s.player.x, m.z ?? e.s.player.z);
                   if (m.x !== undefined && !m.celebration)
                     view.burst(
                       m.x,
                       m.z!,
-                      m.kind === 'bad' ? 0xdc8875 : 0xe1c57b,
+                      m.kind === 'bad' ? 0xdc8875 : m.sound === 'water' || m.sound === 'fish' ? 0x70cede : m.sound === 'pickaxe' ? 0xa5a6a1 : m.sound === 'axe' ? 0x99b875 : 0xe1c57b,
                     );
                 });
               } else
@@ -454,6 +455,7 @@ export default function Game() {
       }
       if(['arrowup','arrowdown','arrowleft','arrowright','control'].includes(key))ev.preventDefault();
       keys.current.add(key);if(ev.repeat)return;
+      if(/^[1-8]$/.test(key)){setTool(TOOLS[Number(key)-1].id);return;}
       if(key==='control')e.attack();
       if(key==='e') {
         const p=e.s.player;
@@ -817,7 +819,7 @@ export default function Game() {
             <button
               onClick={() => scene.current?.recenter()}
               aria-label="Karaktere odaklan"
-              title="Karaktere odaklan (F)"
+              title="Karaktere odaklan"
             >
               <Target />
             </button>
@@ -838,7 +840,7 @@ export default function Game() {
                 if (scene.current) scene.current.angle += Math.PI / 2;
               }}
               aria-label="Görüşü döndür"
-              title="Görüşü döndür (Q / E)"
+              title="Görüşü döndür"
             >
               <Compass />
             </button>
@@ -1115,6 +1117,7 @@ export default function Game() {
             </div>
           )}
           <Panels
+            audio={audio.current}
             engine={engine.current!}
             coop={coop.current}
             panel={panel}

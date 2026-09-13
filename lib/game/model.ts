@@ -1,3 +1,5 @@
+import type {ActionSound} from './audio.ts';
+import {blocksPoint} from './collision.ts';
 import { schedule, type HumanAction, type AnimalAction } from './living.ts';
 import { findRoute } from './pathfinding.ts';
 import type { Peer } from '../coop/protocol.ts';
@@ -162,6 +164,7 @@ export type Event = {
   text: string;
   kind: 'info' | 'good' | 'bad';
   celebration?: boolean;
+  sound?: ActionSound;
   x?: number;
   z?: number;
 };
@@ -207,9 +210,7 @@ export function walkable(s: State, x: number, z: number) {
   const t = tileAt(s, x, z);
   return (
     !!t &&
-    t.terrain !== 'water' &&
-    t.terrain !== 'wall' &&
-    !t.resource &&
+    !blocksPoint(t,x,z) &&
     !buildingAt(s, x, z)
   );
 }
@@ -427,8 +428,8 @@ export class Engine {
     if (!hasBaseline(state.seed)) createState(state.seed);
     if (!state.mine) shiftWindow(state);
   }
-  emit(text: string, kind: Event['kind'] = 'info', x?: number, z?: number) {
-    this.events.push({ text, kind, x, z });
+  emit(text: string, kind: Event['kind'] = 'info', x?: number, z?: number, sound?: ActionSound) {
+    this.events.push({ text, kind, x, z, sound });
     if (this.events.length > 15) this.events.shift();
   }
   random() {
@@ -645,12 +646,19 @@ export class Engine {
     this.fishing = null;
     const p = this.s.player,
       d = Math.hypot(dx, dz) || 1,
+      oldX=p.x,oldZ=p.z,
       x = p.x + (dx / d) * this.travelSpeed() * dt,
       z = p.z + (dz / d) * this.travelSpeed() * dt;
     if (walkable(this.s, x, p.z))
       p.x = this.s.mine ? Math.max(0, Math.min(SIZE - 1, x)) : x;
     if (walkable(this.s, p.x, z))
       p.z = this.s.mine ? Math.max(0, Math.min(SIZE - 1, z)) : z;
+    if(Math.hypot(p.x-oldX,p.z-oldZ)<dt*this.travelSpeed()*.15){
+      for(const angle of [Math.PI/6,-Math.PI/6,Math.PI/3,-Math.PI/3]){
+        const nx=oldX+(dx*Math.cos(angle)-dz*Math.sin(angle))/d*this.travelSpeed()*dt,nz=oldZ+(dx*Math.sin(angle)+dz*Math.cos(angle))/d*this.travelSpeed()*dt;
+        if(walkable(this.s,nx,nz)){p.x=nx;p.z=nz;break;}
+      }
+    }
     if(this.sprinting && (dx || dz)) p.energy=Math.max(0,p.energy-dt*1.8);
     p.facing = Math.atan2(dx, dz);
     this.streamWorld();
@@ -944,7 +952,7 @@ export class Engine {
       if (this.s.mine) this.s.mine.mined += power;
       this.gainXp(7 * power);
       this.actionCooldown = 0.38;
-      this.emit(`+${count} ${ITEMS[id].name}`, 'good', x, z);
+      this.emit(`+${count} ${ITEMS[id].name}`, 'good', x, z, required === 'hand' ? 'harvest' : required);
       return;
     }
     if (t.crop && t.growth >= CROPS[t.crop].grow) {
@@ -962,7 +970,7 @@ export class Engine {
       t.fertilized = false;
       this.stat('harvest');
       this.gainXp(16, 'farming');
-      this.emit(`+${count} ${c.name} · +1 tohum`, 'good', x, z);
+      this.emit(`+${count} ${c.name} · +1 tohum`, 'good', x, z, 'harvest');
       return;
     }
     if (tool === 'hoe' && t.terrain === 'grass' && !t.tilled) {
@@ -970,7 +978,7 @@ export class Engine {
       t.tilled = true;
       this.stat('till');
       this.gainXp(3, 'farming');
-      this.emit('Toprak ekime hazır.', 'good', x, z);
+      this.emit('Toprak ekime hazır.', 'good', x, z, 'hoe');
     } else if (tool === 'seed' && t.tilled && !t.crop) {
       const c = CROPS[selection];
       if (!c || this.s.level < c.level) {
@@ -987,12 +995,12 @@ export class Engine {
       t.growth = 0;
       this.stat('plant');
       this.gainXp(5, 'farming');
-      this.emit(`${c.name} ekildi.`, 'good', x, z);
+      this.emit(`${c.name} ekildi.`, 'good', x, z, 'seed');
     } else if (tool === 'water' && t.tilled) {
       if (t.water > 90) return;
       if (!this.energy(1)) return;
       t.water = 100;
-      this.emit('Toprak sulandı.', 'good', x, z);
+      this.emit('Toprak sulandı.', 'good', x, z, 'water');
     } else if (tool === 'fertilize' && t.tilled && !t.fertilized) {
       if (!this.spend({ fertilizer: 1 })) {
         this.emit('Önce gübre üret.', 'bad');
@@ -1003,7 +1011,7 @@ export class Engine {
     } else if (tool === 'fish' && t.terrain === 'water') {
       if (!this.energy(3)) return;
       this.fishing = { x, z, timer: 3.4 };
-      this.emit('Olta atıldı…', 'info', x, z);
+      this.emit('Olta atıldı…', 'info', x, z, 'fish');
     } else if (tool === 'hoe' && t.terrain === 'path') {
       if (!this.energy(2)) return;
       t.terrain = 'grass';
@@ -1484,7 +1492,7 @@ export class Engine {
     this.actionCooldown = 0.48;
     p.facing = Math.atan2(e.x - p.x, e.z - p.z);
     this.damageEnemy(e, damage);
-    this.emit(`−${damage}`, 'good', e.x, e.z);
+    this.emit(`−${damage}`, 'good', e.x, e.z, 'sword');
     return true;
   }
   damageEnemy(e: Enemy, damage: number) {
