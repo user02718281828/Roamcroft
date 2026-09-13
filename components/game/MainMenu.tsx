@@ -1,6 +1,7 @@
 'use client';
 import {useRef,useState} from 'react';
 import {AlertDialog,AlertDialogContent,AlertDialogHeader,AlertDialogTitle,AlertDialogDescription,AlertDialogFooter,AlertDialogCancel,AlertDialogAction} from '@/components/ui/alert-dialog';
+import PwaControls from './PwaControls';
 import GameIcon from './GameIcon';
 export default function MainMenu({onContinue,onNew,onLoad,onSettings,onCoop,onSave}:{onContinue:()=>void;onNew:()=>void;onLoad:(f:File)=>void;onSettings:()=>void;onCoop:()=>void;onSave:()=>Promise<void>}) {
   const file=useRef<HTMLInputElement>(null),[confirm,setConfirm]=useState(false),[exited,setExited]=useState(false),[error,setError]=useState('');
@@ -19,6 +20,7 @@ export default function MainMenu({onContinue,onNew,onLoad,onSettings,onCoop,onSa
       <input hidden ref={file} type="file" accept="application/json,.json" onChange={e=>{const selected=e.target.files?.[0];if(selected)onLoad(selected);e.target.value='';}}/>
       {error && <output role="alert">{error}</output>}
       {exited && <output>Oyun duraklatıldı. Sekmeyi kapatabilirsin; kayıt sonucunu Ayarlar bölümünde görebilirsin.</output>}
+      <PwaControls/>
       <small>Tab: menü · E: etkileşim · Shift: koş · Ctrl: saldırı</small>
     </section>
     <AlertDialog open={confirm} onOpenChange={setConfirm}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Yeni dünyaya başla?</AlertDialogTitle><AlertDialogDescription>Bu tarayıcıdaki tek oyunculu kayıt değişir. Mevcut dünyanı korumak için önce Ayarlar’dan kayıt dosyasını indirebilirsin.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Geri dön</AlertDialogCancel><AlertDialogAction onClick={onNew}>Yeni dünyayı oluştur</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>

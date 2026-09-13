@@ -2,10 +2,10 @@ import { sites } from '@openai/sites-vite-plugin';
 import tailwindcss from '@tailwindcss/postcss';
 import vinext from 'vinext';
 import { defineConfig } from 'vite';
-import hostingConfig from './.openai/hosting.json';
+import hostingConfig from './.openai/hosting.json' with {type:'json'};
+import deployment from './deployment.config.json' with {type:'json'};
 
-const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
-  'e0c45167-60ae-4980-9a74-3a717a2a9954';
+const DATABASE_ID = deployment.database_id;
 
 const { d1, r2 } = hostingConfig;
 
@@ -20,7 +20,7 @@ const localBindingConfig = {
         {
           binding: d1,
           database_name: 'site-creator-d1',
-          database_id: SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
+          database_id: DATABASE_ID,
         },
       ]
     : [],

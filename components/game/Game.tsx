@@ -121,6 +121,7 @@ export default function Game() {
     [messages, setMessages] = useState<
       (Event & { id: number; expires: number })[]
     >([]);
+  useEffect(()=>{if(window.matchMedia('(pointer: coarse)').matches)setCompactHud(true);},[]);
   const control = useRef({
     tool: 'hand',
     selection: 'wheat',
@@ -1021,6 +1022,7 @@ export default function Game() {
                   className={`pad-${k.key}`}
                   aria-label={`${k.key} yönünde yürü`}
                   onPointerDown={(ev) => {
+                    ev.preventDefault();if(control.current.paused)return;
                     ev.currentTarget.setPointerCapture(ev.pointerId);
                     keys.current.add(k.key);
                   }}

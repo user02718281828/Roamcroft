@@ -31,3 +31,31 @@
 @media(max-width:600px){.game-panel[data-slot='sheet-content']{width:calc(100vw - 12px)!important;height:calc(100dvh - 12px)!important;border-radius:13px}.unified-tabs{width:calc(100% - 24px)!important;margin:0 12px 8px}.unified-tabs [data-slot='tabs-trigger']{font-size:11px}.game-panel .panel-body{padding:0 14px 18px}}
 
 .online-panel {display:flex;flex-direction:column;gap:12px;}.online-panel form{display:grid;gap:10px;padding:16px;border:1px solid #dec78430;border-radius:10px;}.online-panel label{font-size:12px;color:#d0d6b4}.online-players{display:grid;grid-template-columns:1fr 1fr;gap:6px}.online-players p{background:#71885733;padding:8px;border-radius:8px;font-size:12px;}
+.world canvas {touch-action:none;}
+.pwa-controls {display:flex;gap:8px;flex-wrap:wrap;}
+.pwa-controls button {flex:1;}
+@media (pointer:coarse) {
+  .game-shell {min-height:100dvh;}
+  .game-shell .touch-controls {display:block;position:fixed;inset:auto auto calc(20px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));z-index:20;pointer-events:none;}
+  .game-shell .dpad {grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:4px;}
+  .game-shell .dpad button {width:44px;height:44px;}
+  .game-shell .touch-attack {position:fixed;left:auto;right:calc(20px + env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));width:52px;height:52px;}
+  .game-shell .tool-shelf {bottom:calc(126px + env(safe-area-inset-bottom));left:50%;width:min(480px,calc(100vw - 24px));}
+  .game-shell .toolbar {overflow-x:auto;justify-content:flex-start;scrollbar-width:none;touch-action:pan-x;}
+  .game-shell .toolbar button {width:48px;min-width:48px;height:48px;}
+  .game-shell .toolbar small {display:none;}
+  .game-shell .tool-info {display:none;}
+  .game-shell .placement-banner,.game-shell .seed-picker {bottom:calc(188px + env(safe-area-inset-bottom));}
+  .game-shell .activity-banner {top:auto;bottom:calc(188px + env(safe-area-inset-bottom));max-width:calc(100vw - 32px);}
+  .game-shell .game-header button,.game-shell .world-actions button,.game-shell .hud-toggle,.game-shell .main-actions button {min-width:44px;min-height:44px;}
+  .main-menu-card button,.game-panel button {min-height:44px;}
+  .game-panel input {min-height:44px;font-size:16px;}
+  .game-panel .panel-body {font-size:14px;}
+  .game-shell.has-panel .touch-controls {visibility:hidden;}
+}
+@media (pointer:coarse) and (orientation:landscape) {
+  .game-shell .tool-shelf {bottom:calc(20px + env(safe-area-inset-bottom));width:calc(100vw - 320px);max-width:510px;}
+  .game-shell .placement-banner,.game-shell .seed-picker,.game-shell .activity-banner {bottom:calc(85px + env(safe-area-inset-bottom));}
+  .game-shell .hud-left {top:70px;bottom:135px;}
+  .game-shell .world-actions {top:70px;}
+}

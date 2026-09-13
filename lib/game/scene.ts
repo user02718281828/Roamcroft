@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {PinchGesture} from './touch.ts';
 import {sunlight,humanPose,animalPose,type HumanAction} from './living.ts';
 import { PointerDrag, FrameBudget } from './interaction.ts';
 import { WorldBatches, compactModel, releaseModel } from './batches.ts';
@@ -27,6 +28,7 @@ export class ValleyScene {
   highQuality = true;
   budget = new FrameBudget();
   drag = new PointerDrag();
+  pinch = new PinchGesture();
   arrivalPending = false;
   placementRotation = 0;
   placementCorner = false;
@@ -223,11 +225,13 @@ export class ValleyScene {
     this.resizeObserver.observe(container);
     this.resize(container);
     const down = (e: PointerEvent) => {
+      if(e.pointerType==='touch'&&this.pinch.begin(e.pointerId,e.clientX,e.clientY,this.zoom)){this.drag.cancel();this.canvas.setPointerCapture(e.pointerId);return;}
       if (!this.drag.begin(e.pointerId,e.clientX,e.clientY,e.button)) return;
       this.canvas.focus({preventScroll:true});
       this.canvas.setPointerCapture(e.pointerId);
     };
     const move = (e: PointerEvent) => {
+      if(e.pointerType==='touch'){const zoom=this.pinch.move(e.pointerId,e.clientX,e.clientY);if(zoom!==null){this.zoom=zoom;this.resize(container);}if(this.pinch.suppress){e.preventDefault();return;}}
       const delta=this.drag.move(e.pointerId,e.clientX,e.clientY,e.buttons);
       if (delta) {
         const k=this.zoom/Math.max(1,this.height), vertical=Math.hypot(32,28)/28;
@@ -241,13 +245,14 @@ export class ValleyScene {
       if(p) {this.hoverTile=p;this.onHover(p.x,p.z);} else this.hoverTile=null;
     };
     const up=(e:PointerEvent)=>{
-      if(this.drag.end(e.pointerId)) {
+      const suppressed=e.pointerType==='touch'&&this.pinch.end(e.pointerId);
+      if(!suppressed && this.drag.end(e.pointerId)) {
         const p=this.pick(e.clientX,e.clientY);
         if(p) {this.onSelect(p.x,p.z);this.arrivalPending=this.engine.path.length>0;}
       }
       if(this.canvas.hasPointerCapture(e.pointerId)) this.canvas.releasePointerCapture(e.pointerId);
     };
-    const cancel=()=>this.drag.cancel();
+    const cancel=(event?:Event)=>{this.drag.cancel();if(!event||event.type==='blur')this.pinch.reset();else if(event.type==='pointercancel')this.pinch.end((event as PointerEvent).pointerId);};
     window.addEventListener('blur',cancel);
     this.disposeHandlers.push(()=>window.removeEventListener('blur',cancel));
     const wheel = (e: WheelEvent) => {
