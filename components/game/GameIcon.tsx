@@ -111,7 +111,7 @@ export default function GameIcon({
       <CircleHelp className={`game-icon ${className}`} aria-hidden="true" />
     );
   const style: CSSProperties = {
-    backgroundImage: `url(/art/farm-icons-${entry.sheet + 1}.png)`,
+    backgroundImage: `url(/art/farm-icons-${entry.sheet + 1}.webp)`,
     backgroundPosition: `${((entry.index % 4) * 100) / 3}% ${(Math.floor(entry.index / 4) * 100) / 3}%`,
   };
   return (

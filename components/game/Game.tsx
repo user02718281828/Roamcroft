@@ -5,7 +5,7 @@ import MainMenu from './MainMenu';
 import { CoopClient } from '@/lib/coop/client';
 import { nextMilestone, settlementRank } from '@/lib/game/settlement';
 import { inventoryUsed, inventoryCapacity } from '@/lib/game/progression';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import {
   Flame,
   Sun,
@@ -61,7 +61,7 @@ import { loadLocal, saveLocal, serialize, deserialize } from '@/lib/game/save';
 import { loadStored, saveStored } from '@/lib/game/storage';
 import { ValleyAudio } from '@/lib/game/audio';
 import type { ValleyScene } from '@/lib/game/scene';
-import Panels from './Panels';
+const Panels=lazy(()=>import('./Panels'));
 import type { Panel } from './Panels';
 import { Progress } from '@/components/ui/progress';
 import { NPCS } from '@/lib/game/content';
@@ -102,6 +102,7 @@ export default function Game() {
   const [, refresh] = useState(0),
     [epoch, setEpoch] = useState(0),
     [ready, setReady] = useState(false),
+    [loadingProgress,setLoadingProgress]=useState(0),
     [error, setError] = useState(''),
     [tool, setTool] = useState('hand'),
     [seed, setSeed] = useState('wheat'),
@@ -244,6 +245,7 @@ export default function Game() {
     e.emit(loaded.message);
     allowSave.current = !coop.current?.active && !loaded.message.startsWith('Kayıt okunamadı');
     setReady(false);
+    setLoadingProgress(0);
     setError('');
     keys.current.clear();
     const music = new ValleyAudio();
@@ -303,7 +305,8 @@ export default function Game() {
           );
           scene.current = view;
           view.setQuality(renderSettings.current.high);
-          setReady(true);
+          let worldReady=false,lastProgress=-1;
+          const initialChunks=view.dirtyChunks.size;
           const loop = (now: number) => {
             if (disposed) return;
             if (e.worldRevision > 0) {
@@ -352,9 +355,15 @@ export default function Game() {
                 : null;
             if (
               !document.hidden &&
-              (!control.current.paused || ui > 0.25 || view.confettiLife > 0)
+              (!worldReady || !control.current.paused || ui > 0.25 || view.confettiLife > 0)
             )
               view.render(control.current.paused ? 0 : dt, frameDuration);
+            if(!worldReady){
+              const completed=initialChunks-view.dirtyChunks.size+view.assetsLoaded,total=initialChunks+3;
+              const percent=Math.min(100,Math.round(completed/total*100));
+              if(percent!==lastProgress){lastProgress=percent;setLoadingProgress(percent);}
+              if(view.dirtyChunks.size===0&&view.assetsLoaded===3){worldReady=true;setReady(true);if(view.assetsFailed)e.emit('Bazı dokular yüklenemedi; temel görünümle devam edebilirsin.');}
+            }
             ui += dt;
             if (ui > 0.25) {
               music.ambience(
@@ -568,6 +577,7 @@ export default function Game() {
           <Flame size={40} />
           <h1>Roamcroft</h1>
           <p>{error || 'Vadin uyanıyor…'}</p>
+          {!error && <><progress aria-label="Dünya yükleme ilerlemesi" max={100} value={loadingProgress}/><small>%{loadingProgress} · Arazi ve dokular hazırlanıyor</small></>}
           {error && (
             <>
               <p className="error-help">
@@ -586,7 +596,7 @@ export default function Game() {
       )}
       {s && (
         <>
-          {mainMenu && !panel && <MainMenu onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onCoop={()=>{setMainMenu(false);setPanel('online');}} onSave={doSave}/>}
+          {ready && mainMenu && !panel && <MainMenu onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onCoop={()=>{setMainMenu(false);setPanel('online');}} onSave={doSave}/>}
           <header className="game-header">
             <div className="brand">
               <div className="brand-icon">
@@ -1116,7 +1126,7 @@ export default function Game() {
               <button onClick={() => setPaused(false)}>Devam et</button>
             </div>
           )}
-          <Panels
+          {panel && <Suspense fallback={<div className="panel-loading" role="status">Menü hazırlanıyor…</div>}><Panels
             audio={audio.current}
             engine={engine.current!}
             coop={coop.current}
@@ -1143,7 +1153,7 @@ export default function Game() {
               setPanel(null);
               engine.current?.go(x, z, 'hand');
             }}
-          />
+          /></Suspense>}
         </>
       )}
     </main>

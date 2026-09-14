@@ -32,6 +32,9 @@
 
 .online-panel {display:flex;flex-direction:column;gap:12px;}.online-panel form{display:grid;gap:10px;padding:16px;border:1px solid #dec78430;border-radius:10px;}.online-panel label{font-size:12px;color:#d0d6b4}.online-players{display:grid;grid-template-columns:1fr 1fr;gap:6px}.online-players p{background:#71885733;padding:8px;border-radius:8px;font-size:12px;}
 .world canvas {touch-action:none;}
+.loading-screen progress {width:min(260px,70vw);height:8px;accent-color:#e4c578;}
+.loading-screen small {font-size:12px;color:#bfc6a7;}
+.panel-loading {position:fixed;z-index:60;inset:40% 20%;display:grid;place-items:center;background:#20382ef2;border:1px solid #d6b968;border-radius:20px;color:#f0dfb6;padding:30px;}
 .audio-levels {display:grid;gap:12px;margin:12px 0 18px;}
 .audio-levels label {display:grid;gap:6px;font-size:12px;color:#d8dbbd;}
 .audio-levels input {width:100%;accent-color:#d6b55f;min-height:28px;}

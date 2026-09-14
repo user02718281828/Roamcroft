@@ -45,6 +45,10 @@ export default defineConfig(async () => {
   const { cloudflare } = await import('@cloudflare/vite-plugin');
 
   return {
+    build:{rolldownOptions:{output:{codeSplitting:{groups:[
+      {name:'three-core',test:/[\\/]three[\\/]build[\\/]three\.core\.js$/,priority:20},
+      {name:'three-renderer',test:/[\\/]three[\\/]build[\\/]three\.module\.js$/,priority:10},
+    ]}}}},
     css: { postcss: { plugins: [tailwindcss()] } },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }

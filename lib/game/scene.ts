@@ -125,6 +125,8 @@ export class ValleyScene {
   wheels: T.Object3D[] = [];
   effects: { mesh: T.Mesh; life: number; velocity: T.Vector3 }[] = [];
   textures: Record<string, T.Texture> = {};
+  assetsLoaded=0;
+  assetsFailed=0;
   grassSurface!: T.InstancedMesh;
   placement: string | null = null;
   ghost = new T.Group();
@@ -200,7 +202,7 @@ export class ValleyScene {
       soil: 'tilled-soil',
       wood: 'honey-oak-planks',
     })) {
-      const texture = loader.load(`/textures/${name}.png`);
+      const texture = loader.load(`/textures/${name}.webp`,()=>{this.assetsLoaded++;this.renderer.shadowMap.needsUpdate=true;},undefined,()=>{this.assetsLoaded++;this.assetsFailed++;});
       texture.colorSpace = T.SRGBColorSpace;
       texture.wrapS = texture.wrapT = T.RepeatWrapping;
       texture.anisotropy = Math.min(

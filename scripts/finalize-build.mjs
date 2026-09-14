@@ -13,7 +13,7 @@ await writeFile(target,JSON.stringify(wrangler,null,2)+'\n');
 const pkg=JSON.parse(await readFile(resolve(root,'package.json'),'utf8'));
 async function bundleFiles(directory,prefix=''){
  const files=await readdir(directory,{withFileTypes:true}),result=[];
- for(const file of files){if(file.name.startsWith('.'))continue;const path=prefix+'/'+file.name;if(file.isDirectory())result.push(...await bundleFiles(resolve(directory,file.name),path));else if(/\.(js|css)$/.test(file.name)&&file.name!=='sw.js')result.push(path);}
+ for(const file of files){if(file.name.startsWith('.'))continue;const path=prefix+'/'+file.name;if(file.isDirectory())result.push(...await bundleFiles(resolve(directory,file.name),path));else if(/\.(js|css|webp)$/.test(file.name)&&file.name!=='sw.js')result.push(path);}
  return result;
 }
 const assets=await bundleFiles(resolve(root,'dist/client'));
