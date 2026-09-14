@@ -4,7 +4,6 @@ import type {ValleyAudio} from '@/lib/game/audio';
 import GameIcon from './GameIcon';
 import StoragePanel from './StoragePanel';
 import {timedGreeting,schedule} from '@/lib/game/living';
-import OnlinePanel from './OnlinePanel';
 import type { CoopClient } from '@/lib/coop/client';
 import {
   BundlesPanel,
@@ -85,7 +84,6 @@ export type Panel =
   | 'ranch'
   | 'bundles'
   | 'mine'
-  | 'online'
   | null;
 export function Cost({ bag, inventory }: { bag: Bag; inventory: Bag }) {
   return (
@@ -151,7 +149,6 @@ export default function Panels({
     [quantity, setQuantity] = useState(1),
     file = useRef<HTMLInputElement>(null);
   const titles: Record<NonNullable<Panel>, [string, string]> = {
-    online: ['Birlikte oyna','Odanı aç veya arkadaşının dünyasına katıl.'],
     bundles: [
       'Köy emanetleri',
       'Ortak sandıkları doldur, vadine kalıcı iyileştirmeler kazandır.',
@@ -192,14 +189,13 @@ export default function Panels({
           </SheetHeader>
           <Tabs value={panel || 'inventory'} onValueChange={value=>setPanel(value as Panel)}>
             <TabsList className="unified-tabs">
-              {([['inventory','Çanta'],['craft','Üretim'],['build','İnşa'],['quests','Günlük'],['ranch','Çiftlik'],['villagers','Dostlar'],['bundles','Emanet'],['mine','Maden'],['online','Co-op'],['settings','Ayarlar']] as const).map(([id,label])=><TabsTrigger key={id} value={id}>{label}</TabsTrigger>)}
+              {([['inventory','Çanta'],['craft','Üretim'],['build','İnşa'],['quests','Günlük'],['ranch','Çiftlik'],['villagers','Dostlar'],['bundles','Emanet'],['mine','Maden'],['settings','Ayarlar']] as const).map(([id,label])=><TabsTrigger key={id} value={id}>{label}</TabsTrigger>)}
             </TabsList>
           </Tabs>
           <div className="panel-pause">
             <Clock size={13} /> {coop?.active ? 'Ortak dünya · Ev sahibi zamanın akışını yönetir' : 'Duraklatıldı'} · Tab: kapat · Q / E: sekme değiştir
           </div>
           <div className="panel-body">
-            {panel === 'online' && coop && <OnlinePanel client={coop} onClose={()=>setPanel(null)}/>}
             {panel === 'bundles' && <BundlesPanel engine={engine} />}
             {panel === 'mine' && (
               <MinePanel
@@ -1421,7 +1417,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.2
+                  Roamcroft · 1.3.0
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

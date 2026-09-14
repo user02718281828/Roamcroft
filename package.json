@@ -7,15 +7,15 @@
   },
   "scripts": {
     "dev": "vinext dev",
-    "build": "vinext build && node scripts/finalize-build.mjs",
+    "build": "vinext build && node scripts/finalize-build.mjs && node scripts/check-budget.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
     "format": "oxfmt",
-    "test": "node --test tests/*.test.ts",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "deploy": "wrangler deploy --config dist/server/wrangler.json",
-    "benchmark": "node scripts/benchmark.ts"
+    "benchmark": "node --experimental-strip-types scripts/benchmark.ts"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
@@ -55,7 +55,7 @@
     "oxfmt": "0.61.0",
     "oxlint": "1.76.0",
     "oxlint-tsgolint": "7.0.2001",
-    "sharp": "^0.35.4",
+    "sharp": "0.35.4",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
     "vite": "8.2.2",

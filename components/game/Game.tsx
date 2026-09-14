@@ -2,7 +2,7 @@
 import GameIcon from './GameIcon';
 import './menu.css';
 import MainMenu from './MainMenu';
-import { CoopClient } from '@/lib/coop/client';
+import type { CoopClient } from '@/lib/coop/client';
 import { nextMilestone, settlementRank } from '@/lib/game/settlement';
 import { inventoryUsed, inventoryCapacity } from '@/lib/game/progression';
 import { useEffect, useRef, useState, lazy, Suspense } from 'react';
@@ -122,7 +122,7 @@ export default function Game() {
     [messages, setMessages] = useState<
       (Event & { id: number; expires: number })[]
     >([]);
-  useEffect(()=>{if(window.matchMedia('(pointer: coarse)').matches)setCompactHud(true);},[]);
+  useEffect(()=>{if(window.matchMedia('(pointer: coarse), (max-width: 600px)').matches)setCompactHud(true);},[]);
   const control = useRef({
     tool: 'hand',
     selection: 'wheat',
@@ -216,13 +216,6 @@ export default function Game() {
     setPaused(false);
     setEpoch((n) => n + 1);
   };
-  useEffect(()=>{
-    const client=new CoopClient(()=>engine.current,state=>{
-      nextState.current=state;setMainMenu(false);setPaused(false);setPanel(null);setEpoch(n=>n+1);
-    },()=>refresh(n=>n+1));
-    coop.current=client;
-    return()=>{client.dispose();coop.current=null;};
-  },[]);
   useEffect(() => {
     if (!storageReady) return;
     let disposed = false,
@@ -453,7 +446,7 @@ export default function Game() {
       if(key==='tab') {ev.preventDefault();setMainMenu(false);if(!ev.repeat)setPanel(p=>p?null:'inventory');return;}
       if(control.current.panel) {
         if(['q','e','arrowleft','arrowright'].includes(key) && !(key.startsWith('arrow')&&(ev.target as HTMLElement).getAttribute('role')==='tab')) {
-          ev.preventDefault();const tabs:Panel[]=['inventory','craft','build','quests','ranch','villagers','bundles','mine','online','settings'];
+          ev.preventDefault();const tabs:Panel[]=['inventory','craft','build','quests','ranch','villagers','bundles','mine','settings'];
           const current=Math.max(0,tabs.indexOf(control.current.panel));setPanel(tabs[(current+(['q','arrowleft'].includes(key)?tabs.length-1:1))%tabs.length]);
         }
         return;
@@ -596,7 +589,7 @@ export default function Game() {
       )}
       {s && (
         <>
-          {ready && mainMenu && !panel && <MainMenu onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onCoop={()=>{setMainMenu(false);setPanel('online');}} onSave={doSave}/>}
+          {ready && mainMenu && !panel && <MainMenu onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onSave={doSave}/>}
           <header className="game-header">
             <div className="brand">
               <div className="brand-icon">
@@ -681,11 +674,12 @@ export default function Game() {
           </section>
           <button
             className="hud-toggle glass"
+            aria-label={compactHud ? 'Yan panelleri aç' : 'Yan panelleri daralt'}
             aria-expanded={!compactHud}
             aria-controls="left-quest left-actions"
             onClick={() => setCompactHud((v) => !v)}
           >
-            {compactHud ? 'Menüleri aç' : 'Menüleri daralt'}
+            {compactHud ? 'Aç' : 'Menüleri daralt'}
           </button>
           {inventoryUsed(s) >= inventoryCapacity(s) && (
             <div className="hud-warning" role="alert">
@@ -795,7 +789,6 @@ export default function Game() {
             aria-label="Oyun menüleri"
           >
             <button onClick={()=>setPanel('inventory')} title="Menü (Tab)"><Backpack/><span>Menü</span></button>
-            <button onClick={()=>setPanel('online')} title={coop.current?.status || 'Birlikte oyna'}><Users/><span>Co-op</span></button>
             <button onClick={()=>{if(engine.current)engine.current.toggleRest();}} title="Otur / kalk"><Pause/><span>Dinlen</span></button>
           </nav>
           </div>

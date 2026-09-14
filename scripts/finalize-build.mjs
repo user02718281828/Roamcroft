@@ -20,4 +20,7 @@ const assets=await bundleFiles(resolve(root,'dist/client'));
 let worker=await readFile(resolve(root,'public/sw.js'),'utf8');
 worker=worker.replace("'roamcroft-dev'",JSON.stringify('roamcroft-'+pkg.version+'-'+Date.now())).replace("const SHELL=",'const SHELL='+JSON.stringify(assets)+'.concat(').replace("'/favicon.svg'];","'/favicon.svg']);");
 await writeFile(resolve(root,'dist/client/sw.js'),worker);
+const headersPath=resolve(root,'dist/client/_headers');
+const headers=await readFile(headersPath,'utf8').catch(()=>'');
+await writeFile(headersPath,headers+'\n/sw.js\n  Cache-Control: no-cache\n/manifest.json\n  Cache-Control: no-cache\n');
 console.info('D1 bağlantısı doğrulandı; çevrimdışı uygulama dosyaları hazırlandı.');

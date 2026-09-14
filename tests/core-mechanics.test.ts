@@ -24,10 +24,11 @@ void test('Roamcroft keeps old inventories and saves while migrating new fields'
   const s = createState();
   s.inventory.wood = 900;
   const legacy = structuredClone(s) as unknown as Record<string, unknown>;
-  for (const key of ['settlement', 'bundles', 'talks', 'overflow'])
+  for (const key of ['settlement', 'bundles', 'talks', 'overflow', 'storage'])
     delete legacy[key];
   const restored = deserialize(serialize(legacy as unknown as typeof s));
   assert.equal(restored.inventory.wood, 900);
+  assert.deepEqual(restored.storage, {});
   assert.deepEqual(restored.settlement, { name: 'Yuvam', milestones: [] });
   const e = new Engine(restored);
   assert.ok(e.renameSettlement('  Çam   Yuvam  '));
