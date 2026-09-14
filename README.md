@@ -150,3 +150,5 @@ Her derleme statik dosya toplamını 3 MB ile sınırlar ve dist/client/asset-bu
 Service worker, ilk başarılı çevrimiçi açılışta uygulama kabuğunu, kodu ve WebP dokularını saklar. Kurulum tamamlandıktan sonra oyun çevrimdışı açılabilir. API istekleri önbelleğe alınmaz. Güncelleme yeni oturumda etkinleşir; devam eden oyun zorla yenilenmez.
 
 Genişletilmiş içerik kapsamı ve tamamlanma durumu: [Gelişim planı](docs/development-plan.md).
+
+<!-- Otomatik deploy testi -->
