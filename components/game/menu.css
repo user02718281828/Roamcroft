@@ -100,3 +100,4 @@
   .game-shell .hud-left {top:70px;bottom:135px;}
   .game-shell .world-actions {top:70px;}
 }
+.main-menu-card .load-error{display:block;color:#ffc0ad;background:#602f2b;padding:10px 12px;border:1px solid #aa6454;border-radius:10px;font-size:13px;}

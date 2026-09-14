@@ -2,7 +2,7 @@
 
 **Canlı oyun:** https://roamcroft.roamcroft.workers.dev
 
-**Kaynak sürümü: 1.3.0.** Yerel test çiftliğinin masaüstü ve mobil görünümü (canlı sürümün ekran görüntüleri değildir):
+**Kaynak sürümü: 1.3.1.** Yerel test çiftliğinin 1.3.0 masaüstü ve mobil görünümü:
 
 ![Masaüstü oyun ekranı](docs/screenshots/desktop.jpg)
 
@@ -108,7 +108,7 @@ Bu sürümün kaydı cihaz ve site adresine bağlıdır; yerel adresle yayımlan
 
 ## Doğrulama sınırı
 
-94 otomatik test; simülasyon, kayıt geçişi, ekonomi, sosyal ilişkiler, A*, dokunma hareketleri, çevrimdışı kabuk ve kapalı co-op uç noktasını kapsar. Yerel üretim derlemesi masaüstü ve dar ekran tarayıcıda kontrol edilir. Test ayrıntıları [1.3.0 doğrulama notlarında](docs/verification-1.3.0.md) tutulur.
+99 otomatik test; simülasyon, kayıt geçişi, ekonomi, sosyal ilişkiler, A*, dokunma hareketleri, çevrimdışı kabuk, bulut koordinatları, CSP ve kapalı co-op uç noktasını kapsar. `npm run start` sonrasında `npm run check:http` gerçek üretim yanıtlarındaki altı başlığı ve HTML nonce eşleşmesini denetler. Test ayrıntıları [1.3.1 doğrulama notlarında](docs/verification-1.3.1.md) tutulur.
 
 Bulut kayıt ve co-op bu sürümde kapalıdır. [Çevrimiçi yol haritası](docs/online-roadmap.md) gelecek aşamaları açıklar.
 

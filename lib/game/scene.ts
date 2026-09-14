@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {CloudField} from './clouds.ts';
 import {WATER_SURFACE_Y,WORLD_BASE_TOP,addWind} from './visuals.ts';
 import {PinchGesture} from './touch.ts';
 import {sunlight,humanPose,animalPose,type HumanAction} from './living.ts';
@@ -121,7 +122,7 @@ export class ValleyScene {
   onHover: (x: number, z: number) => void;
   disposeHandlers: (() => void)[] = [];
   flowers!: T.InstancedMesh;
-  clouds = new T.Group();
+  clouds = new CloudField();
   wheels: T.Object3D[] = [];
   effects: { mesh: T.Mesh; life: number; velocity: T.Vector3 }[] = [];
   textures: Record<string, T.Texture> = {};
@@ -1630,31 +1631,7 @@ export class ValleyScene {
         this.box(g, 0x565566, x, 0.2, z, 0.11, 0.35, 0.13);
   }
   makeClouds() {
-    for (let i = 0; i < 10; i++) {
-      const g = new T.Group();
-      g.position.set(
-        noise(i, 0, 2) * 50 - 7,
-        9 + noise(i, 0, 4) * 6,
-        noise(i, 3, 2) * 45,
-      );
-      for (let j = 0; j < 3; j++) {
-        const m = this.mesh(
-          g,
-          'sphere',
-          0xdde6d4,
-          j * 1.1,
-          0,
-          0,
-          1.7,
-          0.5,
-          1.0,
-        );
-        m.castShadow = false;
-        m.receiveShadow = false;
-      }
-      compactModel(g);
-      this.clouds.add(g);
-    }
+    this.clouds.update(this.target.x,this.target.z,this.engine.s.seed,0,1);
   }
   updateTerrain() {
     const s = this.engine.s;
@@ -2472,14 +2449,10 @@ export class ValleyScene {
     for (const wheel of this.wheels) wheel.rotation.z = this.time * 0.35;
     for(const {group} of this.structures.values()){const flame=group.getObjectByName('flame');if(flame){flame.scale.set(1+Math.sin(this.time*8)*.1,1+Math.sin(this.time*11)*.17,1);flame.rotation.z=Math.sin(this.time*7)*.08;for(const child of flame.children)if(child instanceof T.Mesh)(child.material as T.MeshStandardMaterial).emissiveIntensity=.65+Math.sin(this.time*13)*.18;}}
 
-    for (const c of this.clouds.children) {
-      c.position.x += dt * 0.07;
-      if (c.position.x > 48) c.position.x = -10;
-      c.visible = !s.mine && s.weather !== 'rain';
-    }
+    this.clouds.update(this.target.x,this.target.z,s.seed,this.time,daylight);
+    this.clouds.visible=!s.mine&&s.weather!=='rain'&&this.budget.tier<4;
     this.rain.position.set(this.target.x-20,0,this.target.z-20);
     this.fireflies.position.x=this.target.x-18;this.fireflies.position.z=this.target.z-18;
-    this.clouds.position.set(this.target.x-24,0,this.target.z-24);
     const fogTarget=s.mine?.025:s.weather==='rain'?.024:daylight<.2?.018:.009;
     (this.scene.fog as T.FogExp2).density+=(fogTarget-(this.scene.fog as T.FogExp2).density)*(1-Math.exp(-dt));
     this.rain.visible = !s.mine && s.weather === 'rain';
@@ -2527,7 +2500,6 @@ export class ValleyScene {
       this.renderer.shadowMap.enabled=this.highQuality && this.budget.tier<2;
       this.renderer.shadowMap.needsUpdate=true;
       this.flowers.visible=this.budget.tier<3;
-      this.clouds.visible=this.budget.tier<4;
       this.resize(this.canvas.parentElement!);
     }
     this.frameAverage=this.budget.average;

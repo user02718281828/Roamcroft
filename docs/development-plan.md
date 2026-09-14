@@ -15,6 +15,22 @@
 - [ ] Fiziksel Android/iOS pinch, joystick ve PWA kurulum testi.
 - [ ] Cloudflare oturumu, Git bağlantısı, canlı yayın ve canlı PageSpeed ölçümü.
 
+## 1.1 Bulutlar, güvenlik ve performans raporu — 15 Eylül 2026
+
+- [x] **2.8 Bulutlar:** dünya koordinatlarına bağlı, seyrek, yumuşak kenarlı ve düşük opaklıklı bulut katmanı; kamerayla kayma kaldırıldı. Tek çizim çağrısı, en fazla 25 örnek.
+- [x] CSP, X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy, Permissions-Policy; HTML/API ve statik yanıtlar ayrı korunur.
+- [x] HTML isteklerinde rastgele nonce; script için unsafe-inline/unsafe-eval yok. Tam ekran izni oyunun kendi kaynağına açık.
+- [x] WebP, kod bölme ve önbellek optimizasyonlarının canlı 1.3.0 çıktısında bulunduğu doğrulandı: 2.59 MB statik dosya.
+- [x] Drizzle sürümü düşürülmeden alt bağımlılıktaki esbuild güncellendi; audit sıfır, şema üretimi çalışıyor.
+- [x] Bozuk kayıt mevcut dünyayı değiştirmiyor; yükleme hatası ana menüde görünür. Otomatik kayıt ve çok günlük simülasyon testleri mevcut.
+- [x] Kapalı API için yabancı Origin ve OPTIONS kontrolü; CORS erişimi açılmıyor.
+- [ ] Yeni sürüm canlı yayın ve HTTP doğrulaması.
+- [ ] Yeni mobil/masaüstü PageSpeed ve LCP ölçümü. Google API 429 döndürdü; eski puanlar yeni sürüm sonucu kabul edilmez.
+- [ ] Fiziksel mobil cihaz ve uzun süreli GPU kontrolü.
+- [ ] Özel domain eklenince CORS, online açılınca egress kontrolü; kimlik doğrulama ve yetkilendirme ayrıca test edilecek.
+
+Güvenlik başlıkları ve temiz tarama, uygulamanın tüm olası açıklardan arınmış olduğunun kanıtı değildir. Kullanıcı raporundaki geçmiş taramalar, bu oturumda tekrar çalıştırılmış gibi sunulmaz.
+
 ## 2. Tarım ve ürün kalitesi
 
 - [ ] Eski kayıt günlerini dönüştürerek 28 günlük dört mevsime geçiş.

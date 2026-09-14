@@ -3,7 +3,7 @@ import {useRef,useState} from 'react';
 import {AlertDialog,AlertDialogContent,AlertDialogHeader,AlertDialogTitle,AlertDialogDescription,AlertDialogFooter,AlertDialogCancel,AlertDialogAction} from '@/components/ui/alert-dialog';
 import PwaControls from './PwaControls';
 import GameIcon from './GameIcon';
-export default function MainMenu({onContinue,onNew,onLoad,onSettings,onSave}:{onContinue:()=>void;onNew:()=>void;onLoad:(f:File)=>void;onSettings:()=>void;onSave:()=>Promise<void>}) {
+export default function MainMenu({onContinue,onNew,onLoad,onSettings,onSave,loadError}:{onContinue:()=>void;onNew:()=>void;onLoad:(f:File)=>void;onSettings:()=>void;onSave:()=>Promise<void>;loadError?:string}) {
   const file=useRef<HTMLInputElement>(null),[confirm,setConfirm]=useState(false),[exited,setExited]=useState(false),[error,setError]=useState('');
   return <div className="main-menu-screen">
     <section className="main-menu-card" aria-label="Roamcroft ana menü">
@@ -18,6 +18,7 @@ export default function MainMenu({onContinue,onNew,onLoad,onSettings,onSave}:{on
       <button className="secondary-button" onClick={()=>void onSave().then(()=>{setExited(true);window.close();}).catch(e=>setError(e instanceof Error?e.message:'Kayıt yapılamadı.'))}>Kaydet ve çık</button>
       <input hidden ref={file} type="file" accept="application/json,.json" onChange={e=>{const selected=e.target.files?.[0];if(selected)onLoad(selected);e.target.value='';}}/>
       {error && <output role="alert">{error}</output>}
+      {loadError && <output role="alert" className="load-error">{loadError}</output>}
       {exited && <output>Oyun duraklatıldı. Sekmeyi kapatabilirsin; kayıt sonucunu Ayarlar bölümünde görebilirsin.</output>}
       <PwaControls/>
       <small>Tab: menü · E: etkileşim · Shift: koş · Ctrl: saldırı</small>

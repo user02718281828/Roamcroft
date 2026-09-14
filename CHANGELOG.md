@@ -1,5 +1,13 @@
 # Değişiklikler
 
+## 1.3.1 — 15 Eylül 2026
+
+- Kameraya yapışan opak bulut modelleri, dünya koordinatlarına bağlı seyrek ve şeffaf bir sis katmanıyla değiştirildi. Kenarlar yumuşak; gölge ve derinlik yazımı yok; tek çizim çağrısı.
+- Worker yanıtlarına altı güvenlik başlığı, HTML scriptlerine her istekte yeni nonce eklendi. Statik dosyalar da başlıklarla korunur. Üretim HTTP/CSP kontrolü CI'a eklendi.
+- Drizzle Kit 0.31.10 korunarak @esbuild-kit/core-utils altındaki esbuild 0.25.12'ye sabitlendi. Dört moderate audit bulgusu giderildi; geçici klasörde SQL şema üretimi doğrulandı.
+- Kayıt yükleme hatası ana menüde kalıcı kırmızı mesajla görünür; bozuk dosya mevcut çiftliği değiştirmez.
+- Kullanıcının bulut, güvenlik, PageSpeed, kayıt/CORS ve gelecekteki egress maddeleri gelişim planına eklendi.
+
 ## 1.3.0 — 14 Eylül 2026
 
 - Mobil yön tuşları yerine 360° analog joystick eklendi; merkez uzaklığı hızı belirler, bırakma/odak kaybı hareketi sıfırlar. Yatay/dikey araç çubuğu ayrıldı, dokunma alanları büyütüldü.

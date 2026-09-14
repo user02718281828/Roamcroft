@@ -1,6 +1,6 @@
 {
   "name": "roamcroft",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -13,6 +13,7 @@
     "format": "oxfmt",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
+    "check:http": "node scripts/check-http.mjs",
     "db:generate": "drizzle-kit generate",
     "deploy": "wrangler deploy --config dist/server/wrangler.json",
     "benchmark": "node --experimental-strip-types scripts/benchmark.ts"
@@ -64,6 +65,9 @@
   "type": "module",
   "description": "İzometrik çiftçilik, hayatta kalma ve köy kurma oyunu",
   "overrides": {
-    "sharp": "0.35.4"
+    "sharp": "0.35.4",
+    "@esbuild-kit/core-utils": {
+      "esbuild": "0.25.12"
+    }
   }
 }

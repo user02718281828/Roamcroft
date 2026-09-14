@@ -106,6 +106,7 @@ export default function Game() {
     [ready, setReady] = useState(false),
     [loadingProgress,setLoadingProgress]=useState(0),
     [error, setError] = useState(''),
+    [loadError, setLoadError] = useState(''),
     [tool, setTool] = useState('hand'),
     [seed, setSeed] = useState('wheat'),
     [build, setBuild] = useState('workshop'),
@@ -185,6 +186,7 @@ export default function Game() {
     engine.current.emit('Kayıt dosyası indirildi.', 'good');
   };
   const doImport = async (file: File) => {
+    setLoadError('');
     if(coop.current?.active){engine.current?.emit('Kayıt yüklemek için önce ortak odadan ayrıl.','bad');return;}
     try {
       if (file.size > 32_000_000) throw new Error('Kayıt dosyası çok büyük.');
@@ -198,6 +200,7 @@ export default function Game() {
       setPaused(false);
       setEpoch((n) => n + 1);
     } catch (e) {
+      setLoadError(e instanceof Error ? e.message : 'Kayıt yüklenemedi.');
       engine.current?.emit(
         e instanceof Error ? e.message : 'Kayıt yüklenemedi.',
         'bad',
@@ -595,7 +598,7 @@ export default function Game() {
       )}
       {s && (
         <>
-          {ready && mainMenu && !panel && <MainMenu onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onSave={doSave}/>}
+          {ready && mainMenu && !panel && <MainMenu loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onSave={doSave}/>}
           <header className="game-header">
             <div className="brand">
               <div className="brand-icon">
