@@ -32,6 +32,17 @@
 
 .online-panel {display:flex;flex-direction:column;gap:12px;}.online-panel form{display:grid;gap:10px;padding:16px;border:1px solid #dec78430;border-radius:10px;}.online-panel label{font-size:12px;color:#d0d6b4}.online-players{display:grid;grid-template-columns:1fr 1fr;gap:6px}.online-players p{background:#71885733;padding:8px;border-radius:8px;font-size:12px;}
 .world canvas {touch-action:none;}
+.joystick {position:relative;width:116px;height:116px;border-radius:50%;border:1px solid #dbc0826b;background:radial-gradient(circle,#49674580 0 36%,#203e32b3 38% 64%,#d4bb7724 66% 68%,#173629b8 70%);box-shadow:inset 0 2px 12px #11271ca6,0 5px 18px #10281e40;touch-action:none;user-select:none;pointer-events:auto;display:grid;place-items:center;outline:none;}
+.joystick:focus-visible {outline:2px solid #e5c976;outline-offset:4px;}
+.joystick-ring {position:absolute;inset:17px;border:1px dashed #e6ce853e;border-radius:50%;}
+.joystick-axis {position:absolute;background:#e3cb8733;border-radius:2px;}
+.joystick-axis-x {width:7px;height:1px;left:9px;box-shadow:90px 0 #e3cb8733;}
+.joystick-axis-y {height:7px;width:1px;top:9px;box-shadow:0 90px #e3cb8733;}
+.joystick-knob {position:relative;display:grid;place-items:center;width:50px;height:50px;border:1px solid #e9d28b;border-radius:50%;background:radial-gradient(circle at 35% 26%,#a7b783,#698353 56%,#47633f);box-shadow:0 5px 12px #071b20aa,inset 0 2px 3px #edf2bb6b;transition:transform .16s ease-out;will-change:transform;}
+.joystick-knob>span {width:15px;height:15px;border-radius:50%;border:1px solid #e7d79980;}
+.joystick[data-held] .joystick-knob {transition:none;box-shadow:0 0 16px #e8ce7555,0 5px 12px #071b20aa;}
+.joystick-label {position:absolute;bottom:-15px;font-size:8px;letter-spacing:2px;color:#e3d6ac;}
+.joystick[aria-disabled='true'] {opacity:.4;}
 .loading-screen progress {width:min(260px,70vw);height:8px;accent-color:#e4c578;}
 .loading-screen small {font-size:12px;color:#bfc6a7;}
 .panel-loading {position:fixed;z-index:60;inset:40% 20%;display:grid;place-items:center;background:#20382ef2;border:1px solid #d6b968;border-radius:20px;color:#f0dfb6;padding:30px;}
@@ -52,13 +63,13 @@
   .game-shell .dpad svg {width:20px;height:20px;}
   .game-shell .dpad button {width:44px;height:44px;}
   .game-shell .touch-attack {position:fixed;left:auto;right:calc(20px + env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));width:52px;height:52px;}
-  .game-shell .bottom-hud {bottom:calc(126px + env(safe-area-inset-bottom));left:50%;width:min(480px,calc(100vw - 24px));}
+  .game-shell .bottom-hud {bottom:calc(154px + env(safe-area-inset-bottom));left:50%;width:min(480px,calc(100vw - 24px));}
   .game-shell .toolbar {overflow-x:auto;justify-content:flex-start;scrollbar-width:none;touch-action:pan-x;}
   .game-shell .toolbar button {width:48px;min-width:48px;height:48px;}
   .game-shell .toolbar small {display:none;}
   .game-shell .tool-info {display:none;}
-  .game-shell .placement-banner,.game-shell .seed-picker {bottom:calc(188px + env(safe-area-inset-bottom));}
-  .game-shell .activity-banner {top:auto;bottom:calc(188px + env(safe-area-inset-bottom));max-width:calc(100vw - 32px);}
+  .game-shell .placement-banner,.game-shell .seed-picker {bottom:calc(218px + env(safe-area-inset-bottom));}
+  .game-shell .activity-banner,.game-shell .raid-banner {top:auto;bottom:calc(218px + env(safe-area-inset-bottom));max-width:calc(100vw - 32px);}
   .game-shell .game-header button,.game-shell .world-actions button,.game-shell .hud-toggle,.game-shell .main-actions button {min-width:44px;min-height:44px;}
   .main-menu-card button,.game-panel button {min-height:44px;min-width:44px;}
   .game-panel input {min-height:44px;font-size:16px;}
@@ -81,7 +92,7 @@
   .game-shell .hud-left,.game-shell .calendar {top:calc(112px + env(safe-area-inset-top));}
   .game-shell .world-actions {top:calc(176px + env(safe-area-inset-top));}
   .game-shell .messages {top:calc(278px + env(safe-area-inset-top));bottom:auto;}
-  .game-shell .minimap {bottom:calc(208px + env(safe-area-inset-bottom));}
+  .game-shell .minimap {bottom:calc(236px + env(safe-area-inset-bottom));}
 }
 @media (pointer:coarse) and (orientation:landscape) {
   .game-shell .bottom-hud {bottom:calc(20px + env(safe-area-inset-bottom));width:calc(100vw - 320px);max-width:510px;}

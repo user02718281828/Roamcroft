@@ -1,7 +1,7 @@
 // Sesler kullanıcı etkileşiminden sonra başlar; dış ses dosyası gerekmez.
 import {spatialAmbience} from './ambience.ts';
 import type {AcousticCamera} from './ambience.ts';
-import {tileAt} from './model.ts';
+import {tileAt,season} from './model.ts';
 import type {State} from './model.ts';
 export type AudioLevels={music:number;ambience:number;effects:number};
 export const DEFAULT_AUDIO:AudioLevels={music:.45,ambience:.7,effects:.65};
@@ -14,7 +14,7 @@ export class ValleyAudio {
  levels={...DEFAULT_AUDIO};clock=0;note=0;lastBird=0;
  river:AudioBufferSourceNode|null=null;riverGain:GainNode|null=null;riverPan:StereoPannerNode|null=null;
  wind:AudioBufferSourceNode|null=null;windGain:GainNode|null=null;noiseBuffer:AudioBuffer|null=null;
- birdMix={gain:0,pan:0};stepDistance=0;lastPosition:{x:number;z:number}|null=null;voices=0;
+ birdMix={gain:0,pan:0};insectMix={gain:0,pan:0};lastInsect=0;stepDistance=0;lastPosition:{x:number;z:number}|null=null;voices=0;
  constructor(){try{this.levels=cleanLevels(JSON.parse(localStorage.getItem('roamcroft.audio.v1')||'{}'));}catch{}}
  setLevels(levels:Partial<AudioLevels>){this.levels=cleanLevels({...this.levels,...levels});try{localStorage.setItem('roamcroft.audio.v1',JSON.stringify(this.levels));}catch{}}
  async enable(value:boolean){
@@ -75,18 +75,21 @@ export class ValleyAudio {
   const tile=tileAt(s,p.x,p.z),bridge=tile?.terrain==='path'&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dz])=>tileAt(s,p.x+dx,p.z+dz)?.terrain==='water');
   this.noise(.085,bridge?170:tile?.terrain==='path'?480:tile?.terrain==='sand'?1000:2200,.13,bridge?'lowpass':'bandpass');
  }
- tick(dt:number,night:boolean){
-  if(!this.enabled)return;this.clock+=dt;this.lastBird+=dt;
-  if(this.clock>1.65){this.clock-=1.65;const notes=[0,4,7,11,7,4,2,7,9,7,4,2,0,7,4,2],n=notes[this.note++%notes.length],root=night?130.81:174.61,f=root*Math.pow(2,n/12);
+ tick(dt:number,s:State){
+  const night=s.time>.77||s.time<.24,seasonIndex=season(s),underground=!!s.mine;
+  if(!this.enabled)return;this.clock+=dt;this.lastBird+=dt;this.lastInsect+=dt;
+  const tempo=underground?2.5:seasonIndex===3?2.1:1.65;
+  if(this.clock>tempo){this.clock-=tempo;const melodies=[[0,4,7,11,7,4,2,7,9,7,4,2,0,7,4,2],[0,7,9,12,9,7,4,2,0,4,7,9,7,4,2,0],[0,3,7,10,7,3,5,7,10,7,5,3,0,3,7,5],[0,2,7,9,7,2,4,7,9,4,2,0,7,4,2,0]],notes=melodies[seasonIndex],n=notes[this.note++%notes.length],root=underground?98:night?130.81:[174.61,196,164.81,146.83][seasonIndex],f=root*Math.pow(2,n/12);
    this.tone(f,2.8,.17,'sine',0,-.2,'music');this.tone(f*2,1.6,.025,'triangle',.02,.2,'music');
    if(this.note%4===0){this.tone(root/2,6,.15,'sine',0,0,'music');this.tone(root*.75,5.8,.085,'sine',.1,.3,'music');this.tone(root*1.25,5.4,.04,'sine',.2,-.3,'music');}
   }
+  if(this.lastInsect>3.2&&this.insectMix.gain>0){this.lastInsect=0;for(let i=0;i<4;i++)this.tone(3900+i%2*600,.07,.025*this.insectMix.gain,'sine',i*.12,this.insectMix.pan,'ambience');}
   if(this.lastBird>6&&!night){this.lastBird=0;const {gain,pan}=this.birdMix;
    this.tone(1800,.15,.15*gain,'sine',0,pan,'ambience');this.tone(2300,.12,.1*gain,'sine',.15,pan,'ambience');this.tone(1950,.22,.1*gain,'sine',.29,pan,'ambience');
   }
  }
  ambience(s:State,camera:AcousticCamera,paused:boolean){
-  const mix=spatialAmbience(s,camera);this.birdMix=paused?{gain:0,pan:0}:mix.birds;
+  const mix=spatialAmbience(s,camera);this.birdMix=paused?{gain:0,pan:0}:mix.birds;this.insectMix=paused?{gain:0,pan:0}:mix.insects;
   if(!this.context||!this.riverGain||!this.riverPan)return;
   const at=this.context.currentTime;this.riverGain.gain.setTargetAtTime(paused?0:mix.river.gain*.75*this.levels.ambience,at,.4);this.riverPan.pan.setTargetAtTime(mix.river.pan,at,.4);
   this.windGain?.gain.setTargetAtTime(paused||s.mine?0:(.12+mix.birds.gain*.09+Math.sin(at*.17)*.025)*(s.weather==='rain'?2:1)*this.levels.ambience,at,.8);

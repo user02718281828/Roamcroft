@@ -37,5 +37,5 @@ export function animalPose(action:AnimalAction,time:number) {
   return {height:action==='happy'?Math.abs(Math.sin(time*8))*.17:walking?Math.abs(Math.sin(time*(fast?18:10)))*(fast?.07:.025):0,
     pitch:action==='grazing'?.08+Math.sin(time*2)*.06:action==='fleeing'?-.1:0,
     roll:action==='lying'?.25:action==='happy'?Math.sin(time*8)*.07:0,
-    squash:action==='sleeping'?.68+Math.sin(time*1.6)*.015:action==='lying'?.76:1};
+    squash:action==='sleeping'?.68+Math.sin(time*1.6)*.015:action==='lying'?.76:1+Math.sin(time*1.8)*.012};
 }

@@ -1507,8 +1507,9 @@ export class ValleyScene {
       size * 0.45,
       size * 0.8,
     );
+    const head=new T.Group();head.name='animal-head';head.userData.animated=true;head.position.set(0,size*.95,size*.75);g.add(head);
     this.mesh(
-      g,
+      head,
       'sphere',
       cow ? 0xc4a283 : 0xe4d9bc,
       0,
@@ -1519,11 +1520,11 @@ export class ValleyScene {
       size * 0.32,
     );
     for (const x of [-size * 0.35, size * 0.35])
-      for (const z of [-size * 0.45, size * 0.45])
+      for (const z of cow||sheep?[-size*.45,size*.45]:[0])
         {const leg=new T.Group();leg.name='leg-'+(x<0?'l':'r')+(z<0?'b':'f');leg.userData.animated=true;leg.position.set(x,size*.52,z);this.box(leg,0x6f6758,0,-size*.22,0,.07,size*.5,.07);g.add(leg);}
     if (!cow && !sheep) {
       this.mesh(
-        g,
+        head,
         'cone',
         0xdfb64d,
         0,
@@ -1534,7 +1535,7 @@ export class ValleyScene {
         0.08,
       ).rotation.x = Math.PI / 2;
       this.mesh(
-        g,
+        head,
         'sphere',
         0xca6150,
         0,
@@ -1549,7 +1550,7 @@ export class ValleyScene {
       this.mesh(g, 'sphere', 0x775945, 0.18, size * 0.88, 0, 0.15, 0.12, 0.23);
     for (const side of [-1, 1]) {
       this.mesh(
-        g,
+        head,
         'sphere',
         0x35352d,
         side * size * 0.16,
@@ -1561,7 +1562,7 @@ export class ValleyScene {
       );
       if (cow || sheep)
         this.mesh(
-          g,
+          head,
           'sphere',
           cow ? 0xb18567 : 0xc1ad8e,
           side * size * 0.36,
@@ -1572,6 +1573,8 @@ export class ValleyScene {
           size * 0.12,
         );
     }
+    for(const child of head.children)child.position.sub(head.position);
+    compactModel(head);
   }
   enemy(e: Enemy, g: T.Group) {
     if (e.kind === 'slime') {
@@ -2066,9 +2069,10 @@ export class ValleyScene {
     this.zoom = T.MathUtils.clamp(this.zoom + delta, 7, 22);
     this.resize(this.canvas.parentElement!);
   }
-  burst(x: number, z: number, color = 0xe1c57b) {
-    for (let i = 0; i < 7; i++) {
-      const m = new T.Mesh(this.geo('box'), this.mat(color));
+  burst(x: number, z: number, color = 0xe1c57b, kind?:string) {
+    for (let i = 0; i < 7 && this.effects.length < 42; i++) {
+      const leaf=kind==='axe'&&i%2===0;
+      const m = new T.Mesh(this.geo(leaf?'cone':'box'), this.mat(kind==='axe'?(leaf?0xa2bf69:0xb68b58):color));
       m.position.set(x, 0.5, z);
       m.scale.setScalar(0.06);
       this.root.add(m);
@@ -2115,11 +2119,11 @@ export class ValleyScene {
       );
     this.confetti.instanceColor!.needsUpdate = true;
   }
-  animateHuman(g:T.Group,action:HumanAction,time:number) {
-    const pose=humanPose(action,time);
-    for(const name of ['leftLeg','rightLeg','leftArm','rightArm'] as const){const limb=g.getObjectByName(name);if(limb)limb.rotation.x=pose[name];}
-    const arm=g.getObjectByName('rightArm');if(arm)arm.rotation.z=pose.armSide;
-    g.rotation.x=pose.lean;g.position.y+=pose.height;
+  animateHuman(g:T.Group,action:HumanAction,time:number,dt=1/60) {
+    const pose=humanPose(action,time),blend=1-Math.exp(-Math.min(.08,dt)*18);
+    for(const name of ['leftLeg','rightLeg','leftArm','rightArm'] as const){const limb=g.getObjectByName(name);if(limb)limb.rotation.x+=(pose[name]-limb.rotation.x)*blend;}
+    const arm=g.getObjectByName('rightArm');if(arm)arm.rotation.z+=(pose.armSide-arm.rotation.z)*blend;
+    g.rotation.x+=(pose.lean-g.rotation.x)*blend;g.userData.poseHeight=(g.userData.poseHeight||0)+(pose.height-(g.userData.poseHeight||0))*blend;g.position.y+=g.userData.poseHeight;
   }
   syncRemotePlayers(dt:number) {
     const peers=this.engine.network?.peers||[],active=new Set(peers.map(p=>p.id));
@@ -2130,7 +2134,7 @@ export class ValleyScene {
       const moving=Math.hypot(peer.player.x-g.position.x,peer.player.z-g.position.z)>.025;
       g.position.x+=(peer.player.x-g.position.x)*Math.min(1,dt*9);g.position.z+=(peer.player.z-g.position.z)*Math.min(1,dt*9);
       g.position.y=tileAt(this.engine.s,g.position.x,g.position.z)?.height||0;g.rotation.y=peer.player.facing;
-      this.animateHuman(g,moving?'walking':'idle',this.time);
+      this.animateHuman(g,moving?'walking':'idle',this.time,dt);
     }
   }
   animateNature(daylight:number) {
@@ -2234,6 +2238,8 @@ export class ValleyScene {
         );
         if (motion) {
           for(const name of ['leg-lb','leg-lf','leg-rb','leg-rf']){const leg=g.getObjectByName(name);if(leg){leg.visible=Math.hypot(a.x-this.target.x,a.z-this.target.z)<12&&this.budget.tier<3;const target=motion.moving?Math.sin(this.time*(motion.mood==='fleeing'||motion.mood==='running'?16:9)+a.id+(name==='leg-lb'||name==='leg-rf'?Math.PI:0))*.5:0;leg.rotation.x+=(target-leg.rotation.x)*(1-Math.exp(-dt*18));}}
+          const head=g.getObjectByName('animal-head');
+          if(head){const target=(motion.mood==='grazing'?.38:0)+Math.sin(this.time*(motion.moving?8:1.8)+a.id)*.07;head.rotation.x+=(target-head.rotation.x)*(1-Math.exp(-dt*10));head.rotation.y=Math.sin(this.time*1.5+a.id)*.05;}
           const difference = Math.atan2(
             Math.sin(motion.facing - g.rotation.y),
             Math.cos(motion.facing - g.rotation.y),
@@ -2301,7 +2307,7 @@ export class ValleyScene {
       Math.hypot(p.x - this.lastPlayer.x, p.z - this.lastPlayer.y) > 0.002;
     this.lastPlayer.set(p.x, p.z);
     const action:HumanAction=moving?(this.engine.sprinting?'running':'walking'):this.engine.playerAction.remaining>0?this.engine.playerAction.kind:this.engine.fishing?'fishing':this.engine.resting?'sitting':this.engine.actionCooldown>0?'working':'idle';
-    this.animateHuman(this.player,action,action==='standing'?1-this.engine.playerAction.remaining:this.time);
+    this.animateHuman(this.player,action,action==='standing'?1-this.engine.playerAction.remaining:this.time,dt);
     this.syncRemotePlayers(frameDuration);
     if (this.activeTool !== this.heldTool) {
       this.handTool.clear();
@@ -2355,7 +2361,7 @@ export class ValleyScene {
         : 0;
     for(const g of this.villagers){
       const actor=this.engine.npcMotion.get(g.userData.npc);
-      if(actor){g.position.set(actor.x,tileAt(s,actor.x,actor.z)?.height||0,actor.z);g.rotation.y=actor.facing;g.userData.tile={x:Math.round(actor.x),z:Math.round(actor.z)};this.animateHuman(g,actor.action,this.time);}
+      if(actor){g.position.set(actor.x,tileAt(s,actor.x,actor.z)?.height||0,actor.z);g.rotation.y=actor.facing;g.userData.tile={x:Math.round(actor.x),z:Math.round(actor.z)};this.animateHuman(g,actor.action,this.time,dt);}
       for(const child of g.children)if(child.userData.nameTag)child.visible=Math.hypot(g.position.x-p.x,g.position.z-p.z)<8;
     }
     for (const g of [...this.villagers, ...this.landmarkGroups]) {
@@ -2464,21 +2470,28 @@ export class ValleyScene {
     this.scene.background = sky;
     (this.scene.fog as T.FogExp2).color.copy(sky);
     for (const wheel of this.wheels) wheel.rotation.z = this.time * 0.35;
-    for(const {group} of this.structures.values()){const flame=group.getObjectByName('flame');if(flame){flame.scale.set(1+Math.sin(this.time*8)*.1,1+Math.sin(this.time*11)*.17,1);flame.rotation.z=Math.sin(this.time*7)*.08;}}
+    for(const {group} of this.structures.values()){const flame=group.getObjectByName('flame');if(flame){flame.scale.set(1+Math.sin(this.time*8)*.1,1+Math.sin(this.time*11)*.17,1);flame.rotation.z=Math.sin(this.time*7)*.08;for(const child of flame.children)if(child instanceof T.Mesh)(child.material as T.MeshStandardMaterial).emissiveIntensity=.65+Math.sin(this.time*13)*.18;}}
 
     for (const c of this.clouds.children) {
       c.position.x += dt * 0.07;
       if (c.position.x > 48) c.position.x = -10;
       c.visible = !s.mine && s.weather !== 'rain';
     }
+    this.rain.position.set(this.target.x-20,0,this.target.z-20);
+    this.fireflies.position.x=this.target.x-18;this.fireflies.position.z=this.target.z-18;
+    this.clouds.position.set(this.target.x-24,0,this.target.z-24);
+    const fogTarget=s.mine?.025:s.weather==='rain'?.024:daylight<.2?.018:.009;
+    (this.scene.fog as T.FogExp2).density+=(fogTarget-(this.scene.fog as T.FogExp2).density)*(1-Math.exp(-dt));
     this.rain.visible = !s.mine && s.weather === 'rain';
     if (this.rain.visible) {
-      const pos = this.rain.geometry.attributes.position as T.BufferAttribute;
+      const pos = this.rain.geometry.attributes.position as T.BufferAttribute,snow=season(s)===3;
+      const material=this.rain.material as T.LineBasicMaterial;material.color.set(snow?0xeff4ee:0xb4d4d2);material.opacity=snow?.8:.4;
       for (let i = 0; i < pos.count; i += 2) {
-        let y = pos.getY(i) - dt * 8;
+        let y = pos.getY(i) - dt * (snow?1.15:8);
+        const x=noise(i/2,1,4)*40+(snow?Math.sin(this.time*.7+i)*.6:0);pos.setX(i,x);pos.setX(i+1,x+(snow?.06:-.08));
         if (y < 0) y = 12;
         pos.setY(i, y);
-        pos.setY(i + 1, y + 0.5);
+        pos.setY(i + 1, y + (snow?.055:.5));
       }
       pos.needsUpdate = true;
     }

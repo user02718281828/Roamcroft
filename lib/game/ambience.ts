@@ -38,9 +38,10 @@ export function spatialAmbience(s: State, camera: AcousticCamera) {
   };
   const river = nearest('water'),
     birds = nearest('tree');
+  const insects={...birds,gain:!s.mine&&(s.time<.24||s.time>.77)&&s.weather!=='rain'?birds.gain:0};
   if (s.mine) river.gain = 0;
   if (s.mine || s.time < 0.24 || s.time > 0.77 || s.weather === 'rain')
     birds.gain = 0;
   if (s.weather === 'rain') river.gain *= 0.6;
-  return { river, birds };
+  return { river, birds, insects };
 }

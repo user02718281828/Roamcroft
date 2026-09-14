@@ -1,12 +1,18 @@
 # Roamcroft
 
-🎮 **Canlı oyun:** https://roamcroft.roamcroft.workers.dev
+**Canlı oyun:** https://roamcroft.roamcroft.workers.dev
+
+**Kaynak sürümü: 1.3.0.** Yerel test çiftliğinin masaüstü ve mobil görünümü (canlı sürümün ekran görüntüleri değildir):
+
+![Masaüstü oyun ekranı](docs/screenshots/desktop.jpg)
+
+<img src="docs/screenshots/mobile.jpg" alt="Mobil oyun ekranı" width="390"/>
 
 Türkçe, tek oyunculu, izometrik bir çiftçilik ve hayatta kalma oyunu. Oyun dünyası Three.js ile gerçek zamanlı çizilir; tüm oyun kuralları tarayıcıda çalışan, görüntü motorundan bağımsız TypeScript simülasyonunda tutulur.
 
 ## Çalıştırma
 
-Node.js 24 veya üzeri ve npm gerekir.
+Node.js 22.13.0 veya üzeri ve npm gerekir. CI ve Cloudflare için .node-version kullanılır.
 
 ```powershell
 npm ci
@@ -24,26 +30,29 @@ npm run start
 
 ## Kontroller
 
-| Girdi              | Eylem                                                  |
-| ------------------ | ------------------------------------------------------ |
-| WASD / yön tuşları | Karakteri yürüt                                        |
-| Sol tık            | Hedefe yürü, kaynağı topla veya aracı kullan           |
-| 1–8                | Keşfet, balta, kazma, çapa, tohum, sulama, kılıç, olta |
-| Boşluk             | Menzildeki düşmana saldır                              |
-| R                  | Dinlen / ayağa kalk                                    |
-| B / C / I / J / M  | İnşa / üretim / çanta / günlük / pazar                 |
-| Q / E              | Kamerayı döndür                                        |
-| F                  | Karaktere odaklan                                      |
-| Sürükle            | Kamerayı taşı                                          |
-| Fare tekerleği     | Yakınlaştır / uzaklaştır                               |
-| Esc                | Menüyü kapat, inşa modundan çık veya duraklat          |
+| Girdi | Eylem |
+| --- | --- |
+| WASD / yön tuşları | Yürü |
+| Sol tık | Hedefe yürü, seçili aracı kullan |
+| 1–8 | Keşfet, balta, kazma, çapa, tohum, sula, kılıç, olta |
+| Tab | Tek pencere menüsünü aç/kapat |
+| E | Yakındaki kişi, hayvan, ürün veya yapı ile etkileşim |
+| Menüde Q/E | Önceki/sonraki sekme |
+| Shift | Enerji harcayarak koş |
+| Ctrl | Yakındaki düşmana saldır |
+| İnşada ←/→ | 90° döndür |
+| Sürükle | Kamerayı taşı |
+| Tekerlek / iki parmak | Yakınlaştır/uzaklaştır |
+| Esc | Menüden veya inşadan çık; duraklat |
 
-Dokunmatik cihazlarda haritaya dokunma, sürükleme, ekran yön tuşları ve saldırı düğmesi kullanılabilir. Ses, oyuncu ses düğmesine bastıktan sonra başlar. Zayıf cihazlarda Kamp menüsünden ayrıntılı görüntüyü kapat.
+360° dijital joystick sol altta, saldırı sağ altta sabittir. Dokunma alanları en az 44 px'tir; dar ekranlarda sol menü kapalı başlar. Ana menüde tam ekran ve destekleyen tarayıcılarda Ana Ekrana Ekle bulunur. iOS'ta Safari Paylaş → Ana Ekrana Ekle kullanılabilir.
+
+Ses ilk kullanıcı etkileşiminden sonra Ses düğmesiyle açılır. Ayarlar'da müzik, doğa ve aksiyon sesleri ayrı ayarlanır. Ayrıntılı görüntü varsayılandır; çözünürlük ve gölgeler cihazın kare süresine göre dengelenir.
 
 ## Oyun kuralları
 
 - Köy adını Kamp menüsünden değiştir. Günlükte kısa görev, sıradaki köy dönüm noktası ve uzun vadeli miras hedefi birlikte görünür. Beş dönüm noktası sırayla ve yalnızca bir kez malzeme verir: ilk hasat ve satış → atölye malzemeleri → sulama ve yem → işlenmiş ürünler → madencilik ekipmanı ve keşif erzakları. Ödüller köy adınla kayda işlenir.
-- Emanet menüsündeki dört koleksiyon sandığına kısmi bağış yapılabilir. Hasat sandığı çantayı 600'den 900 eşyaya çıkarır; çiftlik sandığı hayvanların günlük üretim hazırlığını %20 hızlandırır; ustaların sofrası makineleri %15 hızlandırır; sulama sandığı fıskiye menzilini 1'den 2 kareye çıkarır. `U` ile açılır.
+- Emanet menüsündeki dört koleksiyon sandığına kısmi bağış yapılabilir. Hasat sandığı çantayı 600'den 900 eşyaya çıkarır; çiftlik sandığı hayvanların günlük üretim hazırlığını %20 hızlandırır; ustaların sofrası makineleri %15 hızlandırır; sulama sandığı fıskiye menzilini 1'den 2 kareye çıkarır. Tab → Emanet ile açılır.
 - Bakır fıskiye, malzeme tarifinden üretilip dünyaya yerleştirilir. Bitişik sekiz ekim karesini sürekli sular; sulama emanetiyle 24 kareye ulaşır. Sulama/sera kapsamı küçük yapı alanları üzerinden hesaplanır.
 - Hayvanlar oyun günü başına bir yem tüketir ve en fazla bir üretim partisi hazırlar. Hazır ürün hayvana tıklanarak veya Çiftlik menüsünden toplanır. Yakınlığı 60 olan hayvanın partisi iki üründür. Toplanmayan ürün hayvanda 12 adede kadar bekler. Çanta doluysa toplama reddedilir; ürün silinmez.
 - Çanta dolduğunda kırmızı uyarı çıkar. Satın alma durur; makine çıktısı sığmıyorsa girdiler harcanmaz. Hasat, tarif ve görev gibi kazanılan fazla eşyalar kayıtlı teslimat sandığına aktarılır; Çanta menüsünden yer açıldığında alınır. Eski kayıtlardaki kapasite üstü eşyalar korunur.
@@ -99,9 +108,9 @@ Bu sürümün kaydı cihaz ve site adresine bağlıdır; yerel adresle yayımlan
 
 ## Doğrulama sınırı
 
-Otomatik kontroller simülasyon, kayıt, ekonomi, görev tekilliği, sosyal ilişkiler, yetenekler, bitiş koşulu ve 3B ışın seçimini kapsar. Canlı tarayıcı etkileşim testi, cihaz çeşitliliği testi ve uzun süreli oyuncu dengeleme testi yapılmadı. WebMCP araçlarının sözleşmeleri aynı motor üzerinde test edildi; destekleyen gerçek bir tarayıcıdaki kayıt işlemi doğrulanmadı.
+94 otomatik test; simülasyon, kayıt geçişi, ekonomi, sosyal ilişkiler, A*, dokunma hareketleri, çevrimdışı kabuk ve kapalı co-op uç noktasını kapsar. Yerel üretim derlemesi masaüstü ve dar ekran tarayıcıda kontrol edilir. Test ayrıntıları [1.3.0 doğrulama notlarında](docs/verification-1.3.0.md) tutulur.
 
-Bu bağımsız, tek oyunculu sürümde sunucu eşleştirmesi, çok oyunculu klanlar ve bulut kayıt hizmeti yoktur.
+Bulut kayıt ve co-op bu sürümde kapalıdır. [Çevrimiçi yol haritası](docs/online-roadmap.md) gelecek aşamaları açıklar.
 
 ## Görüntü ve performans
 
@@ -112,3 +121,32 @@ Otomatik kontrol: 300 bölge geçişinde etkin arazi 3600 karede kaldı; değiş
 Yeni dünyalar kıvrımlı nehirler ve geçilebilir kıyı yolları içerir. Önceki kayıtların arazi üretim sürümü korunur; mevcut köy sıfırlanmaz. Eski nehirlerde de yeni su, sazlık, nilüfer ve balıkçı platformu görselleri kullanılır. Yeni aktif alan, eski 36×36 alanın 2,78 katıdır. Maden katları 36×36 olarak kalır.
 
 Eşya simgeleri emoji veya işletim sistemi ikonlarından bağımsız özgün resimlerdir. Ev verandası, çift kapılı ve silolu ahır, ayaklı/rampalı kümes, açık tezgâhlı marangoz, taş fırın, mandıra ve sera farklı model siluetlerine sahiptir. Modeller renk bilgilerini koruyarak birleştirilir. Ana arayüzde arka plan bulanıklığı kullanılmaz. Ayrıntılı görüntü kapalıyken de su animasyonu ve canlı hareketler çalışır.
+
+
+## Cloudflare yayını
+
+Tek yapılandırma kaynağı deployment.config.json'dur. Derleme sonundaki finalize-build betiği üretilen dist/server/wrangler.json içindeki D1 kimliğini doğrular. Dosyayı elle düzeltmek gerekmez.
+
+Yerel yayın komutları:
+
+    npx wrangler login
+    npm run typecheck
+    npm test
+    npm run build
+    npm run deploy
+
+Otomatik yayın için Cloudflare → Workers & Pages → roamcroft → Settings → Builds → Connect Git bölümünden user02718281828/Roamcroft deposu ve main dalı bağlanmalıdır. Proje kökü /, build komutu npm run build, deploy komutu npx wrangler deploy --config dist/server/wrangler.json, NODE_VERSION=22.13.0 olmalıdır. Üretim dışı dal yayını kapalı tutulur. Hesap bağlantısı tamamlanmadan yalnızca repodaki GitHub doğrulama iş akışı çalışır; otomatik yayın kurulmuş sayılmaz.
+
+[Cloudflare yapılandırma belgesi](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/) ve [build ortamı](https://developers.cloudflare.com/workers/ci-cd/builds/build-image/).
+
+Hatalı bir yayında önceki sürüme dönmek için npx wrangler rollback kullanılabilir. Tarayıcıdaki dünya kaydı bundan bağımsızdır; değişikliklerden önce JSON yedeği alınabilir.
+
+## Açılış bütçesi ve çevrimdışı kullanım
+
+Yedi PNG görseli toplam 14.02 MB'den 0.92 MB WebP'ye dönüştürüldü. Ham kaynaklar Git geçmişinde korunur. Menü yalnızca açıldığında yüklenir; Three.js çekirdeği ve çizicisi ayrı paketlerdir. Sistem yazı tipleri kullanılır, indirilecek web fontu yoktur.
+
+Her derleme statik dosya toplamını 3 MB ile sınırlar ve dist/client/asset-budget.json raporunu üretir. Rapor sıkıştırılmış aktarımı tahmin eder; gerçek ağ ölçümü değildir. Dünya yükleme çubuğu tamamlanan dokuları ve arazi bölgelerini sayar.
+
+Service worker, ilk başarılı çevrimiçi açılışta uygulama kabuğunu, kodu ve WebP dokularını saklar. Kurulum tamamlandıktan sonra oyun çevrimdışı açılabilir. API istekleri önbelleğe alınmaz. Güncelleme yeni oturumda etkinleşir; devam eden oyun zorla yenilenmez.
+
+Genişletilmiş içerik kapsamı ve tamamlanma durumu: [Gelişim planı](docs/development-plan.md).

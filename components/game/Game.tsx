@@ -2,6 +2,7 @@
 import GameIcon from './GameIcon';
 import './menu.css';
 import MainMenu from './MainMenu';
+import Joystick from './Joystick';
 import type { CoopClient } from '@/lib/coop/client';
 import { nextMilestone, settlementRank } from '@/lib/game/settlement';
 import { inventoryUsed, inventoryCapacity } from '@/lib/game/progression';
@@ -81,6 +82,7 @@ export default function Game() {
     scene = useRef<ValleyScene | null>(null),
     audio = useRef<ValleyAudio | null>(null),
     keys = useRef(new Set<string>()),
+    joystick = useRef({x:0,y:0}),
     nextState = useRef<State | null>(null),
     allowSave = useRef(true),
     coop = useRef<CoopClient | null>(null);
@@ -328,18 +330,21 @@ export default function Game() {
                 horizontal -= 1;
               if (keys.current.has('d') || keys.current.has('arrowright'))
                 horizontal += 1;
+              const keyboardMoving=horizontal!==0||vertical!==0;
+              horizontal+=joystick.current.x;vertical+=joystick.current.y;
+              const strength=keyboardMoving?1:Math.min(1,Math.hypot(horizontal,vertical));
               e.sprinting=keys.current.has('shift');
               const angle = view.angle;
               if (horizontal || vertical)
                 e.move(
                   horizontal * Math.cos(angle) + vertical * Math.sin(angle),
                   -horizontal * Math.sin(angle) + vertical * Math.cos(angle),
-                  dt,
+                  dt*strength,
                 );
               e.tick(dt);
               music.footsteps(e.s);
               saveClock += dt;
-              music.tick(dt, e.s.time > 0.77 || e.s.time < 0.24);
+              music.tick(dt, e.s);
             }
             view.activeTool = control.current.tool;
             view.placement =
@@ -397,6 +402,7 @@ export default function Game() {
                       m.x,
                       m.z!,
                       m.kind === 'bad' ? 0xdc8875 : m.sound === 'water' || m.sound === 'fish' ? 0x70cede : m.sound === 'pickaxe' ? 0xa5a6a1 : m.sound === 'axe' ? 0x99b875 : 0xe1c57b,
+                      m.sound,
                     );
                 });
               } else
@@ -473,7 +479,7 @@ export default function Game() {
 
     };
     const up = (ev: KeyboardEvent) => keys.current.delete(ev.key.toLowerCase());
-    const blur = () => keys.current.clear();
+    const blur = () => {keys.current.clear();joystick.current={x:0,y:0};};
     const persist = () => {
       keys.current.clear();
       if (allowSave.current && !coop.current?.active) saveLocal(e.s);
@@ -813,7 +819,7 @@ export default function Game() {
                 {s.mine
                   ? 'Yeraltı · Vadi saati durdu'
                   : s.weather === 'rain'
-                    ? 'Yağmurlu'
+                    ? season(s)===3 ? 'Kar yağışlı' : 'Yağmurlu'
                     : 'Açık hava'}
               </span>
             </div>
@@ -1015,30 +1021,7 @@ export default function Game() {
             </div>
           </footer>
           <div className="touch-controls">
-            <div className="dpad">
-              {[
-                { key: 'w', icon: ArrowUp },
-                { key: 'a', icon: ArrowLeft },
-                { key: 's', icon: ArrowDown },
-                { key: 'd', icon: ArrowRight },
-              ].map((k) => (
-                <button
-                  key={k.key}
-                  className={`pad-${k.key}`}
-                  aria-label={`${k.key} yönünde yürü`}
-                  onPointerDown={(ev) => {
-                    ev.preventDefault();if(control.current.paused)return;
-                    ev.currentTarget.setPointerCapture(ev.pointerId);
-                    keys.current.add(k.key);
-                  }}
-                  onPointerUp={() => keys.current.delete(k.key)}
-                  onPointerCancel={() => keys.current.delete(k.key)}
-                  onLostPointerCapture={() => keys.current.delete(k.key)}
-                >
-                  <k.icon />
-                </button>
-              ))}
-            </div>
+            <Joystick disabled={control.current.paused} onMove={vector=>{joystick.current=vector;}}/>
             <button
               className="touch-attack"
               aria-label="Saldır"
