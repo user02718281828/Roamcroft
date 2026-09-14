@@ -1,5 +1,7 @@
 # 1.3.1 doğrulaması — 15 Eylül 2026
 
+**Yayın:** b95540d kodu GitHub üzerinden Workers Builds ile canlıya çıktı. `npm run check:http -- https://roamcroft.roamcroft.workers.dev` başarılı. Hem main hem özellik dalının GitHub CI kontrolleri başarılı. Yerel Cloudflare CLI oturumu gerekmedi.
+
 - 99 otomatik test: bulutların kamera kayması ve hücre değişiminde aynı dünya konumunu koruması; sınırlı geometri; CSP nonce rastgeleliği ve sahte istek başlığının değiştirilmesi; API durum/gövde korunması dahil.
 - Yerel üretim HTTP kontrolü: ana sayfa, statik WebP, manifest, SW, olmayan sayfa ve kapalı API'de altı başlık. HTML script nonce değerleri yanıt CSP'siyle eşleşir; iki isteğin nonce değeri farklıdır. HTML private/no-store, hashli dosyaların immutable önbelleği korunur.
 - CSP script-src yalnızca self ve nonce kullanır; unsafe-eval yoktur. React ve joystick'in dinamik stilleri için style-src unsafe-inline gereklidir. Tam ekran self izniyle çalışabilir; kamera/mikrofon/konum/ödeme/USB kapalıdır.

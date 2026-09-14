@@ -13,7 +13,8 @@
 - [x] Mevsim, gece/gündüz ve maden konumuna göre özgün ses dizileri; ayrı ses seviyeleri, gece böcekleri.
 - [x] WebP, menü kodunu gerektiğinde yükleme, bölünmüş çizim motoru, 3 MB derleme bütçesi, kalıcı D1 yapılandırması.
 - [ ] Fiziksel Android/iOS pinch, joystick ve PWA kurulum testi.
-- [ ] Cloudflare oturumu, Git bağlantısı, canlı yayın ve canlı PageSpeed ölçümü.
+- [x] Git bağlantısıyla Cloudflare canlı yayın doğrulandı (1.3.1). Yerel CLI oturumu olmadan mevcut Workers Builds akışı kullanıldı.
+- [ ] Canlı PageSpeed/LCP yeniden ölçümü (API kota yanıtı nedeniyle bekliyor).
 
 ## 1.1 Bulutlar, güvenlik ve performans raporu — 15 Eylül 2026
 
@@ -24,7 +25,7 @@
 - [x] Drizzle sürümü düşürülmeden alt bağımlılıktaki esbuild güncellendi; audit sıfır, şema üretimi çalışıyor.
 - [x] Bozuk kayıt mevcut dünyayı değiştirmiyor; yükleme hatası ana menüde görünür. Otomatik kayıt ve çok günlük simülasyon testleri mevcut.
 - [x] Kapalı API için yabancı Origin ve OPTIONS kontrolü; CORS erişimi açılmıyor.
-- [ ] Yeni sürüm canlı yayın ve HTTP doğrulaması.
+- [x] 1.3.1 canlı yayın ve HTTP doğrulaması; GitHub CI başarılı.
 - [ ] Yeni mobil/masaüstü PageSpeed ve LCP ölçümü. Google API 429 döndürdü; eski puanlar yeni sürüm sonucu kabul edilmez.
 - [ ] Fiziksel mobil cihaz ve uzun süreli GPU kontrolü.
 - [ ] Özel domain eklenince CORS, online açılınca egress kontrolü; kimlik doğrulama ve yetkilendirme ayrıca test edilecek.
