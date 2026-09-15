@@ -20,4 +20,7 @@ Kullanıcı Android Chrome kullanıyor. Fullscreen API, navigationUI=hide ve yat
 
 ## Yayın
 
-Bu dosya yerel doğrulamayı kaydeder. Cloudflare/GitHub yayın sonucu ayrıca doğrulanır; başarılı canlı yanıt görülmeden canlı yayın tamamlandı sayılmaz.
+- 16 Eylül 2026: `d8c26cd` main dalına gönderildi. GitHub doğrulama ve Workers Builds başarılı.
+- Canlı adres: https://roamcroft.roamcroft.workers.dev/ — üretim HTTP kontrolünün tamamı başarılı.
+- Canlı sunucu dünyasında oturum açıldı; envanterde orman meyvesi 8→7 oldu. Sayfa yeniden yüklenip aynı sunucu dünyası açıldığında 7 olarak korundu. Konsolda uygulama hatası gözlenmedi.
+- 844×390 canlı tarayıcı görünümünde kompakt mobil menü çalışıyor. 640×360 yerel son kontrolünde kaynak satırı ve takvim çakışmıyor. Fiziksel Android ve yeni PageSpeed ölçümleri yukarıda belirtildiği gibi açık kalıyor.
