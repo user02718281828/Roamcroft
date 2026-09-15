@@ -1,0 +1,12 @@
+.launch-screen{position:fixed;top:var(--app-top,0px);left:0;width:var(--app-width,100vw);height:var(--app-height,100dvh);overflow:auto;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,#41634a,#142b25 75%);color:#f5e9cb;}
+.launch-card{width:min(640px,100%);overflow:hidden;border:1px solid #bca97170;border-radius:24px;background:#203b2f;box-shadow:0 24px 64px #091b1c66;text-align:center;}
+.launch-art{display:block;width:100%;height:auto;aspect-ratio:1200/630;object-fit:cover;}
+.launch-content{padding:24px 28px 30px;}
+.launch-content h1{font:600 clamp(32px,8vw,46px) Georgia,serif;margin:0 0 8px;color:#ffe5a7;}
+.launch-content p{margin:10px 0 20px;line-height:1.5;}
+.launch-content button{width:min(320px,100%);min-height:54px;border:1px solid #f8dc91;border-radius:12px;background:#e9c578;color:#23352a;font:700 18px 'Segoe UI',sans-serif;cursor:pointer;}
+.launch-content button:disabled{opacity:.75;cursor:wait;}
+.launch-content button:focus-visible{outline:3px solid #fff4d6;outline-offset:5px;}
+.launch-content .launch-help{font-size:13px;color:#c6d5bd;margin:18px 0 0;}
+@media(max-height:530px) and (orientation:landscape){.launch-card{display:grid;grid-template-columns:1fr 1fr;max-width:800px;}.launch-art{height:100%;object-fit:cover;}.launch-content{padding:18px;}.launch-content h1{font-size:30px;}.launch-screen{padding:12px;}}
+.launch-content .launch-server{margin-top:10px;background:transparent;color:#f5e9cb;min-height:48px;font-size:15px;}

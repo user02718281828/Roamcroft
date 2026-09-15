@@ -181,19 +181,19 @@ export default function Panels({
           if (!open) setPanel(null);
         }}
       >
-        <SheetContent className="game-panel" showCloseButton>
+        <SheetContent className="game-panel" data-panel={panel} showCloseButton>
           <SheetHeader className="panel-header">
             <span className="eyebrow">Roamcroft</span>
             <SheetTitle>{panel ? titles[panel][0] : ''}</SheetTitle>
             <SheetDescription>{panel ? titles[panel][1] : ''}</SheetDescription>
           </SheetHeader>
-          <Tabs value={panel || 'inventory'} onValueChange={value=>setPanel(value as Panel)}>
+          <Tabs className="panel-navigation" value={panel || 'inventory'} onValueChange={value=>setPanel(value as Panel)}>
             <TabsList className="unified-tabs">
               {([['inventory','Çanta'],['craft','Üretim'],['build','İnşa'],['quests','Günlük'],['ranch','Çiftlik'],['villagers','Dostlar'],['bundles','Emanet'],['mine','Maden'],['settings','Ayarlar']] as const).map(([id,label])=><TabsTrigger key={id} value={id}>{label}</TabsTrigger>)}
             </TabsList>
           </Tabs>
           <div className="panel-pause">
-            <Clock size={13} /> {coop?.active ? 'Ortak dünya · Ev sahibi zamanın akışını yönetir' : 'Duraklatıldı'} · Tab: kapat · Q / E: sekme değiştir
+            <Clock size={13} /> {coop?.active ? 'Ortak dünya · Ev sahibi zamanın akışını yönetir' : 'Duraklatıldı'} <span className="keyboard-hint">· Tab: kapat · Q / E: sekme değiştir</span>
           </div>
           <div className="panel-body">
             {panel === 'bundles' && <BundlesPanel engine={engine} />}
@@ -1322,16 +1322,14 @@ export default function Panels({
                   <SettlementName engine={engine} />
                   <h3>Oyun kaydı</h3>
                   <p>
-                    Dünya bu tarayıcının veritabanına kaydedilir. Başka cihaza
-                    taşımak için kayıt dosyası indir. Oyun kapalıyken zaman
-                    ilerlemez.
+                    {engine.network?.server?'Dünya sunucuda saklanır. Bu tarayıcının çerezini silersen erişimini kaybedersin; oturum her bağlantıda 30 gün uzar. Dosya indirerek çevrimdışı bir kopyasını koruyabilirsin. Sunucuya kayıt dosyası yüklenemez.':'Dünya bu tarayıcının veritabanına kaydedilir. Başka cihaza taşımak için kayıt dosyası indir. Oyun kapalıyken zaman ilerlemez.'}
                   </p>
                   <div className="save-status">
                     <Save size={15} />
                     {saveStatus ||
-                      'Otomatik kayıt açık · Yaklaşık 15 saniyede bir'}
+                      (engine.network?.server?'Sunucu bağlantısında otomatik kayıt açık':'Otomatik kayıt açık · Yaklaşık 15 saniyede bir')}
                   </div>
-                  <button className="primary-button" onClick={onSave}>
+                  <div className="save-actions"><button className="primary-button" onClick={onSave}>
                     <Save size={16} /> Şimdi kaydet
                   </button>
                   <button className="secondary-button" onClick={onExport}>
@@ -1339,6 +1337,7 @@ export default function Panels({
                   </button>
                   <button
                     className="secondary-button"
+                    disabled={engine.network?.server}
                     onClick={() => file.current?.click()}
                   >
                     <Upload size={16} /> Kayıt dosyası yükle
@@ -1354,6 +1353,7 @@ export default function Panels({
                       e.currentTarget.value = '';
                     }}
                   />
+                  </div>
                 </div>
                 <div className="settings-section">
                   <h3>Görüntü kalitesi</h3>
@@ -1411,13 +1411,14 @@ export default function Panels({
                   </p>
                   <button
                     className="danger-button"
+                    disabled={engine.network?.server}
                     onClick={() => setConfirm('reset')}
                   >
                     <RotateCcw size={16} /> Yeni oyuna başla
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.3.1
+                  Roamcroft · 1.4.0
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

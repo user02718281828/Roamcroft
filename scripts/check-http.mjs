@@ -11,6 +11,8 @@ const page=await get('/');assert.equal(page.status,200);headers(page);
 const policy=page.headers.get('Content-Security-Policy'),nonce=policy.match(/'nonce-([a-f0-9]{32})'/)?.[1];
 assert.ok(nonce,'HTML nonce eksik');
 const html=await page.text(),scripts=[...html.matchAll(/<script\b([^>]*)>/g)];
+assert.ok(html.includes('Roamcroft başlangıç ekranı')&&html.includes('Sunucu dünyası'),'Hafif başlangıç ekranı bulunamadı');
+assert.ok(!/<(?:script|link)\b[^>]*(?:Game-|scene-|three-core|three-renderer)/i.test(html),'3D motor başlangıçta yükleniyor');
 assert.ok(scripts.length>0);
 for(const [,attributes] of scripts)assert.ok(attributes.includes(`nonce="${nonce}"`),'Script nonce başlıkla eşleşmiyor');
 const second=await get('/');assert.notEqual(second.headers.get('Content-Security-Policy'),policy);await second.body?.cancel();
@@ -26,4 +28,8 @@ for(const method of ['POST','OPTIONS']){
   if(method==='POST')assert.equal(response.status,404);
   await response.body?.cancel();
 }
-console.info('HTTP doğrulaması başarılı: HTML nonce, altı başlık, statik dosyalar, 404, service worker ve kapalı API/CORS.');
+for(const [origin,body,status] of [['https://untrusted.example',{op:'session'},403],[new URL(base).origin,{op:'pulse',pulse:{}},401]]){
+  const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  headers(response);assert.equal(response.status,status);assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);assert.equal(response.headers.get('Cache-Control'),'no-store');await response.body?.cancel();
+}
+console.info('HTTP doğrulaması başarılı: hafif açılış, HTML nonce, güvenlik başlıkları, statik dosyalar, 404, service worker, API oturumu ve CORS.');

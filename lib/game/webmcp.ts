@@ -1,5 +1,5 @@
 import { BUILDINGS, CROPS, RECIPES, TOOLS } from './data.ts';
-import { SIZE, tileAt } from './model.ts';
+import { tileAt } from './model.ts';
 import type { Engine } from './model.ts';
 type Tool = {
   name: string;
@@ -45,7 +45,7 @@ export function gameTools(
           level: s.level,
           region: s.mine
             ? { mineFloor: s.mine.floor }
-            : { x: s.world.x, z: s.world.z, width: SIZE },
+            : { x: s.world.x, z: s.world.z, width: Math.sqrt(s.tiles.length) },
           player: s.player,
           inventory: s.inventory,
           gold: s.gold,

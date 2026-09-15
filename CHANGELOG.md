@@ -1,5 +1,15 @@
 # Değişiklikler
 
+## 1.4.0 — 16 Eylül 2026
+
+- Android Chrome için Oyna dokunuşunda Fullscreen API ve yatay yön isteği. Ekran dönüşü, klavye, uygulamaya dönüş ve görünür viewport değişimleri izlenir; 540 px asgari dünya yüksekliği kaldırıldı. Canvas güvenli alan dolgusu olmadan ekranı kaplar, kontroller çentik ve gezinme alanından uzak tutulur.
+- Mobil HUD yeniden düzenlendi: küçük kaynak/sağlık satırları, 104 px joystick, 44 px araçlar, ayrı etkileşim ve saldırı düğmeleri. İnşa/ekim/sulamada öndeki kareye dokunmatik eylem eklendi. Kamera telefonda daha yakından başlar.
+- Yatay menüler 86 px kategori sütunu ve bağımsız kayan içerik kullanır. Eşya kartları küçültüldü; üretim, inşa, çiftlik ve ayarlar yatayda sütunlara ayrıldı. Kapat düğmesi 44 px ve sabit erişilebilir; menüden nasıl oynanır sayfasına ulaşılır.
+- Hafif başlangıç ekranı sunucudan gelir. Oyun ve Three.js yalnızca Oyna sonrasında yüklenir. Duraklatılmış sabit sahne tekrar tekrar çizilmez. PWA önbelleği oyun açıldıktan sonra hazırlanır; bekleyen güncelleme kaydetme sonrasında etkinleştirilebilir.
+- Ayrı sunucu dünyası: HttpOnly/Secure/SameSite oturumu, sunucu zamanı ve çarpışması, komut izin listesi, sıralı nonce, atomik kayıt, yeniden denemede aynı sonucu döndürme, istek/gövde/dünya kapasitesi sınırları. Değişen harita alanları gönderilir. Cihaz kaydı sunucuya aktarılmaz.
+- COOP same-origin ve HSTS includeSubDomains eklendi; ilerleme çubuklarının erişilebilir adları tamamlandı. Yeni HTTP kontrolü hafif açılışı ve oturumsuz/yabancı kaynaklı sunucu isteklerinin reddini doğrular.
+
+
 ## 1.3.1 — 15 Eylül 2026
 
 - Kameraya yapışan opak bulut modelleri, dünya koordinatlarına bağlı seyrek ve şeffaf bir sis katmanıyla değiştirildi. Kenarlar yumuşak; gölge ve derinlik yazımı yok; tek çizim çağrısı.

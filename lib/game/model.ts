@@ -384,7 +384,7 @@ export function createState(seed = 84621): State {
   return s;
 }
 export class Engine {
-  network: {guest:boolean;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
+  network: {guest:boolean;server?:boolean;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
   networkActor = false;
   worldRevision = 0;
   placementRotation = 0;
@@ -671,6 +671,7 @@ export class Engine {
     }
   }
   returnHome() {
+    if(this.network?.server)return this.network.send('returnHome',[]);
     if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
     if (this.s.mine || this.s.enemies.length) {
       this.emit('Güvende olduğunda eve dönebilirsin.', 'bad');
@@ -701,6 +702,7 @@ export class Engine {
     this.enemyPaths.clear();
   }
   enterMine(floor = 1) {
+    if(this.network?.server)return this.network.send('enterMine',[floor]);
     if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
     if (
       !Number.isInteger(floor) ||
@@ -795,6 +797,7 @@ export class Engine {
     );
   }
   descendMine() {
+    if(this.network?.server)return this.network.send('descendMine',[]);
     if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
     const s = this.s,
       mine = s.mine;
@@ -825,6 +828,7 @@ export class Engine {
     return true;
   }
   leaveMine(forced = false) {
+    if(this.network?.server)return this.network.send('leaveMine',[]);
     if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
     const s = this.s,
       mine = s.mine;
@@ -1597,6 +1601,7 @@ export class Engine {
     );
   }
   sleep() {
+    if(this.network?.server)return this.network.send('sleep',[]);
     if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
     const s = this.s,
       p = s.player,

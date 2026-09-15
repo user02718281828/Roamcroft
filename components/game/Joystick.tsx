@@ -5,8 +5,9 @@ import type {StickVector} from '@/lib/game/joystick';
 
 export default function Joystick({disabled,onMove}:{disabled:boolean;onMove:(vector:StickVector)=>void}){
   const input=useRef(new JoystickInput()),knob=useRef<HTMLSpanElement>(null),base=useRef<HTMLDivElement>(null),output=useRef(onMove);
+  const radius=useRef(30);
   output.current=onMove;
-  const draw=(x:number,y:number)=>{knob.current?.style.setProperty('transform',`translate(${x*42}px,${y*42}px)`);output.current({x,y});};
+  const draw=(x:number,y:number)=>{knob.current?.style.setProperty('transform',`translate(${x*radius.current}px,${y*radius.current}px)`);output.current({x,y});};
   const reset=()=>{input.current.reset();base.current?.removeAttribute('data-held');draw(0,0);};
   useEffect(()=>{if(disabled)reset();},[disabled]);
   useEffect(()=>{
@@ -15,8 +16,8 @@ export default function Joystick({disabled,onMove}:{disabled:boolean;onMove:(vec
     return()=>{window.removeEventListener('blur',release);window.removeEventListener('resize',release);document.removeEventListener('visibilitychange',release);output.current({x:0,y:0});};
   },[]);
   return <div ref={base} className="joystick" role="group" aria-label="Hareket joystick'i" aria-disabled={disabled} tabIndex={0}
-    onPointerDown={event=>{event.preventDefault();if(disabled)return;const box=event.currentTarget.getBoundingClientRect();if(!input.current.begin(event.pointerId,box.x+box.width/2,box.y+box.height/2))return;event.currentTarget.setPointerCapture(event.pointerId);event.currentTarget.dataset.held='true';const v=input.current.move(event.pointerId,event.clientX,event.clientY);if(v)draw(v.x,v.y);}}
-    onPointerMove={event=>{if(disabled)return;const v=input.current.move(event.pointerId,event.clientX,event.clientY);if(v){event.preventDefault();draw(v.x,v.y);}}}
+    onPointerDown={event=>{event.preventDefault();if(disabled)return;const box=event.currentTarget.getBoundingClientRect();radius.current=Math.max(20,box.width/2-23);if(!input.current.begin(event.pointerId,box.x+box.width/2,box.y+box.height/2))return;event.currentTarget.setPointerCapture(event.pointerId);event.currentTarget.dataset.held='true';const v=input.current.move(event.pointerId,event.clientX,event.clientY,radius.current);if(v)draw(v.x,v.y);}}
+    onPointerMove={event=>{if(disabled)return;const v=input.current.move(event.pointerId,event.clientX,event.clientY,radius.current);if(v){event.preventDefault();draw(v.x,v.y);}}}
     onPointerUp={event=>{if(input.current.end(event.pointerId))reset();}}
     onPointerCancel={event=>{if(input.current.end(event.pointerId))reset();}}
     onLostPointerCapture={event=>{if(input.current.end(event.pointerId))reset();}}

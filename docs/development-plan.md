@@ -1,6 +1,19 @@
 # Roamcroft gelişim planı
 
-14 Eylül 2026'da iletilen genişletilmiş metin için tahmini 6–8 çalışma oturumu. Her bölüm ayrı dalda, kayıt uyumluluğu ve performans kontrolüyle tamamlanır. Bu liste tamamlanmış özellik vaadi değildir; açık maddeler henüz uygulanmamıştır. Yeni adlar, diyaloglar, sanat ve müzik Roamcroft'a özgü olacaktır.
+14 Eylül 2026'da iletilen genişletilmiş metnin takip listesi. Önceki 6–8 oturum tahmini, büyüyen kapsam için güvenilir bir tamamlanma tarihi değildir. Her bölüm kayıt uyumluluğu ve performans kontrolüyle ilerler. Açık maddeler henüz uygulanmamıştır. Yeni adlar, diyaloglar, sanat ve müzik Roamcroft'a özgü olacaktır.
+
+## Güncel öncelik — Android Chrome, 1.4.0
+
+- [x] Oyna dokunuşunda gerçek tam ekran ve yatay yön isteği; kurulu uygulamada da denenir.
+- [x] Görünür ekran yüksekliği, yön değişimi ve klavyeye göre boyut; tuvalde asgari 540 px kısıtının kaldırılması.
+- [x] Yatay telefon için dar kategori sütunu; küçük eşya kartları, ayrı kayan menü içeriği, 44 px dokunma hedefleri.
+- [x] Küçük HUD, ayrı joystick/araç/etkileşim/saldırı bölgeleri; dokunarak yakındakiyle etkileşim ve öndeki kareye ekim/inşa.
+- [x] Ana menüde kayıt sonrası PWA güncellemesini etkinleştirme, menüden oynanış kılavuzu.
+- [x] Oyna öncesinde 3D motor yüklenmeyen açılış; duraklatılmış sahnede tekrar çizimin kaldırılması.
+- [x] Sunucu dünyası önizlemesinde sunucu doğrulaması, çerez oturumu, nonce/sıra, atomik yazma, hız ve boyut sınırları. [Kapsam ve sınırlar](server-security.md).
+- [ ] Kullanıcının fiziksel Android cihazında ana ekrandan başlatma, sistem çubukları, geri tuşu ve gerçek iki parmak testi. Masaüstü boyut emülasyonu fiziksel cihaz testi değildir.
+- [ ] Yeni sürüm için PageSpeed ve düşük donanımda uzun oyun oturumu ölçümü.
+- [ ] Hesap/kurtarma, odalı co-op, sunucu yük testi ve tüm ticari çekirdeğin istemci paketinden ayrılması.
 
 ## 1. Joystick, canlı dünya ve mobil yayın — bu sürüm
 

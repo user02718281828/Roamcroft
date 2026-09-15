@@ -1,5 +1,5 @@
 'use client';
-import Game from '@/components/game/Game';
+import Launcher from '@/components/game/Launcher';
 export default function Home() {
-  return <Game />;
+  return <Launcher />;
 }

@@ -1,8 +1,12 @@
 'use client';
 import GameIcon from './GameIcon';
 import './menu.css';
+import './mobile.css';
 import MainMenu from './MainMenu';
 import Joystick from './Joystick';
+import {ServerWorldClient} from '@/lib/server/client';
+import {preparePwa} from '@/lib/game/pwa';
+import {enterGameFullscreen,MOBILE_QUERY} from '@/lib/game/viewport';
 import type { CoopClient } from '@/lib/coop/client';
 import { nextMilestone, settlementRank } from '@/lib/game/settlement';
 import { inventoryUsed, inventoryCapacity } from '@/lib/game/progression';
@@ -39,6 +43,7 @@ import {
   Check,
   Bird,
   Users,
+  Maximize,
 } from 'lucide-react';
 import {
   Engine,
@@ -75,7 +80,7 @@ import {
 } from '@/lib/game/expedition';
 import { registerGameTools } from '@/lib/game/webmcp';
 
-export default function Game() {
+export default function Game({autoStart=false,serverMode=false}:{autoStart?:boolean;serverMode?:boolean}={}) {
   const host = useRef<HTMLDivElement>(null),
     mini = useRef<HTMLCanvasElement>(null),
     engine = useRef<Engine | null>(null),
@@ -86,11 +91,17 @@ export default function Game() {
     nextState = useRef<State | null>(null),
     allowSave = useRef(true),
     coop = useRef<CoopClient | null>(null);
+  const authority=useRef<ServerWorldClient|null>(null);
   const renderSettings = useRef({ high: true });
   const [storageReady, setStorageReady] = useState(false);
   const initialMessage = useRef('');
   useEffect(() => {
     let canceled = false;
+    if(serverMode){
+      const client=new ServerWorldClient(()=>engine.current,()=>control.current.paused||document.hidden,()=>refresh(n=>n+1));authority.current=client;
+      void client.start().then(state=>{if(canceled)return;nextState.current=state;initialMessage.current='Sunucu dünyasına bağlandın.';setStorageReady(true);}).catch(error=>{if(!canceled)setError(error instanceof Error?error.message:'Sunucuya bağlanılamadı.');});
+      return()=>{canceled=true;client.dispose();};
+    }
     void loadStored().then((loaded) => {
       if (canceled) return;
       nextState.current = loaded.state;
@@ -113,7 +124,7 @@ export default function Game() {
     [rotation, setRotation] = useState(0),
     [corner, setCorner] = useState(false),
     [paused, setPaused] = useState(false),
-    [mainMenu,setMainMenu] = useState(true),
+    [mainMenu,setMainMenu] = useState(!autoStart),
     [panel, setPanel] = useState<Panel>(null),
     [selectedBuilding, setSelectedBuilding] = useState<number | null>(null),
     [selectedNPC, setSelectedNPC] = useState('narin'),
@@ -125,7 +136,8 @@ export default function Game() {
     [messages, setMessages] = useState<
       (Event & { id: number; expires: number })[]
     >([]);
-  useEffect(()=>{if(window.matchMedia('(pointer: coarse), (max-width: 600px)').matches)setCompactHud(true);},[]);
+  useEffect(()=>{if(window.matchMedia(MOBILE_QUERY).matches)setCompactHud(true);},[]);
+  useEffect(()=>{if(ready)preparePwa();},[ready]);
   const control = useRef({
     tool: 'hand',
     selection: 'wheat',
@@ -136,12 +148,30 @@ export default function Game() {
   control.current = {
     tool,
     selection: tool === 'build' ? build : seed,
-    paused: paused || mainMenu || (!!panel && !coop.current?.active),
+    paused: !ready || paused || mainMenu || (!!panel && !coop.current?.active) || (serverMode&&!authority.current?.connected),
     panel,
     sound,
   };
   if (engine.current) {engine.current.placementRotation = rotation; engine.current.placementCorner = corner;}
   if (scene.current) {scene.current.placementRotation = rotation; scene.current.placementCorner = corner;}
+  const interact=()=>{
+    const e=engine.current;if(!e||control.current.paused)return;
+    const p=e.s.player;
+    if(['build','seed','hoe','water','fertilize'].includes(control.current.tool)){
+      const x=Math.round(p.x+Math.sin(p.facing)),z=Math.round(p.z+Math.cos(p.facing));
+      if(control.current.tool==='build')e.build(control.current.selection,x,z,e.placementRotation,e.placementCorner);
+      else e.act(x,z,control.current.tool,control.current.selection);
+      return;
+    }
+    const person=!e.s.mine&&NPCS.find(n=>{const position=e.npcMotion.get(n.id)||n;return Math.hypot(position.x-p.x,position.z-p.z)<2.2;});
+    if(person){setSelectedNPC(person.id);setPanel('villagers');return;}
+    const animal=e.s.animals.find(a=>Math.hypot(a.x-p.x,a.z-p.z)<1.8);
+    if(animal){if(animal.ready)e.harvestAnimal(animal.id);else e.petAnimal(animal.id);return;}
+    const building=e.s.buildings.find(b=>Math.hypot(b.x-p.x,b.z-p.z)<1.8);
+    if(building){setSelectedBuilding(building.id);setPanel('building');return;}
+    const target=e.s.tiles.filter(t=>(t.resource||t.crop||(control.current.tool==='fish'&&t.terrain==='water'))&&Math.hypot(t.x-p.x,t.z-p.z)<1.8).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0];
+    if(target)e.act(target.x,target.z,control.current.tool==='fish'?'fish':'hand');else e.emit('Bir ürün, kaynak veya yapıya biraz daha yaklaş.');
+  };
   const setSound = (value: boolean) => {
     void audio.current?.enable(value).then((enabled) => {
       setSoundState(enabled);
@@ -153,6 +183,7 @@ export default function Game() {
     });
   };
   const doSave = async () => {
+    if(serverMode){await authority.current?.flush();setSaveStatus('Sunucu dünyası kaydedildi.');return;}
     if(coop.current?.active) {
       try {await coop.current.publish();setSaveStatus('Ortak dünya sunucuya kaydedildi.');} catch(error){setSaveStatus(error instanceof Error ? error.message : 'Kayıt bekleniyor.');throw error;}
       return;
@@ -187,6 +218,7 @@ export default function Game() {
   };
   const doImport = async (file: File) => {
     setLoadError('');
+    if(serverMode){setLoadError('Sunucu dünyasına dosya yüklenemez. Kayıt yüklemek için cihazdaki oyunu aç.');return;}
     if(coop.current?.active){engine.current?.emit('Kayıt yüklemek için önce ortak odadan ayrıl.','bad');return;}
     try {
       if (file.size > 32_000_000) throw new Error('Kayıt dosyası çok büyük.');
@@ -208,6 +240,7 @@ export default function Game() {
     }
   };
   const doReset = () => {
+    if(serverMode){engine.current?.emit('Sunucu dünyası bu menüden sıfırlanmaz.','info');return;}
     if(coop.current?.active){engine.current?.emit('Yeni oyun için önce ortak odadan ayrıl.','bad');return;}
     setMainMenu(false);
     const seed = new Uint32Array(1);
@@ -225,6 +258,7 @@ export default function Game() {
     if (!storageReady) return;
     let disposed = false,
       frame = 0,
+      wakeTimer = 0,
       last = 0,
       ui = 0,
       saveClock = 0,
@@ -240,8 +274,9 @@ export default function Game() {
     const e = new Engine(loaded.state);
     engine.current = e;
     coop.current?.bind(e);
+    authority.current?.bind(e);
     e.emit(loaded.message);
-    allowSave.current = !coop.current?.active && !loaded.message.startsWith('Kayıt okunamadı');
+    allowSave.current = !serverMode && !coop.current?.active && !loaded.message.startsWith('Kayıt okunamadı');
     setReady(false);
     setLoadingProgress(0);
     setError('');
@@ -302,8 +337,9 @@ export default function Game() {
               setHover((old) => (old?.x === x && old.z === z ? old : { x, z })),
           );
           scene.current = view;
+          if(window.matchMedia(MOBILE_QUERY).matches)view.setZoom(-4);
           view.setQuality(renderSettings.current.high);
-          let worldReady=false,lastProgress=-1;
+          let worldReady=false,lastProgress=-1,lastPausedView='';
           const initialChunks=view.dirtyChunks.size;
           const loop = (now: number) => {
             if (disposed) return;
@@ -354,11 +390,11 @@ export default function Game() {
               control.current.tool === 'build'
                 ? control.current.selection
                 : null;
-            if (
-              !document.hidden &&
-              (!worldReady || !control.current.paused || ui > 0.25 || view.confettiLife > 0)
-            )
+            const pausedView=[view.target.x,view.target.z,view.angle,view.zoom,view.highQuality,view.canvas.width,view.canvas.height].join(',');
+            if (!document.hidden && (!worldReady || !control.current.paused || pausedView!==lastPausedView)){
               view.render(control.current.paused ? 0 : dt, frameDuration);
+              lastPausedView=pausedView;
+            }
             if(!worldReady){
               const completed=initialChunks-view.dirtyChunks.size+view.assetsLoaded,total=initialChunks+3;
               const percent=Math.min(100,Math.round(completed/total*100));
@@ -381,8 +417,8 @@ export default function Game() {
                 renderSettings.current.high = view.highQuality;
                 setQuality(view.highQuality);
               }
-              refresh((n) => n + 1);
-              if (mini.current) view.drawMinimap(mini.current);
+              if(!control.current.paused||e.events.length)refresh((n) => n + 1);
+              if (mini.current&&!control.current.paused) view.drawMinimap(mini.current);
               const nowMs = Date.now();
               if (e.events.length) {
                 const events = e.events.splice(0);
@@ -432,7 +468,8 @@ export default function Game() {
               else setTimeout(storeSave, 50);
               saveClock = 0;
             }
-            frame = requestAnimationFrame(loop);
+            if(worldReady&&(control.current.paused||document.hidden))wakeTimer=window.setTimeout(()=>{frame=requestAnimationFrame(loop);},document.hidden?500:100);
+            else frame = requestAnimationFrame(loop);
           };
           frame = requestAnimationFrame(loop);
         } catch (err) {
@@ -468,17 +505,7 @@ export default function Game() {
       keys.current.add(key);if(ev.repeat)return;
       if(/^[1-8]$/.test(key)){setTool(TOOLS[Number(key)-1].id);return;}
       if(key==='control')e.attack();
-      if(key==='e') {
-        const p=e.s.player;
-        const person=NPCS.find(n=>{const position=e.npcMotion?.get(n.id) || n;return Math.hypot(position.x-p.x,position.z-p.z)<2.2;});
-        if(person){setSelectedNPC(person.id);setPanel('villagers');return;}
-        const animal=e.s.animals.find(a=>Math.hypot(a.x-p.x,a.z-p.z)<1.8);
-        if(animal){if(animal.ready)e.harvestAnimal(animal.id);else e.petAnimal(animal.id);return;}
-        const building=e.s.buildings.find(b=>Math.hypot(b.x-p.x,b.z-p.z)<1.8);
-        if(building){setSelectedBuilding(building.id);setPanel('building');return;}
-        const target=e.s.tiles.filter(t=>(t.resource || t.crop) && Math.hypot(t.x-p.x,t.z-p.z)<1.8).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0];
-        if(target)e.act(target.x,target.z,'hand');else setPanel('inventory');
-      }
+      if(key==='e')interact();
 
     };
     const up = (ev: KeyboardEvent) => keys.current.delete(ev.key.toLowerCase());
@@ -495,6 +522,7 @@ export default function Game() {
     return () => {
       disposed = true;
       cancelAnimationFrame(frame);
+      clearTimeout(wakeTimer);
       scene.current?.dispose();
       scene.current = null;
       music.dispose();
@@ -572,6 +600,7 @@ export default function Game() {
         : TOOLS.find((t) => t.id === tool)?.name;
   return (
     <main className={`game-shell ${compactHud ? 'hud-collapsed' : ''} ${panel ? 'has-panel' : ''}`}>
+      {serverMode&&<div className="server-status" role="status">{authority.current?.status||'Sunucuya bağlanıyor…'}</div>}
       <div ref={host} className="world" />
       <div className="world-vignette" />
       {!ready && (
@@ -583,14 +612,13 @@ export default function Game() {
           {error && (
             <>
               <p className="error-help">
-                WebGL destekli güncel bir tarayıcı ve donanım hızlandırması
-                gerekir.
+                {serverMode&&!storageReady?'Sunucu dünyası için internet bağlantısı ve bu tarayıcının oturum çerezi gerekir. Başlangıca dönerek tekrar bağlanabilirsin.':'WebGL destekli güncel bir tarayıcı ve donanım hızlandırması gerekir.'}
               </p>
               <button
                 className="primary-button"
                 onClick={() => location.reload()}
               >
-                Yeniden dene
+                Başlangıca dön
               </button>
             </>
           )}
@@ -598,7 +626,7 @@ export default function Game() {
       )}
       {s && (
         <>
-          {ready && mainMenu && !panel && <MainMenu loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onSave={doSave}/>}
+          {ready && mainMenu && !panel && <MainMenu serverMode={serverMode} loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onGuide={()=>setPanel('guide')} onSave={doSave}/>}
           <header className="game-header">
             <div className="brand">
               <div className="brand-icon">
@@ -629,7 +657,7 @@ export default function Game() {
             </div>
             <div className="header-actions">
               <button
-                className="icon-button"
+                className="icon-button sound-button"
                 aria-label={sound ? 'Sesi kapat' : 'Sesi aç'}
                 title={sound ? 'Sesi kapat' : 'Sesi aç'}
                 onClick={() => setSound(!sound)}
@@ -637,12 +665,13 @@ export default function Game() {
                 {sound ? <Volume2 /> : <VolumeX />}
               </button>
               <button
-                className="icon-button"
+                className="icon-button pause-button"
                 aria-label={paused ? 'Devam et' : 'Duraklat'}
                 onClick={() => setPaused(!paused)}
               >
                 {paused ? <Play /> : <Pause />}
               </button>
+              <button className="icon-button mobile-fullscreen" aria-label="Tam ekran aç" onClick={()=>void enterGameFullscreen().then(ok=>{if(!ok)engine.current?.emit('Tam ekran açılamadı. Yeniden deneyebilir veya tarayıcı menüsünden Ana ekrana ekle seçeneğini kullanabilirsin.');})}><Maximize/></button>
               <button
                 className="icon-button"
                 aria-label="Ana menü"
@@ -652,6 +681,11 @@ export default function Game() {
               </button>
             </div>
           </header>
+          <div className="mobile-vitals" aria-label="Karakter durumu">
+            <span className={s.player.health<25?'low':''} aria-label={`Sağlık ${Math.ceil(s.player.health)}`}><Heart/>{Math.ceil(s.player.health)}</span>
+            <span className={s.player.energy<20?'low':''} aria-label={`Enerji ${Math.ceil(s.player.energy)}`}><Zap/>{Math.ceil(s.player.energy)}</span>
+            <span className={s.player.hunger<20?'low':''} aria-label={`Doygunluk ${Math.ceil(s.player.hunger)}`}><Wheat/>{Math.ceil(s.player.hunger)}</span>
+          </div>
           <div className="hud-left">
           <section className="status-card glass">
             <div className="portrait">
@@ -711,7 +745,7 @@ export default function Game() {
                   Kırmızı saldırı alanlarından uzaklaş. Geçidi açmak için
                   galeriyi temizle.
                 </p>
-                <Progress value={Math.min(100, (s.mine.mined / 4) * 100)} />
+                <Progress aria-label="Maden cevheri hedefi" value={Math.min(100, (s.mine.mined / 4) * 100)} />
                 <div className="mine-objectives">
                   <span>{s.enemies.length} düşman</span>
                   <span>Cevher {Math.min(4, s.mine.mined)}/4</span>
@@ -755,6 +789,7 @@ export default function Game() {
                 {quest && (
                   <>
                     <Progress
+                      aria-label={`${quest.name} görev ilerlemesi`}
                       value={Math.min(
                         100,
                         ((s.stats[quest.stat] || 0) / quest.target) * 100,
@@ -1025,6 +1060,7 @@ export default function Game() {
           </footer>
           <div className="touch-controls">
             <Joystick disabled={control.current.paused} onMove={vector=>{joystick.current=vector;}}/>
+            <button className="touch-interact" aria-label={tool==='build'?'Önüne yerleştir':'Yakındakiyle etkileş'} disabled={control.current.paused} onClick={interact}><GameIcon id={tool==='build'?'build':'hand'}/></button>
             <button
               className="touch-attack"
               aria-label="Saldır"
@@ -1093,6 +1129,7 @@ export default function Game() {
               <div>
                 <b>{RECIPES[s.jobs[0].recipe].name}</b>
                 <Progress
+                  aria-label={`${RECIPES[s.jobs[0].recipe].name} üretim ilerlemesi`}
                   value={(1 - s.jobs[0].remaining / s.jobs[0].total) * 100}
                 />
               </div>

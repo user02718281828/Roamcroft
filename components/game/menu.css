@@ -51,53 +51,7 @@
 .audio-levels input {width:100%;accent-color:#d6b55f;min-height:28px;}
 .pwa-controls {display:flex;gap:8px;flex-wrap:wrap;}
 .pwa-controls button {flex:1;}
-@media (pointer:coarse), (max-width:600px) {
-  .game-shell {min-height:100dvh;}
-  .game-shell .touch-controls {display:block;position:fixed;inset:auto auto calc(20px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));z-index:20;pointer-events:none;}
-  .game-shell .dpad {display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:4px;pointer-events:auto;}
-  .game-shell .pad-w {grid-column:2;grid-row:1;}
-  .game-shell .pad-a {grid-column:1;grid-row:2;}
-  .game-shell .pad-s {grid-column:2;grid-row:2;}
-  .game-shell .pad-d {grid-column:3;grid-row:2;}
-  .game-shell .dpad button,.game-shell .touch-attack {display:grid;place-items:center;border:1px solid #e2ca8d55;background:#244331e8;border-radius:9px;touch-action:none;user-select:none;pointer-events:auto;}
-  .game-shell .dpad svg {width:20px;height:20px;}
-  .game-shell .dpad button {width:44px;height:44px;}
-  .game-shell .touch-attack {position:fixed;left:auto;right:calc(20px + env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));width:52px;height:52px;}
-  .game-shell .bottom-hud {bottom:calc(154px + env(safe-area-inset-bottom));left:50%;width:min(480px,calc(100vw - 24px));}
-  .game-shell .toolbar {overflow-x:auto;justify-content:flex-start;scrollbar-width:none;touch-action:pan-x;}
-  .game-shell .toolbar button {width:48px;min-width:48px;height:48px;}
-  .game-shell .toolbar small {display:none;}
-  .game-shell .tool-info {display:none;}
-  .game-shell .placement-banner,.game-shell .seed-picker {bottom:calc(218px + env(safe-area-inset-bottom));}
-  .game-shell .activity-banner,.game-shell .raid-banner {top:auto;bottom:calc(218px + env(safe-area-inset-bottom));max-width:calc(100vw - 32px);}
-  .game-shell .game-header button,.game-shell .world-actions button,.game-shell .hud-toggle,.game-shell .main-actions button {min-width:44px;min-height:44px;}
-  .main-menu-card button,.game-panel button {min-height:44px;min-width:44px;}
-  .game-panel input {min-height:44px;font-size:16px;}
-  .game-panel .panel-body {font-size:14px;}
-  .game-shell.has-panel .touch-controls {visibility:hidden;}
-}
-@media (max-width:600px) and (orientation:portrait) {
-  .game-shell .game-header {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;height:auto;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top));}
-  .game-shell .brand {grid-column:1;grid-row:1;min-width:0;gap:6px;}
-  .game-shell .brand h1 {font-size:19px;letter-spacing:.5px;}
-  .game-shell .header-actions {grid-column:2;grid-row:1;gap:4px;}
-  .game-shell .header-actions button {display:grid;width:44px;height:44px;}
-  .game-shell .header-actions .icon-button:first-child {display:grid;}
-  .game-shell .resource-bar {grid-column:1/-1;grid-row:2;margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:6px 0;overflow:visible;}
-  .game-shell .resource-bar .resource {display:flex;justify-content:center;padding:0 4px;gap:4px;min-width:0;}
-  .game-shell .resource-bar .resource small {display:none;}
-  .game-shell .resource-bar .resource b {font-size:12px;overflow:hidden;text-overflow:ellipsis;}
-  .game-shell .resource-bar .resource>span {font-size:19px;}
-  .game-shell .resource-bar .game-icon {width:24px;height:24px;}
-  .game-shell .hud-left,.game-shell .calendar {top:calc(112px + env(safe-area-inset-top));}
-  .game-shell .world-actions {top:calc(176px + env(safe-area-inset-top));}
-  .game-shell .messages {top:calc(278px + env(safe-area-inset-top));bottom:auto;}
-  .game-shell .minimap {bottom:calc(236px + env(safe-area-inset-bottom));}
-}
-@media (pointer:coarse) and (orientation:landscape) {
-  .game-shell .bottom-hud {bottom:calc(20px + env(safe-area-inset-bottom));width:calc(100vw - 320px);max-width:510px;}
-  .game-shell .placement-banner,.game-shell .seed-picker,.game-shell .activity-banner {bottom:calc(85px + env(safe-area-inset-bottom));}
-  .game-shell .hud-left {top:70px;bottom:135px;}
-  .game-shell .world-actions {top:70px;}
-}
+.save-actions {display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.save-actions>button {flex:1 1 140px;}
 .main-menu-card .load-error{display:block;color:#ffc0ad;background:#602f2b;padding:10px 12px;border:1px solid #aa6454;border-radius:10px;font-size:13px;}
+.server-status{position:fixed;bottom:4px;left:50%;transform:translateX(-50%);z-index:35;font-size:11px;background:#18372fed;color:#eaddb1;padding:3px 10px;border-radius:8px;pointer-events:none;max-width:90vw;text-align:center;}

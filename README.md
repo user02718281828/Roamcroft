@@ -2,13 +2,13 @@
 
 **Canlı oyun:** https://roamcroft.roamcroft.workers.dev
 
-**Kaynak sürümü: 1.3.1.** Yerel test çiftliğinin 1.3.0 masaüstü ve mobil görünümü:
+**Kaynak sürümü: 1.4.0.** Aşağıdaki ekranlar önceki 1.3.0 test çiftliğidir; güncel mobil düzen ve doğrulama [1.4.0 notlarında](docs/verification-1.4.0.md).
 
 ![Masaüstü oyun ekranı](docs/screenshots/desktop.jpg)
 
 <img src="docs/screenshots/mobile.jpg" alt="Mobil oyun ekranı" width="390"/>
 
-Türkçe, tek oyunculu, izometrik bir çiftçilik ve hayatta kalma oyunu. Oyun dünyası Three.js ile gerçek zamanlı çizilir; tüm oyun kuralları tarayıcıda çalışan, görüntü motorundan bağımsız TypeScript simülasyonunda tutulur.
+Türkçe, tek oyunculu, izometrik bir çiftçilik ve hayatta kalma oyunu. Oyun dünyası Three.js ile çizilir. **Oyna**, mevcut çevrimdışı çiftliği açar. **Sunucu dünyası · Önizleme**, ayrı bir çiftlikte oyun kurallarını Workers üzerinde yürütür; tarayıcı yalnızca hareket tahmini ve görüntü üretir. Bu önizleme hesap veya co-op sistemi değildir. Oturum çerezine bağlı erişim ve kapasite sınırları [güvenlik mimarisinde](docs/server-security.md) açıklanır.
 
 ## Çalıştırma
 
