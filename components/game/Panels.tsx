@@ -1,5 +1,6 @@
 'use client';
 import AudioSettings from './AudioSettings';
+import {CropPlanner,MachineCard,ProductionWorkshop} from './FarmPlanning';
 import type {ValleyAudio} from '@/lib/game/audio';
 import GameIcon from './GameIcon';
 import VillagerPortrait from './VillagerPortrait';
@@ -208,6 +209,7 @@ export default function Panels({
             )}
             {panel === 'ranch' && (
               <div className="ranch-content">
+                <CropPlanner engine={engine} onSeed={onSeed}/>
                 <section className="orchard-overview">
                   <div className="orchard-heading"><GameIcon id="appletree"/><div><h3>Meyve bahçem</h3><p>Bugün dik, yarının gölgesini büyüt.</p></div></div>
                   <div className="ranch-builds"><button className="secondary-button" onClick={()=>onBuild('appletree')}><GameIcon id="appletree"/> Elma dik</button><button className="secondary-button" onClick={()=>onBuild('peartree')}><GameIcon id="peartree"/> Armut dik</button><button className="secondary-button" onClick={()=>setPanel('market')}>Fidan satın al</button></div>
@@ -472,6 +474,7 @@ export default function Panels({
             )}
             {panel === 'craft' && (
               <>
+                <ProductionWorkshop engine={engine}/>
                 <div className="queue">
                   <div className="section-label">
                     <h3>Üretim kuyruğu</h3>
@@ -1104,30 +1107,7 @@ export default function Panels({
                   </span>
                 </div>
                 <Progress value={(b.hp / (d.hp * b.level)) * 100} />
-                {d.production && (
-                  <div className="production-detail">
-                    <h3>Üretim döngüsü</h3>
-                    <Cost bag={d.production.input} inventory={s.inventory} />
-                    <ArrowRight size={18} />
-                    <Cost bag={d.production.output} inventory={{}} />
-                    <Progress value={(b.timer / d.production.time) * 100} />
-                    <p>
-                      {b.enabled
-                        ? canAfford(s, d.production.input)
-                          ? `${Math.ceil((d.production.time - b.timer) / b.level)} saniye kaldı`
-                          : 'Malzeme bekleniyor'
-                        : 'Üretim durduruldu'}
-                    </p>
-                    <button
-                      className="secondary-button"
-                      onClick={() => {
-                        engine.toggleBuilding(b.id);
-                      }}
-                    >
-                      {b.enabled ? 'Üretimi durdur' : 'Üretimi başlat'}
-                    </button>
-                  </div>
-                )}
+                {d.production && <MachineCard engine={engine} building={b}/>}
                 {b.type==='chest' && <StoragePanel engine={engine}/>}
                 <div className="building-buttons">
                   <button className="secondary-button" onClick={() => engine.rotateBuilding(b.id)}>90° döndür · {(b.rotation || 0)*90}°</button>
@@ -1424,7 +1404,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.5.0
+                  Roamcroft · 1.6.0
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />
@@ -1438,7 +1418,7 @@ export default function Panels({
                   [
                     '01',
                     'İlk hasadın',
-                    'Evin doğusundaki altın renkli buğdaylara tıkla. Olgun ekinler seçili araç ne olursa olsun hasat edilir. Her hasat bir tohum da geri verir.',
+                    'Evin doğusundaki altın renkli buğdaylara tıkla. Keşfet aracıyla olgun ekinleri topla. Domates ve mısır kökte kalıp yeniden ürün verir; diğer ekinler hasatta bir tohum geri verir. Çapa, ekini söküp yer açar. Çiftlik → Ekim planı bölümünde süre ve mevsimleri görebilirsin.',
                   ],
                   [
                     '02',
@@ -1458,7 +1438,7 @@ export default function Panels({
                   [
                     '05',
                     'Üretim ve hayvanlar',
-                    'El yapımı tarifler en fazla 3 işlik kuyruğa alınır. Marangoz, değirmen ve diğer üretim yapıları çantandaki girdileri otomatik kullanır. Yapıya tıklayıp üretimi durdurabilirsin. Çiftlik menüsünden kümes ve ahır kur; tavuk, inek ve koyun sahiplen. İki yetişkin ve 6 yemle yavru yetiştirebilirsin. Hayvanlar günde bir yem tüketir, günde bir kez ürün hazırlar. Hazır ürünü hayvana tıklayarak veya Çiftlik menüsünden topla. İlgilendiğin hayvanların yakınlığı ve verimi artar.',
+                    'El yapımı tarifler en fazla 3 işlik kuyruğa alınır. Üretim → Makinelerim bölümünden bir tarif ve tek parti ya da otomatik tekrar seç. Malzeme partinin başında makineye ayrılır. Dolu çantada bitmiş ürün makinede bekler. Yapıya tıklayıp üretimi duraklatabilirsin. Çiftlik menüsünden kümes ve ahır kur; tavuk, inek ve koyun sahiplen. İki yetişkin ve 6 yemle yavru yetiştirebilirsin. Hayvanlar günde bir yem tüketir, günde bir kez ürün hazırlar. Hazır ürünü hayvana tıklayarak veya Çiftlik menüsünden topla. İlgilendiğin hayvanların yakınlığı ve verimi artar.',
                   ],
                   [
                     '06',

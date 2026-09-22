@@ -107,6 +107,7 @@ test('new processing buildings consume real inputs and produce supplies that sur
     tile.crop = null;
     tile.resource = null;
     assert.equal(e.build(type, x, 22), true);
+    assert.equal(e.startProduction(e.s.buildings.at(-1)!.id), true);
   }
   for (let i = 0; i < 140; i++) e.systems(0.5);
   assert.equal(e.s.inventory.feed, 9);

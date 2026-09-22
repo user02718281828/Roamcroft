@@ -7,11 +7,6 @@ type Artist = {
   box(p:T.Object3D,c:number,x:number,y:number,z:number,sx:number,sy:number,sz:number):T.Mesh;
   mesh(p:T.Object3D,k:string,c:number,x:number,y:number,z:number,sx?:number,sy?:number,sz?:number):T.Mesh;
 };
-export function meadowColor(x:number,z:number,season:number) {
-  const patch=(Math.sin(x*.37+Math.sin(z*.18)*1.4)+Math.cos(z*.31-x*.12)+2)/4;
-  const palette=season===3?[0xb9cdc0,0xe1e8d5]:season===2?[0x889c51,0xb5b05c]:season===1?[0x648d43,0x8dad50]:[0x6b984d,0x9ab961];
-  return new T.Color(palette[0]).lerp(new T.Color(palette[1]),patch);
-}
 export function cottage(a:Artist,g:T.Group,level:number) {
   a.box(g,0xdcc49b,0,.86,0,1.2,1.25,1.12);
   a.box(g,0xb99b70,0,.31,0,1.3,.2,1.22);

@@ -1,5 +1,14 @@
 # Değişiklikler
 
+## 1.6.0 — 22 Eylül 2026 · Tarladan Atölyeye
+
+- Görsel geri bildirim doğrultusunda 1.4'ün çayır malzemesi, ağaç renkleri, yüzey gölgelendirmesi ve masaüstü kamera uzaklığı geri getirildi. Telefonda mevcut yakın kadraj korunur. Bahçeler, yeni ev ve portreler devam eder.
+- Çiftlik ekranına ekim planı: mevsim, tohum stoğu, beceriye göre ilk/tekrar hasat süresi, sezon geçişi uyarısı, temel satış geliri ve işleme yolu.
+- Domates ve mısır hasattan sonra kökte kalır ve sulanınca yeniden ürün verir. Tekrarlayan hasat tohum çoğaltmaz. Ekinler çapa ile sökülebilir; mevsim dışında büyüme duraklar.
+- Makinelere tek parti, isteğe bağlı otomatik tekrar ve sekiz alternatif tarif. Malzeme partinin başında ayrılır; duraklatma ve kayıt sırasında korunur. Dolu çantada bitmiş ürün makinede bekler; sökmede ayrılmış girdiler geri alınır.
+- Yeni makineler oyuncunun başlatmasını bekler; eski kayıtların otomatik döngüsü ve kısmi ilerlemesi korunur. Tarif/tekrar/parti komutları sunucuda doğrulanır.
+- Sistem eksikleri kaynak kod üzerinden önceliklendirildi: `docs/system-gap-review.md`. Eski sayısal içerik kotaları yerine birbirini besleyen kararlar öncelikli.
+
 ## 1.5.0 — 22 Eylül 2026 · Meyve Bahçesi
 
 - Çiftlik evi yeni kiremit çatı, veranda, pencere kutuları, baca ve yükseltmede çatı penceresiyle yeniden modellendi. Daha yakın masaüstü kamera, yumuşak modeller, mevsim renkleri ve çiçekli çayırlar; çimen dokusu dünya boyunca kesintisiz ve düşük kontrastlıdır.

@@ -340,7 +340,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
               setHover((old) => (old?.x === x && old.z === z ? old : { x, z })),
           );
           scene.current = view;
-          if(window.matchMedia(MOBILE_QUERY).matches)view.setZoom(-1);
+          if(window.matchMedia(MOBILE_QUERY).matches)view.setZoom(-4);
           view.setQuality(renderSettings.current.high);
           let worldReady=false,lastProgress=-1,lastPausedView='';
           const initialChunks=view.dirtyChunks.size;

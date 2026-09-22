@@ -92,8 +92,9 @@ void test('full inventory never loses earned items or charges blocked purchases'
   assert.equal(restored.s.inventory.stone, 4);
   assert.deepEqual(restored.s.overflow, {});
 });
-void test('machines retain inputs when output will not fit and resume after selling', () => {
+void test('legacy automatic machines reserve inputs and retain finished output until space is available', () => {
   const e = fresh();
+  e.s.level = 4;
   e.s.buildings.push({
     id: e.s.nextId++,
     type: 'feedmill',
@@ -106,7 +107,8 @@ void test('machines retain inputs when output will not fit and resume after sell
   });
   e.s.inventory = { wood: 597, wheat: 3 };
   e.systems(60);
-  assert.equal(e.s.inventory.wheat, 3);
+  assert.equal(e.s.inventory.wheat, 0);
+  assert.equal(e.s.buildings.at(-1)!.processing, true);
   assert.equal(e.s.inventory.feed || 0, 0);
   assert.ok(e.trade('wood', 6, false));
   e.systems(0.5);

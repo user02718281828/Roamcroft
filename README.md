@@ -2,7 +2,7 @@
 
 **Canlı oyun:** https://roamcroft.roamcroft.workers.dev
 
-**Kaynak sürümü: 1.5.0 — Meyve Bahçesi.** Yeni çiftlik evi, portreler, çiçekli çevre ve mevsimsel meyve yetiştirme. [Değişiklikler](CHANGELOG.md) · [Doğrulama](docs/verification-1.5.0.md). Aşağıdaki ekranlar önceki 1.3.0 test çiftliğidir.
+**Kaynak sürümü: 1.6.0 — Tarladan Atölyeye.** Ekim planı, tekrar hasat, seçilebilir makine tarifleri ve parti üretimi. [Değişiklikler](CHANGELOG.md) · [Sistem incelemesi](docs/system-gap-review.md) · [Doğrulama](docs/verification-1.6.0.md). Aşağıdaki ekranlar önceki 1.3.0 test çiftliğidir.
 
 ![Masaüstü oyun ekranı](docs/screenshots/desktop.jpg)
 

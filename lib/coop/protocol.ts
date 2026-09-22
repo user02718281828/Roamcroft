@@ -1,5 +1,6 @@
 import {BUILDINGS,ITEMS,RECIPES,TALENTS,ANIMALS} from '../game/data.ts';
 import type {State} from '../game/model.ts';
+import {machineRecipes} from '../game/production.ts';
 export type Pose=Pick<State['player'],'x'|'z'|'facing'> & {sprinting?:boolean};
 export type Peer={id:string;name:string;player:State['player'];message?:string;messageId?:number};
 export type Command={seq:number;method:string;args:unknown[]};
@@ -18,6 +19,9 @@ export function validCommand(v:unknown): v is Command {
   if(!id(c.seq) || !Array.isArray(c.args)) return false;
   const a=c.args;
   switch(c.method) {
+    case 'setMachineRecipe':return a.length===2 && id(a[0]) && typeof a[1]==='string' && Object.keys(BUILDINGS).some(type=>machineRecipes(type).some(r=>r.id===a[1]));
+    case 'setMachineRepeat':return a.length===2 && id(a[0]) && typeof a[1]==='boolean';
+    case 'startProduction':return a.length===1 && id(a[0]);
     case 'act': return a.length===4 && num(a[0]) && num(a[1]) && ['hand','axe','pickaxe','hoe','water','seed','fertilize','fish','sword'].includes(String(a[2])) && typeof a[3]==='string' && a[3].length<=32;
     case 'build': return a.length===5 && key(BUILDINGS,a[0]) && num(a[1]) && num(a[2]) && num(a[3],0,3) && Number.isInteger(a[3]) && typeof a[4]==='boolean';
     case 'transferStorage':return a.length===3 && key(ITEMS,a[0]) && id(a[1]) && typeof a[2]==='boolean';

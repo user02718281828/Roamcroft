@@ -1,5 +1,7 @@
 import type {ActionSound} from './audio.ts';
 import { orchardStatus } from './orchard.ts';
+import { machineRecipe, machineRecipes, productionRate } from './production.ts';
+import { cropGrowthRate } from './farming.ts';
 import {blocksPoint} from './collision.ts';
 import { schedule, type HumanAction, type AnimalAction } from './living.ts';
 import { findRoute } from './pathfinding.ts';
@@ -64,6 +66,9 @@ export type Tile = {
   seen: boolean;
 };
 export type Building = {
+  recipe?: string;
+  processing?: boolean;
+  repeat?: boolean;
   plantedDay?: number;
   harvestDay?: number;
   corner?: boolean;
@@ -976,6 +981,13 @@ export class Engine {
       this.emit(`+${count} ${ITEMS[id].name}`, 'good', x, z, required === 'hand' ? 'harvest' : required);
       return;
     }
+    if (tool === 'hoe' && t.crop) {
+      if (!this.energy(1)) return;
+      t.crop = null; t.growth = 0; t.fertilized = false;
+      this.actionCooldown = .4;
+      this.emit('Ekin söküldü. Toprak yeni ekime hazır.', 'info', x, z, 'hoe');
+      return;
+    }
     if (t.crop && t.growth >= CROPS[t.crop].grow) {
       if (!this.energy(2)) return;
       this.playerAction={kind:'harvesting',remaining:.8};
@@ -985,13 +997,14 @@ export class Engine {
           c.yield +
           (t.fertilized ? 1 : 0) +
           Math.floor((this.s.talents.harvest || 0) / 2);
-      this.add({ [crop]: count, [c.seed]: 1 });
-      t.crop = null;
-      t.growth = 0;
-      t.fertilized = false;
+      this.add(c.regrow ? { [crop]: count } : { [crop]: count, [c.seed]: 1 });
+      t.crop = c.regrow ? crop : null;
+      t.growth = c.regrow ? c.grow - c.regrow : 0;
+      if (!c.regrow) t.fertilized = false;
+      this.actionCooldown = .4;
       this.stat('harvest');
       this.gainXp(16, 'farming');
-      this.emit(`+${count} ${c.name} · +1 tohum`, 'good', x, z, 'harvest');
+      this.emit(`+${count} ${c.name} · ${c.regrow ? 'Sulamayı sürdür; yeniden ürün verecek' : '+1 tohum'}`, 'good', x, z, 'harvest');
       return;
     }
     if (tool === 'hoe' && t.terrain === 'grass' && !t.tilled) {
@@ -1094,6 +1107,7 @@ export class Engine {
       ...(d.orchard ? { plantedDay: s.day, harvestDay: 0 } : {}),
       timer: 0,
       enabled: true,
+      ...(d.production ? { recipe: 'default', processing: false, repeat: false } : {}),
     });
     t.tilled = false;
     t.water = 0;
@@ -1122,6 +1136,33 @@ export class Engine {
     const b=this.s.buildings.find(b=>b.id===id);
     if (!b) return false;
     b.enabled=!b.enabled; return true;
+  }
+  setMachineRecipe(id: number, recipe: string) {
+    if(this.network?.guest) return this.network.send('setMachineRecipe',[id,recipe]);
+    const b = this.s.buildings.find(b => b.id === id);
+    const selected = b && machineRecipes(b.type).find(r => r.id === recipe);
+    if (!b || !selected || this.s.level < selected.level || b.processing) return false;
+    b.recipe = recipe; b.timer = 0; b.repeat = false;
+    this.emit('Tarif seçildi. Malzemeler hazırsa bir parti başlat.', 'good');
+    return true;
+  }
+  setMachineRepeat(id: number, repeat: boolean) {
+    if(this.network?.guest) return this.network.send('setMachineRepeat',[id,repeat]);
+    const b = this.s.buildings.find(b => b.id === id);
+    if (!b || !machineRecipe(b) || typeof repeat !== 'boolean') return false;
+    b.repeat = repeat;
+    this.emit(repeat ? 'Otomatik tekrar açık; her partide çantadan malzeme alınır.' : 'Otomatik tekrar kapalı. Çalışan parti korunur.', 'info');
+    return true;
+  }
+  startProduction(id: number) {
+    if(this.network?.guest) return this.network.send('startProduction',[id]);
+    const b = this.s.buildings.find(b => b.id === id), r = b && machineRecipe(b);
+    if (!b || !r || b.processing || b.hp <= 0 || this.s.level < r.level) return false;
+    if (!this.spend(r.input)) { this.emit('Üretim için malzemelerin yetersiz.', 'bad'); return false; }
+    b.processing = true; b.enabled = true;
+    b.timer = Math.max(0, Math.min(b.timer, r.time));
+    this.emit('Malzemeler makineye yüklendi. Dünyaya dönünce üretim ilerler.', 'good');
+    return true;
   }
   upgrade(id: number) {
     if(this.network?.guest) return this.network.send('upgrade',[id]);
@@ -1173,6 +1214,8 @@ export class Engine {
       this.emit('Başlangıç evi ve pazar korunuyor.', 'bad');
       return false;
     }
+    const reserved = b.processing && machineRecipe(b);
+    if (reserved) this.add(reserved.input);
     this.add(
       Object.fromEntries(
         Object.entries(BUILDINGS[b.type].cost).map(([k, v]) => [
@@ -1737,12 +1780,7 @@ export class Engine {
           t.growth = Math.min(
             CROPS[t.crop].grow,
             t.growth +
-              dt *
-                (1 +
-                  (t.fertilized ? 0.3 : 0) +
-                  (greenhouse ? 0.25 : 0) +
-                  0.02 * (skillLevel(s, 'farming') - 1) +
-                  0.05 * (s.talents.harvest || 0)),
+              dt * cropGrowthRate(s, t.fertilized, greenhouse),
           );
         t.water = Math.max(0, t.water - dt * 0.3);
       }
@@ -1750,28 +1788,16 @@ export class Engine {
     }
     for (const b of s.buildings) {
       if (!tileAt(s, b.x, b.z)) continue;
-      const prod = BUILDINGS[b.type].production;
-      if (!prod || !b.enabled) continue;
-      if (canAfford(s, prod.input)) {
-        b.timer +=
-          dt *
-          b.level *
-          (1 + 0.12 * (s.talents.artisan || 0)) *
-          (s.bundles.completed.includes('artisan') ? 1.15 : 1);
-        b.timer = Math.min(b.timer, prod.time);
-        if (
-          b.timer >= prod.time &&
-          inventoryUsed(s) -
-            Object.values(prod.input).reduce((a, b) => a + b, 0) +
-            Object.values(prod.output).reduce((a, b) => a + b, 0) <=
-            inventoryCapacity(s) &&
-          this.spend(prod.input)
-        ) {
-          this.add(prod.output);
-          b.timer -= prod.time;
-          this.stat('production');
-          this.gainXp(2, 'crafting');
-        }
+      const prod = machineRecipe(b);
+      if (!prod || !b.enabled || b.hp <= 0) continue;
+      // Undefined repeat preserves existing saves' continuous production.
+      if (!b.processing && b.repeat !== false && s.level >= prod.level && this.spend(prod.input)) b.processing = true;
+      if (!b.processing) continue;
+      b.timer = Math.min(prod.time, Math.max(0, b.timer) + dt * productionRate(s, b));
+      if (b.timer >= prod.time && inventoryFits(s, prod.output)) {
+        this.add(prod.output); b.timer = 0; b.processing = false;
+        this.stat('production'); this.gainXp(2, 'crafting');
+        this.emit(`${BUILDINGS[b.type].name}: ürünler çantana alındı.`, 'good', b.x, b.z);
       }
     }
     for (const a of s.animals) {

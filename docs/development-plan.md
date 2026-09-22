@@ -1,5 +1,7 @@
 # Roamcroft gelişim planı
 
+22 Eylül öncelik güncellemesi: [Sistem eksikleri ve karar derinliği incelemesi](system-gap-review.md). Kullanıcının son isteği doğrultusunda aşağıdaki eski sayısal içerik kotaları zorunlu hedef değildir; önce mevcut sistemler arasındaki anlamlı kararlar ve mobil oynanabilirlik gelir. 1.6.0: ekim planı, tekrar hasat, seçilebilir makine tarifleri ve güvenli parti üretimi.
+
 14 Eylül 2026'da iletilen genişletilmiş metnin takip listesi. Önceki 6–8 oturum tahmini, büyüyen kapsam için güvenilir bir tamamlanma tarihi değildir. Her bölüm kayıt uyumluluğu ve performans kontrolüyle ilerler. Açık maddeler henüz uygulanmamıştır. Yeni adlar, diyaloglar, sanat ve müzik Roamcroft'a özgü olacaktır.
 
 ## Güncel öncelik — Android Chrome, 1.4.0

@@ -91,6 +91,7 @@ export const CROPS: Record<
     name: string;
     seed: string;
     grow: number;
+    regrow?: number;
     yield: number;
     level: number;
     seasons: number[];
@@ -128,6 +129,7 @@ export const CROPS: Record<
     name: 'Domates',
     seed: 'tomatoseed',
     grow: 150,
+    regrow: 100,
     yield: 4,
     level: 4,
     seasons: [0, 1],
@@ -137,6 +139,7 @@ export const CROPS: Record<
     name: 'Mısır',
     seed: 'cornseed',
     grow: 180,
+    regrow: 120,
     yield: 4,
     level: 5,
     seasons: [1, 2],

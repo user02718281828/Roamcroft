@@ -19,6 +19,7 @@ import {
 import { ENEMIES } from './expedition.ts';
 import { MILESTONES } from './settlement.ts';
 import { BUNDLES } from './progression.ts';
+import { machineRecipes } from './production.ts';
 export const SAVE_KEY = 'ocak-vadisi.save.v1',
   BACKUP_KEY = SAVE_KEY + '.backup';
 const own = (o: object, k: string) => Object.hasOwn(o, k);
@@ -295,6 +296,14 @@ export function deserialize(text: string): State {
     assert(number(b.hp, 0, BUILDINGS[b.type].hp * (b.level as number)));
     assert(number(b.timer, -10, 10000));
     assert(typeof b.enabled === 'boolean');
+    if (b.recipe !== undefined || b.processing !== undefined || b.repeat !== undefined) {
+      const recipe = machineRecipes(b.type).find(r => r.id === (b.recipe ?? 'default'));
+      assert(recipe);
+      if (b.recipe !== undefined) assert(typeof b.recipe === 'string');
+      if (b.processing !== undefined) assert(typeof b.processing === 'boolean');
+      if (b.repeat !== undefined) assert(typeof b.repeat === 'boolean');
+      assert(number(b.timer, 0, recipe.time));
+    }
     if (BUILDINGS[b.type].orchard) {
       assert(number(b.plantedDay, 1, s.day as number, true));
       assert(number(b.harvestDay, 0, s.day as number, true));

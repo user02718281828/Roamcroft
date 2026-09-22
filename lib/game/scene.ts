@@ -1,5 +1,5 @@
 import * as T from 'three';
-import { cottage, fruitTree, meadowColor } from './art-direction.ts';
+import { cottage, fruitTree } from './art-direction.ts';
 import { orchardStatus } from './orchard.ts';
 import {CloudField} from './clouds.ts';
 import {WATER_SURFACE_Y,WORLD_BASE_TOP,addWind} from './visuals.ts';
@@ -106,7 +106,7 @@ export class ValleyScene {
   hover = new T.Group();
   width = 1;
   height = 1;
-  zoom = 14;
+  zoom = 17;
   angle = Math.PI / 4;
   pan = new T.Vector3();
   target = new T.Vector3(15, 0, 17);
@@ -304,7 +304,7 @@ export class ValleyScene {
           color: map ? (soil ? 0xc8ae99 : 0xded1b7) : color,
           map,
           roughness,
-          flatShading: false,
+          flatShading: true,
           emissive,
           emissiveIntensity: emissive ? 0.65 : 0,
         }),
@@ -412,23 +412,12 @@ export class ValleyScene {
       new T.PlaneGeometry(1, 1),
       new T.MeshStandardMaterial({
         map: this.textures.grass ?? null,
-        color: 0xffffff,
+        color: 0xc5cda6,
         roughness: 1,
       }),
       WINDOW * WINDOW,
     );
     this.grassSurface.receiveShadow = true;
-    (this.grassSurface.material as T.MeshStandardMaterial).onBeforeCompile = shader => {
-      shader.vertexShader = shader.vertexShader.replace('#include <uv_vertex>', `#include <uv_vertex>
-        #ifdef USE_MAP
-          vMapUv = (modelMatrix * instanceMatrix * vec4(position, 1.0)).xz * .45;
-        #endif`);
-      shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `
-        #ifdef USE_MAP
-          vec4 turf = texture2D(map, vMapUv);
-          diffuseColor *= vec4(mix(vec3(1.0), turf.rgb, .2), turf.a);
-        #endif`);
-    };
     this.river = new T.InstancedMesh(
       this.geo('box'),
       new T.MeshStandardMaterial({
@@ -815,7 +804,7 @@ export class ValleyScene {
           this.mesh(
             g,
             'cone',
-            (n<.24?[0x386148,0x4e8055,0x719352]:[0x3b6c5c,0x52816b,0x779a75])[i],
+            (n<.24?[0x3d7355,0x4c895c,0x619661]:[0x477d74,0x58968a,0x77a799])[i],
             0,
             0.85 + i * 0.49,
             0,
@@ -829,7 +818,7 @@ export class ValleyScene {
           this.mesh(
             g,
             'sphere',
-            (season(this.engine.s)===3?[0xc9d1bd,0xe0dec8,0x9eafa1,0xd5d8c4]:season(this.engine.s)===2?[0xc68e43,0xdbaf58,0xaa733d,0xc5a15a]:n<.82?[0x709746,0x95ae58,0x648540,0x82a14a]:[0xd69f92,0xe6b9a4,0xba887f,0xdcab9b])[i],
+            (n<.75?[0x79a666,0x93b16a,0x6b9858,0x83a558]:[0xd8ac61,0xe5bd73,0xbca35e,0xd1b46c])[i],
             Math.sin(a) * 0.3,
             1.3 + i * 0.23,
             Math.cos(a) * 0.27,
@@ -1686,10 +1675,8 @@ export class ValleyScene {
               ? 0xb9a580
               : palette[Math.floor(n * 3)];
       this.ground.setColorAt(tileIndex(s, t.x, t.z), new T.Color(c));
-      this.grassSurface.setColorAt(tileIndex(s,t.x,t.z),meadowColor(t.x,t.z,season(s)));
     }
     this.ground.instanceColor!.needsUpdate = true;
-    this.grassSurface.instanceColor!.needsUpdate = true;
     this.lastSeason = season(s);
   }
   sync() {
