@@ -1,4 +1,5 @@
 import { CircleHelp } from 'lucide-react';
+import OrchardIcon from './OrchardIcon';
 import type { CSSProperties } from 'react';
 const sheets = [
   [
@@ -104,6 +105,7 @@ export default function GameIcon({
   className?: string;
 }) {
   const base = id.replace(/[123]$/, '');
+  if(['apple','pear','applesapling','pearsapling','appletree','peartree','applejam','peartart'].includes(base))return <OrchardIcon id={base} className={className}/>;
   const normalized = base.endsWith('seed') ? 'seed' : (aliases[base] ?? base);
   const entry = art.get(normalized);
   if (!entry)

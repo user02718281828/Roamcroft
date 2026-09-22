@@ -1,4 +1,5 @@
 import type {ActionSound} from './audio.ts';
+import { orchardStatus } from './orchard.ts';
 import {blocksPoint} from './collision.ts';
 import { schedule, type HumanAction, type AnimalAction } from './living.ts';
 import { findRoute } from './pathfinding.ts';
@@ -63,6 +64,8 @@ export type Tile = {
   seen: boolean;
 };
 export type Building = {
+  plantedDay?: number;
+  harvestDay?: number;
   corner?: boolean;
   rotation?: number;
   id: number;
@@ -921,6 +924,20 @@ export class Engine {
     }
     const b = buildingAt(this.s, x, z);
     if (b) {
+      const orchard = orchardStatus(b, this.s);
+      if (orchard) {
+        if (tool !== 'hand' || !orchard.ready) { this.emit(orchard.label, 'info', x, z); return; }
+        if (!inventoryFits(this.s, { [orchard.fruit]: orchard.yield })) { this.emit('ÇANTA DOLU · Meyveler dalında seni bekliyor.', 'bad'); return; }
+        if (!this.energy(2)) return;
+        b.harvestDay = this.s.day;
+        this.add({ [orchard.fruit]: orchard.yield });
+        this.stat('fruit', orchard.yield);
+        this.gainXp(18, 'farming');
+        this.playerAction = { kind: 'harvesting', remaining: .8 };
+        this.actionCooldown = .4;
+        this.emit(`+${orchard.yield} ${ITEMS[orchard.fruit].name} · Yarın yeniden`, 'good', x, z, 'harvest');
+        return;
+      }
       this.emit(`${BUILDINGS[b.type].name} · Seviye ${b.level}`);
       return;
     }
@@ -1074,12 +1091,14 @@ export class Engine {
       z: t.z,
       level: 1,
       hp: d.hp,
+      ...(d.orchard ? { plantedDay: s.day, harvestDay: 0 } : {}),
       timer: 0,
       enabled: true,
     });
     t.tilled = false;
     t.water = 0;
     this.stat('build');
+    if (d.orchard) this.stat('orchard');
     if (type === 'beacon') s.stats.beacon = 1;
     this.gainXp(35, 'crafting');
     this.emit(`${d.name} inşa edildi!`, 'good', x, z);

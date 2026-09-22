@@ -295,6 +295,11 @@ export function deserialize(text: string): State {
     assert(number(b.hp, 0, BUILDINGS[b.type].hp * (b.level as number)));
     assert(number(b.timer, -10, 10000));
     assert(typeof b.enabled === 'boolean');
+    if (BUILDINGS[b.type].orchard) {
+      assert(number(b.plantedDay, 1, s.day as number, true));
+      assert(number(b.harvestDay, 0, s.day as number, true));
+      assert((b.harvestDay as number) === 0 || (b.harvestDay as number) >= (b.plantedDay as number) + BUILDINGS[b.type].orchard!.matureDays);
+    }
     const key = `${b.x},${b.z}`;
     assert(!positions.has(key));
     positions.add(key);

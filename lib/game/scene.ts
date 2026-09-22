@@ -1,4 +1,6 @@
 import * as T from 'three';
+import { cottage, fruitTree, meadowColor } from './art-direction.ts';
+import { orchardStatus } from './orchard.ts';
 import {CloudField} from './clouds.ts';
 import {WATER_SURFACE_Y,WORLD_BASE_TOP,addWind} from './visuals.ts';
 import {PinchGesture} from './touch.ts';
@@ -96,6 +98,7 @@ export class ValleyScene {
   player = new T.Group();
   sun = new T.DirectionalLight(0xffe6b0, 3.2);
   ambient = new T.HemisphereLight(0xd7f2e9, 0x40553b, 2.5);
+  lantern = new T.PointLight(0xffd59a, 0, 8, 1.5);
   ray = new T.Raycaster();
   pointer = new T.Vector2();
   plane = new T.Plane(new T.Vector3(0, 1, 0), -0.08);
@@ -103,7 +106,7 @@ export class ValleyScene {
   hover = new T.Group();
   width = 1;
   height = 1;
-  zoom = 17;
+  zoom = 14;
   angle = Math.PI / 4;
   pan = new T.Vector3();
   target = new T.Vector3(15, 0, 17);
@@ -181,7 +184,7 @@ export class ValleyScene {
     container.appendChild(this.canvas);
     this.scene.background = new T.Color(0x345e61);
     this.scene.fog = new T.FogExp2(0x345e61, 0.014);
-    this.scene.add(this.root, this.ambient, this.sun);
+    this.scene.add(this.root, this.ambient, this.sun, this.lantern);
     this.sun.position.set(-8, 35, 16);
     this.sun.target.position.set(16, 0, 16);
     this.scene.add(this.sun.target);
@@ -301,7 +304,7 @@ export class ValleyScene {
           color: map ? (soil ? 0xc8ae99 : 0xded1b7) : color,
           map,
           roughness,
-          flatShading: true,
+          flatShading: false,
           emissive,
           emissiveIntensity: emissive ? 0.65 : 0,
         }),
@@ -409,12 +412,23 @@ export class ValleyScene {
       new T.PlaneGeometry(1, 1),
       new T.MeshStandardMaterial({
         map: this.textures.grass ?? null,
-        color: 0xc5cda6,
+        color: 0xffffff,
         roughness: 1,
       }),
       WINDOW * WINDOW,
     );
     this.grassSurface.receiveShadow = true;
+    (this.grassSurface.material as T.MeshStandardMaterial).onBeforeCompile = shader => {
+      shader.vertexShader = shader.vertexShader.replace('#include <uv_vertex>', `#include <uv_vertex>
+        #ifdef USE_MAP
+          vMapUv = (modelMatrix * instanceMatrix * vec4(position, 1.0)).xz * .45;
+        #endif`);
+      shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `
+        #ifdef USE_MAP
+          vec4 turf = texture2D(map, vMapUv);
+          diffuseColor *= vec4(mix(vec3(1.0), turf.rgb, .2), turf.a);
+        #endif`);
+    };
     this.river = new T.InstancedMesh(
       this.geo('box'),
       new T.MeshStandardMaterial({
@@ -528,7 +542,7 @@ export class ValleyScene {
       dummy.updateMatrix();
       this.river.setMatrixAt(i, dummy.matrix);
       const shallow=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dz])=>tileAt(s,t.x+dx,t.z+dz)?.terrain!=='water');
-      this.river.setColorAt(i,new T.Color(shallow?0xc9f1e9:0x83c4dc));
+      this.river.setColorAt(i,new T.Color(shallow?0xb6e3dd:0xafdce0));
       this.updateTurf(t, i, dummy);
     }
     for (const m of [
@@ -670,10 +684,19 @@ export class ValleyScene {
       for(let i=0;i<3;i++)this.mesh(g,'rock',0xaaa087,(n-.5)*.7+i*.09,.12,(i-1)*.25,.045,.025,.035);
       for(const x of [-.27,.27])this.box(g,0x9a8a64,x,.101,0,.025,.006,.78);
     }
-    if(t.terrain==='grass'&&!t.resource&&!t.crop&&!t.tilled){
+    if(t.terrain==='grass'&&!t.resource&&!t.crop&&!t.tilled&&!buildingAt(this.engine.s,t.x,t.z)){
       if(t.source==='tree')this.mesh(g,'cylinder',0x94623d,0,.18,0,.18,.28,.18);
       else if(n<.035)this.mesh(g,'rock',0xaba98a,.15,.12,.1,.14,.06,.11);
       else if(n>.96){this.mesh(g,'sphere',0x789454,0,.17,0,.3,.2,.24);this.mesh(g,'sphere',0xedd4a9,.13,.33,0,.045,.04,.045);}
+      if(n>.84&&n<.96&&season(this.engine.s)!==3){
+        const patch=Math.sin(t.x*.38+t.z*.19);
+        for(let i=0;i<3;i++){
+          const x=Math.sin(i*2.4+n*5)*.32,z=Math.cos(i*2.4+n*5)*.3,y=.24+i*.045;
+          this.mesh(g,'cylinder',0x678946,x,y-.04,z,.014,.22,.014);
+          this.mesh(g,'sphere',patch>0?0xe9bc71:0xe9d7c0,x,y+.09,z,.082,.027,.082);
+          this.mesh(g,'sphere',patch>0?0x996b39:0xe3ad53,x,y+.112,z,.028,.016,.028);
+        }
+      }
     }
     if (t.terrain === 'sand') {
       for (let i = 0; i < 3; i++) {
@@ -713,14 +736,15 @@ export class ValleyScene {
       this.mesh(g, 'sphere', 0xf0c9ad, 0.12, 0.27, -0.1, 0.065, 0.035, 0.065);
     }
   }
-  makeCharacter(g: T.Group, coat = 0x6f9b94) {
+  makeCharacter(g: T.Group, coat = 0x6f9b94, identity = 'farmer') {
     this.mesh(g, 'sphere', 0x735443, -0.13, 0.21, 0.04, 0.115, 0.18, 0.14);
     this.mesh(g, 'sphere', 0x735443, 0.13, 0.21, 0.04, 0.115, 0.18, 0.14);
     this.mesh(g, 'sphere', coat, 0, 0.56, 0, 0.27, 0.29, 0.21);
     this.mesh(g, 'sphere', 0xf0c296, 0, 0.99, 0.02, 0.275, 0.28, 0.255);
-    this.mesh(g, 'cylinder', 0xd6b572, 0, 1.2, 0, 0.39, 0.065, 0.37);
-    this.mesh(g, 'cylinder', 0xe1c187, 0, 1.3, 0, 0.25, 0.19, 0.235);
-    this.mesh(g, 'cylinder', 0x945d44, 0, 1.23, 0, 0.255, 0.05, 0.24);
+    const farmer=identity==='farmer',hair=identity==='narin'?0x7b4030:identity==='lale'?0x44372e:0x765238;
+    this.mesh(g, farmer?'cylinder':'sphere', farmer?0xd6b572:hair, 0, 1.2, -.03, farmer?.39:.285, farmer?.065:.2, farmer?.37:.26);
+    this.mesh(g, farmer?'cylinder':'sphere', farmer?0xe1c187:identity==='torin'?0xb88756:hair, 0, 1.3, -.04, .25, farmer?.19:.14, .235);
+    this.mesh(g, 'cylinder', farmer?0x945d44:identity==='narin'?0xd2a46e:0x719b96, 0, 1.23, 0, .255, .05, .24);
     this.mesh(g, 'sphere', 0xe6b589, -0.3, 0.57, 0, 0.09, 0.21, 0.09);
     this.mesh(g, 'sphere', 0xe6b589, 0.3, 0.57, 0, 0.09, 0.21, 0.09);
     for (const [index, name] of [
@@ -761,6 +785,11 @@ export class ValleyScene {
       );
     }
     this.mesh(g, 'sphere', 0xe9ad86, 0, 0.976, 0.273, 0.038, 0.039, 0.038);
+    if(identity==='narin'||identity==='lale'){
+      for(const x of [-.23,.23])this.mesh(g,'sphere',hair,x,1.04,-.1,.1,.28,.15);
+      this.box(g,identity==='narin'?0xf0d1a0:0x80acb0,0,.55,.211,.32,.31,.04);
+    }
+    if(identity==='torin'){this.mesh(g,'sphere',0x765238,0,.84,.15,.18,.11,.15);this.box(g,0x715445,0,.52,.215,.33,.35,.035);}
     const ring = new T.Mesh(
       new T.RingGeometry(0.32, 0.39, 32),
       new T.MeshBasicMaterial({
@@ -786,7 +815,7 @@ export class ValleyScene {
           this.mesh(
             g,
             'cone',
-            (n<.24?[0x3d7355,0x4c895c,0x619661]:[0x477d74,0x58968a,0x77a799])[i],
+            (n<.24?[0x386148,0x4e8055,0x719352]:[0x3b6c5c,0x52816b,0x779a75])[i],
             0,
             0.85 + i * 0.49,
             0,
@@ -800,7 +829,7 @@ export class ValleyScene {
           this.mesh(
             g,
             'sphere',
-            (n<.75?[0x79a666,0x93b16a,0x6b9858,0x83a558]:[0xd8ac61,0xe5bd73,0xbca35e,0xd1b46c])[i],
+            (season(this.engine.s)===3?[0xc9d1bd,0xe0dec8,0x9eafa1,0xd5d8c4]:season(this.engine.s)===2?[0xc68e43,0xdbaf58,0xaa733d,0xc5a15a]:n<.82?[0x709746,0x95ae58,0x648540,0x82a14a]:[0xd69f92,0xe6b9a4,0xba887f,0xdcab9b])[i],
             Math.sin(a) * 0.3,
             1.3 + i * 0.23,
             Math.cos(a) * 0.27,
@@ -985,6 +1014,8 @@ export class ValleyScene {
   }
   building(b: Building, g: T.Group) {
     const c = BUILDINGS[b.type].color;
+    if(BUILDINGS[b.type].orchard){fruitTree(this,g,b,this.engine.s);return;}
+    if(b.type==='home'){cottage(this,g,b.level);return;}
     if (b.level >= 2 && !['fence', 'campfire', 'sprinkler'].includes(b.type)) {
       // Extensions use the same static batch as the building; upgrades add no draw calls.
       for (const x of [-0.56, 0.56])
@@ -1655,8 +1686,10 @@ export class ValleyScene {
               ? 0xb9a580
               : palette[Math.floor(n * 3)];
       this.ground.setColorAt(tileIndex(s, t.x, t.z), new T.Color(c));
+      this.grassSurface.setColorAt(tileIndex(s,t.x,t.z),meadowColor(t.x,t.z,season(s)));
     }
     this.ground.instanceColor!.needsUpdate = true;
+    this.grassSurface.instanceColor!.needsUpdate = true;
     this.lastSeason = season(s);
   }
   sync() {
@@ -1680,9 +1713,10 @@ export class ValleyScene {
       if (!active.has(id)) {
         this.tiles.delete(id);
       }
+    const occupied = new Set(s.buildings.map(b=>tileKey(b.x,b.z)));
     for (const t of s.tiles) {
       const id = tileKey(t.x, t.z),
-        key = `${t.resource}-${t.tilled}-${t.water > 0}-${t.crop}-${t.crop ? Math.floor((t.growth / CROPS[t.crop].grow) * 5) : 0}`;
+        key = `${t.resource}-${t.tilled}-${t.water > 0}-${t.crop}-${t.crop ? Math.floor((t.growth / CROPS[t.crop].grow) * 5) : 0}-${season(s)}-${occupied.has(id)}`;
       const old = this.tiles.get(id);
       if (old?.key === key) continue;
       if (old) this.root.remove(old.group);
@@ -1723,7 +1757,8 @@ export class ValleyScene {
         changed = true;
       }
     for (const b of visibleBuildings) {
-      const key = `${b.type}-${b.level}-${b.rotation || 0}-${b.corner || false}`;
+      const orchard=orchardStatus(b,s);
+      const key = `${b.type}-${b.level}-${b.rotation || 0}-${b.corner || false}-${orchard?`${orchard.stage}-${orchard.ready}-${season(s)}`:''}`;
       const old = this.structures.get(b.id);
       if (old?.key === key) continue;
       if (old) {
@@ -1862,20 +1897,20 @@ export class ValleyScene {
   }
   nameTag(parent: T.Object3D, text: string, y: number) {
     const canvas = document.createElement('canvas');
-    canvas.width = 384;
+    canvas.width = Math.min(384,Math.max(120,text.length*23+36));
     canvas.height = 72;
     const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = 'rgba(27,49,38,.88)';
     ctx.beginPath();
-    ctx.roundRect(4, 4, 376, 60, 15);
+    ctx.roundRect(4, 4, canvas.width-8, 60, 15);
     ctx.fill();
     ctx.strokeStyle = 'rgba(232,207,151,.5)';
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.fillStyle = '#f1dfb4';
-    ctx.font = '500 25px Segoe UI';
+    ctx.font = '600 34px Georgia';
     ctx.textAlign = 'center';
-    ctx.fillText(text, 192, 43);
+    ctx.fillText(text, canvas.width/2, 45, canvas.width-28);
     const texture = new T.CanvasTexture(canvas);
     const sprite = new T.Sprite(
       new T.SpriteMaterial({
@@ -1885,7 +1920,7 @@ export class ValleyScene {
       }),
     );
     sprite.position.y = y;
-    sprite.scale.set(1.8, 0.34, 1);
+    sprite.scale.set(canvas.width/180, 0.4, 1);
     sprite.userData.nameTag = true;
     parent.add(sprite);
   }
@@ -1921,7 +1956,7 @@ export class ValleyScene {
     for (const n of NPCS) {
       const g = new T.Group();
       g.position.set(n.x, tileAt(this.engine.s, n.x, n.z)?.height || 0, n.z);
-      this.makeCharacter(g, n.color);
+      this.makeCharacter(g, n.color, n.id);
       g.userData.tile = { x: n.x, z: n.z };
       g.userData.npc = n.id;
       g.rotation.y = n.id === 'lale' ? -1 : 0.5;
@@ -2435,6 +2470,8 @@ export class ValleyScene {
     this.sun.intensity=s.mine?.8:light.direct;
     this.sun.color.set(light.night?0x8aaee8:daylight<.3?0xffbd85:0xffedbf);
     this.ambient.intensity=s.mine?1.9:light.ambient;
+    this.lantern.position.set(p.x,1.35+(tileAt(s,p.x,p.z)?.height||0),p.z);
+    this.lantern.intensity=s.mine?3:7*(1-T.MathUtils.smoothstep(daylight,.06,.35));
     this.buildingShadows.visible=!light.night;
     (this.river.material as T.MeshStandardMaterial).color.set(light.night?0x28436d:daylight<.3?0x75b4bf:0x5bb5c9);
     this.animateNature(daylight);

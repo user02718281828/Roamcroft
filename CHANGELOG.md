@@ -1,5 +1,15 @@
 # Değişiklikler
 
+## 1.5.0 — 22 Eylül 2026 · Meyve Bahçesi
+
+- Çiftlik evi yeni kiremit çatı, veranda, pencere kutuları, baca ve yükseltmede çatı penceresiyle yeniden modellendi. Daha yakın masaüstü kamera, yumuşak modeller, mevsim renkleri ve çiçekli çayırlar; çimen dokusu dünya boyunca kesintisiz ve düşük kontrastlıdır.
+- Su kareleri arasındaki keskin renk farkı azaltıldı. Gece ortam ışığı okunabilir hâle getirildi; karakteri izleyen sıcak fener ışığı gölge haritası üretmez.
+- Gezgin ve üç köylüye özgün portreler; köylü modellerine farklı saç, önlük ve başlıklar. İsim levhaları metne göre boyutlanır.
+- Elma ve armut bahçeleri: fidan satın alma, dikme, 2/3 günde görünür büyüme, mevsimsel günlük hasat ve kalıcı kayıt. Tam çantada ürün dalda kalır; aynı gün ikinci hasat alınamaz. Uzak bölgelerdeki ağaçlar da takvim yaşını korur.
+- Çiftlik ekranında bahçe yönetimi, hazır ürün durumu ve ağaca gitme. İnşa menüsünde Bahçe kategorisi, çantada Fidanı dik düğmesi; özgün meyve/fidan/yiyecek ikonları.
+- Elma marmeladı ve armutlu tart tarifleri, iki bahçe görevi. Uzun vadeli meyve hedefi beklerken kısa görevler görünmeye devam eder; alınabilecek ödüller önce gösterilir.
+
+
 ## 1.4.0 — 16 Eylül 2026
 
 - Android Chrome için Oyna dokunuşunda Fullscreen API ve yatay yön isteği. Ekran dönüşü, klavye, uygulamaya dönüş ve görünür viewport değişimleri izlenir; 540 px asgari dünya yüksekliği kaldırıldı. Canvas güvenli alan dolgusu olmadan ekranı kaplar, kontroller çentik ve gezinme alanından uzak tutulur.

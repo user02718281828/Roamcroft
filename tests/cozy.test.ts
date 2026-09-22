@@ -121,6 +121,7 @@ test('new processing buildings consume real inputs and produce supplies that sur
 test('all building models retain finite selectable geometry after batching', () => {
   const view = Object.create(ValleyScene.prototype) as ValleyScene;
   Object.assign(view, {
+    engine: new Engine(createState()),
     materials: new Map(),
     geometries: new Map(),
     textures: {},
@@ -129,7 +130,7 @@ test('all building models retain finite selectable geometry after batching', () 
   for (const type of Object.keys(BUILDINGS)) {
     const group = new T.Group();
     view.building(
-      { type, id: 1, x: 0, z: 0, level: 3, hp: 100, enabled: true, timer: 0 },
+      { type, id: 1, x: 0, z: 0, level: 3, hp: 100, enabled: true, timer: 0, plantedDay:1, harvestDay:0 },
       group,
     );
     compactModel(group);

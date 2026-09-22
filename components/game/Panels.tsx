@@ -2,6 +2,8 @@
 import AudioSettings from './AudioSettings';
 import type {ValleyAudio} from '@/lib/game/audio';
 import GameIcon from './GameIcon';
+import VillagerPortrait from './VillagerPortrait';
+import { orchardStatus } from '@/lib/game/orchard';
 import StoragePanel from './StoragePanel';
 import {timedGreeting,schedule} from '@/lib/game/living';
 import type { CoopClient } from '@/lib/coop/client';
@@ -206,6 +208,15 @@ export default function Panels({
             )}
             {panel === 'ranch' && (
               <div className="ranch-content">
+                <section className="orchard-overview">
+                  <div className="orchard-heading"><GameIcon id="appletree"/><div><h3>Meyve bahçem</h3><p>Bugün dik, yarının gölgesini büyüt.</p></div></div>
+                  <div className="ranch-builds"><button className="secondary-button" onClick={()=>onBuild('appletree')}><GameIcon id="appletree"/> Elma dik</button><button className="secondary-button" onClick={()=>onBuild('peartree')}><GameIcon id="peartree"/> Armut dik</button><button className="secondary-button" onClick={()=>setPanel('market')}>Fidan satın al</button></div>
+                  {s.buildings.filter(b=>BUILDINGS[b.type].orchard).length===0?<p>Elma fidanı iki, armut fidanı üç günde ağaca dönüşür. Ağaçlar kalıcıdır; mevsiminde her gün yeniden hasat edebilirsin.</p>:<div className="orchard-grid">{s.buildings.filter(b=>BUILDINGS[b.type].orchard).map(tree=>{
+                    const status=orchardStatus(tree,s)!;
+                    return <article className={`orchard-tree ${status.ready?'is-ripe':''}`} key={tree.id}><GameIcon id={tree.type}/><div><b>{BUILDINGS[tree.type].name}</b><p>{status.label}</p><small>{tree.x}, {tree.z} · {status.age} günlük</small></div><button className="secondary-button" onClick={()=>onApproach(tree.x,tree.z)}>{status.ready?'Git ve topla':'Yanına git'}</button></article>;
+                  })}</div>}
+                  <p className="orchard-chain"><GameIcon id="apple"/> Hasat <span>→</span><GameIcon id="applejam"/> Mutfakta işle <span>→</span><GameIcon id="gold"/> Yeni bahçeni kur</p>
+                </section>
                 <div className="ranch-intro">
                   <GameIcon id="barn" />
                   <div>
@@ -389,13 +400,13 @@ export default function Panels({
                 )}
                 <Tabs defaultValue="Tümü">
                   <TabsList className="game-tabs">
-                    {['Tümü', 'Köy', 'Üretim', 'Savunma'].map((c) => (
+                    {['Tümü', 'Bahçe', 'Köy', 'Üretim', 'Savunma'].map((c) => (
                       <TabsTrigger key={c} value={c}>
                         {c}
                       </TabsTrigger>
                     ))}
                   </TabsList>
-                  {['Tümü', 'Köy', 'Üretim', 'Savunma'].map((c) => (
+                  {['Tümü', 'Bahçe', 'Köy', 'Üretim', 'Savunma'].map((c) => (
                     <TabsContent value={c} key={c}>
                       <div className="catalog">
                         {Object.entries(BUILDINGS)
@@ -662,6 +673,8 @@ export default function Panels({
                                   <button onClick={() => onSeed(crop)}>
                                     Ekime geç
                                   </button>
+                                ) : item.category === 'Fidan' ? (
+                                  <button onClick={()=>onBuild(id==='applesapling'?'appletree':'peartree')}>Fidanı dik</button>
                                 ) : id === 'sprinkler' ? (
                                   <button onClick={() => onBuild('sprinkler')}>
                                     Fıskiyeyi yerleştir
@@ -948,7 +961,7 @@ export default function Panels({
             {panel === 'market' && (
               <>
                 <div className="merchant">
-                  <span>👩🏻‍🌾</span>
+                  <span><VillagerPortrait id="narin"/></span>
                   <div>
                     <h3>Narin</h3>
                     <p>
@@ -1083,6 +1096,7 @@ export default function Panels({
                   </p>
                 </div>
                 <p className="detail-description">{d.desc}</p>
+                {d.orchard&&<div className="orchard-overview"><GameIcon id={b.type}/><h3>{orchardStatus(b,s)!.label}</h3><p>Hasat başına {2+b.level} meyve. Mevsimleri: {d.orchard.seasons.map(i=>SEASONS[i]).join(', ')}.</p><button className="primary-button" onClick={()=>onApproach(b.x,b.z)}>{orchardStatus(b,s)!.ready?'Ağaca git ve meyveleri topla':'Ağacın yanına git'}</button></div>}
                 <div className="section-label">
                   <h3>Yapı sağlığı</h3>
                   <span>
@@ -1210,15 +1224,7 @@ export default function Panels({
                     <TabsContent key={n.id} value={n.id}>
                       <div className="npc-profile">
                         <span>
-                          <GameIcon
-                            id={
-                              n.id === 'narin'
-                                ? 'market'
-                                : n.id === 'torin'
-                                  ? 'workshop'
-                                  : 'rod'
-                            }
-                          />
+                          <VillagerPortrait id={n.id}/>
                         </span>
                         <div>
                           <h2>{n.name}</h2>
@@ -1418,7 +1424,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.4.0
+                  Roamcroft · 1.5.0
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

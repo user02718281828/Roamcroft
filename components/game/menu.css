@@ -55,3 +55,11 @@
 .save-actions>button {flex:1 1 140px;}
 .main-menu-card .load-error{display:block;color:#ffc0ad;background:#602f2b;padding:10px 12px;border:1px solid #aa6454;border-radius:10px;font-size:13px;}
 .server-status{position:fixed;bottom:4px;left:50%;transform:translateX(-50%);z-index:35;font-size:11px;background:#18372fed;color:#eaddb1;padding:3px 10px;border-radius:8px;pointer-events:none;max-width:90vw;text-align:center;}
+/* Orchard controls share the menu scroll area on every viewport. */
+.orchard-overview{grid-column:1/-1;padding:16px;border:1px solid #c1ae6b65;border-radius:14px;background:linear-gradient(135deg,#34513b,#233c30);margin-bottom:14px;}
+.orchard-heading{display:flex;align-items:center;gap:12px;}.orchard-heading>.game-icon{width:52px;height:52px;}
+.orchard-overview h3{color:#f0dba6;margin:0 0 5px;font-family:Georgia,serif;font-size:21px;}.orchard-overview p{color:#cbd6b7;font-size:13px;line-height:1.5;margin:7px 0;}
+.orchard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:8px;margin-top:12px;}
+.orchard-tree{display:flex;gap:8px;align-items:center;padding:10px;border-radius:10px;background:#182e2580;border:1px solid #73826655;}.orchard-tree.is-ripe{border-color:#dcc176;}.orchard-tree>.game-icon{width:40px;height:40px;flex-shrink:0;}.orchard-tree>div{flex:1;min-width:0;}.orchard-tree b{font-size:13px;color:#eed9ad;}.orchard-tree small{color:#aebc9c;font-size:11px;}.orchard-tree p{margin:3px 0;}.orchard-tree button{flex-shrink:0;font-size:11px;padding:8px;min-height:44px;}
+.orchard-chain{display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-top:1px solid #d9be7c25;padding-top:12px;}.orchard-chain .game-icon{width:25px;height:25px;}.orchard-chain>span{color:#dfbd76;}
+.villager-portrait{width:100%;height:100%;object-fit:contain;display:block;}.merchant>span{width:62px;height:70px;flex-shrink:0;}.npc-profile>span:has(.villager-portrait){background:transparent;padding:0;width:80px;height:90px;}

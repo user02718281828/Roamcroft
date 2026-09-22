@@ -3,7 +3,7 @@ export type AnimalAction = 'grazing' | 'walking' | 'running' | 'following' | 'sl
 export function sunlight(time:number) {
   const hour=((time%1)+1)%1*24;
   const daylight=Math.max(0,Math.sin((hour-6)/13*Math.PI))*(hour>=6&&hour<=19?1:0);
-  return {daylight,ambient:.18+daylight*1.75,direct:.22+daylight*2.8,x:Math.cos((hour-6)/13*Math.PI)*26,y:12+daylight*24,night:daylight<.08};
+  return {daylight,ambient:.34+daylight*1.6,direct:.22+daylight*2.8,x:Math.cos((hour-6)/13*Math.PI)*26,y:12+daylight*24,night:daylight<.08};
 }
 export function schedule(index:number,time:number,home:{x:number;z:number}) {
   const hour=time*24;

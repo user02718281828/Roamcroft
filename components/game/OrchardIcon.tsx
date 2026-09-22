@@ -1,0 +1,8 @@
+export default function OrchardIcon({id,className=''}:{id:string;className?:string}) {
+  const pear=id.startsWith('pear'),tree=id.endsWith('tree')||id.endsWith('sapling');
+  const fruit=pear?'#d8bc60':'#cc6c4b';
+  return <svg className={`game-icon ${className}`} viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="#684d35" strokeWidth="2.2" strokeLinejoin="round">
+    <ellipse cx="32" cy="56" rx="21" ry="4" fill="#233d2b" opacity=".18" stroke="none"/>
+    {tree?<><path d="M28 55V28h8v27" fill="#b58b55"/><path d="m32 38-12-9m12 5 13-11"/><path d="M11 31C0 20 15 12 20 14 18 2 43 1 45 13 62 11 67 34 51 38 42 45 17 45 11 31Z" fill="#8da75b"/><path d="M15 19c3-6 10-6 13-5m10-2c6-1 11 4 11 8" stroke="#b4c978" strokeWidth="4"/>{[20,33,46].map((x,i)=><circle key={x} cx={x} cy={27+i%2*8} r="5" fill={fruit}/>)}</>:id==='applejam'?<><path d="M19 21h26v31q-13 7-26 0Z" fill="#c17b4b"/><path d="M16 17h32v9H16Z" fill="#e6c896"/><path d="M17 19h30M20 28h24"/><path d="M22 33h20v14H22Z" fill="#f1dfad"/><path d="M31 37c-8-4-8 10 1 7 9 3 9-11 0-7" fill="#ca6c49"/></>:id==='peartart'?<><path d="m10 35 7 19h33l5-19Z" fill="#be884d"/><ellipse cx="32" cy="35" rx="23" ry="12" fill="#e3b76a"/><path d="m16 29 30 13m-21-17 22 11m-24 8 20-18m-29 13 14-15" stroke="#f6d99a" strokeWidth="4"/></>:<><path d={pear?'M30 17c-6 4-4 10-11 16-15 19 19 29 28 13 4-10-8-17-9-22-1-6-3-9-8-7Z':'M32 24C14 9 3 37 16 50c7 7 12 1 16 1s10 6 17-2c14-18 0-39-17-25Z'} fill={fruit}/><path d="M32 25c-3-8 0-13 4-17" stroke="#81623b" strokeWidth="4"/><path d="M35 16c8-14 19-7 19-7-3 11-13 13-19 7Z" fill="#8aa356"/><path d="M20 32c-4 4-4 9-1 12" stroke="#efb27b" strokeWidth="4"/></>}
+  </svg>;
+}

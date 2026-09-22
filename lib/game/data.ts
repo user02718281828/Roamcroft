@@ -37,6 +37,12 @@ const product = (name: string, icon: string, price: number): Item => ({
   category: 'Ürün',
 });
 export const ITEMS: Record<string, Item> = {
+  apple: food('Günışığı elması', 'apple', 28, 18, 14),
+  pear: food('Bal armudu', 'pear', 36, 22, 18),
+  applesapling: { ...product('Elma fidanı', 'appletree', 65), category: 'Fidan' },
+  pearsapling: { ...product('Armut fidanı', 'peartree', 90), category: 'Fidan' },
+  applejam: food('Elma marmeladı', 'applejam', 105, 35, 32),
+  peartart: food('Armutlu köy tartı', 'peartart', 165, 65, 55, 15),
   sprinkler: product('Bakır fıskiye', 'water', 80),
   wood: resource('Odun', '🪵', 3),
   stone: resource('Taş', '🪨', 4),
@@ -156,9 +162,12 @@ export type BuildingDef = {
   category: string;
   color: number;
   production?: { input: Bag; output: Bag; time: number };
+  orchard?: { fruit: string; matureDays: number; seasons: number[] };
   unique?: boolean;
 };
 export const BUILDINGS: Record<string, BuildingDef> = {
+  appletree: { name: 'Günışığı elma ağacı', icon: 'appletree', desc: 'Fidanı boş çayıra dik. 2 günde büyür; ilkbahar ve sonbaharda günde bir hasat verir. Sulama gerekmez. Yükseltme meyve sayısını artırır.', cost: { applesapling: 1, wood: 4 }, level: 1, hp: 120, category: 'Bahçe', color: 0xb74c37, orchard: { fruit: 'apple', matureDays: 2, seasons: [0, 2] } },
+  peartree: { name: 'Bal armudu ağacı', icon: 'peartree', desc: '3 günde büyür; yaz ve sonbaharda günde bir hasat verir. Meyveler ağacın üstünde görünür. Sulama gerekmez.', cost: { pearsapling: 1, wood: 4 }, level: 2, hp: 140, category: 'Bahçe', color: 0xd4b34a, orchard: { fruit: 'pear', matureDays: 3, seasons: [1, 2] } },
   wall: {name:'Taş duvar', icon:'stone', desc:'Düz veya L köşe biçiminde yerleştir. Döndürerek avlu ve çevre duvarları kur.', cost:{stone:5}, level:2, hp:240, category:'Savunma', color:0x8b998a},
   sprinkler: {
     name: 'Bakır fıskiye',
@@ -394,6 +403,8 @@ export const RECIPES: Record<
     upgrade?: string;
   }
 > = {
+  applejam: { name: 'Elma marmeladı kaynat', icon: 'applejam', input: { apple: 3, honey: 1 }, output: { applejam: 2 }, level: 4, station: 'kitchen' },
+  peartart: { name: 'Armutlu köy tartı pişir', icon: 'peartart', input: { pear: 2, flour: 1, egg: 1 }, output: { peartart: 1 }, level: 4, station: 'kitchen' },
   sprinkler: {
     name: 'Bakır fıskiye',
     icon: 'water',
@@ -532,6 +543,8 @@ export const QUESTS: {
   target: number;
   reward: { gold: number; xp: number; items: Bag };
 }[] = [
+  { id: 'orchard', name: 'Yarının gölgesi', desc: 'Pazardan bir fidan al; İnşa → Bahçe bölümünden dik.', stat: 'orchard', target: 1, reward: { gold: 45, xp: 35, items: { honey: 2 } } },
+  { id: 'fruit', name: 'Daldan sofraya', desc: 'Kendi ağaçlarından 6 meyve topla. Elma ilkbahar ve sonbaharda ürün verir.', stat: 'fruit', target: 6, reward: { gold: 120, xp: 65, items: { pearsapling: 1, flour: 2 } } },
   {
     id: 'gather',
     name: 'Bir kök sal',

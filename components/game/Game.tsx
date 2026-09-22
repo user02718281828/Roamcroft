@@ -1,5 +1,7 @@
 'use client';
 import GameIcon from './GameIcon';
+import VillagerPortrait from './VillagerPortrait';
+import { orchardStatus } from '@/lib/game/orchard';
 import './menu.css';
 import './mobile.css';
 import MainMenu from './MainMenu';
@@ -168,7 +170,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
     const animal=e.s.animals.find(a=>Math.hypot(a.x-p.x,a.z-p.z)<1.8);
     if(animal){if(animal.ready)e.harvestAnimal(animal.id);else e.petAnimal(animal.id);return;}
     const building=e.s.buildings.find(b=>Math.hypot(b.x-p.x,b.z-p.z)<1.8);
-    if(building){setSelectedBuilding(building.id);setPanel('building');return;}
+    if(building){if(orchardStatus(building,e.s)?.ready){e.act(building.x,building.z,'hand');return;}setSelectedBuilding(building.id);setPanel('building');return;}
     const target=e.s.tiles.filter(t=>(t.resource||t.crop||(control.current.tool==='fish'&&t.terrain==='water'))&&Math.hypot(t.x-p.x,t.z-p.z)<1.8).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0];
     if(target)e.act(target.x,target.z,control.current.tool==='fish'?'fish':'hand');else e.emit('Bir ürün, kaynak veya yapıya biraz daha yaklaş.');
   };
@@ -326,6 +328,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
               }
               const b = buildingAt(e.s, x, z);
               if (b && control.current.tool === 'hand') {
+                if(orchardStatus(b,e.s)?.ready){e.go(x,z,'hand');return;}
                 setSelectedBuilding(b.id);
                 setPanel('building');
                 return;
@@ -337,7 +340,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
               setHover((old) => (old?.x === x && old.z === z ? old : { x, z })),
           );
           scene.current = view;
-          if(window.matchMedia(MOBILE_QUERY).matches)view.setZoom(-4);
+          if(window.matchMedia(MOBILE_QUERY).matches)view.setZoom(-1);
           view.setQuality(renderSettings.current.high);
           let worldReady=false,lastProgress=-1,lastPausedView='';
           const initialChunks=view.dirtyChunks.size;
@@ -577,7 +580,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
                 : s?.mine
                   ? 'Maden galerisi'
                   : 'Çayır');
-  const quest = s ? QUESTS.find((q) => !s.claimed.includes(q.id)) : null;
+  const quest = s ? QUESTS.find(q=>!s.claimed.includes(q.id)&&(s.stats[q.stat]||0)>=q.target) || QUESTS.find(q=>!s.claimed.includes(q.id)&&q.id!=='fruit') || QUESTS.find(q=>!s.claimed.includes(q.id)) : null;
   const chooseBuild = (type: string) => {
     setBuild(type);
     setTool('build');
@@ -689,7 +692,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
           <div className="hud-left">
           <section className="status-card glass">
             <div className="portrait">
-              <GameIcon id="home" />
+              <VillagerPortrait />
             </div>
             <div className="status-main">
               <div className="player-name">

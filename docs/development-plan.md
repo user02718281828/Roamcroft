@@ -50,7 +50,7 @@ Güvenlik başlıkları ve temiz tarama, uygulamanın tüm olası açıklardan a
 - [ ] Eski kayıt günlerini dönüştürerek 28 günlük dört mevsime geçiş.
 - [ ] Toprak yorgunluğu, dinlendirme ve gübre çeşitleri; arayüzde okunabilir verim göstergesi.
 - [ ] Dört ürün kalite seviyesi, ayrı envanter yığınları ve satış çarpanı; eski ürünler normal kaliteye taşınır.
-- [ ] Meyve fidanı, büyüme, mevsimsel hasat ve kalıcı ağaç durumu.
+- [x] Meyve fidanı, büyüme, mevsimsel hasat ve kalıcı ağaç durumu (1.5.0: elma/armut, günlük hasat, Bahçe yönetimi, iki tarif ve iki görev).
 - [ ] Damla sulama ve otomatik sulama iyileştirmeleri.
 
 ## 3. Hayvancılık ve üretim
