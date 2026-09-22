@@ -12,4 +12,4 @@
 - Yerel CPU simülasyonu, 3.600 kare / 72 hayvan: medyan 0.032 ms, p95 0.390 ms; A* p95 0.530 ms. Bu değerler GPU veya fiziksel Android FPS ölçümü değildir.
 - Yeni Lighthouse puanı, fiziksel Android testi ve uzun oturum yük testi henüz yapılmadı. Sabit FPS veya bitmiş oyun kalitesi iddiası yoktur.
 
-Canlı yayın sonucu doğrulandıktan sonra bu dosyaya eklenir.
+Canlı yayın: `b24e3c8` uygulama sürümü 22 Eylül 2026 tarihinde Cloudflare Workers Builds ile başarıyla yayınlandı. GitHub CI başarılı: https://github.com/user02718281828/Roamcroft/actions/runs/35725155336 . Canlı adreste HTTP/CSP/oturum/CORS kontrolü geçti; başlangıç ekranındaki “1.5 · Meyve Bahçesi” ve mevcut cihaz kaydıyla açılan yeni ev, portreler ve mevsim renkleri tarayıcıda görüldü. Canlı sahne hata günlüğü boştu.
