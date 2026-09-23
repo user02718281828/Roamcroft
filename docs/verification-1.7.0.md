@@ -8,4 +8,7 @@
 - Tarayıcı hata günlüğü boş. Canlı kullanıcı kaydına test verisi yüklenmedi. Görsel dünya, kamera ve render döngüsü değiştirilmedi.
 - Fiziksel Android/PWA, yeni Lighthouse ve uzun süreli GPU FPS ölçümü yapılmadı. [Ekonomi tabanı](economy-baseline-1.7.0.md) sabit girdilerle değer hesabıdır; oyuncu yaşam döngüsünün tam simülasyonu değildir.
 
-Canlı yayın ve uzak CI sonucu son kontrolde eklenecek.
+## Canlı yayın
+
+- `f6dbdcc` uygulama commit'i Cloudflare Workers üzerinde başarıyla yayımlandı. [GitHub CI](https://github.com/user02718281828/Roamcroft/actions/runs/35904626369) tüm adımlarıyla başarılı; Workers Builds kontrolü de başarılı.
+- Canlı `check:http` başarılı. Açık çiftlik önce UI üzerinden kaydedildi, sayfa yenilendi ve 1.7 etiketi doğrulandı. Mevcut kayıtla Dostlar menüsünde günlük iki seçenek, seviye kilidi, ödül değeri ve yarın önizlemesi görüldü. Canlıda ürün teslim edilmedi; menü duraklatılmış durumda bırakıldı. Tarayıcı hata günlüğü boş.
