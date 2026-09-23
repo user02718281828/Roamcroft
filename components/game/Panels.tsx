@@ -1,5 +1,7 @@
 'use client';
 import AudioSettings from './AudioSettings';
+import DailyOrders from './DailyOrders';
+import {marketSells} from '@/lib/game/economy';
 import {CropPlanner,MachineCard,ProductionWorkshop} from './FarmPlanning';
 import type {ValleyAudio} from '@/lib/game/audio';
 import GameIcon from './GameIcon';
@@ -973,6 +975,7 @@ export default function Panels({
                   </div>
                   <b>◈ {s.gold}</b>
                 </div>
+                <button className="secondary-button" onClick={()=>setPanel('villagers')}>Satmadan önce günlük siparişlere bak</button>
                 <Tabs defaultValue="Satın al">
                   <TabsList className="game-tabs">
                     {['Satın al', 'Sat', 'Hayvanlar'].map((c) => (
@@ -1000,15 +1003,7 @@ export default function Panels({
                           .filter(([id]) =>
                             tab === 'Sat'
                               ? (s.inventory[id] || 0) > 0
-                              : ![
-                                  'crystal',
-                                  'bar',
-                                  'copperbar',
-                                  'brick',
-                                  'wool',
-                                  'cheese',
-                                  'jam',
-                                ].includes(id),
+                              : marketSells(id),
                           )
                           .map(([id, item]) => {
                             const buy = tab === 'Satın al',
@@ -1198,7 +1193,6 @@ export default function Panels({
                           ? 'growing'
                           : 'established',
                     friendship = s.friendship[n.id] || 0,
-                    done = s.contracts[n.id] === s.day,
                     gifted = s.gifts[n.id] === s.day;
                   return (
                     <TabsContent key={n.id} value={n.id}>
@@ -1246,27 +1240,7 @@ export default function Panels({
                             : 'Sohbet et · Dostluk +2'}
                         </button>
                       </div>
-                      <article className="catalog-card">
-                        <span className="eyebrow">
-                          GÜNLÜK SİPARİŞ · {s.day}. GÜN
-                        </span>
-                        <h3 className="contract-name">{n.contract.name}</h3>
-                        <p>{n.contract.description}</p>
-                        <Cost bag={n.contract.input} inventory={s.inventory} />
-                        <div className="contract-reward">
-                          ◈ {n.contract.gold} altın · ✦ {n.contract.xp} DP · ♥
-                          +8
-                        </div>
-                        <button
-                          className="primary-button"
-                          disabled={done || !canAfford(s, n.contract.input)}
-                          onClick={() => engine.completeContract(n.id)}
-                        >
-                          {done
-                            ? 'Bugünün siparişi tamamlandı'
-                            : 'Siparişi teslim et'}
-                        </button>
-                      </article>
+                      <DailyOrders engine={engine} npc={n.id}/>
                       <div className="gift-box">
                         <div>
                           <h3>Sevdiği hediye</h3>
@@ -1404,7 +1378,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.6.0
+                  Roamcroft · 1.7.0
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

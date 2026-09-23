@@ -1,6 +1,6 @@
 {
   "name": "roamcroft",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -16,6 +16,7 @@
     "check:http": "node scripts/check-http.mjs",
     "db:generate": "drizzle-kit generate",
     "deploy": "wrangler deploy --config dist/server/wrangler.json",
+    "audit:economy": "node --experimental-strip-types scripts/economy-audit.ts",
     "benchmark": "node --experimental-strip-types scripts/benchmark.ts"
   },
   "dependencies": {

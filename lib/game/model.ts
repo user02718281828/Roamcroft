@@ -2,6 +2,9 @@ import type {ActionSound} from './audio.ts';
 import { orchardStatus } from './orchard.ts';
 import { machineRecipe, machineRecipes, productionRate } from './production.ts';
 import { cropGrowthRate } from './farming.ts';
+import { dailyOrders } from './orders.ts';
+import { marketSells, tradeUnitPrice } from './economy.ts';
+export { tradeUnitPrice } from './economy.ts';
 import {blocksPoint} from './collision.ts';
 import { schedule, type HumanAction, type AnimalAction } from './living.ts';
 import { findRoute } from './pathfinding.ts';
@@ -188,12 +191,6 @@ export function season(s: State) {
 }
 export function xpNext(level: number) {
   return Math.floor(65 * Math.pow(level, 1.32));
-}
-export function tradeUnitPrice(s: State, id: string, buy: boolean) {
-  return Math.ceil(
-    ITEMS[id].price *
-      (buy ? 1.55 * (1 - 0.001 * (s.friendship.narin || 0)) : 1),
-  );
 }
 export function upgradeCost(b: Building): Bag {
   return Object.fromEntries(
@@ -1302,7 +1299,8 @@ export class Engine {
     }
     const item = ITEMS[id];
     if (
-      !item ||
+      !Object.hasOwn(ITEMS, id) ||
+      typeof buy !== 'boolean' ||
       !Number.isSafeInteger(quantity) ||
       quantity < 1 ||
       quantity > 999
@@ -1310,6 +1308,10 @@ export class Engine {
       return false;
     const value = tradeUnitPrice(this.s, id, buy) * quantity;
     if (buy) {
+      if (!marketSells(id)) {
+        this.emit('Bu ürün pazarda satılmıyor; üretim veya keşifle elde et.', 'bad');
+        return false;
+      }
       if (this.s.gold < value) {
         this.emit('Altının yetersiz.', 'bad');
         return false;
@@ -1454,24 +1456,28 @@ export class Engine {
     );
     return true;
   }
-  completeContract(id: string) {
-    if(this.network?.guest) return this.network.send('completeContract',[id]);
+  completeContract(id: string, token?: string) {
+    if(this.network?.guest) return this.network.send('completeContract',token===undefined?[id]:[id,token]);
     if (this.s.mine) return false;
     const npc = NPCS.find((n) => n.id === id);
-    const actor=this.npcMotion.get(id);if(actor){actor.action='greeting';actor.wait=3;}
     if (!npc || this.s.contracts[id] === this.s.day) return false;
-    if (!this.spend(npc.contract.input)) {
+    const offers = dailyOrders(this.s, id), order = token === undefined ? offers[0] : offers.find(o => o.token === token);
+    if (!order || this.s.level < order.level) {
+      this.emit('Sipariş değişti veya gerekli seviyeye henüz ulaşmadın.', 'bad');
+      return false;
+    }
+    if (!this.spend(order.input)) {
       this.emit('Sipariş için istenen ürünler eksik.', 'bad');
       return false;
     }
     this.s.contracts[id] = this.s.day;
+    const actor=this.npcMotion.get(id);if(actor){actor.action='greeting';actor.wait=3;}
     this.s.friendship[id] = Math.min(100, (this.s.friendship[id] || 0) + 8);
-    this.s.gold += npc.contract.gold;
-    this.gainXp(npc.contract.xp, 'crafting');
-    this.emit(
-      `${npc.name} siparişini aldı. +${npc.contract.gold} altın · Dostluk +8`,
-      'good',
-    );
+    this.s.gold += order.gold;
+    if (order.supplies) this.add(order.supplies);
+    this.stat('orders');
+    this.gainXp(order.xp, 'crafting');
+    this.celebrate(`${npc.name}: ${order.name} tamamlandı. +${order.gold} altın · Dostluk +8${order.supplies?' · Malzeme ödülü teslim edildi':''}`);
     return true;
   }
   gift(id: string) {

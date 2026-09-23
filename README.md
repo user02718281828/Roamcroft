@@ -2,7 +2,7 @@
 
 **Canlı oyun:** https://roamcroft.roamcroft.workers.dev
 
-**Kaynak sürümü: 1.6.0 — Tarladan Atölyeye.** Ekim planı, tekrar hasat, seçilebilir makine tarifleri ve parti üretimi. [Değişiklikler](CHANGELOG.md) · [Sistem incelemesi](docs/system-gap-review.md) · [Doğrulama](docs/verification-1.6.0.md). Aşağıdaki ekranlar önceki 1.3.0 test çiftliğidir.
+**Kaynak sürümü: 1.7.0 — Birlikte Üreten Vadi.** Günlük iki teslim yolu, yarının siparişleri, üretim değeri karşılaştırması ve motor düzeyinde pazar kısıtlaması. [Değişiklikler](CHANGELOG.md) · [Sistem incelemesi](docs/system-gap-review.md) · [Doğrulama](docs/verification-1.7.0.md). Aşağıdaki ekranlar önceki 1.3.0 test çiftliğidir.
 
 ![Masaüstü oyun ekranı](docs/screenshots/desktop.jpg)
 

@@ -1,5 +1,15 @@
 # Değişiklikler
 
+
+## 1.7.0 — Birlikte Üreten Vadi · 23 Eylül 2026
+
+- Üç köylüye günlük iki teslim yolu: ham ürünle altın, işlenmiş ürünle altın ve sonraki işine yarayan malzeme. On dört farklı ihtiyaç; her kişi günde yalnızca bir teslimat kabul eder. Mevsim dışında yetişmeyen başlangıç sebzesi istenmez.
+- Yarının ihtiyaçları önceden görülebilir. Seviye veya envanter değişikliği teklifleri değiştirmez. Sipariş karşılığı, normal satış değerinin %25 fazlasıdır; bu değer malzeme ödülünü de içerir.
+- Teslimatta malzeme, gün, teklif ve seviye motor/sunucu tarafında doğrulanır. Eski günün isteği harcama yapmaz; kayıt yükleyerek veya diğer seçeneği seçerek ödül tekrarlanamaz. Dolu çantada malzeme ödülleri korunur.
+- Makinede ham sat / işleyip sat / girdiyi pazardan al karşılaştırması. Pazar ekranından siparişlere geçiş.
+- Pazarda satılmayan ürünlerin kısıtlaması artık motorun satın alma komutunda da uygulanır; bu ürünleri satmak mümkün olmaya devam eder.
+- Eski günlük teslim kayıtları korunur. Yeni kayıt biçimi, görsel varlık veya kare başına simülasyon taraması eklenmedi. 128 test başarılı.
+
 ## 1.6.0 — 22 Eylül 2026 · Tarladan Atölyeye
 
 - Görsel geri bildirim doğrultusunda 1.4'ün çayır malzemesi, ağaç renkleri, yüzey gölgelendirmesi ve masaüstü kamera uzaklığı geri getirildi. Telefonda mevcut yakın kadraj korunur. Bahçeler, yeni ev ve portreler devam eder.

@@ -21,7 +21,7 @@ export default function Launcher(){
       <div className="launch-content">
         <h1>Roamcroft</h1>
         <p>Kendi dünyana dön.</p>
-        <p className="launch-update"><b>1.6 · Tarladan Atölyeye</b><br/>Ekini planla, yeniden hasat et; makinelerinde ne üreteceğine sen karar ver.</p>
+        <p className="launch-update"><b>1.7 · Birlikte Üreten Vadi</b><br/>Bugünün siparişini seç, yarını planla; emeğinin karşılığını yeni üretime dönüştür.</p>
         <button onClick={()=>void play()} disabled={loading} aria-busy={loading}>{loading?'Vadi hazırlanıyor…':'Oyna'}</button>
         <button className="launch-server" onClick={()=>void play(true)} disabled={loading}>Sunucu dünyası · Önizleme</button>
         {error&&<p role="alert">{error}</p>}

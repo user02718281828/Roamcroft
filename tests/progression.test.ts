@@ -8,6 +8,7 @@ import {
 } from '../lib/game/model.ts';
 import { NPCS, LANDMARKS } from '../lib/game/content.ts';
 import { serialize, deserialize } from '../lib/game/save.ts';
+import { dailyOrders } from '../lib/game/orders.ts';
 const fresh = () => new Engine(createState());
 test('construction cannot occupy the character tile at a diagonal corner', () => {
   const e = fresh();
@@ -18,7 +19,7 @@ test('construction cannot occupy the character tile at a diagonal corner', () =>
 });
 test('daily contracts pay once per day and never spend twice', () => {
   const e = fresh();
-  e.s.inventory.carrot = 30;
+  e.s.inventory = {...dailyOrders(e.s,'narin')[0].input};
   assert.equal(e.completeContract('narin'), true);
   const gold = e.s.gold,
     carrot = e.s.inventory.carrot;
@@ -26,6 +27,7 @@ test('daily contracts pay once per day and never spend twice', () => {
   assert.equal(e.s.gold, gold);
   assert.equal(e.s.inventory.carrot, carrot);
   e.nextDay();
+  e.s.inventory = {...dailyOrders(e.s,'narin')[0].input};
   assert.equal(e.completeContract('narin'), true);
 });
 test('gifts have a daily limit and unlock an actual price advantage', () => {

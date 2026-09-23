@@ -1,6 +1,7 @@
 import {BUILDINGS,ITEMS,RECIPES,TALENTS,ANIMALS} from '../game/data.ts';
 import type {State} from '../game/model.ts';
 import {machineRecipes} from '../game/production.ts';
+import {validOrderToken} from '../game/orders.ts';
 export type Pose=Pick<State['player'],'x'|'z'|'facing'> & {sprinting?:boolean};
 export type Peer={id:string;name:string;player:State['player'];message?:string;messageId?:number};
 export type Command={seq:number;method:string;args:unknown[]};
@@ -33,7 +34,8 @@ export function validCommand(v:unknown): v is Command {
     case 'unlockTalent':return a.length===1 && key(TALENTS,a[0]);
     case 'rotateBuilding':case 'reshapeBuilding':case 'toggleBuilding':case 'upgrade':case 'repair':case 'demolish':case 'petAnimal':case 'feedAnimal':case 'harvestAnimal':case 'breedAnimal':return a.length===1 && id(a[0]);
     case 'renameAnimal':return a.length===2 && id(a[0]) && typeof a[1]==='string' && a[1].length<=24;
-    case 'talk':case 'gift':case 'completeContract':return a.length===1 && ['narin','lale','torin'].includes(String(a[0]));
+    case 'completeContract':return (a.length===1 || a.length===2 && validOrderToken(String(a[0]),a[1])) && typeof a[0]==='string' && ['narin','lale','torin'].includes(a[0]);
+    case 'talk':case 'gift':return a.length===1 && ['narin','lale','torin'].includes(String(a[0]));
     case 'claim':case 'claimMilestone':case 'claimAchievement': return a.length===1 && typeof a[0]==='string' && a[0].length<=40;
     case 'donate': return a.length===3 && typeof a[0]==='string' && a[0].length<=32 && key(ITEMS,a[1]) && id(a[2]);
     case 'attack':case 'collectDelivery':return a.length===0;

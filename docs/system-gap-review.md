@@ -2,6 +2,13 @@
 
 22 Eylül 2026. İnceleme tabanı: 1.5.0 kaynak kodu; aşağıda “1.6.0” olarak belirtilenler bu inceleme sonucunda uygulandı. Diğer maddeler öneridir, bitmiş özellik sayılmaz.
 
+
+### 23 Eylül · 1.7.0 ilerlemesi
+
+Ekonomi ve mevcut NPC siparişleri için ilk teslim tamamlandı: her kişiye günde iki farklı teslim yolu, mevsime uygun başlangıç girdileri, yarının ihtiyaçları, altın + üretim malzemesi ödülleri ve makinede girdi/çıktı değeri karşılaştırması. Sipariş ödülünün toplam satış değeri %25 primlidir; günlük sınır iki seçenek arasında ortaktır. Eski kayıtlar korunur. Pazarın UI kısıtlaması motor satın alma komutuna da taşındı.
+
+[Ekonomi tabanı](economy-baseline-1.7.0.md) gerçek fiyatlardan hesaplanır; üç on günlük sabit parti planı içerir. Tam oyuncu davranışı, bakım ve emek simülasyonu henüz yapılmadı. Alım/işleme/satım dengesinin tamamı çözülmüş sayılmaz. Aşağıdaki tablo başlangıç incelemesidir: ekonomi/NPC satırlarının bu ilk kısmı artık öneri değil uygulanmış özelliktir; kalıcı ilişki hikâyeleri, balıkçılık ve diğer öneriler henüz tamamlanmadı.
+
 ## Tasarım sınırı
 
 Kullanıcının verdiği [Türkçe Wiki](https://tr.stardewvalleywiki.com/Stardew_Valley_Wiki), sistem kategorilerini kontrol etmek için kullanıldı. Referanstaki karakter, hikâye, görev metni, diyalog, yer adı, görsel, harita ve özel içerik alınmadı. Aynı olay örgüsünü farklı adlarla kurmak hedef değildir. Roamcroft'un mevcut içerikleri korundu.

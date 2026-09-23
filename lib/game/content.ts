@@ -7,13 +7,6 @@ export type NPC = {
   x: number;
   z: number;
   dialogue: Record<string, string[]>;
-  contract: {
-    name: string;
-    description: string;
-    input: Bag;
-    gold: number;
-    xp: number;
-  };
   gift: string;
 };
 export type Landmark = {
@@ -36,7 +29,7 @@ export const NPCS: NPC[] = [
       early: [
         'Şu avucundaki toprağa bak. Koyu renkliyse umut vardır; gerisi su, emek, biraz da sabır.',
         'İlk gün bütün tarlayı ekmeye kalkma. Bakabildiğin üç sıra, susuz bıraktığın on sıradan iyidir.',
-        'Altı havuç yetiştirirsen getir. Akşama koca bir tencere çorba kuracağım; sofrada sana da yer var.',
+        'Sofranın ihtiyacı her gün değişiyor. Bugünkü listeye bak; ham ürün de olur, hazırladığın bir yemek de.',
       ],
       growing: [
         'Filizlerin boy atmış! İnsan ilk hasadını toplarken sessizleşir; kendi emeğine bakmanın bir ağırlığı var.',
@@ -54,16 +47,6 @@ export const NPCS: NPC[] = [
         'Kutlama sofrasını ben kurarım. Bu kez senden havuç değil, gelip bizimle oturmanı istiyorum.',
       ],
     },
-    contract: {
-      name: 'Akşamın Çorbası',
-      description:
-        "Narin'in ortak sofra için hazırladığı çorbaya 6 havuç getir.",
-      input: {
-        carrot: 6,
-      },
-      gold: 150,
-      xp: 40,
-    },
     gift: 'carrot',
   },
   {
@@ -77,7 +60,7 @@ export const NPCS: NPC[] = [
       early: [
         'Torin. Duvar, çatı, ocak; sağlam durması gereken şeylere bakarım. Sen de buraya kök salmaya gelmişsin galiba.',
         'Önce taşla odun biriktir. Güzel fikirler çoktur, onları ayakta tutacak malzeme daha az bulunur.',
-        'Sekiz taşla dört odun getirirsen şu onarımı bitiririm. Emeğinin karşılığını da kuru teşekkürle ödemem.',
+        'Onarım için iki yol hazırladım: ham malzemeyi getir, ben işleyeyim; ya da hazır parçalarla işin bir ucundan tut.',
       ],
       growing: [
         'Yaptığın iş uzaktan belli oluyor. Dün boş duran yerde bugün bir düzen var; ustalık böyle başlar.',
@@ -95,16 +78,6 @@ export const NPCS: NPC[] = [
         'Bu akşam çekiç burada kalacak. Narin sofrayı kurmuş; usta dediğin ne zaman işi bırakacağını da bilmeli.',
       ],
     },
-    contract: {
-      name: 'Sağlam Bir Başlangıç',
-      description: "Torin'in onarım işine 8 taş ve 4 odun sağla.",
-      input: {
-        stone: 8,
-        wood: 4,
-      },
-      gold: 80,
-      xp: 40,
-    },
     gift: 'copper',
   },
   {
@@ -118,7 +91,7 @@ export const NPCS: NPC[] = [
       early: [
         'Yeni yüz, yeni hikâye! Ben Lale. Nehirde benden çok vakit geçiren tek kişi var, o da sandığım kadarıyla bir sazan.',
         'Oltanı suya bırakınca omuzlarını da indir. Balık tutmak bazen akşama kadar hiçbir yere yetişmemeyi öğrenmektir.',
-        'Üç balık getir, bugünün siparişini beraber çıkaralım. Büyük olanı kaçırdım dersen bu kez kanıt isterim.',
+        'Bugünün ihtiyacını listeye yazdım. Taze balıkla da yardım edebilirsin, hazırladığın bir azıkla da.',
       ],
       growing: [
         'Oltayı artık tanıdık bir dost gibi taşıyorsun. İlk günkü gibi suyu korkutmuyorsundur umarım.',
@@ -135,15 +108,6 @@ export const NPCS: NPC[] = [
         'Bu gece oltayı topladım. Yakalayacağım en iyi şey zaten karşımda: vadinin yeniden canlanması.',
         'Yarın yine balığa çıkarız. Büyük işler bitince küçük güzel şeylere dönmek lazım.',
       ],
-    },
-    contract: {
-      name: 'Kıyının Bereketi',
-      description: "Lale'nin günlük siparişini tamamlaması için 3 balık getir.",
-      input: {
-        fish: 3,
-      },
-      gold: 100,
-      xp: 40,
     },
     gift: 'grilledfish',
   },

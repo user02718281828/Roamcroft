@@ -5,6 +5,7 @@ import { canAfford, season, tradeUnitPrice, type Building, type Engine } from '@
 import { cropPlan } from '@/lib/game/farming';
 import { machineRecipe, machineRecipes, productionRate } from '@/lib/game/production';
 import { inventoryFits } from '@/lib/game/progression';
+import { processingValue } from '@/lib/game/economy';
 
 function Items({ bag }: { bag: Bag }) {
   return <span className="planning-items">{Object.entries(bag).map(([id,n])=><span key={id}><GameIcon id={id}/>{n} {ITEMS[id].name}</span>)}</span>;
@@ -32,6 +33,7 @@ export function CropPlanner({engine,onSeed}:{engine:Engine;onSeed:(id:string)=>v
 export function MachineCard({engine,building:b}:{engine:Engine;building:Building}) {
   const s=engine.s,r=machineRecipe(b);
   if(!r)return null;
+  const economics=processingValue(s,r);
   const blocked=b.processing&&b.timer>=r.time&&!inventoryFits(s,r.output);
   const status=!b.enabled?'Duraklatıldı':blocked?'ÇANTA DOLU · Bitmiş ürün makinede korunuyor':b.processing?`İşleniyor · ${Math.ceil((r.time-b.timer)/productionRate(s,b))} sn`:b.repeat!==false?'Otomatik · malzeme bekliyor':'Bir parti başlatmanı bekliyor';
   return <article className="planning-card machine-card">
@@ -41,6 +43,11 @@ export function MachineCard({engine,building:b}:{engine:Engine;building:Building
     </select></label>
     <div className="machine-flow"><Items bag={r.input}/><span aria-label="üretir">→</span><Items bag={r.output}/></div>
     <p>Bir parti ≈{Math.ceil(r.time/productionRate(s,b))} sn · Çıktı satışı {Object.entries(r.output).reduce((v,[id,n])=>v+tradeUnitPrice(s,id,false)*n,0)} altın</p>
+    <details className="machine-economics"><summary>İşlemeye değer mi?</summary>
+      <p>Malzemeyi doğrudan sat: {economics.input} altın. İşleyip sat: {economics.output} altın. Fark: {economics.added>0?'+':''}{economics.added} altın.</p>
+      <p>{economics.purchase===null?'Girdilerin tamamı pazarda satılmıyor.':`Malzemeyi pazardan alırsan ${economics.purchase} altın harcarsın; satış sonrası fark ${economics.purchasedMargin!>0?'+':''}${economics.purchasedMargin} altın.`}</p>
+      <small>Yapı maliyeti ve zaman dahil değildir. Yemek, yem ve yapı malzemesi olarak kullanmak da bir seçenektir.</small>
+    </details>
     <progress aria-label={`${BUILDINGS[b.type].name} üretim ilerlemesi`} max={r.time} value={b.timer}/>
     <p className={blocked?'inventory-warning':''} role={blocked?'status':undefined}>{status}</p>
     {b.processing&&<small>Malzemeler yüklendi. Parti bitene kadar tarif değişmez; duraklatmak malzemeyi kaybettirmez.</small>}
