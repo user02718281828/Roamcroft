@@ -30,6 +30,6 @@ for(const method of ['POST','OPTIONS']){
 }
 for(const [origin,body,status] of [['https://untrusted.example',{op:'session'},403],[new URL(base).origin,{op:'pulse',pulse:{}},401]]){
   const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
-  headers(response);assert.equal(response.status,status);assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);assert.equal(response.headers.get('Cache-Control'),'no-store');await response.body?.cancel();
+  assert.equal(response.status,status,`${response.url}: ${body.op} HTTP status`);headers(response);assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);assert.equal(response.headers.get('Cache-Control'),'no-store');await response.body?.cancel();
 }
 console.info('HTTP doğrulaması başarılı: hafif açılış, HTML nonce, güvenlik başlıkları, statik dosyalar, 404, service worker, API oturumu ve CORS.');
