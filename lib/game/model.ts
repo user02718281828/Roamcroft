@@ -47,6 +47,7 @@ import {
   registerBaseline,
   hasBaseline,
   rememberTiles,
+  flattenSurface,
 } from './world.ts';
 import type { World } from './world.ts';
 export const SIZE = 36,
@@ -255,7 +256,7 @@ export function createState(seed = 84621): State {
         x,
         z,
         terrain,
-        height: terrain === 'water' ? -0.3 : z < 10 ? (10 - z) * 0.1 : 0,
+        height: terrain === 'water' ? -0.3 : 0,
         resource,
         source: resource,
         amount:
@@ -430,6 +431,7 @@ export class Engine {
     state.overflow ??= {};
     state.storage ??= {};
     state.bundles ??= { donations: {}, completed: [] };
+    flattenSurface(state);
     if (!hasBaseline(state.seed)) createState(state.seed);
     if (!state.mine) shiftWindow(state);
   }

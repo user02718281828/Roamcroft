@@ -21,6 +21,11 @@ export function registerBaseline(seed: number, tiles: Tile[]) {
   );
 }
 export const hasBaseline = (seed: number) => baselines.has(seed);
+export function flattenSurface(s: State) {
+  const flatten=(tiles:Tile[])=>{for(const t of tiles)if(t.terrain!=='water'&&t.terrain!=='wall')t.height=0;};
+  flatten(s.mine?s.mine.surface.tiles:s.tiles);
+  flatten(Object.values(s.world.edits));
+}
 export const worldOrigin = (s: State) => (s.mine ? { x: 0, z: 0 } : s.world);
 // Accept old 36x36 snapshots and mine floors without changing their coordinates.
 export const worldSize = (s: Pick<State, 'tiles'>) => Math.sqrt(s.tiles.length);

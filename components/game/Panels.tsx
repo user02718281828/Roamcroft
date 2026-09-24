@@ -1,6 +1,7 @@
 'use client';
 import AudioSettings from './AudioSettings';
 import DailyOrders from './DailyOrders';
+import FriendLobby from './FriendLobby';
 import {marketSells} from '@/lib/game/economy';
 import {CropPlanner,MachineCard,ProductionWorkshop} from './FarmPlanning';
 import type {ValleyAudio} from '@/lib/game/audio';
@@ -1278,6 +1279,7 @@ export default function Panels({
             )}
             {panel === 'settings' && (
               <>
+                {engine.network?.server&&<FriendLobby/>}
                 <div className="settings-section">
                   <SettlementName engine={engine} />
                   <h3>Oyun kaydı</h3>
@@ -1378,7 +1380,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.7.0
+                  Roamcroft · 1.8.0
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

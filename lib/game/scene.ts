@@ -2,6 +2,8 @@ import * as T from 'three';
 import { cottage, fruitTree } from './art-direction.ts';
 import { orchardStatus } from './orchard.ts';
 import {CloudField} from './clouds.ts';
+import {natureAnchors,naturePosition,weatherDrop,type NatureAnchor} from './ambience.ts';
+import {addWorkshopArt,animateWorkshop} from './workshop-art.ts';
 import {WATER_SURFACE_Y,WORLD_BASE_TOP,addWind} from './visuals.ts';
 import {PinchGesture} from './touch.ts';
 import {sunlight,humanPose,animalPose,type HumanAction} from './living.ts';
@@ -79,6 +81,9 @@ export class ValleyScene {
   villagers: T.Group[] = [];
   remotePlayers = new Map<string,T.Group>();
   butterflies?: T.InstancedMesh;
+  fallingLeaves?:T.InstancedMesh;
+  natureCell='';
+  natureAnchors:NatureAnchor[]=[];
   fishSchool?: T.InstancedMesh;
   affectionHearts?: T.InstancedMesh;
   ambienceDummy=new T.Object3D();
@@ -1529,6 +1534,10 @@ export class ValleyScene {
       size * 0.8,
     );
     const head=new T.Group();head.name='animal-head';head.userData.animated=true;head.position.set(0,size*.95,size*.75);g.add(head);
+    const flourish=new T.Group();flourish.name='animal-flourish';flourish.userData.animated=true;g.add(flourish);
+    if(cow||sheep){flourish.position.set(0,size*.8,-size*.65);this.box(flourish,cow?0xa68a68:0xdacfac,0,-size*.12,-.08,.04,size*.3,.04);this.mesh(flourish,'sphere',cow?0x786249:0xeee3c5,0,-size*.29,-.08,.065,.09,.065);}
+    else {flourish.position.y=size*.8;for(const side of [-1,1])this.mesh(flourish,'sphere',0xe4d5b8,side*size*.57,0,0,.055,.1,.13);}
+    compactModel(flourish);
     this.mesh(
       head,
       'sphere',
@@ -1755,6 +1764,8 @@ export class ValleyScene {
       const g = new T.Group();
       g.position.set(b.x, tileAt(s, b.x, b.z)?.height || 0, b.z);
       this.building(b, g);
+      addWorkshopArt(b,g,this.mesh.bind(this));
+      const millRotor=this.wheels.find(w=>w.parent===g);if(millRotor)g.userData.millRotor=millRotor;
       g.rotation.y = (b.rotation || 0) * Math.PI / 2;
       compactModel(g);
       g.userData.tile = { x: b.x, z: b.z };
@@ -2044,6 +2055,7 @@ export class ValleyScene {
       }),
     );
     this.scene.add(this.rain);
+    this.rain.frustumCulled=false;
     const fp = new Float32Array(80 * 3);
     for (let i = 0; i < 80; i++)
       fp.set(
@@ -2063,6 +2075,7 @@ export class ValleyScene {
       }),
     );
     this.scene.add(this.fireflies);
+    this.fireflies.frustumCulled=false;
   }
   setZoom(delta: number) {
     this.zoom = T.MathUtils.clamp(this.zoom + delta, 7, 22);
@@ -2120,6 +2133,8 @@ export class ValleyScene {
   }
   animateHuman(g:T.Group,action:HumanAction,time:number,dt=1/60) {
     const pose=humanPose(action,time),blend=1-Math.exp(-Math.min(.08,dt)*18);
+    if(action==='working'&&g.userData.npc==='narin'){pose.rightArm=-.8+Math.sin(time*2.5)*.18;pose.leftArm=-.45;pose.lean=.18;}
+    if(action==='working'&&g.userData.npc==='lale'){pose.rightArm=-1.05+Math.sin(time*1.5)*.08;pose.leftArm=-.75;pose.lean=.03;}
     for(const name of ['leftLeg','rightLeg','leftArm','rightArm'] as const){const limb=g.getObjectByName(name);if(limb)limb.rotation.x+=(pose[name]-limb.rotation.x)*blend;}
     const arm=g.getObjectByName('rightArm');if(arm)arm.rotation.z+=(pose.armSide-arm.rotation.z)*blend;
     g.rotation.x+=(pose.lean-g.rotation.x)*blend;g.userData.poseHeight=(g.userData.poseHeight||0)+(pose.height-(g.userData.poseHeight||0))*blend;g.position.y+=g.userData.poseHeight;
@@ -2138,7 +2153,8 @@ export class ValleyScene {
   }
   animateNature(daylight:number) {
     if(!this.butterflies){
-      this.butterflies=new T.InstancedMesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({color:0xf2c66f,side:T.DoubleSide}),24);
+      this.butterflies=new T.InstancedMesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({color:0xf2c66f,side:T.DoubleSide}),50);
+      this.fallingLeaves=new T.InstancedMesh(new T.PlaneGeometry(.1,.17),new T.MeshBasicMaterial({color:0xbb8d53,side:T.DoubleSide}),25);this.fallingLeaves.frustumCulled=false;this.root.add(this.fallingLeaves);
       this.fishSchool=new T.InstancedMesh(new T.SphereGeometry(1,6,4),new T.MeshStandardMaterial({color:0xbdd9d9,roughness:.4}),4);
       this.butterflies.frustumCulled=false;this.fishSchool.frustumCulled=false;this.root.add(this.butterflies,this.fishSchool);
       const heart=new T.Shape();heart.moveTo(0,-.55);heart.bezierCurveTo(-1,.05,-.65,.9,0,.4);heart.bezierCurveTo(.65,.9,1,.05,0,-.55);
@@ -2146,6 +2162,8 @@ export class ValleyScene {
       this.affectionHearts.frustumCulled=false;this.root.add(this.affectionHearts);
     }
     const s=this.engine.s,p=s.player,d=this.ambienceDummy;
+    const cell=`${Math.floor(this.target.x/8)},${Math.floor(this.target.z/8)},${s.seed}`;
+    if(cell!==this.natureCell){this.natureCell=cell;this.natureAnchors=natureAnchors(this.target.x,this.target.z,s.seed);}
     if(!this.windowLights){this.windowLights=new T.InstancedMesh(new T.BoxGeometry(.19,.22,.008),new T.MeshBasicMaterial({color:0xffcf85}),128);this.root.add(this.windowLights);this.windowLights.frustumCulled=false;}
     this.windowLights.count=0;
     if(daylight<.15)for(const [id] of this.structures){
@@ -2160,11 +2178,13 @@ export class ValleyScene {
       d.position.set(a.x,(tileAt(s,a.x,a.z)?.height||0)+1.3+Math.sin(this.time*3)*.1,a.z);d.rotation.copy(this.camera.rotation);d.scale.setScalar(.2);d.updateMatrix();this.affectionHearts!.setMatrixAt(this.affectionHearts!.count++,d.matrix);
     }this.affectionHearts!.instanceMatrix.needsUpdate=true;
     this.butterflies.visible=!s.mine&&daylight>.2&&this.budget.tier<3;
+    this.fallingLeaves!.visible=!s.mine&&season(s)===2&&this.budget.tier<3;this.fallingLeaves!.count=0;
+    if(this.fallingLeaves!.visible){for(const a of this.natureAnchors){if(tileAt(s,a.x,a.z)?.terrain!=='grass')continue;const drift=(this.time*.16+a.phase)%1;d.position.set(a.x+Math.sin(drift*5+a.phase)*.35,1.9*(1-drift)+.15,a.z+drift*.5);d.rotation.set(drift*5,a.phase,drift*7);d.scale.setScalar(1);d.updateMatrix();this.fallingLeaves!.setMatrixAt(this.fallingLeaves!.count++,d.matrix);}this.fallingLeaves!.instanceMatrix.needsUpdate=true;}
     if(this.butterflies.visible){
-      for(let i=0;i<24;i++){
-        const x=p.x+Math.sin(i*4.7)*10+Math.sin(this.time*.24+i),z=p.z+Math.cos(i*3.2)*10+Math.cos(this.time*.2+i);
-        d.position.set(x,(tileAt(s,x,z)?.height||0)+.65+Math.sin(this.time*2+i)*.12,z);
-        d.rotation.set(-.4,Math.sin(this.time*12+i),i);d.scale.set(.13,.07,1);d.updateMatrix();this.butterflies.setMatrixAt(i,d.matrix);
+      this.butterflies.count=0;
+      for(const a of this.natureAnchors){
+        const pos=naturePosition(a,this.time),tile=tileAt(s,a.x,a.z);if(!tile||tile.terrain!=='grass')continue;
+        for(const side of [-1,1]){d.position.set(pos.x+side*.04,pos.y,pos.z);d.rotation.set(-.6,side*(.5+Math.sin(this.time*13+a.phase)*.7),a.phase);d.scale.set(.095,.065,1);d.updateMatrix();this.butterflies.setMatrixAt(this.butterflies.count++,d.matrix);}
       }this.butterflies.instanceMatrix.needsUpdate=true;
     }
     this.fishSchool!.visible=!s.mine&&this.budget.tier<3;this.fishSchool!.count=0;
@@ -2239,6 +2259,8 @@ export class ValleyScene {
           for(const name of ['leg-lb','leg-lf','leg-rb','leg-rf']){const leg=g.getObjectByName(name);if(leg){leg.visible=Math.hypot(a.x-this.target.x,a.z-this.target.z)<12&&this.budget.tier<3;const target=motion.moving?Math.sin(this.time*(motion.mood==='fleeing'||motion.mood==='running'?16:9)+a.id+(name==='leg-lb'||name==='leg-rf'?Math.PI:0))*.5:0;leg.rotation.x+=(target-leg.rotation.x)*(1-Math.exp(-dt*18));}}
           const head=g.getObjectByName('animal-head');
           if(head){const target=(motion.mood==='grazing'?.38:0)+Math.sin(this.time*(motion.moving?8:1.8)+a.id)*.07;head.rotation.x+=(target-head.rotation.x)*(1-Math.exp(-dt*10));head.rotation.y=Math.sin(this.time*1.5+a.id)*.05;}
+          const flourish=g.getObjectByName('animal-flourish');if(flourish){flourish.visible=Math.hypot(a.x-this.target.x,a.z-this.target.z)<15&&this.budget.tier<3;flourish.rotation.y=Math.sin(this.time*(a.type==='cow'?2:a.type==='sheep'?3:7)+a.id)*(a.type==='chicken'?.08:.3);if(a.type==='chicken')flourish.scale.x=1+(motion.mood==='happy'?Math.abs(Math.sin(this.time*14))*.7:0);}
+          if(head&&a.type==='chicken'&&motion.mood==='grazing')head.rotation.x=.15+Math.max(0,Math.sin(this.time*7+a.id))*.55;
           const difference = Math.atan2(
             Math.sin(motion.facing - g.rotation.y),
             Math.cos(motion.facing - g.rotation.y),
@@ -2470,13 +2492,15 @@ export class ValleyScene {
         );
     this.scene.background = sky;
     (this.scene.fog as T.FogExp2).color.copy(sky);
-    for (const wheel of this.wheels) wheel.rotation.z = this.time * 0.35;
+    for(const b of s.buildings){const entry=this.structures.get(b.id);if(!entry)continue;
+      const near=Math.hypot(b.x-this.target.x,b.z-this.target.z)<22&&this.budget.tier<3;
+      animateWorkshop(entry.group,b,dt,near);
+      const rotor=entry.group.userData.millRotor as T.Object3D|undefined;if(rotor&&near&&b.enabled&&b.hp>0&&b.processing)rotor.rotation.z+=dt*.7;
+    }
     for(const {group} of this.structures.values()){const flame=group.getObjectByName('flame');if(flame){flame.scale.set(1+Math.sin(this.time*8)*.1,1+Math.sin(this.time*11)*.17,1);flame.rotation.z=Math.sin(this.time*7)*.08;for(const child of flame.children)if(child instanceof T.Mesh)(child.material as T.MeshStandardMaterial).emissiveIntensity=.65+Math.sin(this.time*13)*.18;}}
 
     this.clouds.update(this.target.x,this.target.z,s.seed,this.time,daylight);
     this.clouds.visible=!s.mine&&s.weather!=='rain'&&this.budget.tier<4;
-    this.rain.position.set(this.target.x-20,0,this.target.z-20);
-    this.fireflies.position.x=this.target.x-18;this.fireflies.position.z=this.target.z-18;
     const fogTarget=s.mine?.025:s.weather==='rain'?.024:daylight<.2?.018:.009;
     (this.scene.fog as T.FogExp2).density+=(fogTarget-(this.scene.fog as T.FogExp2).density)*(1-Math.exp(-dt));
     this.rain.visible = !s.mine && s.weather === 'rain';
@@ -2484,16 +2508,16 @@ export class ValleyScene {
       const pos = this.rain.geometry.attributes.position as T.BufferAttribute,snow=season(s)===3;
       const material=this.rain.material as T.LineBasicMaterial;material.color.set(snow?0xeff4ee:0xb4d4d2);material.opacity=snow?.8:.4;
       for (let i = 0; i < pos.count; i += 2) {
-        let y = pos.getY(i) - dt * (snow?1.15:8);
-        const x=noise(i/2,1,4)*40+(snow?Math.sin(this.time*.7+i)*.6:0);pos.setX(i,x);pos.setX(i+1,x+(snow?.06:-.08));
-        if (y < 0) y = 12;
-        pos.setY(i, y);
-        pos.setY(i + 1, y + (snow?.055:.5));
+        const index=i/2,drop=weatherDrop(Math.floor(this.target.x/3)-8+index%16,Math.floor(this.target.z/3)-7+Math.floor(index/16),s.seed,this.time,snow);
+        pos.setXYZ(i,drop.x,drop.y,drop.z);pos.setXYZ(i+1,drop.x+(snow?.06:-.08),drop.y+(snow?.055:.5),drop.z+.05);
       }
       pos.needsUpdate = true;
     }
     this.fireflies.visible = !!s.mine || daylight < 0.4;
-    this.fireflies.position.y = Math.sin(this.time * 0.7) * 0.12;
+    if(this.fireflies.visible){const pos=this.fireflies.geometry.attributes.position as T.BufferAttribute;let count=0;
+      for(const a of this.natureAnchors){if(!tileAt(s,a.x,a.z))continue;const p=naturePosition(a,this.time*.4);pos.setXYZ(count++,p.x,.3+Math.sin(this.time*1.2+a.phase)*.15,p.z);}
+      this.fireflies.geometry.setDrawRange(0,count);pos.needsUpdate=true;
+    }
     for (let i = this.effects.length - 1; i >= 0; i--) {
       const e = this.effects[i];
       e.life -= dt;

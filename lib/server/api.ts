@@ -19,11 +19,11 @@ async function init(db:D1Database){
   ]);initialized.set(db,promise);promise.catch(()=>initialized.delete(db));}
   await promise;
 }
-async function allowed(db:D1Database,id:string,now:number,limit:number,window:number){
+export async function allowed(db:D1Database,id:string,now:number,limit:number,window:number){
   const row=await db.prepare('INSERT INTO authoritative_limits(id,count,expires) VALUES(?,1,?) ON CONFLICT(id) DO UPDATE SET count=CASE WHEN expires<=? THEN 1 ELSE count+1 END, expires=CASE WHEN expires<=? THEN ? ELSE expires END RETURNING count').bind(id,now+window,now,now,now+window).first<{count:number}>();
   return !!row&&row.count<=limit;
 }
-async function readBody(request:Request){
+export async function readBody(request:Request){
   if(Number(request.headers.get('Content-Length'))>MAX_BODY)throw Error('size');
   const reader=request.body?.getReader();if(!reader)throw Error('json');
   const chunks:Uint8Array[]=[];let length=0;
@@ -33,6 +33,11 @@ async function readBody(request:Request){
   return new TextDecoder('utf-8',{fatal:true}).decode(bytes);
 }
 function cookie(request:Request){const matches=(request.headers.get('Cookie')||'').split(';').map(v=>v.trim()).filter(v=>v.startsWith(COOKIE+'='));return matches.length===1?matches[0].slice(COOKIE.length+1):'';}
+export async function worldIdentity(request:Request,db:D1Database,now:number){
+  const secret=cookie(request);if(!/^[a-f0-9]{64}$/.test(secret))return null;
+  await init(db);const id=await hash(secret);
+  return await db.prepare('SELECT id FROM authoritative_worlds WHERE id=? AND expires>?').bind(id,now).first<{id:string}>();
+}
 function packet(row:Row){return {state:(JSON.parse(row.world) as WorldRecord).state,nonce:row.nonce,seq:row.seq,commandSeq:row.command_seq};}
 
 export async function handleWorld(request:Request,db:D1Database,now=Date.now()){

@@ -1,5 +1,15 @@
 # Değişiklikler
 
+## 1.8.0 — Canlanan Vadi · 24 Eylül 2026
+
+- Kelebekler, ateşböcekleri, yağmur/kar ve yeni seyrek sonbahar yaprakları dünya koordinatlarına bağlı. Kamera yalnızca görünen hücreleri seçer; parçacıkları karakterin peşinden sürüklemez. Hücre geçişlerinde ortak parçacıkların konumu ve evresi korunur.
+- Başlangıç köyündeki basamaklı kuzey arazi kaldırıldı. Eski kayıt ve arşivlenmiş bölgeler düzleştirilirken mahsuller, yapılar ve su korunur; maden duvarları değiştirilmez.
+- On yapı için özgün hareketli detay: testere, körük, yem çarkı, asılı balıklar, dokuma mekiği, yayık, tencere kapağı, arılar, kuyu kovası ve sulama başlığı. Değirmen üretim durunca durur. Çalışmayan makine hareketsiz; uzak ve düşük bütçeli ayrıntılar azaltılır.
+- Tavuklara kanat/sevinç ve gagalama ayrıntısı; koyun ve ineklere kuyruk hareketi; bahçıvan ve balıkçı köylüye farklı çalışma pozu. Mevcut sıcak palet korunur; yeni geometri oyun için yazılmıştır.
+- Sunucu dünyası → Ayarlar bölümünde dört kişilik davet lobisi önizlemesi. Davet kodu, üyeler, ev sahibi, ayrılma ve süre aşımı çalışır. Ortak çiftlik senkronizasyonu henüz açık değildir; cihazdaki dünya ayrı kalır.
+- Yeni efektler sabit üst sınırlı instancing kullanır. Yapı ayrıntısı başına en fazla iki çizim grubu; uzaklık ve uyarlanabilir ayrıntı bütçesi. 134 test ve üretim derlemesi başarılı; ölçüm sınırları docs/verification-1.8.0.md dosyasında.
+
+
 
 ## 1.7.0 — Birlikte Üreten Vadi · 23 Eylül 2026
 
