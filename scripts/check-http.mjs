@@ -3,6 +3,14 @@ import {BASE_HEADERS} from '../worker/security.mjs';
 
 const base=process.argv[2]||'http://127.0.0.1:3000';
 async function get(path,options){return fetch(new URL(path,base),{...options,signal:AbortSignal.timeout(15000)});}
+async function expectStatus(response,status,label){
+  if(response.status!==status){
+    const detail=response.status>=500?(await response.clone().text()).slice(0,1200):'';
+    console.error('HTTP failure:',{url:response.url,expected:status,actual:response.status,contentType:response.headers.get('Content-Type'),detail});
+    await new Promise(resolve=>setTimeout(resolve,250));
+  }
+  assert.equal(response.status,status,label);
+}
 function headers(response){
   for(const [key,value] of Object.entries(BASE_HEADERS))assert.equal(response.headers.get(key),value,`${response.url}: ${key}`);
   assert.match(response.headers.get('Content-Security-Policy')||'',/frame-ancestors 'none'/);
@@ -30,10 +38,28 @@ for(const method of ['POST','OPTIONS']){
 }
 for(const [origin,body,status] of [['https://untrusted.example',{op:'session'},403],[new URL(base).origin,{op:'pulse',pulse:{}},401]]){
   const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
-  assert.equal(response.status,status,`${response.url}: ${body.op} HTTP status`);headers(response);assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);assert.equal(response.headers.get('Cache-Control'),'no-store');await response.body?.cancel();
+  await expectStatus(response,status,`${response.url}: ${body.op} HTTP status`);headers(response);assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);assert.equal(response.headers.get('Cache-Control'),'no-store');await response.body?.cancel();
 }
 for(const [origin,status] of [['https://untrusted.example',403],[new URL(base).origin,401]]){
   const response=await get('/api/lobby',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({op:'status'})});
-  assert.equal(response.status,status,'Lobi yetkilendirmesi');headers(response);assert.equal(response.headers.get('Cache-Control'),'no-store');assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);await response.body?.cancel();
+  await expectStatus(response,status,'Lobi yetkilendirmesi');headers(response);assert.equal(response.headers.get('Cache-Control'),'no-store');assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);await response.body?.cancel();
 }
 console.info('HTTP doğrulaması başarılı: hafif açılış, HTML nonce, güvenlik başlıkları, statik dosyalar, 404, service worker, API oturumu ve CORS.');
+
+// Explicit local-only mode exercises a real, initially empty D1 database in CI.
+if(process.argv.includes('--session-smoke')){
+  assert.ok(['127.0.0.1','localhost','[::1]'].includes(new URL(base).hostname),'Session smoke is local-only');
+  const origin=new URL(base).origin;
+  const session=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({op:'session'})});
+  await expectStatus(session,201,'Cold D1 session creation');headers(session);
+  const cookie=session.headers.get('Set-Cookie')?.split(';')[0];assert.ok(cookie);
+  const packet=await session.json();assert.ok(packet.nonce&&packet.state);
+  const {x,z,facing}=packet.state.player;
+  const pulse=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:cookie,'X-Roamcroft-Nonce':packet.nonce},body:JSON.stringify({op:'pulse',pulse:{seq:1,pose:{x,z,facing},commands:[],paused:true}})});
+  await expectStatus(pulse,200,'Authenticated world pulse');headers(pulse);assert.equal((await pulse.json()).seq,1);
+  for(const op of ['create','leave']){
+    const lobby=await get('/api/lobby',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:cookie},body:JSON.stringify(op==='create'?{op,name:'CI test'}:{op})});
+    await expectStatus(lobby,200,'Authenticated lobby '+op);headers(lobby);const data=await lobby.json();if(op==='create')assert.equal(data.room.members.length,1);else assert.equal(data.room,null);
+  }
+  console.info('Cold D1 session, authenticated pulse and lobby passed.');
+}

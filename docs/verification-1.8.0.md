@@ -15,3 +15,10 @@
 Bu sürüm gerçek oturumla korunan davet lobisidir; ortak harita ve eşzamanlı çiftlik oynanışı henüz yoktur. UI bunu açıkça belirtir. Lobi kişisel dünyaları değiştirmez. Üyelik/kapasite/oda ömrü sunucuda doğrulanır; 96 bit rastgele kod, Secure/HttpOnly/SameSite oturumu, aynı kaynak şartı, sınırlı gövde/alanlar, parametrik SQL ve oturum başına istek kotası kullanılır. Kimlik hash'leri yanıtlanmaz. Eski `/api/coop` açılmadı.
 
 Sonraki online teslim: ortak dünya yetkileri, tek sunucu otoritesi, komut sırası/yeniden bağlanma, oyuncu varlığı ve eşzamanlı çakışan eylem testleri. Davet lobisi bu tamamlanmadan tam co-op diye sunulmayacak.
+
+## CI düzeltmesi
+
+- İlk 1.8.0 commit'inde GitHub'daki HTTP adımı oturumsuz `/api/world` komutunda 401 yerine 500 aldı. TypeScript, 134 test, derleme ve Workers Builds geçmişti. Aynı hata Node 22.13.0 / boş yerel D1 ile yeniden üretilemedi; platform kaynaklı ilk 500'ün kesin nedeni bu günlükten belirlenemiyor.
+- Oturumsuz veya biçimi geçersiz çerezli komut artık D1'e erişmeden 401 döner. Veritabanının kullanılamaması bu ret yolunu etkilemez; bunu doğrulayan testle toplam 135 test geçti.
+- HTTP testi başarısız 5xx yanıtının kısa gövdesini ve durumunu kaydeder. CI'nin yerel testine boş D1 üzerinde gerçek oturum açma, nonce ile dünya güncellemesi ve lobi açma/kapatma eklendi. Test sınırları gevşetilmedi, tekrar ederek hatayı yutma eklenmedi.
+- Node 22.13.0 ile yeni, ayrı D1 dizininden başlatılan üretim Worker'ında genişletilmiş HTTP kontrolü başarılı; son derleme başarılı.

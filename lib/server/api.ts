@@ -49,12 +49,15 @@ export async function handleWorld(request:Request,db:D1Database,now=Date.now()){
   try{raw=await readBody(request);body=JSON.parse(raw);}catch(error){return json({error:'İstek okunamadı.'},error instanceof Error&&error.message==='size'?413:400);}
   if(!body||typeof body!=='object'||Array.isArray(body))return json({error:'Geçersiz istek.'},400);
   const input=body as Record<string,unknown>;
+  const rawCookie=cookie(request),validCookie=/^[a-f0-9]{64}$/.test(rawCookie);
+  // Oturumsuz komut veritabanını başlatmamalı veya kullanılabilirliğine bağlı olmamalı.
+  if(!(input.op==='session'&&Object.keys(input).length===1)&&!validCookie)return json({error:'Sunucu oturumu sona erdi. Başlangıç ekranından yeniden bağlan.'},401);
   await init(db);
   const ip=request.headers.get('CF-Connecting-IP');
   // IP platformdan gelir; oturum kimliği olarak kullanılmaz. Yerel testte tek ortak kota vardır.
   const ipKey=await hash(ip||'local');
   if(!await allowed(db,'request:'+ipKey,now,300,60000))return json({error:'İstek sınırı aşıldı.'},429,{'Retry-After':'60'});
-  const rawCookie=cookie(request),id=/^[a-f0-9]{64}$/.test(rawCookie)?await hash(rawCookie):'';
+  const id=validCookie?await hash(rawCookie):'';
   const row=id?await db.prepare('SELECT * FROM authoritative_worlds WHERE id=? AND expires>?').bind(id,now).first<Row>():null;
   if(input.op==='session'&&Object.keys(input).length===1){
     if(row){

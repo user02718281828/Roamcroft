@@ -28,7 +28,7 @@ jobs:
             if curl --silent --fail http://127.0.0.1:3107/ > /dev/null; then break; fi
             sleep 1
           done
-          if ! npm run check:http -- http://127.0.0.1:3107; then
+          if ! npm run check:http -- http://127.0.0.1:3107 --session-smoke; then
             cat /tmp/roamcroft-http.log
             exit 1
           fi
