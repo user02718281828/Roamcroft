@@ -70,6 +70,7 @@ export type Tile = {
   seen: boolean;
 };
 export type Building = {
+  recipient?: string;
   recipe?: string;
   processing?: boolean;
   repeat?: boolean;
@@ -116,7 +117,7 @@ export type Enemy = {
   maxHp: number;
   cooldown: number;
 };
-export type Job = { recipe: string; remaining: number; total: number };
+export type Job = { recipe: string; remaining: number; total: number; recipient?: string };
 export type State = {
   settlement: { name: string; milestones: string[] };
   bundles: { donations: Record<string, Bag>; completed: string[] };
@@ -390,8 +391,10 @@ export function createState(seed = 84621): State {
   return s;
 }
 export class Engine {
-  network: {guest:boolean;server?:boolean;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
+  network: {guest:boolean;server?:boolean;shared?:boolean;enterShared?:()=>Promise<void>;leaveShared?:()=>Promise<void>;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
   networkActor = false;
+  productionRecipient?: string;
+  productionInventory?: (recipient: string | undefined) => Pick<State,'inventory'|'overflow'> | undefined;
   worldRevision = 0;
   placementRotation = 0;
   placementCorner = false;
@@ -424,7 +427,7 @@ export class Engine {
     number,
     { ttl: number; path: { x: number; z: number }[] }
   >();
-  constructor(state: State = createState()) {
+  constructor(state: State = createState(), preserveWindow = false) {
     this.s = state;
     state.settlement ??= { name: 'Yuvam', milestones: [] };
     state.talks ??= {};
@@ -433,7 +436,7 @@ export class Engine {
     state.bundles ??= { donations: {}, completed: [] };
     flattenSurface(state);
     if (!hasBaseline(state.seed)) createState(state.seed);
-    if (!state.mine) shiftWindow(state);
+    if (!state.mine && !preserveWindow) shiftWindow(state);
   }
   emit(text: string, kind: Event['kind'] = 'info', x?: number, z?: number, sound?: ActionSound) {
     this.events.push({ text, kind, x, z, sound });
@@ -1153,12 +1156,20 @@ export class Engine {
     this.emit(repeat ? 'Otomatik tekrar açık; her partide çantadan malzeme alınır.' : 'Otomatik tekrar kapalı. Çalışan parti korunur.', 'info');
     return true;
   }
+  withProductionInventory(recipient:string|undefined,action:()=>void) {
+    const bag=this.productionInventory?.(recipient);
+    if(!bag){action();return;}
+    const saved={inventory:this.s.inventory,overflow:this.s.overflow};
+    this.s.inventory=bag.inventory;this.s.overflow=bag.overflow;
+    try{action();}finally{bag.inventory=this.s.inventory;bag.overflow=this.s.overflow;Object.assign(this.s,saved);}
+  }
   startProduction(id: number) {
     if(this.network?.guest) return this.network.send('startProduction',[id]);
     const b = this.s.buildings.find(b => b.id === id), r = b && machineRecipe(b);
     if (!b || !r || b.processing || b.hp <= 0 || this.s.level < r.level) return false;
     if (!this.spend(r.input)) { this.emit('Üretim için malzemelerin yetersiz.', 'bad'); return false; }
     b.processing = true; b.enabled = true;
+    if(this.productionRecipient)b.recipient=this.productionRecipient;
     b.timer = Math.max(0, Math.min(b.timer, r.time));
     this.emit('Malzemeler makineye yüklendi. Dünyaya dönünce üretim ilerler.', 'good');
     return true;
@@ -1267,7 +1278,7 @@ export class Engine {
     const duration =
       (r.upgrade ? 30 : r.station ? 12 : 7) *
       (1 - 0.001 * (s.friendship.torin || 0));
-    s.jobs.push({ recipe: id, remaining: duration, total: duration });
+    s.jobs.push({ recipe: id, remaining: duration, total: duration, ...(this.productionRecipient?{recipient:this.productionRecipient}:{}) });
     this.emit(`${r.name} sıraya alındı. Dünyaya dönünce üretilecek.`, 'good');
     return true;
   }
@@ -1763,7 +1774,7 @@ export class Engine {
       job.remaining -= dt * (1 + 0.12 * (s.talents.artisan || 0));
       if (job.remaining <= 0) {
         const r = RECIPES[job.recipe];
-        this.add(r.output);
+        this.withProductionInventory(job.recipient,()=>this.add(r.output));
         if (r.upgrade) {
           s.upgrades[r.upgrade]++;
           this.stat('upgrade');
@@ -1798,15 +1809,17 @@ export class Engine {
       if (!tileAt(s, b.x, b.z)) continue;
       const prod = machineRecipe(b);
       if (!prod || !b.enabled || b.hp <= 0) continue;
-      // Undefined repeat preserves existing saves' continuous production.
-      if (!b.processing && b.repeat !== false && s.level >= prod.level && this.spend(prod.input)) b.processing = true;
-      if (!b.processing) continue;
-      b.timer = Math.min(prod.time, Math.max(0, b.timer) + dt * productionRate(s, b));
-      if (b.timer >= prod.time && inventoryFits(s, prod.output)) {
-        this.add(prod.output); b.timer = 0; b.processing = false;
-        this.stat('production'); this.gainXp(2, 'crafting');
-        this.emit(`${BUILDINGS[b.type].name}: ürünler çantana alındı.`, 'good', b.x, b.z);
-      }
+      this.withProductionInventory(b.recipient,()=>{
+        // Undefined repeat preserves existing saves' continuous production.
+        if (!b.processing && b.repeat !== false && s.level >= prod.level && this.spend(prod.input)) b.processing = true;
+        if (!b.processing) return;
+        b.timer = Math.min(prod.time, Math.max(0, b.timer) + dt * productionRate(s, b));
+        if (b.timer >= prod.time && inventoryFits(s, prod.output)) {
+          this.add(prod.output); b.timer = 0; b.processing = false;
+          this.stat('production'); this.gainXp(2, 'crafting');
+          this.emit(`${BUILDINGS[b.type].name}: üretim tamamlandı.`, 'good', b.x, b.z);
+        }
+      });
     }
     for (const a of s.animals) {
       if (!tileAt(s, a.x, a.z)) continue;

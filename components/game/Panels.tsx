@@ -78,6 +78,7 @@ import type { Engine } from '@/lib/game/model';
 import type { Bag } from '@/lib/game/data';
 import { NPCS, LANDMARKS, ACHIEVEMENTS } from '@/lib/game/content';
 export type Panel =
+  | 'online'
   | 'build'
   | 'craft'
   | 'inventory'
@@ -155,6 +156,7 @@ export default function Panels({
     [quantity, setQuantity] = useState(1),
     file = useRef<HTMLInputElement>(null);
   const titles: Record<NonNullable<Panel>, [string, string]> = {
+    online: ['Birlikte oyna', 'Davet koduyla aynı çiftlikte buluşun.'],
     bundles: [
       'Köy emanetleri',
       'Ortak sandıkları doldur, vadine kalıcı iyileştirmeler kazandır.',
@@ -195,13 +197,15 @@ export default function Panels({
           </SheetHeader>
           <Tabs className="panel-navigation" value={panel || 'inventory'} onValueChange={value=>setPanel(value as Panel)}>
             <TabsList className="unified-tabs">
+              {engine.network?.server&&<TabsTrigger value="online">Online</TabsTrigger>}
               {([['inventory','Çanta'],['craft','Üretim'],['build','İnşa'],['quests','Günlük'],['ranch','Çiftlik'],['villagers','Dostlar'],['bundles','Emanet'],['mine','Maden'],['settings','Ayarlar']] as const).map(([id,label])=><TabsTrigger key={id} value={id}>{label}</TabsTrigger>)}
             </TabsList>
           </Tabs>
           <div className="panel-pause">
-            <Clock size={13} /> {coop?.active ? 'Ortak dünya · Ev sahibi zamanın akışını yönetir' : 'Duraklatıldı'} <span className="keyboard-hint">· Tab: kapat · Q / E: sekme değiştir</span>
+            <Clock size={13} /> {engine.network?.shared?'Sen beklemedesin · Ortak dünya açık':coop?.active ? 'Ortak dünya · Ev sahibi zamanın akışını yönetir' : 'Duraklatıldı'} <span className="keyboard-hint">· Tab: kapat · Q / E: sekme değiştir</span>
           </div>
           <div className="panel-body">
+            {panel === 'online' && engine.network?.server && <FriendLobby engine={engine} onEnter={()=>setPanel(null)}/>}
             {panel === 'bundles' && <BundlesPanel engine={engine} />}
             {panel === 'mine' && (
               <MinePanel
@@ -1279,7 +1283,7 @@ export default function Panels({
             )}
             {panel === 'settings' && (
               <>
-                {engine.network?.server&&<FriendLobby/>}
+                {engine.network?.server&&<button className="primary-button" onClick={()=>setPanel('online')}>Arkadaşlarla oyna</button>}
                 <div className="settings-section">
                   <SettlementName engine={engine} />
                   <h3>Oyun kaydı</h3>
@@ -1380,7 +1384,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.8.0
+                  Roamcroft · 1.9.0
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

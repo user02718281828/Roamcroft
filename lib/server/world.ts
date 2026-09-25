@@ -8,8 +8,9 @@ export function freshWorld():WorldRecord {
   const seed=crypto.getRandomValues(new Uint32Array(1))[0]%2147483647;
   return {state:new Engine(createState(seed)).s};
 }
-export function advanceWorld(record:WorldRecord,pose:Pose,commands:Command[],elapsed:number,paused:boolean){
+export function advanceWorld(record:WorldRecord,pose:Pose,commands:Command[],elapsed:number,paused:boolean,configure?:(engine:Engine)=>void){
   const engine=new Engine(record.state),runtime=record.runtime;
+  configure?.(engine);
   if(runtime){engine.actionCooldown=runtime.cooldown;engine.systemClock=runtime.clock;engine.resting=runtime.resting;engine.fishing=runtime.fishing;
     engine.animalMotion=new Map(runtime.animals as [number,any][]);engine.npcMotion=new Map(runtime.npcs as [string,any][]);}
   // İstemci zamanı göndermez. Kopuk bağlantı çevrimdışı kazanç ya da hız biriktirmez.

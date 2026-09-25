@@ -37,12 +37,14 @@ for(const method of ['POST','OPTIONS']){
   await response.body?.cancel();
 }
 for(const [origin,body,status] of [['https://untrusted.example',{op:'session'},403],[new URL(base).origin,{op:'pulse',pulse:{}},401]]){
-  const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify(body)});
   await expectStatus(response,status,`${response.url}: ${body.op} HTTP status`);headers(response);assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);assert.equal(response.headers.get('Cache-Control'),'no-store');await response.body?.cancel();
 }
 for(const [origin,status] of [['https://untrusted.example',403],[new URL(base).origin,401]]){
-  const response=await get('/api/lobby',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({op:'status'})});
+  const response=await get('/api/lobby',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'status'})});
   await expectStatus(response,status,'Lobi yetkilendirmesi');headers(response);assert.equal(response.headers.get('Cache-Control'),'no-store');assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);await response.body?.cancel();
+  const shared=await get('/api/shared',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'connect'})});
+  await expectStatus(shared,status,'Ortak dünya yetkilendirmesi');headers(shared);assert.equal(shared.headers.get('Cache-Control'),'no-store');assert.equal(shared.headers.get('Access-Control-Allow-Origin'),null);await shared.body?.cancel();
 }
 console.info('HTTP doğrulaması başarılı: hafif açılış, HTML nonce, güvenlik başlıkları, statik dosyalar, 404, service worker, API oturumu ve CORS.');
 
@@ -50,16 +52,56 @@ console.info('HTTP doğrulaması başarılı: hafif açılış, HTML nonce, güv
 if(process.argv.includes('--session-smoke')){
   assert.ok(['127.0.0.1','localhost','[::1]'].includes(new URL(base).hostname),'Session smoke is local-only');
   const origin=new URL(base).origin;
-  const session=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({op:'session'})});
+  const session=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'session'})});
   await expectStatus(session,201,'Cold D1 session creation');headers(session);
   const cookie=session.headers.get('Set-Cookie')?.split(';')[0];assert.ok(cookie);
   const packet=await session.json();assert.ok(packet.nonce&&packet.state);
   const {x,z,facing}=packet.state.player;
   const pulse=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:cookie,'X-Roamcroft-Nonce':packet.nonce},body:JSON.stringify({op:'pulse',pulse:{seq:1,pose:{x,z,facing},commands:[],paused:true}})});
   await expectStatus(pulse,200,'Authenticated world pulse');headers(pulse);assert.equal((await pulse.json()).seq,1);
-  for(const op of ['create','leave']){
-    const lobby=await get('/api/lobby',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:cookie},body:JSON.stringify(op==='create'?{op,name:'CI test'}:{op})});
-    await expectStatus(lobby,200,'Authenticated lobby '+op);headers(lobby);const data=await lobby.json();if(op==='create')assert.equal(data.room.members.length,1);else assert.equal(data.room,null);
+  let simulatedRtt=0;
+  async function call(path,body,sessionCookie=cookie,requestNonce='',status=200){
+    if(simulatedRtt)await new Promise(resolve=>setTimeout(resolve,simulatedRtt/2));
+    const response=await get(path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:sessionCookie,'X-Roamcroft-Nonce':requestNonce,'X-Roamcroft-Protocol':'1'},body:JSON.stringify(body)});
+    await expectStatus(response,status,`${path} ${body.op}`);headers(response);const data=await response.json();
+    if(simulatedRtt)await new Promise(resolve=>setTimeout(resolve,simulatedRtt/2));return data;
   }
-  console.info('Cold D1 session, authenticated pulse and lobby passed.');
+  const secondSession=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'session'})});
+  await expectStatus(secondSession,201,'Second independent player');
+  const guestCookie=secondSession.headers.get('Set-Cookie')?.split(';')[0];assert.ok(guestCookie);
+  const privateGuest=await secondSession.json();
+  const lobby=await call('/api/lobby',{op:'create',name:'CI host'});assert.equal(lobby.room.members.length,1);
+  await call('/api/lobby',{op:'join',name:'CI guest',code:lobby.room.code},guestCookie);
+  await call('/api/shared',{op:'connect'},guestCookie,'',423);
+  const host=await call('/api/shared',{op:'connect'}),guest=await call('/api/shared',{op:'connect'},guestCookie);
+  assert.equal(guest.peers.length,2);assert.notEqual(guest.you.id,host.you.id);assert.deepEqual(guest.bag.inventory,{});
+  const action={op:'pulse',revision:guest.revision,pulse:{seq:1,pose:guest.you.player,commands:[{seq:1,method:'trade',args:['wood',1,true]}],paused:true}};
+  const bought=await call('/api/shared',action,guestCookie,guest.nonce);assert.equal(bought.bag.inventory.wood,1);
+  const retry=await call('/api/shared',action,guestCookie,guest.nonce);assert.equal(retry.bag.inventory.wood,1);assert.equal(retry.revision,bought.revision);
+  const synced=await call('/api/shared',{op:'pulse',revision:host.revision,pulse:{seq:1,pose:host.you.player,commands:[],paused:true}},cookie,host.nonce);
+  assert.equal(synced.bag.inventory.wood,host.bag.inventory.wood);assert.equal(synced.peers.length,2);assert.ok(synced.patches.length);
+  const players=[{cookie,packet:synced},{cookie:guestCookie,packet:retry}];
+  for(const name of ['CI third','CI fourth']){
+    const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({op:'session'})});await expectStatus(response,201,'Independent player '+name);
+    const playerCookie=response.headers.get('Set-Cookie')?.split(';')[0];assert.ok(playerCookie);await response.body?.cancel();
+    await call('/api/lobby',{op:'join',name,code:lobby.room.code},playerCookie);
+    players.push({cookie:playerCookie,packet:await call('/api/shared',{op:'connect'},playerCookie)});
+  }
+  simulatedRtt=300;
+  const actions=players.map(p=>({op:'pulse',revision:p.packet.revision,pulse:{seq:p.packet.seq+1,pose:p.packet.you.player,commands:[{seq:p.packet.commandSeq+1,method:'trade',args:['wood',1,true]}],paused:true}}));
+  const parallel=await Promise.allSettled(players.map(async(p,i)=>{
+    const result=await call('/api/shared',actions[i],p.cookie,p.packet.nonce);
+    if(i===2)throw Error('Simulated response loss after commit');return result;
+  }));
+  assert.equal(parallel.filter(r=>r.status==='rejected').length,1);assert.equal(parallel[2].status,'rejected');
+  const replayed=await Promise.all(players.map((p,i)=>call('/api/shared',actions[i],p.cookie,p.packet.nonce)));
+  for(let i=0;i<players.length;i++)assert.equal(replayed[i].bag.inventory.wood,(players[i].packet.bag.inventory.wood||0)+1);
+  const snapshots=await Promise.all(players.map(p=>call('/api/shared',{op:'connect'},p.cookie)));
+  assert.equal(new Set(snapshots.map(p=>p.you.id)).size,4);
+  for(const snapshot of snapshots){assert.equal(snapshot.peers.length,4);assert.equal(snapshot.state.gold,snapshots[0].state.gold);assert.equal(snapshot.state.time,snapshots[0].state.time);}
+  simulatedRtt=0;
+  assert.equal((await call('/api/lobby',{op:'leave'})).room,null);
+  await call('/api/shared',{op:'connect'},guestCookie,'',410);
+  const restored=await call('/api/world',{op:'session'},guestCookie);assert.equal(restored.state.gold,privateGuest.state.gold);assert.deepEqual(restored.state.inventory,privateGuest.state.inventory);
+  console.info('Cold D1: four independent players, simultaneous writes at +300 ms RTT, lost-response replay, private bags, shared clock and host close passed.');
 }

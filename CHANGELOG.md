@@ -1,5 +1,16 @@
 # Değişiklikler
 
+## 1.9.0 — Birlikte Büyüyen Çiftlik · 25 Eylül 2026
+
+- Başlangıç ekranından **Arkadaşlarla oyna → Online**: dört kişilik davet kodlu ortak yüzey çiftliği. Host önce ortak çiftliğe girer; konuklar ona katılır. Tarım, kaynak toplama, inşa, balıkçılık ve mevcut yüzey eylemleri tek sunucu kaydında işlenir.
+- Her oyuncunun ayrı karakteri, canı, enerjisi ve çantası var. Altın, dünya zamanı, ekinler, yapılar, depo ve ilerleme ortak. Konuk çantası boş başlar; ayrılma ve yeni davet lobisinden dönüşte korunur. Sandıkla eşya paylaşılır.
+- Üretim kuyruğu ve makineler ürünü malzemeyi ödeyen oyuncuya teslim eder. Makinenin otomatik tekrarı aynı oyuncunun çantasını kullanır. Oyuncu lobiden ayrılsa da teslimat kaybolmaz.
+- Ortak kayıt host'un sunucu çiftliğinden bir kez kopyalanır, ardından ayrı ve host'a bağlı Cloudflare D1 kaydıdır. Kişisel çiftlikler değiştirilmez. Host 15 saniye bağlantı vermezse konuk işlemleri bekletilir; 5 dakikada lobi kapanır. Host tekrar açtığında kayıt geri gelir.
+- Sunucu üyelik ve komutları doğrular; nonce, sıra numarası, aynı isteğin güvenli tekrarı, istek kotası ve atomik revizyon kontrolü uygulanır. Aynı hasat veya depodaki son eşya iki kez alınamaz. Tam harita yerine sıralı fark güncellemeleri gönderilir; kaçırılan geçmişte tam kayıtla eşitlenir.
+- Oyuncular ayrı renklerle görünür; uzak oyuncu sıçraması ve dünya penceresi değişiminde yeniden yükleme sorunu düzeltildi. Online sekmesi, küçük ekranlara uygun kaydırılan lobi ve araç çubuğunu örtmeyen masaüstü bağlantı durumu eklendi.
+- Protokol sürümü uyuşmazlığında işlemler durur ve yenileme istenir. Rate-limit bekleme süresine uyulur. Sunucu hataları sır, oyuncu adı veya istek gövdesi olmadan korelasyon kimliğiyle kaydedilir. Onay bekleyen komutlar artık kaydedildi diye gösterilmez.
+- Beta sınırları: yalnızca host çevresindeki ortak yüzey; maden, bağımsız bölgeler, oyuncuya özel kulübe ve toplu uyku henüz yok. IP/port gerektirmeyen HTTPS bağlantısı kullanılır; P2P/WebSocket veya Steam entegrasyonu değildir. Hesap kurtarma henüz yok; oturum çerezini silmek erişimi kaybettirir.
+
 ## 1.8.0 — Canlanan Vadi · 24 Eylül 2026
 
 - Kelebekler, ateşböcekleri, yağmur/kar ve yeni seyrek sonbahar yaprakları dünya koordinatlarına bağlı. Kamera yalnızca görünen hücreleri seçer; parçacıkları karakterin peşinden sürüklemez. Hücre geçişlerinde ortak parçacıkların konumu ve evresi korunur.

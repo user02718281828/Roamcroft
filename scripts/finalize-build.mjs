@@ -15,6 +15,8 @@ if(!/^[\w./-]+\.js$/.test(appEntry))throw Error('Beklenmeyen Worker giriş dosya
 await writeFile(resolve(root,'dist/server/security.mjs'),await readFile(resolve(root,'worker/security.mjs'),'utf8'));
 await writeFile(resolve(root,'dist/server/secure-entry.mjs'),`import app from './${appEntry}';\nimport {secureFetch} from './security.mjs';\nexport * from './${appEntry}';\nexport default {...app,fetch(request,env,ctx){return secureFetch(app,request,env,ctx);}};\n`);
 wrangler.main='secure-entry.mjs';
+// Keep application error logs; avoid one invocation log for every polling request.
+wrangler.observability={enabled:true,logs:{enabled:true,invocation_logs:false,head_sampling_rate:1}};
 await writeFile(target,JSON.stringify(wrangler,null,2)+'\n');
 const pkg=JSON.parse(await readFile(resolve(root,'package.json'),'utf8'));
 async function bundleFiles(directory,prefix=''){

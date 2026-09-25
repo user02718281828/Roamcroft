@@ -2,7 +2,7 @@ import {allowed,readBody,worldIdentity} from './api.ts';
 const TTL=5*60_000,PRESENCE=90_000;
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const initialized=new WeakMap<D1Database,Promise<unknown>>();
-async function init(db:D1Database){let pending=initialized.get(db);if(!pending){pending=db.batch([
+export async function initLobby(db:D1Database){let pending=initialized.get(db);if(!pending){pending=db.batch([
   db.prepare('CREATE TABLE IF NOT EXISTS friend_lobbies (code TEXT PRIMARY KEY, owner TEXT UNIQUE NOT NULL, expires INTEGER NOT NULL)'),
   db.prepare('CREATE TABLE IF NOT EXISTS friend_members (user TEXT PRIMARY KEY, room TEXT NOT NULL, name TEXT NOT NULL, seen INTEGER NOT NULL)'),
   db.prepare('CREATE INDEX IF NOT EXISTS friend_room ON friend_members(room)'),
@@ -19,7 +19,7 @@ export async function handleLobby(request:Request,db:D1Database,now=Date.now()){
   if(Object.keys(body).some(k=>!keys.includes(k)))return json({error:'Geçersiz alan.'},400);
   const identity=await worldIdentity(request,db,now);if(!identity)return json({error:'Önce başlangıç ekranından sunucu dünyasına bağlan.'},401);
   if(!await allowed(db,'lobby:'+identity.id,now,30,60_000))return json({error:'Biraz bekleyip yeniden dene.'},429);
-  await init(db);
+  await initLobby(db);
   await db.batch([
     db.prepare('DELETE FROM friend_members WHERE room IN (SELECT code FROM friend_lobbies WHERE expires<=?)').bind(now),
     db.prepare('DELETE FROM friend_lobbies WHERE expires<=?').bind(now),
@@ -54,6 +54,6 @@ export async function handleLobby(request:Request,db:D1Database,now=Date.now()){
   await db.prepare('UPDATE friend_members SET seen=? WHERE user=? AND room=?').bind(now,identity.id,room.code).run();
   if(room.owner===identity.id)await db.prepare('UPDATE friend_lobbies SET expires=? WHERE code=? AND owner=?').bind(now+TTL,room.code,identity.id).run();
   const members=await db.prepare('SELECT user,name,seen FROM friend_members WHERE room=? ORDER BY seen,user').bind(room.code).all<{user:string;name:string;seen:number}>();
-  return json({room:{code:room.code,host:room.owner===identity.id,members:members.results.map(m=>({name:m.name,you:m.user===identity.id,host:m.user===room!.owner,online:m.seen>=now-PRESENCE})),sharedWorld:false}});
+  return json({room:{code:room.code,host:room.owner===identity.id,members:members.results.map(m=>({name:m.name,you:m.user===identity.id,host:m.user===room!.owner,online:m.seen>=now-PRESENCE})),sharedWorld:true}});
 }
 

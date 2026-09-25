@@ -127,7 +127,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
     [corner, setCorner] = useState(false),
     [paused, setPaused] = useState(false),
     [mainMenu,setMainMenu] = useState(!autoStart),
-    [panel, setPanel] = useState<Panel>(null),
+    [panel, setPanel] = useState<Panel>(serverMode?'online':null),
     [selectedBuilding, setSelectedBuilding] = useState<number | null>(null),
     [selectedNPC, setSelectedNPC] = useState('narin'),
     [sound, setSoundState] = useState(false),
@@ -273,7 +273,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
       : loadLocal();
     nextState.current = null;
     initialMessage.current = '';
-    const e = new Engine(loaded.state);
+    const e = new Engine(loaded.state,serverMode);
     engine.current = e;
     coop.current?.bind(e);
     authority.current?.bind(e);
@@ -394,8 +394,8 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
                 ? control.current.selection
                 : null;
             const pausedView=[view.target.x,view.target.z,view.angle,view.zoom,view.highQuality,view.canvas.width,view.canvas.height].join(',');
-            if (!document.hidden && (!worldReady || !control.current.paused || pausedView!==lastPausedView)){
-              view.render(control.current.paused ? 0 : dt, frameDuration);
+            if (!document.hidden && (!worldReady || !control.current.paused || authority.current?.shared || pausedView!==lastPausedView)){
+              view.render(control.current.paused&&!authority.current?.shared ? 0 : dt, frameDuration);
               lastPausedView=pausedView;
             }
             if(!worldReady){
@@ -495,7 +495,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
       if(key==='tab') {ev.preventDefault();setMainMenu(false);if(!ev.repeat)setPanel(p=>p?null:'inventory');return;}
       if(control.current.panel) {
         if(['q','e','arrowleft','arrowright'].includes(key) && !(key.startsWith('arrow')&&(ev.target as HTMLElement).getAttribute('role')==='tab')) {
-          ev.preventDefault();const tabs:Panel[]=['inventory','craft','build','quests','ranch','villagers','bundles','mine','settings'];
+          ev.preventDefault();const tabs:Panel[]=[...(serverMode?['online' as const]:[]),'inventory','craft','build','quests','ranch','villagers','bundles','mine','settings'];
           const current=Math.max(0,tabs.indexOf(control.current.panel));setPanel(tabs[(current+(['q','arrowleft'].includes(key)?tabs.length-1:1))%tabs.length]);
         }
         return;

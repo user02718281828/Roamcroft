@@ -11,7 +11,7 @@ function harness(){
     async run(){return {meta:{changes:Number(sqlite.prepare(this.sql).run(...this.args).changes)}};}}
   const db={prepare:(sql:string)=>new Statement(sql),batch:async(statements:Statement[])=>{sqlite.exec('BEGIN');try{const result=[];for(const s of statements)result.push(await s.run());sqlite.exec('COMMIT');return result;}catch(e){sqlite.exec('ROLLBACK');throw e;}}} as unknown as D1Database;
   const request=(path:string,body:unknown,cookie='',origin='https://farm.test')=>new Request('https://farm.test'+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:cookie},body:JSON.stringify(body)});
-  return {sqlite,advance:(ms:number)=>now+=ms,session:async()=>{const r=await handleWorld(request('/api/world',{op:'session'}),db,now);assert.equal(r.status,201);return r.headers.get('Set-Cookie')!.split(';')[0];},call:async(body:unknown,cookie='',origin='https://farm.test')=>{const r=await handleLobby(request('/api/lobby',body,cookie,origin),db,now);return {status:r.status,data:await r.json() as {room:null|{code:string;host:boolean;sharedWorld:false;members:{name:string;you:boolean;host:boolean;online:boolean}[]};error?:string},headers:r.headers};}};
+  return {sqlite,advance:(ms:number)=>now+=ms,session:async()=>{const r=await handleWorld(request('/api/world',{op:'session'}),db,now);assert.equal(r.status,201);return r.headers.get('Set-Cookie')!.split(';')[0];},call:async(body:unknown,cookie='',origin='https://farm.test')=>{const r=await handleLobby(request('/api/lobby',body,cookie,origin),db,now);return {status:r.status,data:await r.json() as {room:null|{code:string;host:boolean;sharedWorld:true;members:{name:string;you:boolean;host:boolean;online:boolean}[]};error?:string},headers:r.headers};}};
 }
 void test('lobbies require a real cookie session and reject foreign origins and injected state',async()=>{
   const h=harness();try{
@@ -26,7 +26,7 @@ void test('four friends can join, fifth is refused; guests cannot close host roo
   const h=harness();try{
     const cookies=[];for(let i=0;i<5;i++)cookies.push(await h.session());
     const first=await h.call({op:'create',name:'Ev sahibi'},cookies[0]),code=first.data.room!.code;
-    assert.equal(first.status,200);assert.equal(first.data.room!.sharedWorld,false);assert.equal(first.headers.get('Cache-Control'),'no-store');
+    assert.equal(first.status,200);assert.equal(first.data.room!.sharedWorld,true);assert.equal(first.headers.get('Cache-Control'),'no-store');
     for(let i=1;i<4;i++)assert.equal((await h.call({op:'join',name:'Arkadaş '+i,code},cookies[i])).status,200);
     assert.equal((await h.call({op:'join',name:'Beşinci',code},cookies[4])).status,409);
     const status=await h.call({op:'status'},cookies[1]);assert.equal(status.data.room!.host,false);assert.equal(status.data.room!.members.length,4);

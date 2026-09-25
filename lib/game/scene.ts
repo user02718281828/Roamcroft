@@ -2144,10 +2144,11 @@ export class ValleyScene {
     for(const [id,g] of this.remotePlayers)if(!active.has(id)){this.root.remove(g);releaseModel(g);this.remotePlayers.delete(id);}
     for(const peer of peers){
       let g=this.remotePlayers.get(peer.id);
-      if(!g){g=new T.Group();this.makeCharacter(g,0xb88bb3);compactModel(g);this.nameTag(g,peer.name,1.9);g.position.set(peer.player.x,0,peer.player.z);this.remotePlayers.set(peer.id,g);this.root.add(g);}
+      if(!g){g=new T.Group();this.makeCharacter(g,[0xb88b78,0x82a79b,0xc3a46d,0xa397b6][peer.id.charCodeAt(0)%4]);compactModel(g);this.nameTag(g,peer.name,1.9);g.position.set(peer.player.x,0,peer.player.z);this.remotePlayers.set(peer.id,g);this.root.add(g);}
       const moving=Math.hypot(peer.player.x-g.position.x,peer.player.z-g.position.z)>.025;
       g.position.x+=(peer.player.x-g.position.x)*Math.min(1,dt*9);g.position.z+=(peer.player.z-g.position.z)*Math.min(1,dt*9);
-      g.position.y=tileAt(this.engine.s,g.position.x,g.position.z)?.height||0;g.rotation.y=peer.player.facing;
+      if(Math.hypot(peer.player.x-g.position.x,peer.player.z-g.position.z)>6){g.position.x=peer.player.x;g.position.z=peer.player.z;}
+      g.position.y=tileAt(this.engine.s,g.position.x,g.position.z)?.height||0;g.rotation.y+=Math.atan2(Math.sin(peer.player.facing-g.rotation.y),Math.cos(peer.player.facing-g.rotation.y))*Math.min(1,dt*12);
       this.animateHuman(g,moving?'walking':'idle',this.time,dt);
     }
   }
