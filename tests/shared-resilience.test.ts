@@ -22,11 +22,12 @@ void test('four clients survive 300 ms RTT, deterministic 20% packet loss, mid-a
       .get() as { owner: string; world: string; revision: number };
     return { ...r, record: JSON.parse(r.world) as SharedRecord };
   };
-  async function idle() {
-    for (let n = 0; inflight && n < 200; n++) await wait(10);
-    assert.equal(inflight, 0);
+  async function idle(count = () => inflight) {
+    for (let n = 0; count() && n < 200; n++) await wait(10);
+    assert.equal(count(), 0);
   }
   function player(name: string) {
+    let localInflight = 0;
     let cookie = '',
       engine: Engine | null = null,
       dropNext = false,
@@ -48,6 +49,7 @@ void test('four clients survive 300 ms RTT, deterministic 20% packet loss, mid-a
             : '';
       if (dropNext && isPulse) dropNext = false;
       inflight++;
+      localInflight++;
       try {
         await wait(latency / 2);
         if (drop === 'before') {
@@ -79,6 +81,7 @@ void test('four clients survive 300 ms RTT, deterministic 20% packet loss, mid-a
         return response;
       } finally {
         inflight--;
+        localInflight--;
       }
     };
     const make = () =>
@@ -106,11 +109,13 @@ void test('four clients survive 300 ms RTT, deterministic 20% packet loss, mid-a
       },
       async restart() {
         client.dispose();
-        await idle();
+        // Other players intentionally keep polling while this one reconnects.
+        await idle(() => localInflight);
         client = make();
         engine = new Engine(await client.start(), true);
         client.bind(engine);
       },
+      idle: () => idle(() => localInflight),
       async lobby(body: Record<string, unknown>) {
         const response = await fetcher('/api/lobby', {
           method: 'POST',
@@ -206,7 +211,7 @@ void test('four clients survive 300 ms RTT, deterministic 20% packet loss, mid-a
     assert.ok(host.client.send('trade', ['wood', 1, false]));
     await assert.rejects(host.client.flush(), /Packet lost/);
     host.client.dispose();
-    await idle();
+    await host.idle();
     const crashSave = row();
     assert.equal(crashSave.record.world.state.gold, gold + 26 * price);
     offset += 16_000;
