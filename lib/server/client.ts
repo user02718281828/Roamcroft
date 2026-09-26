@@ -27,6 +27,8 @@ export class ServerWorldClient {
   connected = false;
   shared = false;
   status = 'Sunucuya bağlanıyor…';
+  latencyMs = 0;
+  private lastPulseAt = 0;
   private nonce = '';
   private seq = 0;
   private revision = 0;
@@ -94,6 +96,7 @@ export class ServerWorldClient {
     nonce = '',
     path = this.shared ? '/api/shared' : '/api/world',
   ) {
+    const started = performance.now();
     const response = await this.fetcher(path, {
       method: 'POST',
       credentials: 'same-origin',
@@ -108,6 +111,7 @@ export class ServerWorldClient {
       signal: AbortSignal.timeout(12000),
     });
     const packet = (await response.json()) as Packet;
+    this.latencyMs = Math.round(performance.now() - started);
     if (!response.ok) {
       if (response.status === 429) {
         this.connected = false;
@@ -151,7 +155,7 @@ export class ServerWorldClient {
   }
   private label() {
     this.status = this.shared
-      ? `Ortak çiftlik · ${this.peers.length + 1}/4 · Kaydedildi`
+      ? `Ortak çiftlik · ${this.peers.length + 1}/4 · ${this.latencyMs} ms · Kaydedildi`
       : 'Sunucu dünyası · kaydedildi';
   }
   async start() {
@@ -173,7 +177,7 @@ export class ServerWorldClient {
         );
         this.shared = true;
       } catch (error) {
-        if ([401, 410].includes((error as { status: number }).status))
+        if ([401, 410, 423].includes((error as { status: number }).status))
           this.flag(false);
         else throw error;
       }
@@ -195,7 +199,7 @@ export class ServerWorldClient {
       leaveShared: () => this.leaveShared(),
     };
   }
-  private apply(packet: Packet, reset = false) {
+  private apply(packet: Packet, reset = false, sentPose?: {x:number;z:number}) {
     const state = this.accept(packet),
       current = this.engine();
     if (current) {
@@ -205,6 +209,7 @@ export class ServerWorldClient {
         reset
           ? undefined
           : packet.you || { id: 'self', name: 'Gezgin', player: state.player },
+        sentPose,
       );
       this.bind(current);
       for (const event of packet.events || []) current.events.push(event);
@@ -302,10 +307,11 @@ export class ServerWorldClient {
         () => {
           void this.pump();
         },
-        Math.max(this.connected ? 500 : 2000, this.retryAt - Date.now()),
+        Math.max(this.connected ? Math.max(25, 500 - (performance.now() - this.lastPulseAt)) : 2000, this.retryAt - Date.now()),
       );
   }
   private async pulse() {
+    this.lastPulseAt = performance.now();
     const engine = this.engine();
     if (
       !engine ||
@@ -348,7 +354,7 @@ export class ServerWorldClient {
     try {
       const packet = await this.request(this.pending.body, this.pending.nonce);
       if (this.stopped) return;
-      this.apply(packet);
+      this.apply(packet, false, JSON.parse(this.pending.body).pulse.pose);
       this.lastPaused = JSON.parse(this.pending.body).pulse.paused;
       this.seq = packet.seq;
       this.nonce = packet.nonce;

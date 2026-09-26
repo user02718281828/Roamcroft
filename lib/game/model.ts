@@ -1,4 +1,5 @@
 import type {ActionSound} from './audio.ts';
+import { withinSharedRange } from '../coop/motion.ts';
 import { orchardStatus } from './orchard.ts';
 import { machineRecipe, machineRecipes, productionRate } from './production.ts';
 import { cropGrowthRate } from './farming.ts';
@@ -391,6 +392,7 @@ export function createState(seed = 84621): State {
   return s;
 }
 export class Engine {
+  sharedAnchors?: {x:number;z:number}[];
   network: {guest:boolean;server?:boolean;shared?:boolean;enterShared?:()=>Promise<void>;leaveShared?:()=>Promise<void>;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
   networkActor = false;
   productionRecipient?: string;
@@ -649,6 +651,10 @@ export class Engine {
     }
   }
   travelSpeed() {return movementSpeed(this.s.player.energy)*(this.sprinting && this.s.player.energy>20 ? 1.5 : 1);}
+  sharedRange(x:number,z:number) {
+    const anchors=this.sharedAnchors ?? (this.network?.shared ? this.network.peers.map(p=>p.player) : []);
+    return withinSharedRange(this.s.player,{x,z},anchors);
+  }
   move(dx: number, dz: number, dt: number) {
     this.path = [];
     this.pending = null;
@@ -659,14 +665,14 @@ export class Engine {
       oldX=p.x,oldZ=p.z,
       x = p.x + (dx / d) * this.travelSpeed() * dt,
       z = p.z + (dz / d) * this.travelSpeed() * dt;
-    if (walkable(this.s, x, p.z))
+    if (this.sharedRange(x,p.z) && walkable(this.s, x, p.z))
       p.x = this.s.mine ? Math.max(0, Math.min(SIZE - 1, x)) : x;
-    if (walkable(this.s, p.x, z))
+    if (this.sharedRange(p.x,z) && walkable(this.s, p.x, z))
       p.z = this.s.mine ? Math.max(0, Math.min(SIZE - 1, z)) : z;
     if(Math.hypot(p.x-oldX,p.z-oldZ)<dt*this.travelSpeed()*.15){
       for(const angle of [Math.PI/6,-Math.PI/6,Math.PI/3,-Math.PI/3]){
         const nx=oldX+(dx*Math.cos(angle)-dz*Math.sin(angle))/d*this.travelSpeed()*dt,nz=oldZ+(dx*Math.sin(angle)+dz*Math.cos(angle))/d*this.travelSpeed()*dt;
-        if(walkable(this.s,nx,nz)){p.x=nx;p.z=nz;break;}
+        if(this.sharedRange(nx,nz)&&walkable(this.s,nx,nz)){p.x=nx;p.z=nz;break;}
       }
     }
     if(this.sprinting && (dx || dz)) p.energy=Math.max(0,p.energy-dt*1.8);
@@ -2183,7 +2189,7 @@ export class Engine {
         dx = next.x - p.x,
         dz = next.z - p.z,
         d = Math.hypot(dx, dz);
-      if (!walkable(s, next.x, next.z)) {
+      if (!this.sharedRange(next.x,next.z) || !walkable(s, next.x, next.z)) {
         this.path = [];
         this.pending = null;
       } else if (d < dt * this.travelSpeed()) {

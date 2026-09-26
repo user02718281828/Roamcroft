@@ -175,6 +175,11 @@ export function advanceShared(
     e.s.overflow = p.overflow;
   }
   e.s.player = user === owner ? e.s.player : p.player;
+  // Stop at the shared streaming boundary instead of pulling connected guests
+  // back to the host when the host walks away.
+  e.sharedAnchors = Object.entries(record.players)
+    .filter(([id, a]) => id !== user && a.present && a.seen > now - HOST_GRACE)
+    .map(([, a]) => a.player);
   e.networkActor = user !== owner;
   e.productionRecipient = p.id;
   e.actionCooldown =
@@ -333,7 +338,7 @@ export function sharedPacket(
         patches.at(-1)!.revision === revision));
   const peers: Peer[] = Object.entries(record.players)
     .filter(([, a]) => a.present && a.seen > now - 5000)
-    .map(([, a]) => ({ id: a.id, name: a.name, player: a.player }));
+    .map(([, a]) => ({ id: a.id, name: a.name, player: a.player, sampledAt: a.seen }));
   return {
     protocolVersion: SHARED_PROTOCOL,
     revision,

@@ -3,7 +3,7 @@ import type {State} from '../game/model.ts';
 import {machineRecipes} from '../game/production.ts';
 import {validOrderToken} from '../game/orders.ts';
 export type Pose=Pick<State['player'],'x'|'z'|'facing'> & {sprinting?:boolean};
-export type Peer={id:string;name:string;player:State['player'];message?:string;messageId?:number};
+export type Peer={id:string;name:string;player:State['player'];sampledAt?:number;message?:string;messageId?:number};
 export type Command={seq:number;method:string;args:unknown[]};
 export type RoomSession={room:string;member:string;token:string;role:'host'|'guest';revision:number};
 export type RoomInfo={id:string;name:string;updated:number;online:boolean};

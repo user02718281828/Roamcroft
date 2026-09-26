@@ -1,5 +1,14 @@
 # Değişiklikler
 
+## 1.9.1 — Kesintisiz Ortak Vadi · 26 Eylül 2026
+
+- Harita penceresi değişince sahne, kamera ve ses yeniden kurulmaz. Mevcut sahne yeni araziyi parça parça işler; yürüyüş rotası korunur.
+- Uzak oyuncular zaman damgalı hareket geçmişinden çizilir. Yinelenen/eski örnekler atılır; kısa kayıpta tahmin sınırlıdır, geç paket ani konum sıçraması yapmaz.
+- Ağ isteğinin süresi 500 ms güncelleme aralığına dahildir; yanıtın üzerine bir 500 ms daha eklenmez. Tek uçuş ve hata beklemesi korunur. Durum çubuğu son isteğin ölçülen gidiş-dönüş süresini gösterir.
+- Kendi karakterinin yanıt beklerken yaptığı hareket korunur; sunucu çarpışma düzeltmeleri uygulanmaya devam eder.
+- Bağlı oyuncular ortak keşif sınırında durur; host uzaklaşınca konukları geri çeken olağan hareket engellenir. Host bulunamayan ilk açılışta kişisel çiftlik açılır.
+- Sınırlar: HTTP senkronizasyonu, 20 kare ortak keşif ve 650 ms uzak oyuncu görüntü tamponu. İnternet gecikmesi sıfırlanmaz; ölüm, eve dönüş ve uzun kopuştan dönüşte güvenli konumlandırma sürer.
+
 ## 1.9.0 — Birlikte Büyüyen Çiftlik · 25 Eylül 2026
 
 - Başlangıç ekranından **Arkadaşlarla oyna → Online**: dört kişilik davet kodlu ortak yüzey çiftliği. Host önce ortak çiftliğe girer; konuklar ona katılır. Tarım, kaynak toplama, inşa, balıkçılık ve mevcut yüzey eylemleri tek sunucu kaydında işlenir.

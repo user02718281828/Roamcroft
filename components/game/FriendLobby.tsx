@@ -191,7 +191,7 @@ export default function FriendLobby({
           oyuncu ürünü alır; otomatik tekrar onun çantasını kullanır.
         </p>
         <p>
-          Birlikte keşif için ev sahibinin yakınında kalın. Menü açmak
+          Birlikte keşif alanı 20 karedir; sınırda arkadaşınızı bekleyin. Menü açmak
           arkadaşlarının oyununu durdurmaz. Host bağlantısı 15 saniye kesilirse
           dünya bekler; 5 dakika dönmezse lobi kapanır. Çerezinizi silmeyin:
           karakter ve kayıt erişiminiz bu tarayıcıya bağlıdır.

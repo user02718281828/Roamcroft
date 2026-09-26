@@ -1,4 +1,4 @@
-import {Engine,walkable,tileAt} from '../game/model.ts';
+import {Engine,walkable} from '../game/model.ts';
 import type {State} from '../game/model.ts';
 import {movementSpeed} from '../game/progression.ts';
 import {validCommand,validPose} from './protocol.ts';
@@ -73,16 +73,20 @@ export class CoopAuthority {
     }
   }
 }
-export function applySharedState(e:Engine,incoming:State,peer?:Peer) {
+export function applySharedState(e:Engine,incoming:State,peer?:Peer,sentPose?:{x:number;z:number}) {
   const old=e.s,position={...old.player};
-  const sameMap=old.seed===incoming.seed && old.world.x===incoming.world.x && old.world.z===incoming.world.z && old.mine?.floor===incoming.mine?.floor && old.tiles.length===incoming.tiles.length;
+  // Streaming a surface window is not a world transition. The scene already
+  // updates terrain and chunk batches in place when the tile array changes.
+  const sameWorld=old.seed===incoming.seed && old.world.generation===incoming.world.generation && old.mine?.floor===incoming.mine?.floor;
+  const sameMap=sameWorld && old.world.x===incoming.world.x && old.world.z===incoming.world.z && old.tiles.length===incoming.tiles.length;
   if(sameMap) {
     for(let i=0;i<old.tiles.length;i++) Object.assign(old.tiles[i],incoming.tiles[i]);
     incoming.tiles=old.tiles;
   }
   if(peer) incoming.player={...peer.player};
-  if(sameMap && peer && Math.hypot(position.x-peer.player.x,position.z-peer.player.z)<2.5) Object.assign(incoming.player,{x:position.x,z:position.z,facing:position.facing});
+  const acknowledged=sentPose??position;
+  if(sameWorld && peer && Math.hypot(acknowledged.x-peer.player.x,acknowledged.z-peer.player.z)<(sentPose ? .35 : 2.5)) Object.assign(incoming.player,{x:position.x,z:position.z,facing:position.facing});
   else e.clearMovement();
   e.s=incoming;
-  if(!sameMap) e.worldRevision++;
+  if(!sameWorld) e.worldRevision++;
 }
