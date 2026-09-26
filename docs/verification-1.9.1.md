@@ -12,6 +12,7 @@
 
 - TypeScript, hedefli lint, üretim derlemesi ve 155 test başarılı.
 - İlk CI koşusunda reconnect testi, diğer üç istemci aktif kalırken bütün ağın boşalmasını beklediği için başarısızdı. Kontrol yeniden başlayan oyuncunun uçuşlarına daraltıldı; diğer istemciler çalışmaya devam ediyor. Node 22.13.0 ile 155 testin tamamı tekrar geçti.
+- Sonraki CI koşusunda testler/derleme geçti; Miniflare proxy'nin soğuk yetkisiz isteklerde verdiği metin biçimli `Network connection lost` hatası tekrarlandı. HTTP kontrolü yalnızca localhost üzerindeki açıkça seçilmiş, oturumsuz olumsuz yetki kontrollerinde bu özel taşıma hatasını en fazla iki kez tekrarlar ve kayda geçirir. Yazma işlemleri ve uygulama 5xx yanıtları tekrar edilmez. İki temiz Worker/D1 koşusu bu düzenlemeyle geçti; Miniflare altyapı hatasının kendisi giderilmiş sayılmıyor.
 - Dört istemci + API/D1 testinde 300 ms ek RTT: 52 pulse, 5 istek kaybı ve 5 yanıt kaybı; 24 ekonomik işlem tam bir kez işlendi. Duplicate, reconnect, host crash ve atomik kayıt kontrolleri geçti.
 - Node 22.13.0 ile temiz yerel Worker/D1: dört eşzamanlı oyuncu, +300 ms RTT, kayıp yanıt tekrarı, ayrı çantalar, ortak saat ve host çıkışı başarılı. İlk paralel Wrangler denemesinde Miniflare ProxyWorker bağlantı kaybı görüldü; tek sunuculu tekrar geçti.
 - Yeni regresyon testleri: arazi penceresi kayarken yeniden yükleme sayacı değişmiyor; rota/öngörülen konum korunuyor; gecikmiş onay ile geçersiz hareket ayrılıyor; 300 ms gecikme/kayıp/eski örnek altında uzak konumun karelik adımı sınırlı; ortak sınırdan dönüş mümkün.

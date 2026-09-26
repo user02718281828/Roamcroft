@@ -2,7 +2,22 @@ import assert from 'node:assert/strict';
 import {BASE_HEADERS} from '../worker/security.mjs';
 
 const base=process.argv[2]||'http://127.0.0.1:3000';
-async function get(path,options){return fetch(new URL(path,base),{...options,signal:AbortSignal.timeout(15000)});}
+// Miniflare may reset a cold proxy connection while probing a rejected request.
+// Retry only explicitly read-only, unauthenticated probes, only on localhost,
+// and only its exact transport error; never retry writes or application 5xx here.
+async function get(path,options,probe=false){
+  const local=['127.0.0.1','localhost','[::1]'].includes(new URL(base).hostname);
+  for(let attempt=0;;attempt++){
+    const response=await fetch(new URL(path,base),{...options,signal:AbortSignal.timeout(15000)});
+    if(!probe||!local||attempt>=2||response.status!==500||!response.headers.get('Content-Type')?.startsWith('text/plain'))return response;
+    const detail=await response.clone().text();
+    if(!detail.startsWith('Error: Network connection lost.')||!detail.includes('miniflare/'))return response;
+    await response.arrayBuffer();
+    console.info('Local Miniflare transport probe reset; bounded retry:',path,attempt+1);
+    await new Promise(resolve=>setTimeout(resolve,200));
+  }
+}
+
 async function expectStatus(response,status,label){
   if(response.status!==status){
     const detail=response.status>=500?(await response.clone().text()).slice(0,1200):'';
@@ -28,23 +43,23 @@ for(const path of ['/manifest.json','/sw.js','/art/farm-icons-1.webp','/olmayan-
   const response=await get(path);headers(response);
   assert.equal(response.status,path==='/olmayan-sayfa'?404:200);
   if(path==='/sw.js'||path==='/manifest.json')assert.equal(response.headers.get('Cache-Control'),'no-cache');
-  await response.body?.cancel();
+  await response.arrayBuffer();
 }
 for(const method of ['POST','OPTIONS']){
   const response=await get('/api/coop',{method,headers:{Origin:'https://untrusted.example','Access-Control-Request-Method':'POST'}});
   headers(response);assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);
   if(method==='POST')assert.equal(response.status,404);
-  await response.body?.cancel();
+  await response.arrayBuffer();
 }
 for(const [origin,body,status] of [['https://untrusted.example',{op:'session'},403],[new URL(base).origin,{op:'pulse',pulse:{}},401]]){
-  const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify(body)});
-  await expectStatus(response,status,`${response.url}: ${body.op} HTTP status`);headers(response);assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);assert.equal(response.headers.get('Cache-Control'),'no-store');await response.body?.cancel();
+  const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify(body)},true);
+  await expectStatus(response,status,`${response.url}: ${body.op} HTTP status`);headers(response);assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);assert.equal(response.headers.get('Cache-Control'),'no-store');await response.arrayBuffer();
 }
 for(const [origin,status] of [['https://untrusted.example',403],[new URL(base).origin,401]]){
-  const response=await get('/api/lobby',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'status'})});
-  await expectStatus(response,status,'Lobi yetkilendirmesi');headers(response);assert.equal(response.headers.get('Cache-Control'),'no-store');assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);await response.body?.cancel();
-  const shared=await get('/api/shared',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'connect'})});
-  await expectStatus(shared,status,'Ortak dünya yetkilendirmesi');headers(shared);assert.equal(shared.headers.get('Cache-Control'),'no-store');assert.equal(shared.headers.get('Access-Control-Allow-Origin'),null);await shared.body?.cancel();
+  const response=await get('/api/lobby',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'status'})},true);
+  await expectStatus(response,status,'Lobi yetkilendirmesi');headers(response);assert.equal(response.headers.get('Cache-Control'),'no-store');assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);await response.arrayBuffer();
+  const shared=await get('/api/shared',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'connect'})},true);
+  await expectStatus(shared,status,'Ortak dünya yetkilendirmesi');headers(shared);assert.equal(shared.headers.get('Cache-Control'),'no-store');assert.equal(shared.headers.get('Access-Control-Allow-Origin'),null);await shared.arrayBuffer();
 }
 console.info('HTTP doğrulaması başarılı: hafif açılış, HTML nonce, güvenlik başlıkları, statik dosyalar, 404, service worker, API oturumu ve CORS.');
 
@@ -83,7 +98,7 @@ if(process.argv.includes('--session-smoke')){
   const players=[{cookie,packet:synced},{cookie:guestCookie,packet:retry}];
   for(const name of ['CI third','CI fourth']){
     const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({op:'session'})});await expectStatus(response,201,'Independent player '+name);
-    const playerCookie=response.headers.get('Set-Cookie')?.split(';')[0];assert.ok(playerCookie);await response.body?.cancel();
+    const playerCookie=response.headers.get('Set-Cookie')?.split(';')[0];assert.ok(playerCookie);await response.arrayBuffer();
     await call('/api/lobby',{op:'join',name,code:lobby.room.code},playerCookie);
     players.push({cookie:playerCookie,packet:await call('/api/shared',{op:'connect'},playerCookie)});
   }
