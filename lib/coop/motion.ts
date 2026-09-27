@@ -17,9 +17,9 @@ export class RemoteMotion {
     if (this.samples.length > 12) this.samples.shift();
     this.displayed ??= { ...pose };
   }
-  sample(now: number, dt: number): Pose | null {
+  sample(now: number, dt: number, buffer = 650): Pose | null {
     if (!this.displayed || !this.samples.length) return null;
-    const target = now - 650;
+    const target = now - buffer;
     while (this.samples.length > 2 && this.samples[1].at <= target)
       this.samples.shift();
     const a = this.samples[0], b = this.samples[1];

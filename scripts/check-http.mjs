@@ -52,13 +52,13 @@ for(const method of ['POST','OPTIONS']){
   await response.arrayBuffer();
 }
 for(const [origin,body,status] of [['https://untrusted.example',{op:'session'},403],[new URL(base).origin,{op:'pulse',pulse:{}},401]]){
-  const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify(body)},true);
+  const response=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'2'},body:JSON.stringify(body)},true);
   await expectStatus(response,status,`${response.url}: ${body.op} HTTP status`);headers(response);assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);assert.equal(response.headers.get('Cache-Control'),'no-store');await response.arrayBuffer();
 }
 for(const [origin,status] of [['https://untrusted.example',403],[new URL(base).origin,401]]){
-  const response=await get('/api/lobby',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'status'})},true);
+  const response=await get('/api/lobby',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'2'},body:JSON.stringify({op:'status'})},true);
   await expectStatus(response,status,'Lobi yetkilendirmesi');headers(response);assert.equal(response.headers.get('Cache-Control'),'no-store');assert.equal(response.headers.get('Access-Control-Allow-Origin'),null);await response.arrayBuffer();
-  const shared=await get('/api/shared',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'connect'})},true);
+  const shared=await get('/api/shared',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'2'},body:JSON.stringify({op:'connect'})},true);
   await expectStatus(shared,status,'Ortak dünya yetkilendirmesi');headers(shared);assert.equal(shared.headers.get('Cache-Control'),'no-store');assert.equal(shared.headers.get('Access-Control-Allow-Origin'),null);await shared.arrayBuffer();
 }
 console.info('HTTP doğrulaması başarılı: hafif açılış, HTML nonce, güvenlik başlıkları, statik dosyalar, 404, service worker, API oturumu ve CORS.');
@@ -67,7 +67,7 @@ console.info('HTTP doğrulaması başarılı: hafif açılış, HTML nonce, güv
 if(process.argv.includes('--session-smoke')){
   assert.ok(['127.0.0.1','localhost','[::1]'].includes(new URL(base).hostname),'Session smoke is local-only');
   const origin=new URL(base).origin;
-  const session=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'session'})});
+  const session=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'2'},body:JSON.stringify({op:'session'})});
   await expectStatus(session,201,'Cold D1 session creation');headers(session);
   const cookie=session.headers.get('Set-Cookie')?.split(';')[0];assert.ok(cookie);
   const packet=await session.json();assert.ok(packet.nonce&&packet.state);
@@ -77,11 +77,11 @@ if(process.argv.includes('--session-smoke')){
   let simulatedRtt=0;
   async function call(path,body,sessionCookie=cookie,requestNonce='',status=200){
     if(simulatedRtt)await new Promise(resolve=>setTimeout(resolve,simulatedRtt/2));
-    const response=await get(path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:sessionCookie,'X-Roamcroft-Nonce':requestNonce,'X-Roamcroft-Protocol':'1'},body:JSON.stringify(body)});
+    const response=await get(path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:sessionCookie,'X-Roamcroft-Nonce':requestNonce,'X-Roamcroft-Protocol':'2'},body:JSON.stringify(body)});
     await expectStatus(response,status,`${path} ${body.op}`);headers(response);const data=await response.json();
     if(simulatedRtt)await new Promise(resolve=>setTimeout(resolve,simulatedRtt/2));return data;
   }
-  const secondSession=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'1'},body:JSON.stringify({op:'session'})});
+  const secondSession=await get('/api/world',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Roamcroft-Protocol':'2'},body:JSON.stringify({op:'session'})});
   await expectStatus(secondSession,201,'Second independent player');
   const guestCookie=secondSession.headers.get('Set-Cookie')?.split(';')[0];assert.ok(guestCookie);
   const privateGuest=await secondSession.json();
@@ -115,6 +115,22 @@ if(process.argv.includes('--session-smoke')){
   assert.equal(new Set(snapshots.map(p=>p.you.id)).size,4);
   for(const snapshot of snapshots){assert.equal(snapshot.peers.length,4);assert.equal(snapshot.state.gold,snapshots[0].state.gold);assert.equal(snapshot.state.time,snapshots[0].state.time);}
   simulatedRtt=0;
+  const {verifyRealtime}=await import('./realtime-smoke.mjs');
+  await verifyRealtime(base,players,call);
+  const {verifyPrediction}=await import('./prediction-smoke.mjs');
+  await verifyPrediction(base,players,call);
+  if(process.send){
+    const cloudProbe=type=>new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>reject(Error('Cloud conflict probe timed out')),15000);
+      process.once('message',message=>{clearTimeout(timer);if(message?.type==='cloud-conflict-ok')resolve();else reject(Error('Cloud conflict probe failed'));});
+      process.send({type});
+    });
+    await cloudProbe('inject-cloud-conflict');
+    await new Promise(resolve=>setTimeout(resolve,6000));
+    await call('/api/shared',{op:'connect'},cookie,'',503);
+    await cloudProbe('verify-cloud-conflict');
+    console.info('Concurrent external D1 save: room blocked with 503; external revision and payload preserved.');
+  }
   assert.equal((await call('/api/lobby',{op:'leave'})).room,null);
   await call('/api/shared',{op:'connect'},guestCookie,'',410);
   const restored=await call('/api/world',{op:'session'},guestCookie);assert.equal(restored.state.gold,privateGuest.state.gold);assert.deepEqual(restored.state.inventory,privateGuest.state.inventory);

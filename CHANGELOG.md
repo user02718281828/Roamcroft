@@ -1,5 +1,14 @@
 # Değişiklikler
 
+## 1.10.0 — Birlikte Adım Adım · 27 Eylül 2026
+
+- Ortak çiftlik hareketi WebSocket ve oda başına Durable Object'a taşındı: 20 Hz otorite, 10 Hz snapshot, sequence/tick, ACK ve eski paket reddi. HTTP artık ortak karakterin konumunu değiştiremez.
+- Yerel hareket tahmini ve sunucu onayıyla uzlaştırma; ölçülen RTT/jitter/snapshot boşluklarına göre 650 ms'den kademeli ayarlanan 120–650 ms uzak oyuncu tamponu.
+- Ekonomik komutlar atomik DO kaydından sonra onaylanır; D1 checkpoint'leri revision/hash ile korunur. Reconnect, host kopması ve runtime yeniden başlatması için kimlik ve çanta devamlılığı testleri eklendi.
+- Hareketsiz oyuncu da kendi otoriter konumunu ve donmuş oda durumunu alır. Koşulu tıklama yürüyüşünde enerji iki kez tüketilmez.
+- İlk hedefler toplama → çapa → ekim → hasat sırasına alındı. HUD ve köy günlüğü aynı hedefi önerir; hazır ödüller önce gösterilir. Mevcut görev kimlikleri, ödüller ve kayıt formatı korundu.
+- Dört bağlantılı gerçek Worker testi, 50/100/200/300 ms gecikme ve bozuk mesaj koşulları CI kapsamına alındı. Ölçümler ve sınırlar: `docs/verification-1.10.0.md`.
+
 ## 1.9.1 — Kesintisiz Ortak Vadi · 26 Eylül 2026
 
 - Harita penceresi değişince sahne, kamera ve ses yeniden kurulmaz. Mevcut sahne yeni araziyi parça parça işler; yürüyüş rotası korunur.

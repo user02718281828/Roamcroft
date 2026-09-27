@@ -546,8 +546,6 @@ export const QUESTS: {
   target: number;
   reward: { gold: number; xp: number; items: Bag };
 }[] = [
-  { id: 'orchard', name: 'Yarının gölgesi', desc: 'Pazardan bir fidan al; İnşa → Bahçe bölümünden dik.', stat: 'orchard', target: 1, reward: { gold: 45, xp: 35, items: { honey: 2 } } },
-  { id: 'fruit', name: 'Daldan sofraya', desc: 'Kendi ağaçlarından 6 meyve topla. Elma ilkbahar ve sonbaharda ürün verir.', stat: 'fruit', target: 6, reward: { gold: 120, xp: 65, items: { pearsapling: 1, flour: 2 } } },
   {
     id: 'gather',
     name: 'Bir kök sal',
@@ -580,6 +578,10 @@ export const QUESTS: {
     target: 6,
     reward: { gold: 80, xp: 70, items: { tomatoseed: 5 } },
   },
+  {
+    id: 'orchard', name: 'Yarının gölgesi', desc: 'Pazardan bir fidan al; İnşa → Bahçe bölümünden dik.', stat: 'orchard', target: 1, reward: { gold: 45, xp: 35, items: { honey: 2 } },
+  },
+  { id: 'fruit', name: 'Daldan sofraya', desc: 'Kendi ağaçlarından 6 meyve topla. Elma ilkbahar ve sonbaharda ürün verir.', stat: 'fruit', target: 6, reward: { gold: 120, xp: 65, items: { pearsapling: 1, flour: 2 } } },
   {
     id: 'build',
     name: 'Bir köy yükseliyor',

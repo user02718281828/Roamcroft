@@ -21,11 +21,29 @@ export async function secureFetch(handler,request,env,ctx) {
   const csp=contentSecurityPolicy(nonce),incoming=new Headers(request.headers);
   incoming.set('Content-Security-Policy',csp);
   incoming.delete('Content-Security-Policy-Report-Only');
-  const response=await handler.fetch(new Request(request,{headers:incoming}),env,ctx);
+  let forwarded=new Request(request,{headers:incoming}),response;
+  // Fully own small API bodies before a route can reject them. An unread body
+  // on an early 401/403 can reset the local Workers transport's next request.
+  // This is bounded independently of Content-Length, including chunked input.
+  if(new URL(request.url).pathname.startsWith('/api/')&&request.method==='POST'&&forwarded.body){
+    const reader=forwarded.body.getReader(),chunks=[];let size=0;
+    try{
+      for(;;){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;
+        if(size>8192){await reader.cancel();response=Response.json({error:'İstek fazla büyük.'},{status:413,headers:{'Cache-Control':'no-store'}});break;}
+        chunks.push(value);
+      }
+      if(!response){
+        const bytes=new Uint8Array(size);let offset=0;
+        for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
+        forwarded=new Request(request.url,{method:request.method,headers:incoming,body:bytes});
+      }
+    }finally{reader.releaseLock();}
+  }
+  response??=await handler.fetch(forwarded,env,ctx);
   const headers=new Headers(response.headers);
   for(const [key,value] of Object.entries(BASE_HEADERS))headers.set(key,value);
   headers.set('Content-Security-Policy',csp);
   // HTML ile nonce birlikte kalmalı; paylaşılan önbellekte başka yanıtla eşleşmemeli.
   if(headers.get('Content-Type')?.includes('text/html'))headers.set('Cache-Control','private, no-store');
-  return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
+  return new Response(response.body,{status:response.status,statusText:response.statusText,headers,...(response.webSocket?{webSocket:response.webSocket}:{})});
 }

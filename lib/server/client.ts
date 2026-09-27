@@ -4,8 +4,10 @@ import { applySharedState } from '../coop/authority.ts';
 import { validServerCommand } from './protocol.ts';
 import { applyDelta, type WorldDelta } from './delta.ts';
 import { SHARED_PROTOCOL } from './shared-protocol.ts';
+import { RealtimeClient } from '../coop/realtime-client.ts';
 
 type Packet = {
+  realtime?: boolean;
   protocolVersion?: number;
   state?: State;
   delta?: WorldDelta;
@@ -43,6 +45,8 @@ export class ServerWorldClient {
   private flight: Promise<void> | null = null;
   private lastPaused = false;
   private peers: Peer[] = [];
+  realtime: RealtimeClient | null = null;
+  private realtimeAvailable=false;
   private selfId = '';
   private state: State | null = null;
   private fetcher: typeof fetch;
@@ -61,6 +65,7 @@ export class ServerWorldClient {
     this.fetcher = fetcher;
   }
   private accept(packet: Packet) {
+    this.realtimeAvailable=packet.realtime===true;
     if (packet.state) this.state = packet.state;
     else if (packet.patches && this.state) {
       let state = this.state,
@@ -82,7 +87,7 @@ export class ServerWorldClient {
     else throw Object.assign(Error('Dünya verisi eksik.'), { status: 409 });
     if (packet.revision !== undefined) this.revision = packet.revision;
     this.selfId = packet.you?.id || '';
-    this.peers = (packet.peers || []).filter((p) => p.id !== this.selfId);
+    if(!this.realtime?.ready)this.peers = (packet.peers || []).filter((p) => p.id !== this.selfId);
     const state = structuredClone(this.state);
     if (packet.you) state.player = { ...packet.you.player };
     if (packet.bag) {
@@ -154,6 +159,13 @@ export class ServerWorldClient {
     this.retryAt = 0;
   }
   private label() {
+    if(this.realtime){
+      const m=this.realtime.metrics;
+      this.status=this.realtime.ready
+        ? `Ortak çiftlik · ${this.peers.length+1}/4 · RTT ${Math.round(m.rtt)} ms · ±${Math.round(m.jitter)} · tampon ${Math.round(m.buffer)} ms`
+        : 'Gerçek zamanlı bağlantı yeniden kuruluyor…';
+      return;
+    }
     this.status = this.shared
       ? `Ortak çiftlik · ${this.peers.length + 1}/4 · ${this.latencyMs} ms · Kaydedildi`
       : 'Sunucu dünyası · kaydedildi';
@@ -193,23 +205,33 @@ export class ServerWorldClient {
       guest: true,
       server: true,
       shared: this.shared,
+      motion: this.realtime || undefined,
       peers: this.peers,
       send: (method, args) => this.send(method, args),
       enterShared: () => this.enterShared(),
       leaveShared: () => this.leaveShared(),
     };
+    if(this.shared&&this.realtimeAvailable&&!this.realtime&&typeof window!=='undefined'){
+      this.realtime=new RealtimeClient(this.engine,peers=>{
+        this.peers=peers;const e=this.engine();if(e?.network)e.network.peers=peers;
+      },()=>{this.label();this.changed();});
+      engine.network.motion=this.realtime;this.realtime.start();
+    }
   }
   private apply(packet: Packet, reset = false, sentPose?: {x:number;z:number}) {
     const state = this.accept(packet),
       current = this.engine();
     if (current) {
+      // HTTP carries world/economic updates. Only the realtime input ACK is
+      // allowed to reconcile a realtime actor's position.
+      if(this.realtime?.ready)state.player={...current.s.player};
       applySharedState(
         current,
         state,
         reset
           ? undefined
-          : packet.you || { id: 'self', name: 'Gezgin', player: state.player },
-        sentPose,
+          : this.realtime?.ready ? {id:this.selfId,name:'Gezgin',player:state.player} : packet.you || { id: 'self', name: 'Gezgin', player: state.player },
+        this.realtime?.ready ? undefined : sentPose,
       );
       this.bind(current);
       for (const event of packet.events || []) current.events.push(event);
@@ -257,6 +279,7 @@ export class ServerWorldClient {
     }
   }
   private async returnPersonal() {
+    this.realtime?.dispose();this.realtime=null;
     const packet = await this.request(
       JSON.stringify({ op: 'session' }),
       '',
@@ -307,7 +330,7 @@ export class ServerWorldClient {
         () => {
           void this.pump();
         },
-        Math.max(this.connected ? Math.max(25, 500 - (performance.now() - this.lastPulseAt)) : 2000, this.retryAt - Date.now()),
+        Math.max(this.connected ? Math.max(25, (this.realtime ? 1000 : 500) - (performance.now() - this.lastPulseAt)) : 2000, this.retryAt - Date.now()),
       );
   }
   private async pulse() {
@@ -408,6 +431,7 @@ export class ServerWorldClient {
     if (!this.connected) throw Error(this.status);
   }
   dispose() {
+    this.realtime?.dispose();this.realtime=null;
     this.stopped = true;
     if (this.timer) clearTimeout(this.timer);
   }

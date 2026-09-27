@@ -18,17 +18,6 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - name: Üretim HTTP ve CSP doğrulaması
-        shell: bash
-        run: |
-          npm run start -- --port 3107 > /tmp/roamcroft-http.log 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
-          for attempt in $(seq 1 40); do
-            if curl --silent --fail http://127.0.0.1:3107/ > /dev/null; then break; fi
-            sleep 1
-          done
-          if ! npm run check:http -- http://127.0.0.1:3107 --session-smoke; then
-            cat /tmp/roamcroft-http.log
-            exit 1
-          fi
+      - name: Üretim HTTP, dört WebSocket, gecikme ve kurtarma doğrulaması
+        timeout-minutes: 5
+        run: node scripts/check-runtime.mjs

@@ -1,3 +1,4 @@
+import type {MotionControl} from '../coop/realtime-client.ts';
 import type {ActionSound} from './audio.ts';
 import { withinSharedRange } from '../coop/motion.ts';
 import { orchardStatus } from './orchard.ts';
@@ -393,7 +394,7 @@ export function createState(seed = 84621): State {
 }
 export class Engine {
   sharedAnchors?: {x:number;z:number}[];
-  network: {guest:boolean;server?:boolean;shared?:boolean;enterShared?:()=>Promise<void>;leaveShared?:()=>Promise<void>;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
+  network: {motion?:MotionControl;guest:boolean;server?:boolean;shared?:boolean;enterShared?:()=>Promise<void>;leaveShared?:()=>Promise<void>;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
   networkActor = false;
   productionRecipient?: string;
   productionInventory?: (recipient: string | undefined) => Pick<State,'inventory'|'overflow'> | undefined;
@@ -660,6 +661,7 @@ export class Engine {
     this.pending = null;
     this.resting = false;
     this.fishing = null;
+    if(this.network?.motion){const d=Math.max(1,Math.hypot(dx,dz));this.network.motion.intent(dx/d,dz/d);return;}
     const p = this.s.player,
       d = Math.hypot(dx, dz) || 1,
       oldX=p.x,oldZ=p.z,
@@ -2184,7 +2186,7 @@ export class Engine {
     const s = this.s,
       p = s.player;
     if (this.path.length) {
-      if(this.sprinting && p.energy>20)p.energy=Math.max(0,p.energy-dt*1.8);
+      if(!this.network?.motion && this.sprinting && p.energy>20)p.energy=Math.max(0,p.energy-dt*1.8);
       const next = this.path[0],
         dx = next.x - p.x,
         dz = next.z - p.z,
@@ -2192,6 +2194,9 @@ export class Engine {
       if (!this.sharedRange(next.x,next.z) || !walkable(s, next.x, next.z)) {
         this.path = [];
         this.pending = null;
+      } else if(this.network?.motion){
+        if(d<.015)this.path.shift();
+        else {const scale=Math.min(1,d/(this.travelSpeed()*.05));this.network.motion.intent(dx/(d||1)*scale,dz/(d||1)*scale);}
       } else if (d < dt * this.travelSpeed()) {
         p.x = next.x;
         p.z = next.z;
@@ -2207,6 +2212,7 @@ export class Engine {
       this.pending = null;
       this.act(a.x, a.z, a.tool, a.selection);
     }
+    this.network?.motion?.frame(dt);
     if(this.network?.guest) return;
     if (!s.mine) s.time += dt / DAY_SECONDS;
     if (s.time >= 1) {

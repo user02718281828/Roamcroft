@@ -10,6 +10,7 @@ import { BUILDINGS } from '../lib/game/data.ts';
 import { applyDelta, type WorldDelta } from '../lib/server/delta.ts';
 import type { Command, Peer } from '../lib/coop/protocol.ts';
 import { guardOnline } from '../lib/server/diagnostics.ts';
+import { SHARED_PROTOCOL } from '../lib/server/shared-protocol.ts';
 type Packet = {
   nonce: string;
   seq: number;
@@ -32,7 +33,7 @@ function harness() {
     cookie = '',
     nonce = '',
     origin = 'https://farm.test',
-    protocol = '1',
+    protocol = String(SHARED_PROTOCOL),
   ) {
     const req = new Request('https://farm.test' + path, {
       method: 'POST',
@@ -123,7 +124,7 @@ void test('protocol mismatch, bounded retries and rate limiting never mutate the
   try {
     const x = await h.setup(),
       before = h.row();
-    for (const protocol of ['', '0', '999'])
+    for (const protocol of ['', '0', '1', '999'])
       assert.equal(
         (
           await h.call(

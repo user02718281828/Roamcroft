@@ -1,6 +1,7 @@
 import {readFile,writeFile,readdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {BASE_HEADERS,contentSecurityPolicy} from '../worker/security.mjs';
+import {build} from 'esbuild';
 const root=resolve(import.meta.dirname,'..');
 const config=JSON.parse(await readFile(resolve(root,'deployment.config.json'),'utf8'));
 if(!/^[a-f0-9-]{36}$/.test(config.database_id)||config.database_id.startsWith('00000000'))throw Error('Geçerli D1 kimliği gerekli.');
@@ -13,8 +14,11 @@ wrangler.name=config.name;
 const appEntry=wrangler.main==='secure-entry.mjs'?'index.js':wrangler.main;
 if(!/^[\w./-]+\.js$/.test(appEntry))throw Error('Beklenmeyen Worker giriş dosyası.');
 await writeFile(resolve(root,'dist/server/security.mjs'),await readFile(resolve(root,'worker/security.mjs'),'utf8'));
-await writeFile(resolve(root,'dist/server/secure-entry.mjs'),`import app from './${appEntry}';\nimport {secureFetch} from './security.mjs';\nexport * from './${appEntry}';\nexport default {...app,fetch(request,env,ctx){return secureFetch(app,request,env,ctx);}};\n`);
+await build({entryPoints:[resolve(root,'worker/realtime.ts')],outfile:resolve(root,'dist/server/realtime.mjs'),bundle:true,format:'esm',platform:'neutral',external:['cloudflare:workers'],target:'es2022'});
+await writeFile(resolve(root,'dist/server/secure-entry.mjs'),`import app from './${appEntry}';\nimport {secureFetch} from './security.mjs';\nimport {routeRealtime} from './realtime.mjs';\nexport {RealtimeRoom} from './realtime.mjs';\nexport * from './${appEntry}';\nconst router={fetch(request,env,ctx){const path=new URL(request.url).pathname;return path==='/api/shared'||path==='/api/realtime'?routeRealtime(request,env):app.fetch(request,env,ctx);}};\nexport default {...app,fetch(request,env,ctx){return secureFetch(router,request,env,ctx);}};\n`);
 wrangler.main='secure-entry.mjs';
+wrangler.durable_objects={bindings:[{name:'ROOMS',class_name:'RealtimeRoom'}]};
+wrangler.migrations=[{tag:'realtime-v1',new_sqlite_classes:['RealtimeRoom']}];
 // Keep application error logs; avoid one invocation log for every polling request.
 wrangler.observability={enabled:true,logs:{enabled:true,invocation_logs:false,head_sampling_rate:1}};
 await writeFile(target,JSON.stringify(wrangler,null,2)+'\n');

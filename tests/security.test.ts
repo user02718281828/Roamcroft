@@ -2,6 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {secureFetch,BASE_HEADERS,contentSecurityPolicy} from '../worker/security.mjs';
 
+test('API body ownership preserves small commands and bounds chunked payloads before dispatch',async()=>{
+  let calls=0;
+  const handler={async fetch(request:Request){calls++;return new Response(await request.text());}};
+  const body=JSON.stringify({op:'connect'});
+  const normal=await secureFetch(handler,new Request('https://roamcroft.example/api/shared',{method:'POST',body}),{},{});
+  assert.equal(await normal.text(),body);assert.equal(calls,1);
+  const stream=new ReadableStream({start(c){c.enqueue(new Uint8Array(5000));c.enqueue(new Uint8Array(5000));c.close();}});
+  const large=await secureFetch(handler,new Request('https://roamcroft.example/api/shared',{method:'POST',body:stream,duplex:'half'} as RequestInit),{},{});
+  assert.equal(large.status,413);assert.equal(calls,1);assert.equal(large.headers.get('X-Frame-Options'),'DENY');
+});
+
 test('worker applies six headers and replaces attacker-supplied nonce without buffering responses',async()=>{
   const nonces:string[]=[];
   const handler={async fetch(request:Request){

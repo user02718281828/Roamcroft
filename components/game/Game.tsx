@@ -11,6 +11,7 @@ import {preparePwa} from '@/lib/game/pwa';
 import {enterGameFullscreen,MOBILE_QUERY} from '@/lib/game/viewport';
 import type { CoopClient } from '@/lib/coop/client';
 import { nextMilestone, settlementRank } from '@/lib/game/settlement';
+import { recommendedQuest } from '@/lib/game/quests';
 import { inventoryUsed, inventoryCapacity } from '@/lib/game/progression';
 import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import {
@@ -62,7 +63,6 @@ import {
   SEASONS,
   BUILDINGS,
   CROPS,
-  QUESTS,
   RECIPES,
 } from '@/lib/game/data';
 import { loadLocal, saveLocal, serialize, deserialize } from '@/lib/game/save';
@@ -580,7 +580,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
                 : s?.mine
                   ? 'Maden galerisi'
                   : 'Çayır');
-  const quest = s ? QUESTS.find(q=>!s.claimed.includes(q.id)&&(s.stats[q.stat]||0)>=q.target) || QUESTS.find(q=>!s.claimed.includes(q.id)&&q.id!=='fruit') || QUESTS.find(q=>!s.claimed.includes(q.id)) : null;
+  const quest = s ? recommendedQuest(s) : null;
   const chooseBuild = (type: string) => {
     setBuild(type);
     setTool('build');

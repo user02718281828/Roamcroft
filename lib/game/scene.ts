@@ -82,6 +82,7 @@ export class ValleyScene {
   villagers: T.Group[] = [];
   remotePlayers = new Map<string,T.Group>();
   remoteMotion = new Map<string,RemoteMotion>();
+  remoteRealtime=false;
   butterflies?: T.InstancedMesh;
   fallingLeaves?:T.InstancedMesh;
   natureCell='';
@@ -2142,6 +2143,7 @@ export class ValleyScene {
     g.rotation.x+=(pose.lean-g.rotation.x)*blend;g.userData.poseHeight=(g.userData.poseHeight||0)+(pose.height-(g.userData.poseHeight||0))*blend;g.position.y+=g.userData.poseHeight;
   }
   syncRemotePlayers(dt:number) {
+    const realtime=!!this.engine.network?.motion;if(realtime!==this.remoteRealtime){this.remoteMotion.clear();this.remoteRealtime=realtime;}
     const peers=this.engine.network?.peers||[],active=new Set(peers.map(p=>p.id));
     for(const [id,g] of this.remotePlayers)if(!active.has(id)){this.root.remove(g);releaseModel(g);this.remotePlayers.delete(id);this.remoteMotion.delete(id);}
     for(const peer of peers){
@@ -2151,7 +2153,7 @@ export class ValleyScene {
       if(!motion){motion=new RemoteMotion();this.remoteMotion.set(peer.id,motion);}
       const now=performance.now();
       motion.push(peer.player,peer.sampledAt??now,now);
-      const pose=motion.sample(now,dt)!;
+      const pose=motion.sample(now,dt,this.engine.network?.motion?.buffer??650)!;
       const moving=Math.hypot(pose.x-g.position.x,pose.z-g.position.z)>.001;
       g.position.x=pose.x;g.position.z=pose.z;
       g.position.y=tileAt(this.engine.s,g.position.x,g.position.z)?.height||0;g.rotation.y=pose.facing;
@@ -2239,14 +2241,15 @@ export class ValleyScene {
     this.flushChunk();
     const s = this.engine.s,
       p = s.player;
+    const displayed=this.engine.network?.motion?.renderPose()||p;
     this.player.position.set(
-      p.x,
+      displayed.x,
       (tileAt(s, p.x, p.z)?.height || 0) +
         0.04 +
         (this.engine.path.length
           ? Math.abs(Math.sin(this.time * 12)) * 0.045
           : 0),
-      p.z,
+      displayed.z,
     );
     this.player.rotation.y = p.facing;
     for (const a of s.animals) {

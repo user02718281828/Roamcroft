@@ -167,6 +167,13 @@ void test('four clients survive 300 ms RTT, deterministic 20% packet loss, mid-a
     loss = true;
     for (let round = 0; round < 6; round++) {
       for (const p of players) {
+        // Another client's retry may outlast this client's next background
+        // pulse. Wait for THIS connection to recover before submitting a new
+        // action; send() correctly rejects while the link is disconnected.
+        for(let attempt=0;!p.client.connected&&attempt<12;attempt++){
+          try{await p.client.flush();}catch{/* Deliberate packet loss continues. */}
+        }
+        assert.equal(p.client.connected,true,'client recovers before the next new action');
         assert.ok(p.client.send('trade', ['wood', 1, false]));
         assert.match(p.client.status, /gönderiliyor/);
       }

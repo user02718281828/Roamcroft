@@ -1,6 +1,7 @@
 import type { Engine } from '@/lib/game/model';
 import { BUNDLES } from '@/lib/game/progression';
-import { ITEMS, QUESTS } from '@/lib/game/data';
+import { ITEMS } from '@/lib/game/data';
+import { recommendedQuest } from '@/lib/game/quests';
 import {
   MILESTONES,
   milestoneReady,
@@ -50,7 +51,7 @@ export function SettlementName({ engine }: { engine: Engine }) {
 export function SettlementPanel({ engine }: { engine: Engine }) {
   const s = engine.s,
     next = nextMilestone(s),
-    quest = QUESTS.find((q) => !s.claimed.includes(q.id));
+    quest = recommendedQuest(s);
   return (
     <section className="settlement-board" aria-label="Köy gelişimi">
       <span className="eyebrow">{settlementRank(s)}</span>
