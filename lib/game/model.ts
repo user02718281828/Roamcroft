@@ -5,6 +5,7 @@ import { orchardStatus } from './orchard.ts';
 import { machineRecipe, machineRecipes, productionRate } from './production.ts';
 import { cropGrowthRate } from './farming.ts';
 import { dailyOrders } from './orders.ts';
+import { materialCost, materialPlan, type MaterialTarget } from './materials.ts';
 import { marketSells, tradeUnitPrice } from './economy.ts';
 export { tradeUnitPrice } from './economy.ts';
 import {blocksPoint} from './collision.ts';
@@ -518,6 +519,21 @@ export class Engine {
       const quantity=Math.min(this.s.inventory[item]||0,this.storageCapacity()-Object.values(this.s.storage).reduce((n,v)=>n+v,0));
       if(quantity>0)this.transferStorage(item,quantity,true);
     }
+  }
+  prepareMaterials(kind: MaterialTarget, id: string | number, token?: string) {
+    if (this.network?.guest) return this.network.send('prepareMaterials', token === undefined ? [kind, id] : [kind, id, token]);
+    const cost = materialCost(this.s, kind, id, token);
+    if (!cost) { this.emit('Bu ihtiyaç listesi artık geçerli değil. Menüyü güncelle.', 'bad'); return false; }
+    const plan = materialPlan(this.s, cost);
+    if (!plan.ready) { this.emit(plan.reason!, 'info'); return false; }
+    // Validate the entire transfer before mutating either bag. A competing
+    // player may have consumed shared stock since this menu was rendered.
+    for (const { id: item, amount } of plan.missing) {
+      this.s.storage[item] -= amount;
+      this.s.inventory[item] = (this.s.inventory[item] || 0) + amount;
+    }
+    this.emit(`${plan.total} eksik malzeme depodan alındı. İşlemi şimdi başlatabilirsin.`, 'good');
+    return true;
   }
   collectDelivery() {
     if(this.network?.guest) return this.network.send('collectDelivery',[]);

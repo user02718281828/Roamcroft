@@ -1,5 +1,6 @@
 'use client';
 import GameIcon from './GameIcon';
+import MaterialNeeds from './MaterialNeeds';
 import { BUILDINGS, CROPS, ITEMS, SEASONS, type Bag } from '@/lib/game/data';
 import { canAfford, season, tradeUnitPrice, type Building, type Engine } from '@/lib/game/model';
 import { cropPlan } from '@/lib/game/farming';
@@ -42,6 +43,7 @@ export function MachineCard({engine,building:b}:{engine:Engine;building:Building
       {machineRecipes(b.type).map(option=><option key={option.id} value={option.id} disabled={s.level<option.level}>{Object.keys(option.output).map(id=>ITEMS[id].name).join(' + ')}{s.level<option.level?` · Sv. ${option.level}`:''}</option>)}
     </select></label>
     <div className="machine-flow"><Items bag={r.input}/><span aria-label="üretir">→</span><Items bag={r.output}/></div>
+    {!b.processing&&<MaterialNeeds engine={engine} cost={r.input} kind="machine" target={b.id} token={r.id}/>}
     <p>Bir parti ≈{Math.ceil(r.time/productionRate(s,b))} sn · Çıktı satışı {Object.entries(r.output).reduce((v,[id,n])=>v+tradeUnitPrice(s,id,false)*n,0)} altın</p>
     <details className="machine-economics"><summary>İşlemeye değer mi?</summary>
       <p>Malzemeyi doğrudan sat: {economics.input} altın. İşleyip sat: {economics.output} altın. Fark: {economics.added>0?'+':''}{economics.added} altın.</p>

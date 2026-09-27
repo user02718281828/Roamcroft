@@ -1,5 +1,6 @@
 'use client';
 import GameIcon from './GameIcon';
+import MaterialNeeds from './MaterialNeeds';
 import { ITEMS, type Bag } from '@/lib/game/data';
 import { dailyOrders } from '@/lib/game/orders';
 import { bagValue } from '@/lib/game/economy';
@@ -21,6 +22,7 @@ export default function DailyOrders({engine,npc}:{engine:Engine;npc:string}) {
         <header><GameIcon id={Object.keys(order.input)[0]}/><h4>{order.name}</h4></header>
         <b>{index===0?'Doğrudan teslim · Altın':'İşlenmiş teslim · Altın ve malzeme'}</b>
         <p>{order.description}</p><OrderItems items={order.input} inventory={s.inventory}/>
+        <MaterialNeeds engine={engine} cost={order.input} kind="order" target={npc} token={order.token}/>
         <p>Karşılık: {order.gold} altın · {order.xp} DP · Dostluk +8</p>
         {order.supplies&&<OrderItems items={order.supplies}/>}<p>Normal satış: {order.value} altın. Sipariş avantajı: +{order.gold+bagValue(order.supplies||{})-order.value} altın değerinde.</p>
         <button className="primary-button" disabled={locked||!canAfford(s,order.input)} onClick={()=>engine.completeContract(npc,order.token)}>

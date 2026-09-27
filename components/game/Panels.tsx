@@ -1,6 +1,7 @@
 'use client';
 import AudioSettings from './AudioSettings';
 import DailyOrders from './DailyOrders';
+import MaterialNeeds from './MaterialNeeds';
 import FriendLobby from './FriendLobby';
 import {marketSells} from '@/lib/game/economy';
 import {CropPlanner,MachineCard,ProductionWorkshop} from './FarmPlanning';
@@ -592,9 +593,13 @@ export default function Panels({
                                       ? `Sv. ${r.level}`
                                       : r.upgrade && tier >= 3
                                         ? 'En üst seviye'
-                                        : 'Üret'}
+                                        : !station ? 'İstasyon gerekli'
+                                        : s.jobs.length >= 3 ? 'Kuyruk dolu'
+                                        : s.player.energy < 4 ? 'Enerji gerekli'
+                                        : !canAfford(s,cost) ? 'Malzeme eksik' : 'Üret'}
                                   </button>
                                 </div>
+                                <MaterialNeeds engine={engine} cost={cost} kind="craft" target={id}/>
                               </article>
                             );
                           })}
@@ -1384,7 +1389,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.10.0
+                  Roamcroft · 1.10.1
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

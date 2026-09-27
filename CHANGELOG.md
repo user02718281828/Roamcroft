@@ -1,5 +1,12 @@
 # Değişiklikler
 
+## 1.10.1 — Depodan Tezgâha · 28 Eylül 2026
+
+- Tarif, makine ve günlük siparişlerde eksik miktar, depo/teslimat stoğu ve malzemenin kaynağı gösterilir.
+- Tek tuşla yalnızca eksik miktar ortak depodan alınır. Çanta kapasitesi ve bütün girdiler sunucuda kontrol edilir; yetersiz stokta kısmi aktarım yapılmaz.
+- Üretimin neden kapalı olduğu düğmede belirtilir: istasyon, kuyruk, enerji veya malzeme.
+- Kayıt biçimi ve hareket protokolü değişmedi. Ortak depoya yarışan oyuncular, yinelenen istek ve oda yeniden kurulumu için regresyon testleri eklendi.
+
 ## 1.10.0 — Birlikte Adım Adım · 27 Eylül 2026
 
 - Ortak çiftlik hareketi WebSocket ve oda başına Durable Object'a taşındı: 20 Hz otorite, 10 Hz snapshot, sequence/tick, ACK ve eski paket reddi. HTTP artık ortak karakterin konumunu değiştiremez.

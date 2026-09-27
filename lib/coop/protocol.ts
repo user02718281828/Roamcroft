@@ -20,6 +20,9 @@ export function validCommand(v:unknown): v is Command {
   if(!id(c.seq) || !Array.isArray(c.args)) return false;
   const a=c.args;
   switch(c.method) {
+    case 'prepareMaterials': return a[0]==='craft' ? a.length===2 && key(RECIPES,a[1])
+      : a[0]==='machine' ? a.length===3 && id(a[1]) && typeof a[2]==='string' && a[2].length<=32
+      : a[0]==='order' && a.length===3 && typeof a[1]==='string' && validOrderToken(a[1],a[2]);
     case 'setMachineRecipe':return a.length===2 && id(a[0]) && typeof a[1]==='string' && Object.keys(BUILDINGS).some(type=>machineRecipes(type).some(r=>r.id===a[1]));
     case 'setMachineRepeat':return a.length===2 && id(a[0]) && typeof a[1]==='boolean';
     case 'startProduction':return a.length===1 && id(a[0]);

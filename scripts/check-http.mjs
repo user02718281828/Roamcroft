@@ -115,6 +115,32 @@ if(process.argv.includes('--session-smoke')){
   assert.equal(new Set(snapshots.map(p=>p.you.id)).size,4);
   for(const snapshot of snapshots){assert.equal(snapshot.peers.length,4);assert.equal(snapshot.state.gold,snapshots[0].state.gold);assert.equal(snapshot.state.time,snapshots[0].state.time);}
   simulatedRtt=0;
+  // Prepare from the same shared stock concurrently, then replay the exact
+  // requests (as if their acknowledgements were lost). No fixture-only APIs.
+  for(let i=0;i<players.length;i++)players[i].packet=snapshots[i];
+  async function durableCommands(player,commands){
+    const p=player.packet;
+    const body={op:'pulse',revision:p.revision,pulse:{seq:p.seq+1,pose:p.you.player,paused:true,commands:commands.map((c,i)=>({seq:p.commandSeq+i+1,...c}))}};
+    player.packet=await call('/api/shared',body,player.cookie,p.nonce);
+    return {body,nonce:p.nonce};
+  }
+  await durableCommands(players[0],[{method:'build',args:['chest',14,20,0,false]},{method:'transferStorage',args:['wood',3,true]}]);
+  const stocked=await call('/api/shared',{op:'connect'},cookie);
+  assert.equal(stocked.state.storage.wood,3);players[0].packet=stocked;
+  const totalBefore=players.reduce((n,p)=>n+(p.packet.bag.inventory.wood||0),0)+3;
+  simulatedRtt=300;
+  const preparations=await Promise.all(players.map(p=>durableCommands(p,[{method:'prepareMaterials',args:['craft','plank']}])));
+  const prepared=players.map(p=>p.packet.bag.inventory.wood||0);
+  await Promise.all(players.map(async(p,i)=>{
+    const retried=await call('/api/shared',preparations[i].body,p.cookie,preparations[i].nonce);
+    assert.equal(retried.bag.inventory.wood||0,prepared[i]);p.packet=retried;
+  }));
+  simulatedRtt=0;
+  const afterPreparation=await call('/api/shared',{op:'connect'},cookie);players[0].packet=afterPreparation;
+  assert.equal(prepared.reduce((a,b)=>a+b,0)+afterPreparation.state.storage.wood,totalBefore);
+  assert.ok(prepared.slice(1).some(n=>n===3));
+  assert.ok(prepared.slice(1).some(n=>n<3));
+  console.info('Shared material preparation: 4 concurrent clients at +300 ms RTT; shortage is atomic, duplicate requests preserve exact stock.');
   const {verifyRealtime}=await import('./realtime-smoke.mjs');
   await verifyRealtime(base,players,call);
   const {verifyPrediction}=await import('./prediction-smoke.mjs');
