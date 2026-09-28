@@ -82,7 +82,8 @@ import {
 } from '@/lib/game/expedition';
 import { registerGameTools } from '@/lib/game/webmcp';
 
-export default function Game({autoStart=false,serverMode=false}:{autoStart?:boolean;serverMode?:boolean}={}) {
+export default function Game({autoStart=false,serverMode=false,onExit}:{autoStart?:boolean;serverMode?:boolean;onExit?:()=>void}={}) {
+  const exitPending=useRef(false);
   const host = useRef<HTMLDivElement>(null),
     mini = useRef<HTMLCanvasElement>(null),
     engine = useRef<Engine | null>(null),
@@ -185,7 +186,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
     });
   };
   const doSave = async () => {
-    if(serverMode){await authority.current?.flush();setSaveStatus('Sunucu dünyası kaydedildi.');return;}
+    if(serverMode){if(!authority.current)throw Error('Sunucu oturumu hazır değil.');await authority.current.flush();setSaveStatus('Sunucu dünyası kaydedildi.');return;}
     if(coop.current?.active) {
       try {await coop.current.publish();setSaveStatus('Ortak dünya sunucuya kaydedildi.');} catch(error){setSaveStatus(error instanceof Error ? error.message : 'Kayıt bekleniyor.');throw error;}
       return;
@@ -204,6 +205,16 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
       );
       if(!ok)throw Error('Kayıt yapılamadı. Ayarlar bölümünden dosya indir.');
     }
+  };
+  const doExit = async () => {
+    if(exitPending.current)return;
+    exitPending.current=true;keys.current.clear();joystick.current={x:0,y:0};
+    try {
+      if(serverMode){if(!authority.current)throw Error('Sunucu oturumu hazır değil.');await authority.current.exitToMenu();}
+      else {await doSave();if(coop.current?.active)await coop.current.leave();}
+      allowSave.current=false;
+      if(onExit)onExit();else window.location.reload();
+    } catch(error){exitPending.current=false;throw error;}
   };
   const doExport = () => {
     if (!engine.current) return;
@@ -483,6 +494,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
       })
       .catch(() => setError('Oyun motoru yüklenemedi. Sayfayı yenile.'));
     const down = (ev: KeyboardEvent) => {
+      if(exitPending.current){ev.preventDefault();return;}
       const tag = (ev.target as HTMLElement).tagName;
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
       const key = ev.key.toLowerCase();
@@ -603,7 +615,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
         : TOOLS.find((t) => t.id === tool)?.name;
   return (
     <main className={`game-shell ${compactHud ? 'hud-collapsed' : ''} ${panel ? 'has-panel' : ''}`}>
-      {serverMode&&<div className="server-status" role="status">{authority.current?.status||'Sunucuya bağlanıyor…'}</div>}
+      {serverMode&&<div className="server-status" role="status">{authority.current?.status||'Sunucuya bağlanıyor…'}{authority.current?.sleep&&<span> · Uyku: {authority.current.sleep.ready.length}/{authority.current.sleep.ready.length+authority.current.sleep.waiting.length} hazır · Online menüsü</span>}</div>}
       <div ref={host} className="world" />
       <div className="world-vignette" />
       {!ready && (
@@ -629,7 +641,7 @@ export default function Game({autoStart=false,serverMode=false}:{autoStart?:bool
       )}
       {s && (
         <>
-          {ready && mainMenu && !panel && <MainMenu serverMode={serverMode} loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onGuide={()=>setPanel('guide')} onSave={doSave}/>}
+          {ready && mainMenu && !panel && <MainMenu serverMode={serverMode} loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onGuide={()=>setPanel('guide')} onSave={doSave} onExit={doExit}/>}
           <header className="game-header">
             <div className="brand">
               <div className="brand-icon">

@@ -4,7 +4,7 @@ export function validServerCommand(value:unknown):value is Command {
   const c=value as Command;
   if(Object.keys(c).some(key=>!['seq','method','args'].includes(key)))return false;
   if(!Number.isSafeInteger(c.seq)||c.seq<1||!Array.isArray(c.args))return false;
-  if(['returnHome','descendMine','leaveMine','sleep'].includes(c.method))return c.args.length===0;
+  if(['returnHome','descendMine','leaveMine','sleep','cancelSleep'].includes(c.method))return c.args.length===0;
   if(c.method==='enterMine')return c.args.length===1&&Number.isInteger(c.args[0])&&Number(c.args[0])>=1&&Number(c.args[0])<=5;
   if(c.method==='renameSettlement')return c.args.length===1&&typeof c.args[0]==='string'&&c.args[0].length<=32;
   if(['talk','gift','completeContract'].includes(c.method)&&typeof c.args[0]!=='string')return false;

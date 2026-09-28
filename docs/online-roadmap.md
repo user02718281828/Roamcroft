@@ -1,5 +1,11 @@
 # Çevrimiçi gelişim planı
 
+**Güncel durum (28 Eylül 2026):** 1.10.x sürümlerinde davet kodlu dört oyuncu,
+oda başına Durable Object ve WebSocket hareketi yayında. Aşağıdaki 1.4.0
+metni tarihsel plandır; mevcut durum için [gelişim planını](development-plan.md)
+ve [1.10.0 doğrulamasını](verification-1.10.0.md) esas al. Ortak uyku,
+ortak maden ve oyuncuların ayrı bölgelerde keşfi ayrı kabul testleri gerektirir.
+
 1.4.0'da ayrı bir sunucu dünyası önizlemesi bulunur. `/api/world` sunucu doğrulaması ve anonim HttpOnly oturumla çalışır; ayrıntılar [güvenlik mimarisinde](server-security.md). Bu hesap ve co-op aşamalarını tamamlamaz. Co-op menüsü ve `/api/coop` kapalıdır. `lib/coop/` testli altyapı olarak korunur; önceki Sites kimlik başlıkları bağımsız Workers adresinde güvenilmez.
 
 ## 1. Bulut kayıt

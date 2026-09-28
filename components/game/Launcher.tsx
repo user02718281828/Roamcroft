@@ -5,7 +5,7 @@ import {useGameViewport,enterGameFullscreen} from '@/lib/game/viewport';
 
 export default function Launcher(){
   useGameViewport();
-  const [Game,setGame]=useState<ComponentType<{autoStart?:boolean;serverMode?:boolean}>|null>(null),[serverMode,setServerMode]=useState(false);
+  const [Game,setGame]=useState<ComponentType<{autoStart?:boolean;serverMode?:boolean;onExit?:()=>void}>|null>(null),[serverMode,setServerMode]=useState(false);
   const [loading,setLoading]=useState(false),[error,setError]=useState('');
   const play=async(server=false)=>{
     if(loading)return;
@@ -14,14 +14,14 @@ export default function Launcher(){
     try{const module=await import('./Game');setGame(()=>module.default);}
     catch{setError('Oyun yüklenemedi. Bağlantını kontrol edip tekrar dene.');setLoading(false);}
   };
-  if(Game)return <Game autoStart serverMode={serverMode}/>;
+  if(Game)return <Game autoStart serverMode={serverMode} onExit={()=>{setGame(null);setLoading(false);setError('');}}/>;
   return <main className="launch-screen">
     <section className="launch-card" aria-label="Roamcroft başlangıç ekranı">
       <img className="launch-art" src="/og-image.jpg" width={1200} height={630} alt="" fetchPriority="high"/>
       <div className="launch-content">
         <h1>Roamcroft</h1>
         <p>Kendi dünyana dön.</p>
-        <p className="launch-update"><b>1.10.1 · Depodan Tezgâha</b><br/>Eksik malzemeni gör, ihtiyacın kadarını ortak depodan al. Üretim ve günlük siparişlerine hazırlan.</p>
+        <p className="launch-update"><b>1.11.0 · Aynı Sabah</b><br/>Günü birlikte bitirin. Köyünüz büyüdükçe hikâyeniz ilerlesin. Kaydedip başlangıç ekranına güvenle dönün.</p>
         <button onClick={()=>void play()} disabled={loading} aria-busy={loading}>{loading?'Vadi hazırlanıyor…':'Oyna'}</button>
         <button className="launch-server" onClick={()=>void play(true)} disabled={loading}>Arkadaşlarla oyna · Beta</button>
         {error&&<p role="alert">{error}</p>}

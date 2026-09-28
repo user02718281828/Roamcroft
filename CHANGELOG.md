@@ -1,5 +1,12 @@
 # Değişiklikler
 
+## 1.11.0 — Aynı Sabah · 28 Eylül 2026
+
+- Ortak uyku: akşam evin yakınındaki tüm bağlı oyuncular hazır olduğunda tek bir sabaha geçilir. Uzaklaşma, kopma, yeni katılım veya süre aşımı onayları sıfırlar.
+- Kaydet ve başlangıca dön: mobilde sekme kapatma girişimi kaldırıldı; kayıt onayından sonra sahne ve bağlantılar kapatılır. Kayıt hatasında oyun korunur.
+- Köy dönüm noktalarıyla açılan altı özgün hikâye bölümü, geçmiş bölümler ve NPC'lerin köyün gelişimine tepkileri.
+- Ortak maden, bağımsız bölge keşfi, uzun vadeli ekonomi ve fiziksel Android testleri açık öncelikler olarak korunuyor.
+
 ## 1.10.1 — Depodan Tezgâha · 28 Eylül 2026
 
 - Tarif, makine ve günlük siparişlerde eksik miktar, depo/teslimat stoğu ve malzemenin kaynağı gösterilir.

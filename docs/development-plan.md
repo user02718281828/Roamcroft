@@ -1,5 +1,18 @@
 # Roamcroft gelişim planı
 
+## 28 Eylül 2026 — Birlikte oynama ve günlük akış
+
+- [x] İhtiyaç kadar depodan malzeme hazırlama; tarif/sipariş bağlantıları (1.10.1).
+- [x] Ortak uyku: ev yakınında tüm bağlı oyuncuların onayı; bağlantı kopunca iptal; gece üretimi ve tek sabah geçişi. Dört WS istemcili yerel Worker testi geçti (1.11.0).
+- [x] Mobil çıkış: kayıt onayından sonra başlangıç ekranı; hata halinde oturumun korunması. 844×390 tarayıcı ve istemci hata testleri geçti (1.11.0); fiziksel Android aşağıda açık.
+- [x] Köy dönüm noktalarına bağlı altı özgün hikâye bölümü ve NPC tepkileri; eski kayıtlardan türetilir (1.11.0).
+- [ ] Ortak maden: kat, düşman, ganimet ve asansör oturumlarının sunucu otoritesiyle paylaşılması.
+- [ ] Uzak bölgelerde bağımsız co-op keşif: oyuncu başına görünür bölge ve bölgesel simülasyon; 20 kare sınırını kaldırmadan önce test.
+- [ ] Çok günlük ekonomi testi: yem, tohum, işleme, sipariş ve ekipman maliyetlerinin birlikte ölçülmesi.
+- [ ] Fiziksel Android Chrome/PWA: ana ekran, sistem çubukları, geri tuşu, dokunmatik kontroller ve uzun oturum performansı.
+
+Bu liste eski sürüm hedeflerinden daha günceldir; açık maddeler tamamlanmış değildir.
+
 22 Eylül öncelik güncellemesi: [Sistem eksikleri ve karar derinliği incelemesi](system-gap-review.md). Kullanıcının son isteği doğrultusunda aşağıdaki eski sayısal içerik kotaları zorunlu hedef değildir; önce mevcut sistemler arasındaki anlamlı kararlar ve mobil oynanabilirlik gelir. 1.6.0: ekim planı, tekrar hasat, seçilebilir makine tarifleri ve güvenli parti üretimi.
 
 14 Eylül 2026'da iletilen genişletilmiş metnin takip listesi. Önceki 6–8 oturum tahmini, büyüyen kapsam için güvenilir bir tamamlanma tarihi değildir. Her bölüm kayıt uyumluluğu ve performans kontrolüyle ilerler. Açık maddeler henüz uygulanmamıştır. Yeni adlar, diyaloglar, sanat ve müzik Roamcroft'a özgü olacaktır.

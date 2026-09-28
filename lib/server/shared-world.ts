@@ -3,6 +3,7 @@ import type { Peer, Pose, Command } from '../coop/protocol.ts';
 import { advanceWorld, type WorldRecord } from './world.ts';
 import { captureState, makeDelta, type WorldDelta } from './delta.ts';
 import { SHARED_PROTOCOL } from './shared-protocol.ts';
+import { sleepBlockReason } from '../game/rest.ts';
 
 export type SharedPlayer = {
   id: string;
@@ -23,6 +24,7 @@ export type SharedPlayer = {
   fishing: Engine['fishing'];
 };
 export type SharedRecord = {
+  sleep?: { day: number; expires: number; participants: string[]; votes: string[] };
   world: WorldRecord;
   players: Record<string, SharedPlayer>;
   room: string;
@@ -33,6 +35,39 @@ export const sharedToken = () =>
     n.toString(16).padStart(2, '0'),
   ).join('');
 export const HOST_GRACE = 15_000;
+const sleepParticipants=(record:SharedRecord,now:number)=>Object.keys(record.players).filter(id=>record.players[id].present&&record.players[id].seen>=now-HOST_GRACE).sort();
+export function validateSharedSleep(record:SharedRecord,now:number) {
+  const vote=record.sleep;
+  if(vote&&(vote.day!==record.world.state.day||now>vote.expires
+    ||JSON.stringify(vote.participants)!==JSON.stringify(sleepParticipants(record,now))
+    ||vote.votes.some(id=>!record.players[id]||sleepBlockReason(record.world.state,record.players[id].player))))delete record.sleep;
+}
+function requestSleep(e:Engine,record:SharedRecord,owner:string,user:string,now:number) {
+  validateSharedSleep(record,now);
+  const blocked=sleepBlockReason(e.s);
+  if(blocked){e.emit(blocked,'info');return;}
+  const participants=sleepParticipants(record,now);
+  if(!participants.includes(owner)){e.emit('Ev sahibi bağlantısını bekle.','info');return;}
+  record.sleep??={day:e.s.day,expires:now+90000,participants,votes:[]};
+  if(!record.sleep.votes.includes(user))record.sleep.votes.push(user);
+  e.emit(`Uykuya hazırsın · ${record.sleep.votes.length}/${participants.length}. Herkes evin yakınında hazır olmalı.`, 'info');
+}
+function finishSharedSleep(e:Engine,record:SharedRecord,owner:string,now:number) {
+  validateSharedSleep(record,now);
+  const vote=record.sleep;
+  if(!vote||!vote.participants.every(id=>vote.votes.includes(id)))return;
+  // Use the owner's world and route overnight production to its actual owner.
+  e.productionInventory=recipient=>Object.entries(record.players).find(([id,p])=>id!==owner&&p.id===recipient)?.[1];
+  if(!e.sleep()){delete record.sleep;return;}
+  for(const id of vote.participants){
+    const p=record.players[id];
+    p.player=id===owner?{...e.s.player}:{...p.player,health:100,energy:100,hunger:Math.max(0,p.player.hunger-10)};
+    p.fishing=null;p.resting=false;p.cooldown=0;
+  }
+  e.resting=false;e.fishing=null;e.actionCooldown=0;
+  const r=record.world.runtime!;r.clock=e.systemClock;r.resting=false;r.fishing=null;r.cooldown=0;
+  delete record.sleep;
+}
 export function sharedSpawn(e: Engine, players: SharedPlayer[]) {
   for (let r = 1; r <= 8; r++)
     for (let z = -r; z <= r; z++)
@@ -226,12 +261,14 @@ export function advanceShared(
     }
   }
   for (const c of commands) {
+    if(c.method==='sleep'){requestSleep(e,record,owner,user,now);continue;}
+    if(c.method==='cancelSleep'){delete record.sleep;e.emit('Ortak uyku isteği iptal edildi.','info');continue;}
     if (
-      ['enterMine', 'descendMine', 'leaveMine', 'sleep'].includes(c.method) ||
+      ['enterMine', 'descendMine', 'leaveMine'].includes(c.method) ||
       (c.method === 'act' && e.isPortal(Number(c.args[0]), Number(c.args[1])))
     ) {
       e.emit(
-        'Bu online sürüm ortak yüzey çiftliğini destekliyor; maden ve gün atlama kapalı.',
+        'Ortak maden yolculuğu henüz açık değil. Yüzeyde birlikte oynayabilirsiniz.',
         'info',
       );
       continue;
@@ -281,7 +318,6 @@ export function advanceShared(
   p.cooldown = e.actionCooldown;
   p.resting = e.resting;
   p.fishing = e.fishing;
-  events.push(...e.events);
   if (user !== owner) {
     e.s.player = hostPlayer;
     e.s.inventory = hostInventory;
@@ -313,6 +349,8 @@ export function advanceShared(
       guest.fishing = null;
     }
   record.world = { state: e.s, runtime };
+  finishSharedSleep(e,record,owner,now);
+  events.push(...e.events);
   const delta = makeDelta(before, e.s, 0);
   delete delta.changes.inventory;
   delete delta.changes.overflow;
@@ -327,6 +365,7 @@ export function sharedPacket(
   now: number,
   events: Event[] = [],
 ) {
+  validateSharedSleep(record,now);
   const p = record.players[user];
   const patches =
     base === undefined ? [] : record.history.filter((h) => h.revision > base);
@@ -340,6 +379,11 @@ export function sharedPacket(
     .filter(([, a]) => a.present && a.seen > now - 5000)
     .map(([, a]) => ({ id: a.id, name: a.name, player: a.player, sampledAt: a.seen }));
   return {
+    sleep: record.sleep ? {
+      ready: record.sleep.participants.filter(id=>record.sleep!.votes.includes(id)).map(id=>record.players[id].name),
+      waiting: record.sleep.participants.filter(id=>!record.sleep!.votes.includes(id)).map(id=>record.players[id].name),
+      voted: record.sleep.votes.includes(user),
+    } : null,
     protocolVersion: SHARED_PROTOCOL,
     revision,
     seq: p.seq,

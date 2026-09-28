@@ -7,6 +7,7 @@ import {
   sharedPacket,
   sharedToken,
   HOST_GRACE,
+  validateSharedSleep,
   type SharedRecord,
 } from './shared-world.ts';
 import { captureState, makeDelta } from './delta.ts';
@@ -41,6 +42,7 @@ export class RoomCore {
   skipped = 0;
   constructor(record: SharedRecord, owner: string, revision: number) {
     this.record = record;
+    delete this.record.sleep;
     this.owner = owner;
     this.revision = revision;
     this.engine = this.restore();
@@ -78,6 +80,7 @@ export class RoomCore {
     };
   }
   connect(user: string, name: string, now: number): Hello {
+    delete this.record.sleep;
     const p = ensureSharedPlayer(this.record, user, this.owner, name, now);
     p.seen = now;
     const stream: Stream = {
@@ -101,7 +104,7 @@ export class RoomCore {
     };
   }
   disconnect(user: string, epoch: string) {
-    if (this.streams.get(user)?.epoch === epoch) this.streams.delete(user);
+    if (this.streams.get(user)?.epoch === epoch) {this.streams.delete(user);delete this.record.sleep;}
   }
   receive(user: string, epoch: string, frames: unknown, now: number) {
     const stream = this.streams.get(user);
@@ -142,6 +145,7 @@ export class RoomCore {
   }
   step(now: number) {
     this.tick++;
+    validateSharedSleep(this.record,now);
     if (!this.hostReady(now)) {
       for (const stream of this.streams.values()) {
         if (stream.pending.size)

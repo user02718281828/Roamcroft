@@ -65,3 +65,7 @@ try {
 } finally {
   await server.close();
 }
+if(!process.exitCode){
+  const {verifySharedSleep}=await import('./shared-sleep-smoke.mjs');
+  await verifySharedSleep();
+}

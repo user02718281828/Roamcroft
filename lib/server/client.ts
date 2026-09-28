@@ -5,8 +5,10 @@ import { validServerCommand } from './protocol.ts';
 import { applyDelta, type WorldDelta } from './delta.ts';
 import { SHARED_PROTOCOL } from './shared-protocol.ts';
 import { RealtimeClient } from '../coop/realtime-client.ts';
+import type { SleepStatus } from '../game/rest.ts';
 
 type Packet = {
+  sleep?: SleepStatus | null;
   realtime?: boolean;
   protocolVersion?: number;
   state?: State;
@@ -46,6 +48,7 @@ export class ServerWorldClient {
   private lastPaused = false;
   private peers: Peer[] = [];
   realtime: RealtimeClient | null = null;
+  sleep: SleepStatus | null = null;
   private realtimeAvailable=false;
   private selfId = '';
   private state: State | null = null;
@@ -65,6 +68,7 @@ export class ServerWorldClient {
     this.fetcher = fetcher;
   }
   private accept(packet: Packet) {
+    this.sleep=packet.sleep||null;
     this.realtimeAvailable=packet.realtime===true;
     if (packet.state) this.state = packet.state;
     else if (packet.patches && this.state) {
@@ -205,6 +209,7 @@ export class ServerWorldClient {
       guest: true,
       server: true,
       shared: this.shared,
+      sleep:this.sleep,
       motion: this.realtime || undefined,
       peers: this.peers,
       send: (method, args) => this.send(method, args),
@@ -428,7 +433,16 @@ export class ServerWorldClient {
       (this.queue.length > 0 || this.pending)
     );
     this.schedule();
-    if (!this.connected) throw Error(this.status);
+    if (!this.connected || this.pending || this.queue.length) throw Error(this.status || 'İşlemler henüz kaydedilmedi.');
+  }
+  async exitToMenu() {
+    await this.flush();
+    this.switching=true;
+    if(this.timer)clearTimeout(this.timer);
+    try {
+      if(this.shared)await this.request(JSON.stringify({op:'leave'}),'','/api/lobby');
+      this.flag(false);this.dispose();
+    } catch(error){this.switching=false;this.schedule();throw error;}
   }
   dispose() {
     this.realtime?.dispose();this.realtime=null;

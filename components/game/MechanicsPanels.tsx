@@ -2,6 +2,7 @@ import type { Engine } from '@/lib/game/model';
 import { BUNDLES } from '@/lib/game/progression';
 import { ITEMS } from '@/lib/game/data';
 import { recommendedQuest } from '@/lib/game/quests';
+import { settlementStory } from '@/lib/game/story';
 import {
   MILESTONES,
   milestoneReady,
@@ -49,6 +50,7 @@ export function SettlementName({ engine }: { engine: Engine }) {
 }
 
 export function SettlementPanel({ engine }: { engine: Engine }) {
+  const story=settlementStory(engine.s);
   const s = engine.s,
     next = nextMilestone(s),
     quest = recommendedQuest(s);
@@ -56,6 +58,9 @@ export function SettlementPanel({ engine }: { engine: Engine }) {
     <section className="settlement-board" aria-label="Köy gelişimi">
       <span className="eyebrow">{settlementRank(s)}</span>
       <h3>{s.settlement.name}</h3>
+      <article className="planning-card"><span className="eyebrow">Vadi hikâyesi · {story.stage+1}. bölüm</span><h4>{story.chapter.title}</h4><p>{story.chapter.text}</p>
+        {!!story.memories.length&&<details><summary>Birlikte geride bıraktıklarımız</summary>{story.memories.map(ch=><p key={ch.title}><b>{ch.title}</b><br/>{ch.text}</p>)}</details>}
+      </article>
       <p className="panel-note">
         Kazandığın malzemeler bir sonraki işliğin, tarlan ve keşfin için. Köy
         dönüm noktalarını sırayla tamamla.

@@ -2,6 +2,7 @@
 import AudioSettings from './AudioSettings';
 import DailyOrders from './DailyOrders';
 import MaterialNeeds from './MaterialNeeds';
+import { settlementStory } from '@/lib/game/story';
 import FriendLobby from './FriendLobby';
 import {marketSells} from '@/lib/game/economy';
 import {CropPlanner,MachineCard,ProductionWorkshop} from './FarmPlanning';
@@ -1124,7 +1125,7 @@ export default function Panels({
                         if (engine.sleep()) setPanel(null);
                       }}
                     >
-                      🌙 Uyu · Yeni güne geç
+                      {engine.network?.shared?'Birlikte uyumaya hazırım':'Uyu · Yeni güne geç'}
                     </button>
                   )}
                   {b.type === 'market' && (
@@ -1233,6 +1234,7 @@ export default function Panels({
                             : `Dostluk avantajı: balık yakalama şansı +%${Math.floor(friendship * 0.05)}.`}
                       </p>
                       <p className="npc-routine">{schedule(NPCS.indexOf(n),s.time,n).label} · {timedGreeting(s.time)}</p><div className="dialogue-box">
+                        <p><b>Köyden haber · </b>{settlementStory(s).chapter.voices[n.id as 'narin'|'torin'|'lale']}</p>
                         <p>
                           {
                             n.dialogue[stage][
@@ -1389,7 +1391,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.10.1
+                  Roamcroft · 1.11.0
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import type { Engine } from '@/lib/game/model';
+import SharedSleep from './SharedSleep';
 type Room = {
   code: string;
   host: boolean;
@@ -70,6 +71,7 @@ export default function FriendLobby({
         karakteri var; altın, üretim, görevler ve yapılar ortak. Eşyaları
         sandıkla paylaşın.
       </p>
+      <SharedSleep engine={engine}/>
       {room ? (
         <>
           <label>
@@ -181,7 +183,7 @@ export default function FriendLobby({
           </form>
         </>
       )}
-      <p>Beta: yüzey çiftliği açık; maden ve gün atlama henüz kapalı.</p>
+      <p>Beta: ortak yüzey çiftliği ve birlikte uyku açık. Ortak maden henüz kapalı.</p>
       <details>
         <summary>Ortak oyun ve kayıt nasıl çalışır?</summary>
         <p>

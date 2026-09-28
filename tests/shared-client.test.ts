@@ -6,6 +6,29 @@ import { handleLobby } from '../lib/server/lobby.ts';
 import { handleShared } from '../lib/server/shared-api.ts';
 import { ServerWorldClient } from '../lib/server/client.ts';
 import { Engine, createState } from '../lib/game/model.ts';
+import { SHARED_PROTOCOL } from '../lib/server/shared-protocol.ts';
+void test('exit waits for durable ACK, leaves membership, stops new commands and preserves session on save failure',async()=>{
+  for(const fail of [false,true]){
+    let engine:Engine|null=null,leaveCalls=0,pulseCalls=0;
+    const fetcher:typeof fetch=async(input,options)=>{
+      const body=JSON.parse(String(options?.body));
+      if(input==='/api/lobby'){leaveCalls++;return Response.json({room:null});}
+      if(body.op==='pulse'){
+        pulseCalls++;
+        if(fail)throw Error('Kayıt bağlantısı kesildi');
+      }
+      return Response.json({protocolVersion:SHARED_PROTOCOL,state:createState(1),nonce:'next',seq:body.pulse?.seq||0,commandSeq:body.pulse?.commands.at(-1)?.seq||0});
+    };
+    const client=new ServerWorldClient(()=>engine,()=>true,()=>{},fetcher);
+    try{
+      engine=new Engine(await client.start(),true);client.bind(engine);client.shared=true;
+      assert.ok(client.send('craft',['plank']));
+      if(fail){await assert.rejects(client.exitToMenu(),/Kayıt bağlantısı/);assert.equal(leaveCalls,0);assert.equal(client.shared,true);}
+      else {await client.exitToMenu();assert.equal(leaveCalls,1);assert.equal(client.send('craft',['plank']),false);await assert.rejects(client.flush(),/Oturum kapalı/);}
+      assert.ok(pulseCalls>=1);
+    }finally{client.dispose();}
+  }
+});
 void test('client halts incompatible protocol and respects server rate-limit backoff', async () => {
   for (const status of [426, 429]) {
     let calls = 0,

@@ -6,6 +6,7 @@ import { machineRecipe, machineRecipes, productionRate } from './production.ts';
 import { cropGrowthRate } from './farming.ts';
 import { dailyOrders } from './orders.ts';
 import { materialCost, materialPlan, type MaterialTarget } from './materials.ts';
+import { sleepBlockReason, type SleepStatus } from './rest.ts';
 import { marketSells, tradeUnitPrice } from './economy.ts';
 export { tradeUnitPrice } from './economy.ts';
 import {blocksPoint} from './collision.ts';
@@ -395,7 +396,7 @@ export function createState(seed = 84621): State {
 }
 export class Engine {
   sharedAnchors?: {x:number;z:number}[];
-  network: {motion?:MotionControl;guest:boolean;server?:boolean;shared?:boolean;enterShared?:()=>Promise<void>;leaveShared?:()=>Promise<void>;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
+  network: {motion?:MotionControl;sleep?:SleepStatus|null;guest:boolean;server?:boolean;shared?:boolean;enterShared?:()=>Promise<void>;leaveShared?:()=>Promise<void>;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
   networkActor = false;
   productionRecipient?: string;
   productionInventory?: (recipient: string | undefined) => Pick<State,'inventory'|'overflow'> | undefined;
@@ -1708,24 +1709,8 @@ export class Engine {
   sleep() {
     if(this.network?.server)return this.network.send('sleep',[]);
     if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
-    const s = this.s,
-      p = s.player,
-      home = s.buildings.find((b) => b.type === 'home');
-    if (!home || Math.hypot(p.x - home.x, p.z - home.z) > 3) {
-      this.emit('Uyumak için Ocak evinin yakınına gel.', 'bad');
-      return false;
-    }
-    if (
-      s.enemies.length ||
-      (!s.won && s.day >= 3 && s.day % 3 === 0 && s.raidDay !== s.day)
-    ) {
-      this.emit('Akın tehlikesi varken uyuyamazsın. Önce köyü savun.', 'bad');
-      return false;
-    }
-    if (s.time >= 0.25 && s.time < 0.65) {
-      this.emit('Uyumak için akşamı bekle. Dinlen düğmesini kullanabilirsin.');
-      return false;
-    }
+    const s = this.s, p = s.player, blocked=sleepBlockReason(s);
+    if(blocked){this.emit(blocked,'info');return false;}
     this.path = [];
     this.pending = null;
     this.fishing = null;
@@ -1750,6 +1735,9 @@ export class Engine {
     this.playerAction={kind:'sleeping',remaining:2};
     this.emit('Dinlendin. Yeni bir gün seni bekliyor.', 'good');
     return true;
+  }
+  cancelSleep() {
+    return this.network?.server ? this.network.send('cancelSleep',[]) : false;
   }
   recover() {
     if (this.s.mine) this.leaveMine(true);
