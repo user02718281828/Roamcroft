@@ -17,9 +17,26 @@ test('pointer cancellation and released buttons cannot drift the camera',()=>{
  drag.begin(1,0,0,0);assert.equal(drag.end(1),true);drag.begin(1,0,0,0);drag.cancel();assert.equal(drag.end(1),false);
 });
 test('frame budget sheds expensive detail under sustained load and recovers conservatively',()=>{
- const budget=new FrameBudget();for(let i=0;i<200;i++)budget.sample(40);assert.equal(budget.tier,4);assert.equal(budget.scale,.45);
+ const budget=new FrameBudget();for(let i=0;i<200;i++)budget.sample(40);assert.equal(budget.tier,4);
  const before=budget.average;budget.sample(10000);assert.equal(budget.average,before);
- for(let i=0;i<4000;i++)budget.sample(16);assert.equal(budget.tier,0);assert.equal(budget.scale,1);
+ for(let i=0;i<4000;i++)budget.sample(16);assert.equal(budget.tier,0);
+});
+test('loading and menu timer frames never reduce visual quality or poison recovery',()=>{
+ const budget=new FrameBudget();
+ for(let cycle=0;cycle<20;cycle++){
+  for(let i=0;i<100;i++)budget.sample(110,false);
+  budget.sample(130,false); // First frame after returning to full-speed scheduling.
+  for(let i=0;i<60;i++)budget.sample(16.7);
+ }
+ assert.equal(budget.tier,0);assert.ok(budget.average<17);
+ for(let i=0;i<200;i++)budget.sample(40);
+ assert.equal(budget.tier,4);
+ for(let i=0;i<100;i++)budget.sample(100,false);
+ assert.equal(budget.tier,4); // A pause doesn't pretend sustained pressure has vanished.
+ for(let i=0;i<4000;i++)budget.sample(16);
+ assert.equal(budget.tier,0);
+ for(const ms of [NaN,Infinity,-1,0])assert.equal(budget.sample(ms),false);
+ assert.ok(Number.isFinite(budget.average));
 });
 
 test('00:43 is moonlit, noon is bright and sun travels east to west',()=>{

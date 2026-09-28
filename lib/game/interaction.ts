@@ -24,22 +24,23 @@ export class PointerDrag {
 }
 
 export class FrameBudget {
-  scale=1;
   tier=0;
   average=16.7;
   slow=0;
   healthy=0;
-  reset() {this.scale=1;this.tier=0;this.average=16.7;this.slow=0;this.healthy=0;}
-  sample(milliseconds:number) {
-    if (milliseconds<=0 || milliseconds>250) return false;
+  reset() {this.tier=0;this.average=16.7;this.slow=0;this.healthy=0;}
+  sample(milliseconds:number, eligible=true) {
+    // Loading, menu timers and background tabs are not rendering pressure.
+    if (!eligible) {this.average=16.7;this.slow=0;this.healthy=0;return false;}
+    if (!Number.isFinite(milliseconds) || milliseconds<=0 || milliseconds>250) return false;
     this.average=this.average*.9+milliseconds*.1;
     this.slow=this.average>25 ? this.slow+milliseconds : 0;
     this.healthy=this.average<19 ? this.healthy+milliseconds : 0;
     if (this.slow>500 && this.tier<4) {
-      this.tier++; this.scale=[1,.85,.7,.55,.45][this.tier]; this.slow=0; this.healthy=0; return true;
+      this.tier++; this.slow=0; this.healthy=0; return true;
     }
     if (this.healthy>12000 && this.tier>0) {
-      this.tier--; this.scale=[1,.85,.7,.55,.45][this.tier]; this.healthy=0; return true;
+      this.tier--; this.healthy=0; return true;
     }
     return false;
   }

@@ -1391,7 +1391,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.11.0
+                  Roamcroft · 1.11.1
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

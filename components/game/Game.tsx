@@ -338,8 +338,8 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                 return;
               }
               const b = buildingAt(e.s, x, z);
-              if (b && control.current.tool === 'hand') {
-                if(orchardStatus(b,e.s)?.ready){e.go(x,z,'hand');return;}
+              if (b && control.current.tool !== 'build') {
+                if(control.current.tool==='hand'&&orchardStatus(b,e.s)?.ready){e.go(x,z,'hand');return;}
                 setSelectedBuilding(b.id);
                 setPanel('building');
                 return;
@@ -353,7 +353,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
           scene.current = view;
           if(window.matchMedia(MOBILE_QUERY).matches)view.setZoom(-4);
           view.setQuality(renderSettings.current.high);
-          let worldReady=false,lastProgress=-1,lastPausedView='';
+          let worldReady=false,lastProgress=-1,lastPausedView='',continuousFrame=false;
           const initialChunks=view.dirtyChunks.size;
           const loop = (now: number) => {
             if (disposed) return;
@@ -406,7 +406,8 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                 : null;
             const pausedView=[view.target.x,view.target.z,view.angle,view.zoom,view.highQuality,view.canvas.width,view.canvas.height].join(',');
             if (!document.hidden && (!worldReady || !control.current.paused || authority.current?.shared || pausedView!==lastPausedView)){
-              view.render(control.current.paused&&!authority.current?.shared ? 0 : dt, frameDuration);
+              view.render(control.current.paused&&!authority.current?.shared ? 0 : dt, frameDuration,
+                worldReady&&!control.current.paused&&continuousFrame);
               lastPausedView=pausedView;
             }
             if(!worldReady){
@@ -482,6 +483,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               else setTimeout(storeSave, 50);
               saveClock = 0;
             }
+            continuousFrame=worldReady&&!control.current.paused&&!document.hidden;
             if(worldReady&&(control.current.paused||document.hidden))wakeTimer=window.setTimeout(()=>{frame=requestAnimationFrame(loop);},document.hidden?500:100);
             else frame = requestAnimationFrame(loop);
           };

@@ -39,7 +39,6 @@ export class ValleyScene {
   arrivalPending = false;
   placementRotation = 0;
   placementCorner = false;
-  adaptiveScale = 1;
   frameAverage = 16;
   contextLost = false;
   adaptiveClock = 0;
@@ -1884,7 +1883,6 @@ export class ValleyScene {
   }
   setQuality(high: boolean) {
     this.highQuality = high;
-    this.adaptiveScale = 1;
     this.budget?.reset();
     this.renderer.shadowMap.enabled = high;
     this.renderer.setPixelRatio(
@@ -2206,7 +2204,7 @@ export class ValleyScene {
       }this.fishSchool!.instanceMatrix.needsUpdate=true;
     }
   }
-  render(dt: number, frameDuration = dt) {
+  render(dt: number, frameDuration = dt, sampleBudget = true) {
     if (this.contextLost) return;
     if (this.confetti && this.confettiLife > 0) {
       const delta = Math.min(0.08, frameDuration),
@@ -2552,13 +2550,11 @@ export class ValleyScene {
     this.metrics.triangles = this.renderer.info.render.triangles;
     this.metrics.frameMs = this.frameAverage;
     this.metrics.chunks = this.chunkMeshes.size;
-    if (this.budget.sample(frameDuration*1000)) {
-      this.adaptiveScale=this.budget.scale;
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,this.highQuality ? 1.35 : 1)*this.adaptiveScale);
+    if (this.budget.sample(frameDuration*1000,sampleBudget)) {
+      // Keep the player's chosen resolution. Shed effects, not image clarity.
       this.renderer.shadowMap.enabled=this.highQuality && this.budget.tier<2;
       this.renderer.shadowMap.needsUpdate=true;
       this.flowers.visible=this.budget.tier<3;
-      this.resize(this.canvas.parentElement!);
     }
     this.frameAverage=this.budget.average;
 

@@ -1,5 +1,11 @@
 # Değişiklikler
 
+## 1.11.1 — Berrak Vadi · 28 Eylül 2026
+
+- Görüntü çözünürlüğü oyun sırasında otomatik olarak küçültülmez. Yük altında gölge ve çevre efektleri azaltılır; seçilen netlik korunur.
+- Menü, yükleme, arka plan ve yeniden devam edilen ilk kare performans bütçesini düşürmez.
+- Balta, kazma ve diğer elde tutulan araçlarla binaların yönetim ekranı açılır. İnşa yerleştirmesi ve boş elle meyve toplama davranışı korunur.
+
 ## 1.11.0 — Aynı Sabah · 28 Eylül 2026
 
 - Ortak uyku: akşam evin yakınındaki tüm bağlı oyuncular hazır olduğunda tek bir sabaha geçilir. Uzaklaşma, kopma, yeni katılım veya süre aşımı onayları sıfırlar.
