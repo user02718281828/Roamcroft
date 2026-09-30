@@ -143,9 +143,11 @@ test('quality modes share direct rendering and cap pixel density', () => {
         setPixelRatio: (n: number) => (density = n),
       },
       canvas: { parentElement: {} },
+      flowers: { visible: false },
       resize: () => sizes++,
     });
     view.setQuality(true);
+    assert.equal(view.flowers.visible,true);
     assert.equal(view.renderer.shadowMap.enabled, true);
     assert.equal(density, 1.35);
     view.setQuality(false);

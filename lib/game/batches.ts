@@ -1,7 +1,7 @@
 import * as T from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-type Slot = { bucket: Bucket; index: number };
+type Slot = { bucket: Bucket; index: number; chunk:string; matrix:T.Matrix4; color:T.Color; bounds:T.Box3 };
 type Bucket = { mesh: T.InstancedMesh; slots: Slot[] };
 const color = new T.Color();
 
@@ -11,19 +11,41 @@ export class WorldBatches {
   buckets = new Map<string, Bucket>();
   chunks = new Map<string, Slot[]>();
   root: T.Group;
+  visibleChunks: Set<string> | null = null;
+  view:T.Frustum|null=null;
+  private viewKey='';
+  setView(view:T.Frustum,key:string){
+    if(key===this.viewKey)return false;
+    this.viewKey=key;this.view=view.clone();this.refresh();return true;
+  }
+  setVisibleChunks(keys:Set<string>) {
+    if(this.visibleChunks&&keys.size===this.visibleChunks.size&&[...keys].every(key=>this.visibleChunks!.has(key)))return false;
+    this.visibleChunks=keys;this.refresh();return true;
+  }
+  private refresh() {
+    for(const {mesh,slots} of this.buckets.values()){
+      let count=0;
+      for(const slot of slots)if((!this.visibleChunks||this.visibleChunks.has(slot.chunk))&&(!this.view||this.view.intersectsBox(slot.bounds))){
+        mesh.setMatrixAt(count,slot.matrix);mesh.setColorAt(count++,slot.color);
+      }
+      mesh.count=count;mesh.instanceMatrix.needsUpdate=true;
+      mesh.instanceMatrix.clearUpdateRanges();
+      if(count)mesh.instanceMatrix.addUpdateRange(0,count*16);
+      if(mesh.instanceColor){
+        mesh.instanceColor.clearUpdateRanges();
+        if(count)mesh.instanceColor.addUpdateRange(0,count*3);
+        mesh.instanceColor.needsUpdate=true;
+      }
+    }
+  }
   constructor(root: T.Group) {
     this.root = root;
   }
-  remove(key: string) {
+  remove(key: string, refresh=true) {
     for (const slot of this.chunks.get(key) ?? []) {
       const { bucket, index } = slot;
       const last = bucket.slots.pop()!;
       if (last !== slot) {
-        const matrix = new T.Matrix4();
-        bucket.mesh.getMatrixAt(last.index, matrix);
-        bucket.mesh.getColorAt(last.index, color);
-        bucket.mesh.setMatrixAt(index, matrix);
-        bucket.mesh.setColorAt(index, color);
         last.index = index;
         bucket.slots[index] = last;
       }
@@ -33,14 +55,18 @@ export class WorldBatches {
         bucket.mesh.instanceColor.needsUpdate = true;
     }
     this.chunks.delete(key);
+    if(refresh)this.refresh();
   }
   replace(key: string, objects: T.Mesh[]) {
-    this.remove(key);
+    this.remove(key,false);
     const slots: Slot[] = [];
+    const partBounds=new T.Box3();
     for (const object of objects) {
+      if(!object.geometry.boundingBox)object.geometry.computeBoundingBox();
+      partBounds.copy(object.geometry.boundingBox!).applyMatrix4(object.matrixWorld);
       const source = object.material as T.MeshStandardMaterial;
-      const key = `${object.geometry.uuid}:${source.map?.uuid ?? ''}:${source.emissive.getHex()}`;
-      let bucket = this.buckets.get(key);
+      const materialKey = `${object.geometry.uuid}:${source.map?.uuid ?? ''}:${source.emissive.getHex()}`;
+      let bucket = this.buckets.get(materialKey);
       if (!bucket) {
         const material = source.clone();
         material.color.set(0xffffff);
@@ -48,12 +74,11 @@ export class WorldBatches {
         mesh.count = 0;
         mesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
         mesh.castShadow = mesh.receiveShadow = true;
-        // The active world is bounded. Avoid recomputing an O(n) sphere on
-        // every crop change; the renderer clips the individual triangles.
+        // setView compacts visible instances while preserving the source slots.
         mesh.frustumCulled = false;
         this.root.add(mesh);
         bucket = { mesh, slots: [] };
-        this.buckets.set(key, bucket);
+        this.buckets.set(materialKey, bucket);
       }
       if (bucket.slots.length === bucket.mesh.instanceMatrix.count) {
         const previous = bucket.mesh;
@@ -73,7 +98,7 @@ export class WorldBatches {
         this.root.add(replacement);
         bucket.mesh = replacement;
       }
-      const slot = { bucket, index: bucket.slots.length };
+      const slot = { bucket, index: bucket.slots.length, chunk:key, matrix:object.matrixWorld.clone(), color:source.color.clone(), bounds:partBounds.clone().expandByScalar(2) };
       bucket.slots.push(slot);
       slots.push(slot);
       bucket.mesh.setMatrixAt(slot.index, object.matrixWorld);
@@ -83,6 +108,7 @@ export class WorldBatches {
       bucket.mesh.instanceColor!.needsUpdate = true;
     }
     this.chunks.set(key, slots);
+    this.refresh();
   }
   dispose() {
     for (const { mesh } of this.buckets.values()) {

@@ -47,6 +47,25 @@ test('differently colored regions share draws and slot compaction preserves rema
   materials.forEach((m) => m.dispose());
 });
 
+test('camera culling preserves hidden instances across removal, growth and replacement',()=>{
+  const pool=new WorldBatches(new T.Group()),geometry=new T.BoxGeometry(),material=new T.MeshStandardMaterial({color:0x12ab34});
+  const make=(start:number,count:number)=>Array.from({length:count},(_,i)=>{const m=new T.Mesh(geometry,material);m.position.x=start+i;m.updateMatrixWorld(true);return m;});
+  pool.replace('near',make(0,50));pool.replace('far',make(100,1100));
+  const batch=()=>[...pool.buckets.values()][0].mesh;
+  assert.equal(batch().count,1150);
+  assert.equal(pool.setVisibleChunks(new Set(['near'])),true);assert.equal(batch().count,50);
+  assert.equal(pool.setVisibleChunks(new Set(['near'])),false);
+  pool.remove('near');assert.equal(batch().count,0);
+  pool.replace('near',make(-20,10));assert.equal(batch().count,10);
+  pool.replace('far',make(2000,1300));assert.equal(batch().count,10);
+  pool.setVisibleChunks(new Set(['far']));assert.equal(batch().count,1300);
+  const matrix=new T.Matrix4(),color=new T.Color();
+  for(let i=0;i<1300;i++){batch().getMatrixAt(i,matrix);batch().getColorAt(i,color);assert.equal(matrix.elements[12],2000+i);assert.equal(color.getHex(),0x12ab34);}
+  pool.setVisibleChunks(new Set(['near','far']));assert.equal(batch().count,1310);
+  pool.setVisibleChunks(new Set());assert.equal(batch().count,0);
+  pool.dispose();geometry.dispose();material.dispose();
+});
+
 test('animals walk continuously, explore pasture, respect obstacles and return at night', () => {
   const e = new Engine(createState());
   e.s.gold = 10000;
@@ -157,4 +176,27 @@ test('new worlds have crossable rivers while the original generator stays compat
   assert.equal(generatedTile(84621, 122, 0, 1).terrain, 'grass');
   for (let x = 117; x <= 128; x++)
     assert.notEqual(generatedTile(84621, x, 6, 2).terrain, 'water');
+});
+
+test('view culling hides individual offscreen meshes without losing edited resources',()=>{
+ const pool=new WorldBatches(new T.Group()),geometry=new T.BoxGeometry(),material=new T.MeshStandardMaterial();
+ const mesh=(x:number)=>{const m=new T.Mesh(geometry,material);m.position.set(x,0,0);m.updateMatrixWorld(true);return m;};
+ const camera=new T.OrthographicCamera(-5,5,5,-5,.1,30);camera.position.set(0,0,10);camera.lookAt(0,0,0);camera.updateMatrixWorld();
+ const frustum=new T.Frustum().setFromProjectionMatrix(new T.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
+ pool.replace('one-region',[mesh(0),mesh(20)]);
+ pool.setView(frustum,'origin');const batch=[...pool.buckets.values()][0].mesh;assert.equal(batch.count,1);
+ pool.replace('one-region',[mesh(1),mesh(21)]);assert.equal(batch.count,1);
+ camera.position.x=20;camera.lookAt(20,0,0);camera.updateMatrixWorld();frustum.setFromProjectionMatrix(new T.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
+ pool.setView(frustum,'east');assert.equal(batch.count,1);const matrix=new T.Matrix4();batch.getMatrixAt(0,matrix);assert.equal(matrix.elements[12],21);
+ assert.equal(pool.setView(frustum,'east'),false);
+ pool.remove('one-region');assert.equal(batch.count,0);pool.dispose();geometry.dispose();material.dispose();
+});
+
+test('detailed quality remains selected under sustained frame pressure',()=>{
+ const view=Object.create(ValleyScene.prototype) as ValleyScene;
+ view.highQuality=true;
+ view.budget={tier:4} as ValleyScene['budget'];
+ assert.equal(view.detailTier,0);
+ view.highQuality=false;assert.equal(view.detailTier,4);
+ view.highQuality=true;assert.equal(view.detailTier,0);
 });

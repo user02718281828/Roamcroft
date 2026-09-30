@@ -193,6 +193,12 @@ export default function Panels({
       >
         <SheetContent className="game-panel" data-panel={panel} showCloseButton>
           <SheetHeader className="panel-header">
+            <label className="mobile-panel-picker">
+              <span>Bölüm</span>
+              <select aria-label="Oyun menüsü" value={panel||'inventory'} onChange={event=>setPanel(event.target.value as Panel)}>
+                {Object.entries(titles).filter(([id])=>(id!=='online'||engine.network?.server)&&(id!=='building'||!!b)).map(([id,[title]])=><option key={id} value={id}>{title}</option>)}
+              </select>
+            </label>
             <span className="eyebrow">Roamcroft</span>
             <SheetTitle>{panel ? titles[panel][0] : ''}</SheetTitle>
             <SheetDescription>{panel ? titles[panel][1] : ''}</SheetDescription>
@@ -206,7 +212,7 @@ export default function Panels({
           <div className="panel-pause">
             <Clock size={13} /> {engine.network?.shared?'Sen beklemedesin · Ortak dünya açık':coop?.active ? 'Ortak dünya · Ev sahibi zamanın akışını yönetir' : 'Duraklatıldı'} <span className="keyboard-hint">· Tab: kapat · Q / E: sekme değiştir</span>
           </div>
-          <div className="panel-body">
+          <div className="panel-body" key={panel}>
             {panel === 'online' && engine.network?.server && <FriendLobby engine={engine} onEnter={()=>setPanel(null)}/>}
             {panel === 'bundles' && <BundlesPanel engine={engine} />}
             {panel === 'mine' && (
@@ -1332,8 +1338,8 @@ export default function Panels({
                   <h3>Görüntü kalitesi</h3>
                   <p>
                     Ayrıntılı mod, yumuşak güneş gölgeleri ve daha keskin
-                    görüntü sağlar. Çözünürlük, cihazının hızına göre otomatik
-                    dengelenir.
+                    görüntü sağlar. Seçtiğin netlik ve ayrıntılar oyun sırasında
+                    otomatik olarak azaltılmaz.
                   </p>
                   <label className="quality-setting">
                     <span>Ayrıntılı görüntü</span>
@@ -1391,7 +1397,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.11.1
+                  Roamcroft · 1.11.2
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

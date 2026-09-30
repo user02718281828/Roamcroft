@@ -1,5 +1,12 @@
 # Değişiklikler
 
+## 1.11.2 — Hafif Adımlar · 30 Eylül 2026
+
+- Ekran dışındaki dünya modelleri çizim tamponundan çıkarılır; kamera döndüğünde, yürürken ve yakınlaştırırken tekrar görünür. Kaynak modeller, renkler ve dünya değişiklikleri korunur.
+- Ayrıntılı modda yük nedeniyle gölge, çiçek ve ortam animasyonları otomatik kapatılmaz. Görüntü çözünürlüğü düşürülmez; ekran dışındaki gereksiz çizim yükü azaltılır.
+- Mobil menülerde yan sekmeler yerine 44 piksel yüksekliğinde tek bölüm seçicisi kullanılır. İçerik tam genişlikte kayar; yatay ekranda kartlar iki sütuna yerleşir ve bölüm değişince kaydırma başa döner.
+- Çizim yükü, kare süresi ve görünür nesne sayıları için saniyelik tanılama; kaynak dönüşümleri ve ayrıntılı mod için regresyon testleri. Ölçümler ve sınırlar: `docs/verification-1.11.2.md`.
+
 ## 1.11.1 — Berrak Vadi · 28 Eylül 2026
 
 - Görüntü çözünürlüğü oyun sırasında otomatik olarak küçültülmez. Yük altında gölge ve çevre efektleri azaltılır; seçilen netlik korunur.

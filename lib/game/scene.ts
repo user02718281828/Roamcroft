@@ -33,6 +33,7 @@ import type { Engine, Tile, Building, Animal, Enemy } from './model.ts';
 // All world objects are interactive, procedural meshes. No remote assets are required.
 export class ValleyScene {
   highQuality = true;
+  get detailTier(){return this.highQuality?0:this.budget.tier;}
   budget = new FrameBudget();
   drag = new PointerDrag();
   pinch = new PinchGesture();
@@ -40,6 +41,9 @@ export class ValleyScene {
   placementRotation = 0;
   placementCorner = false;
   frameAverage = 16;
+  diagnosticsClock = 0;
+  viewFrustum = new T.Frustum();
+  viewProjection = new T.Matrix4();
   contextLost = false;
   adaptiveClock = 0;
   worldBatches?: WorldBatches;
@@ -1884,6 +1888,7 @@ export class ValleyScene {
   setQuality(high: boolean) {
     this.highQuality = high;
     this.budget?.reset();
+    this.flowers.visible=true;
     this.renderer.shadowMap.enabled = high;
     this.renderer.setPixelRatio(
       Math.min(window.devicePixelRatio, high ? 1.35 : 1),
@@ -2184,8 +2189,8 @@ export class ValleyScene {
     for(const a of s.animals){if(this.affectionHearts!.count>=32)break;if((this.engine.animalMotion.get(a.id)?.happy||0)<=0||Math.hypot(a.x-p.x,a.z-p.z)>15)continue;
       d.position.set(a.x,(tileAt(s,a.x,a.z)?.height||0)+1.3+Math.sin(this.time*3)*.1,a.z);d.rotation.copy(this.camera.rotation);d.scale.setScalar(.2);d.updateMatrix();this.affectionHearts!.setMatrixAt(this.affectionHearts!.count++,d.matrix);
     }this.affectionHearts!.instanceMatrix.needsUpdate=true;
-    this.butterflies.visible=!s.mine&&daylight>.2&&this.budget.tier<3;
-    this.fallingLeaves!.visible=!s.mine&&season(s)===2&&this.budget.tier<3;this.fallingLeaves!.count=0;
+    this.butterflies.visible=!s.mine&&daylight>.2&&this.detailTier<3;
+    this.fallingLeaves!.visible=!s.mine&&season(s)===2&&this.detailTier<3;this.fallingLeaves!.count=0;
     if(this.fallingLeaves!.visible){for(const a of this.natureAnchors){if(tileAt(s,a.x,a.z)?.terrain!=='grass')continue;const drift=(this.time*.16+a.phase)%1;d.position.set(a.x+Math.sin(drift*5+a.phase)*.35,1.9*(1-drift)+.15,a.z+drift*.5);d.rotation.set(drift*5,a.phase,drift*7);d.scale.setScalar(1);d.updateMatrix();this.fallingLeaves!.setMatrixAt(this.fallingLeaves!.count++,d.matrix);}this.fallingLeaves!.instanceMatrix.needsUpdate=true;}
     if(this.butterflies.visible){
       this.butterflies.count=0;
@@ -2194,7 +2199,7 @@ export class ValleyScene {
         for(const side of [-1,1]){d.position.set(pos.x+side*.04,pos.y,pos.z);d.rotation.set(-.6,side*(.5+Math.sin(this.time*13+a.phase)*.7),a.phase);d.scale.set(.095,.065,1);d.updateMatrix();this.butterflies.setMatrixAt(this.butterflies.count++,d.matrix);}
       }this.butterflies.instanceMatrix.needsUpdate=true;
     }
-    this.fishSchool!.visible=!s.mine&&this.budget.tier<3;this.fishSchool!.count=0;
+    this.fishSchool!.visible=!s.mine&&this.detailTier<3;this.fishSchool!.count=0;
     if(this.fishSchool!.visible){
       // Four fish at most; tile lookup bounds the effect without scanning the map.
       for(let i=0;i<4;i++){
@@ -2264,10 +2269,10 @@ export class ValleyScene {
           a.z,
         );
         if (motion) {
-          for(const name of ['leg-lb','leg-lf','leg-rb','leg-rf']){const leg=g.getObjectByName(name);if(leg){leg.visible=Math.hypot(a.x-this.target.x,a.z-this.target.z)<12&&this.budget.tier<3;const target=motion.moving?Math.sin(this.time*(motion.mood==='fleeing'||motion.mood==='running'?16:9)+a.id+(name==='leg-lb'||name==='leg-rf'?Math.PI:0))*.5:0;leg.rotation.x+=(target-leg.rotation.x)*(1-Math.exp(-dt*18));}}
+          for(const name of ['leg-lb','leg-lf','leg-rb','leg-rf']){const leg=g.getObjectByName(name);if(leg){leg.visible=Math.hypot(a.x-this.target.x,a.z-this.target.z)<12&&this.detailTier<3;const target=motion.moving?Math.sin(this.time*(motion.mood==='fleeing'||motion.mood==='running'?16:9)+a.id+(name==='leg-lb'||name==='leg-rf'?Math.PI:0))*.5:0;leg.rotation.x+=(target-leg.rotation.x)*(1-Math.exp(-dt*18));}}
           const head=g.getObjectByName('animal-head');
           if(head){const target=(motion.mood==='grazing'?.38:0)+Math.sin(this.time*(motion.moving?8:1.8)+a.id)*.07;head.rotation.x+=(target-head.rotation.x)*(1-Math.exp(-dt*10));head.rotation.y=Math.sin(this.time*1.5+a.id)*.05;}
-          const flourish=g.getObjectByName('animal-flourish');if(flourish){flourish.visible=Math.hypot(a.x-this.target.x,a.z-this.target.z)<15&&this.budget.tier<3;flourish.rotation.y=Math.sin(this.time*(a.type==='cow'?2:a.type==='sheep'?3:7)+a.id)*(a.type==='chicken'?.08:.3);if(a.type==='chicken')flourish.scale.x=1+(motion.mood==='happy'?Math.abs(Math.sin(this.time*14))*.7:0);}
+          const flourish=g.getObjectByName('animal-flourish');if(flourish){flourish.visible=Math.hypot(a.x-this.target.x,a.z-this.target.z)<15&&this.detailTier<3;flourish.rotation.y=Math.sin(this.time*(a.type==='cow'?2:a.type==='sheep'?3:7)+a.id)*(a.type==='chicken'?.08:.3);if(a.type==='chicken')flourish.scale.x=1+(motion.mood==='happy'?Math.abs(Math.sin(this.time*14))*.7:0);}
           if(head&&a.type==='chicken'&&motion.mood==='grazing')head.rotation.x=.15+Math.max(0,Math.sin(this.time*7+a.id))*.55;
           const difference = Math.atan2(
             Math.sin(motion.facing - g.rotation.y),
@@ -2413,6 +2418,10 @@ export class ValleyScene {
       this.target.z + Math.cos(this.angle) * 32,
     );
     this.camera.lookAt(this.target);
+    this.camera.updateMatrixWorld();
+    this.viewFrustum.setFromProjectionMatrix(this.viewProjection.multiplyMatrices(this.camera.projectionMatrix,this.camera.matrixWorldInverse));
+    const viewKey=[Math.round(this.target.x*2),Math.round(this.target.z*2),this.angle,this.zoom,this.width,this.height].join(',');
+    if(this.worldBatches?.setView(this.viewFrustum,viewKey))this.renderer.shadowMap.needsUpdate=true;
     this.hover.visible = !!this.hoverTile;
     if (this.hoverTile)
       this.hover.position.set(
@@ -2501,14 +2510,14 @@ export class ValleyScene {
     this.scene.background = sky;
     (this.scene.fog as T.FogExp2).color.copy(sky);
     for(const b of s.buildings){const entry=this.structures.get(b.id);if(!entry)continue;
-      const near=Math.hypot(b.x-this.target.x,b.z-this.target.z)<22&&this.budget.tier<3;
+      const near=Math.hypot(b.x-this.target.x,b.z-this.target.z)<22&&this.detailTier<3;
       animateWorkshop(entry.group,b,dt,near);
       const rotor=entry.group.userData.millRotor as T.Object3D|undefined;if(rotor&&near&&b.enabled&&b.hp>0&&b.processing)rotor.rotation.z+=dt*.7;
     }
     for(const {group} of this.structures.values()){const flame=group.getObjectByName('flame');if(flame){flame.scale.set(1+Math.sin(this.time*8)*.1,1+Math.sin(this.time*11)*.17,1);flame.rotation.z=Math.sin(this.time*7)*.08;for(const child of flame.children)if(child instanceof T.Mesh)(child.material as T.MeshStandardMaterial).emissiveIntensity=.65+Math.sin(this.time*13)*.18;}}
 
     this.clouds.update(this.target.x,this.target.z,s.seed,this.time,daylight);
-    this.clouds.visible=!s.mine&&s.weather!=='rain'&&this.budget.tier<4;
+    this.clouds.visible=!s.mine&&s.weather!=='rain'&&this.detailTier<4;
     const fogTarget=s.mine?.025:s.weather==='rain'?.024:daylight<.2?.018:.009;
     (this.scene.fog as T.FogExp2).density+=(fogTarget-(this.scene.fog as T.FogExp2).density)*(1-Math.exp(-dt));
     this.rain.visible = !s.mine && s.weather === 'rain';
@@ -2550,11 +2559,20 @@ export class ValleyScene {
     this.metrics.triangles = this.renderer.info.render.triangles;
     this.metrics.frameMs = this.frameAverage;
     this.metrics.chunks = this.chunkMeshes.size;
+    this.diagnosticsClock+=dt;
+    if(this.diagnosticsClock>=1){
+      let visibleInstances=0,totalInstances=0,worldTriangles=0,unculledWorldTriangles=0;
+      for(const {mesh,slots} of this.worldBatches?.buckets.values()||[]){
+        visibleInstances+=mesh.count;totalInstances+=slots.length;
+        const faces=(mesh.geometry.index?.count||mesh.geometry.attributes.position.count)/3;
+        worldTriangles+=faces*mesh.count;unculledWorldTriangles+=faces*slots.length;
+      }
+      this.canvas.dataset.renderStats=JSON.stringify({...this.metrics,pixels:this.canvas.width*this.canvas.height,tier:this.detailTier,visibleInstances,totalInstances,worldTriangles,unculledWorldTriangles});
+      this.diagnosticsClock=0;
+    }
     if (this.budget.sample(frameDuration*1000,sampleBudget)) {
-      // Keep the player's chosen resolution. Shed effects, not image clarity.
-      this.renderer.shadowMap.enabled=this.highQuality && this.budget.tier<2;
-      this.renderer.shadowMap.needsUpdate=true;
-      this.flowers.visible=this.budget.tier<3;
+      // Respect detailed mode; optional effects adapt only in the lower quality mode.
+      this.flowers.visible=this.detailTier<3;
     }
     this.frameAverage=this.budget.average;
 
