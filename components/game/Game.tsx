@@ -99,7 +99,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     allowSave = useRef(true),
     coop = useRef<CoopClient | null>(null);
   const authority=useRef<ServerWorldClient|null>(null);
-  const renderSettings = useRef({ high: true });
+  const renderSettings = useRef({ high: false });
   const [storageReady, setStorageReady] = useState(false);
   const initialMessage = useRef('');
   useEffect(() => {
@@ -141,7 +141,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     [selectedBuilding, setSelectedBuilding] = useState<number | null>(null),
     [selectedNPC, setSelectedNPC] = useState('narin'),
     [sound, setSoundState] = useState(false),
-    [quality, setQuality] = useState(true),
+    [quality, setQuality] = useState(false),
     [compactHud, setCompactHud] = useState(false),
     [saveStatus, setSaveStatus] = useState(''),
     [hover, setHover] = useState<{ x: number; z: number } | null>(null),

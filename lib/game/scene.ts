@@ -1,6 +1,7 @@
 import * as T from 'three';
 import {frameProfile,GpuTimer} from './profile.ts';
 import {AnimalBatches} from './actor-batches.ts';
+import {AnimalPresentation} from './animal-presentation.ts';
 import { RemoteMotion } from '../coop/motion.ts';
 import { cottage, fruitTree } from './art-direction.ts';
 import { orchardStatus } from './orchard.ts';
@@ -38,7 +39,7 @@ const terrainSlot=(s:Engine['s'],x:number,z:number)=>{const n=worldSize(s);retur
 export class ValleyScene {
   gpuTimer?:GpuTimer;
   animalBatches?:AnimalBatches;
-  highQuality = true;
+  highQuality = false;
   get detailTier(){return this.highQuality?0:this.budget.tier;}
   budget = new FrameBudget();
   drag = new PointerDrag();
@@ -2286,14 +2287,19 @@ export class ValleyScene {
       const g = this.creatures.get(`a${a.id}`);
       if (g) {
         g.scale.setScalar(s.day - (a.bornDay ?? -3) < 2 ? 0.6 : 1);
-        const motion = this.engine.animalMotion.get(a.id);
+        let position:{x:number;z:number}=a;
+        let motion:Pick<AnimalPresentation,'moving'|'facing'|'mood'>|undefined=this.engine.animalMotion.get(a.id);
+        if(this.engine.network?.guest){
+          const presentation:AnimalPresentation=g.userData.animalPresentation??=new AnimalPresentation(a);
+          position=presentation.sample(a,dt,s.time<.25||s.time>.8);motion=presentation;
+        }else delete g.userData.animalPresentation;
         const bob = motion?.moving
           ? Math.abs(Math.sin(this.time * 10 + a.id)) * 0.025
           : 0;
         g.position.set(
-          a.x,
-          (tileAt(s, a.x, a.z)?.height || 0) + 0.04 + bob,
-          a.z,
+          position.x,
+          (tileAt(s, position.x, position.z)?.height || 0) + 0.04 + bob,
+          position.z,
         );
         if (motion) {
           for(const name of ['leg-lb','leg-lf','leg-rb','leg-rf']){const leg=g.getObjectByName(name);if(leg){leg.visible=Math.hypot(a.x-this.target.x,a.z-this.target.z)<12&&this.detailTier<3;const target=motion.moving?Math.sin(this.time*(motion.mood==='fleeing'||motion.mood==='running'?16:9)+a.id+(name==='leg-lb'||name==='leg-rf'?Math.PI:0))*.5:0;leg.rotation.x+=(target-leg.rotation.x)*(1-Math.exp(-dt*18));}}
@@ -2308,7 +2314,7 @@ export class ValleyScene {
           g.rotation.y += difference * Math.min(1, dt * 7);
           const pose=animalPose(motion.mood,this.time+a.id);
           g.rotation.x=pose.pitch;g.rotation.z=pose.roll;g.scale.y*=pose.squash;
-          g.position.y=(tileAt(s,a.x,a.z)?.height||0)+.04+pose.height;
+          g.position.y=(tileAt(s,position.x,position.z)?.height||0)+.04+pose.height;
 
         }
       }

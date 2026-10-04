@@ -100,6 +100,7 @@ void test('four-client network matrix: latency, jitter, loss, reorder, duplicate
         cost: number[] = [],
         errors: number[] = [],
         steps: number[] = [];
+      let deliveredAt=0;
       let ordinal = 0,
         lastDisplay: { x: number; z: number } | null = null;
       const enqueue = (now: number, run: () => void) => {
@@ -134,7 +135,7 @@ void test('four-client network matrix: latency, jitter, loss, reorder, duplicate
           }
         }
         queue.sort((a, b) => a.at - b.at);
-        while (queue[0]?.at <= now) queue.shift()!.run();
+        while (queue[0]?.at <= now) {deliveredAt=now;queue.shift()!.run();}
         if (elapsed % 50 === 0) {
           const started = performance.now();
           room.step(now);
@@ -144,12 +145,12 @@ void test('four-client network matrix: latency, jitter, loss, reorder, duplicate
           for (let i = 0; i < 4; i++) {
             const packet = room.snapshot(ids[i], now);
             enqueue(now, () => {
-              if (!links[i].snapshot(packet.tick)) return;
+              if (!links[i].snapshot(packet.tick,deliveredAt)) return;
               const p = packet.peers.find((p) => p.id === hellos[i].self)!;
               const correction = predictors[i].reconcile(p.ack, p.player);
               errors.push(Math.hypot(correction.x, correction.z));
               const peer = packet.peers[(i + 1) % 4];
-              motions[i].push(peer.player, packet.tick, now + latency / 2);
+              motions[i].push(peer.player, packet.tick, deliveredAt);
             });
           }
         if (elapsed % 1000 === 0)

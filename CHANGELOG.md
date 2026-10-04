@@ -1,5 +1,12 @@
 # Değişiklikler
 
+## 1.11.4 — Sakin Akış · 4 Ekim 2026
+
+- Oyun ayrıntılı görüntü kapalı, dengeli modda başlar. Ayarlardan ayrıntılı mod elle açılabilir.
+- Online tampon, sabit RTT yerine son 40 dünya hareketi paketinin geliş düzensizliği ve kayıplarına uyum sağlar. İlk bağlantının 650 ms güvenli başlangıcı korunur; kararlı akışta kademeli olarak 120 ms'ye iner. Eski kesintiler tamponu kalıcı olarak yüksek tutmaz.
+- Online hayvan konumları görüntü tarafında yumuşatılır; seyrek dünya güncellemeleri modeli doğrudan sıçratmaz. Yürüme/dinlenme animasyonları görsel harekete bağlanır. Gerçek konum, ürünler, etkileşimler ve kayıt sunucu kontrolünde kalır.
+- Ağ RTT'si, paket geliş düzensizliği ve tampon ayrı gösterilir. Gerçek kullanıcı bağlantısındaki RTT'nin düştüğü iddia edilmez.
+
 ## 1.11.3 — Akıcı Vadi · 4 Ekim 2026
 
 - Hayvanların eklem animasyonları korunarak aynı türün parçaları toplu çizilir; ekran dışındaki hayvanlar çizimden çıkarılır.

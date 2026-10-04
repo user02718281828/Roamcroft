@@ -1337,7 +1337,7 @@ export default function Panels({
                 <div className="settings-section">
                   <h3>Görüntü kalitesi</h3>
                   <p>
-                    Ayrıntılı mod, yumuşak güneş gölgeleri ve daha keskin
+                    Oyun dengeli modda başlar. Ayrıntılı mod, yumuşak güneş gölgeleri ve daha keskin
                     görüntü sağlar. Seçtiğin netlik ve ayrıntılar oyun sırasında
                     otomatik olarak azaltılmaz.
                   </p>
@@ -1397,7 +1397,7 @@ export default function Panels({
                   </button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.11.3
+                  Roamcroft · 1.11.4
                   <br />
                   Özgün dünya, modeller ve müzik.
                   <br />

@@ -167,7 +167,7 @@ export class ServerWorldClient {
     if(this.realtime){
       const m=this.realtime.metrics;
       this.status=this.realtime.ready
-        ? `Ortak çiftlik · ${this.peers.length+1}/4 · RTT ${Math.round(m.rtt)} ms · ±${Math.round(m.jitter)} · tampon ${Math.round(m.buffer)} ms`
+        ? `Ortak çiftlik · ${this.peers.length+1}/4 · RTT ${Math.round(m.rtt)} ms · akış ±${Math.round(m.arrivalJitter)} ms · tampon ${Math.round(m.buffer)} ms`
         : 'Gerçek zamanlı bağlantı yeniden kuruluyor…';
       return;
     }

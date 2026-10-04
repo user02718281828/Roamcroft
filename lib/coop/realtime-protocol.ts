@@ -50,6 +50,10 @@ export class LinkMetrics {
   lastTick = -1;
   private lastRtt = 0;
   private interpolation = 650;
+  private lastArrival = -1;
+  private arrivalWindow: { jitter: number; gaps: number }[] = [];
+  arrivalJitter = 0;
+  recentLoss = 0;
   sampleRtt(ms: number) {
     if (!Number.isFinite(ms) || ms < 0 || ms > 15000) return;
     this.jitter = this.lastRtt
@@ -58,13 +62,32 @@ export class LinkMetrics {
     this.rtt = this.rtt ? 0.8 * this.rtt + 0.2 * ms : ms;
     this.lastRtt = ms;
   }
-  snapshot(tick: number) {
+  snapshot(tick: number, arrived = performance.now()) {
     if (tick <= this.lastTick) {
       this.stale++;
       return false;
     }
     const elapsed =
       this.lastTick >= 0 ? Math.min(500, (tick - this.lastTick) * TICK_MS) : 0;
+    if (this.lastTick >= 0) {
+      const span = (tick - this.lastTick) * TICK_MS;
+      const gaps = Math.max(
+        0,
+        Math.round((tick - this.lastTick) / SNAPSHOT_TICKS) - 1,
+      );
+      this.arrivalWindow.push({
+        jitter: Math.abs(arrived - this.lastArrival - span),
+        gaps,
+      });
+      if (this.arrivalWindow.length > 40) this.arrivalWindow.shift();
+      const sorted = this.arrivalWindow
+        .map((s) => s.jitter)
+        .sort((a, b) => a - b);
+      this.arrivalJitter = sorted[Math.ceil(sorted.length * 0.95) - 1];
+      const missed = this.arrivalWindow.reduce((sum, s) => sum + s.gaps, 0);
+      this.recentLoss = missed / (this.arrivalWindow.length + missed);
+    }
+    this.lastArrival = arrived;
     if (this.lastTick >= 0)
       this.gaps += Math.max(
         0,
@@ -73,13 +96,15 @@ export class LinkMetrics {
     this.lastTick = tick;
     this.received++;
     const target =
-      this.received < 12 || !this.rtt
+      this.received < 12
         ? 650
         : Math.min(
             650,
             Math.max(
               120,
-              100 + this.rtt * 0.5 + this.jitter * 2 + this.loss * 250,
+              // Samples use local arrival timestamps: fixed transport delay is
+              // already included. Buffer arrival variation, not half the RTT again.
+              100 + this.arrivalJitter * 2 + this.recentLoss * 250,
             ),
           );
     this.interpolation += Math.max(
