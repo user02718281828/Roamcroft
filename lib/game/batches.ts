@@ -41,6 +41,7 @@ export class WorldBatches {
   constructor(root: T.Group) {
     this.root = root;
   }
+  removeMany(keys:string[]){for(const key of keys)this.remove(key,false);if(keys.length)this.refresh();}
   remove(key: string, refresh=true) {
     for (const slot of this.chunks.get(key) ?? []) {
       const { bucket, index } = slot;

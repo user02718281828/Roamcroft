@@ -1,4 +1,5 @@
 import type { State } from './model.ts';
+import {frameProfile} from './profile.ts';
 import {
   serialize,
   deserialize,
@@ -29,12 +30,13 @@ function openDatabase() {
 async function readSnapshot(key: string) {
   const db = await openDatabase();
   return new Promise<Snapshot | undefined>((resolve, reject) => {
-    const request = db
-      .transaction('saves', 'readonly')
-      .objectStore('saves')
-      .get(key);
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    const store=db.transaction('saves','readonly').objectStore('saves'),head=store.get('head');
+    head.onerror=()=>reject(head.error);
+    head.onsuccess=()=>{
+      const pointer=head.result as {current:string;backup:string}|undefined;
+      const request=store.get(pointer?(key==='current'?pointer.current:pointer.backup):key);
+      request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);
+    };
   });
 }
 export async function loadStored() {
@@ -76,10 +78,16 @@ export async function saveStored(state: State): Promise<boolean> {
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction('saves', 'readwrite'),
         store = tx.objectStore('saves');
-      const previous = store.get('current');
+      // Rotate immutable snapshots by a tiny pointer in the same transaction.
+      // The previous save remains the backup; it is never cloned back to JS.
+      const previous = store.get('head');
       previous.onsuccess = () => {
-        if (previous.result) store.put(previous.result, 'backup');
-        store.put({ state, savedAt: Date.now() } satisfies Snapshot, 'current');
+        const started=frameProfile.begin();
+        const old=previous.result as {current:string;backup:string}|undefined;
+        const current=old?.current==='snapshot-a'?'snapshot-b':'snapshot-a';
+        store.put({ state, savedAt: Date.now() } satisfies Snapshot,current);
+        store.put({current,backup:old?.current||'current'},'head');
+        frameProfile.end('saveCloneCpu',started);
       };
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);

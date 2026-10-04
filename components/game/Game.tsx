@@ -1,5 +1,7 @@
 'use client';
 import GameIcon from './GameIcon';
+import {frameProfile} from '@/lib/game/profile';
+import {profileFixture} from '@/lib/game/profile-fixture';
 import VillagerPortrait from './VillagerPortrait';
 import { orchardStatus } from '@/lib/game/orchard';
 import './menu.css';
@@ -83,6 +85,8 @@ import {
 import { registerGameTools } from '@/lib/game/webmcp';
 
 export default function Game({autoStart=false,serverMode=false,onExit}:{autoStart?:boolean;serverMode?:boolean;onExit?:()=>void}={}) {
+  const renderStarted=frameProfile.begin();
+  useEffect(()=>{frameProfile.mount();return()=>frameProfile.dispose();},[]);
   const exitPending=useRef(false);
   const host = useRef<HTMLDivElement>(null),
     mini = useRef<HTMLCanvasElement>(null),
@@ -107,8 +111,13 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     }
     void loadStored().then((loaded) => {
       if (canceled) return;
-      nextState.current = loaded.state;
-      initialMessage.current = loaded.message;
+      // Reproducible profiling fixture is restricted to local production previews.
+      const requestedFixture=new URLSearchParams(location.search).get('fixture');
+      const fixture=['localhost','127.0.0.1'].includes(location.hostname)&&['normal','dense'].includes(requestedFixture||'')&&requestedFixture;
+      if(fixture){
+        nextState.current=profileFixture(fixture==='dense');
+      }else nextState.current = loaded.state;
+      initialMessage.current = fixture?'Yerel performans test dünyası.':loaded.message;
       setStorageReady(true);
     });
     return () => {
@@ -356,6 +365,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
           let worldReady=false,lastProgress=-1,lastPausedView='',continuousFrame=false;
           const initialChunks=view.dirtyChunks.size;
           const loop = (now: number) => {
+            const loopStarted=frameProfile.begin();
             if (disposed) return;
             if (e.worldRevision > 0) {
               nextState.current = e.s;
@@ -394,10 +404,14 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                   -horizontal * Math.sin(angle) + vertical * Math.cos(angle),
                   dt*strength,
                 );
+              const simulationStarted=frameProfile.begin();
               e.tick(dt);
+              frameProfile.end('simulation',simulationStarted);
+              const audioStarted=frameProfile.begin();
               music.footsteps(e.s);
               saveClock += dt;
               music.tick(dt, e.s);
+              frameProfile.end('audio',audioStarted);
             }
             view.activeTool = control.current.tool;
             view.placement =
@@ -406,8 +420,10 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                 : null;
             const pausedView=[view.target.x,view.target.z,view.angle,view.zoom,view.highQuality,view.canvas.width,view.canvas.height].join(',');
             if (!document.hidden && (!worldReady || !control.current.paused || authority.current?.shared || pausedView!==lastPausedView)){
+              const sceneStarted=frameProfile.begin();
               view.render(control.current.paused&&!authority.current?.shared ? 0 : dt, frameDuration,
                 worldReady&&!control.current.paused&&continuousFrame);
+              frameProfile.end('scene',sceneStarted);
               lastPausedView=pausedView;
             }
             if(!worldReady){
@@ -418,6 +434,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
             }
             ui += dt;
             if (ui > 0.25) {
+              if(frameProfile.recording){const link=authority.current?.realtime?.metrics;frameProfile.metadata.network=link?{rttMs:link.rtt,jitterMs:link.jitter,interpolationMs:link.buffer,snapshotGaps:link.gaps,staleSnapshots:link.stale}:null;}
               music.ambience(
                 e.s,
                 {
@@ -433,7 +450,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                 setQuality(view.highQuality);
               }
               if(!control.current.paused||e.events.length)refresh((n) => n + 1);
-              if (mini.current&&!control.current.paused) view.drawMinimap(mini.current);
+              if (mini.current&&!control.current.paused) {const started=frameProfile.begin();view.drawMinimap(mini.current);frameProfile.end('minimap',started);}
               const nowMs = Date.now();
               if (e.events.length) {
                 const events = e.events.splice(0);
@@ -470,7 +487,9 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
             if (saveClock >= 15 && allowSave.current && !coop.current?.active) {
               const storeSave = async () => {
                 if (disposed) return;
+                const saveStarted=frameProfile.begin();
                 const saved = await saveStored(e.s);
+                frameProfile.end('saveWallTime',saveStarted);
                 setSaveStatus(
                   saved
                     ? 'Otomatik kaydedildi · ' +
@@ -483,6 +502,8 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               else setTimeout(storeSave, 50);
               saveClock = 0;
             }
+            frameProfile.end('rafCpu',loopStarted);
+            frameProfile.frame(frameDuration*1000,worldReady&&!control.current.paused&&!document.hidden&&continuousFrame);
             continuousFrame=worldReady&&!control.current.paused&&!document.hidden;
             if(worldReady&&(control.current.paused||document.hidden))wakeTimer=window.setTimeout(()=>{frame=requestAnimationFrame(loop);},document.hidden?500:100);
             else frame = requestAnimationFrame(loop);
@@ -615,6 +636,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
       : tool === 'fertilize'
         ? 'Gübre'
         : TOOLS.find((t) => t.id === tool)?.name;
+  frameProfile.end('reactFunctionCpu',renderStarted);
   return (
     <main className={`game-shell ${compactHud ? 'hud-collapsed' : ''} ${panel ? 'has-panel' : ''}`}>
       {serverMode&&<div className="server-status" role="status">{authority.current?.status||'Sunucuya bağlanıyor…'}{authority.current?.sleep&&<span> · Uyku: {authority.current.sleep.ready.length}/{authority.current.sleep.ready.length+authority.current.sleep.waiting.length} hazır · Online menüsü</span>}</div>}
@@ -981,7 +1003,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               {Math.round(
                 1000 / Math.max(1, scene.current?.metrics.frameMs || 16.7),
               )}{' '}
-              FPS · {scene.current?.metrics.chunks || 0} bölge
+              FPS · {(scene.current?.metrics.frameMs||16.7).toFixed(1)} ms/kare · {scene.current?.metrics.chunks || 0} bölge
             </small>
           </section>
           <div className="tool-info glass">

@@ -95,6 +95,13 @@ test('a crop change rebuilds one chunk; crossing regions keeps geometry bounded'
     assert.ok(view.chunkMeshes.size <= 25);
     while (view.dirtyChunks.size) view.flushChunk();
     assert.equal(view.tiles.size, 3600);
+    const matrix=new T.Matrix4();
+    for(const tile of e.s.tiles){
+      const slot=((tile.z%60+60)%60)*60+(tile.x%60+60)%60;
+      view.ground.getMatrixAt(slot,matrix);
+      assert.equal(matrix.elements[12],tile.x);assert.equal(matrix.elements[14],tile.z);
+      assert.ok(view.ground.boundingSphere!.containsPoint(new T.Vector3(tile.x,tile.height,tile.z)));
+    }
     assert.equal(view.chunkMeshes.size, 25);
     assert.ok(
       view.worldBatches!.buckets.size < 18,

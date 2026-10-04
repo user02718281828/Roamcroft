@@ -1,5 +1,13 @@
 # Değişiklikler
 
+## 1.11.3 — Akıcı Vadi · 4 Ekim 2026
+
+- Hayvanların eklem animasyonları korunarak aynı türün parçaları toplu çizilir; ekran dışındaki hayvanlar çizimden çıkarılır.
+- Opak zemin katmanlarında görünmeyen piksellerin tekrar gölgelendirilmesi azaltılır. Ayrıntı, çözünürlük, gölge ve doku kalitesi düşürülmez.
+- Arazi eşitlemesinde değişmeyen kareler yeniden hazırlanmaz; bölge geçişinde zemin tamponları döngüsel olarak kullanılır.
+- Otomatik kayıt, önceki dünyayı tekrar kopyalamadan atomik iki kayıt rotasyonu kullanır. Eski kayıtlar ve bozuk kayıttan yedek kurtarma desteklenir.
+- FPS yanında kare süresi gösterilir. İsteğe bağlı `?profile=1` tanılaması CPU/GPU, p95/p99, %1 düşük FPS ve ağ RTT'sini ayrı ölçer. Gerçek ölçümler ve sınırlar: `docs/performance-audit-2026-10-01.md`.
+
 ## 1.11.2 — Hafif Adımlar · 30 Eylül 2026
 
 - Ekran dışındaki dünya modelleri çizim tamponundan çıkarılır; kamera döndüğünde, yürürken ve yakınlaştırırken tekrar görünür. Kaynak modeller, renkler ve dünya değişiklikleri korunur.

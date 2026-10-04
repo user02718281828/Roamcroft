@@ -1,4 +1,5 @@
 import type {MotionControl} from '../coop/realtime-client.ts';
+import {frameProfile} from './profile.ts';
 import type {ActionSound} from './audio.ts';
 import { withinSharedRange } from '../coop/motion.ts';
 import { orchardStatus } from './orchard.ts';
@@ -641,7 +642,9 @@ export class Engine {
     origin: {x:number;z:number} = this.s.player,
     maxNodes = this.s.tiles.length,
   ) {
-    return findRoute(this.s,{x:Math.round(tx),z:Math.round(tz)},origin,adjacent,maxNodes);
+    const started=frameProfile.begin();
+    const result=findRoute(this.s,{x:Math.round(tx),z:Math.round(tz)},origin,adjacent,maxNodes);
+    frameProfile.end('pathfinding',started);return result;
   }
 
   go(x: number, z: number, tool = 'hand', selection = 'wheat') {
@@ -2186,7 +2189,7 @@ export class Engine {
     dt = Math.max(0, Math.min(dt, 0.1));
     this.actionCooldown = Math.max(0, this.actionCooldown - dt);
     this.playerAction.remaining=Math.max(0,this.playerAction.remaining-dt);
-    this.updateVillagers(dt);
+    const npcStarted=frameProfile.begin();this.updateVillagers(dt);frameProfile.end('npc',npcStarted);
     const s = this.s,
       p = s.player;
     if (this.path.length) {
@@ -2225,7 +2228,7 @@ export class Engine {
     }
     this.systemClock += dt;
     if (this.systemClock >= 0.5) {
-      this.systems(this.systemClock);
+      const systemsStarted=frameProfile.begin();this.systems(this.systemClock);frameProfile.end('systems',systemsStarted);
       this.systemClock = 0;
     }
     if (this.resting) {
@@ -2241,7 +2244,7 @@ export class Engine {
     this.updateFishing(dt);
     if (s.time >= 0.78) this.raid();
     this.combat(dt);
-    this.wanderAnimals(dt);
-    this.streamWorld();
+    const animalStarted=frameProfile.begin();this.wanderAnimals(dt);frameProfile.end('animals',animalStarted);
+    const streamStarted=frameProfile.begin();this.streamWorld();frameProfile.end('streaming',streamStarted);
   }
 }

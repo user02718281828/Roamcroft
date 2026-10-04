@@ -1,4 +1,6 @@
 import * as T from 'three';
+import {frameProfile,GpuTimer} from './profile.ts';
+import {AnimalBatches} from './actor-batches.ts';
 import { RemoteMotion } from '../coop/motion.ts';
 import { cottage, fruitTree } from './art-direction.ts';
 import { orchardStatus } from './orchard.ts';
@@ -29,9 +31,13 @@ import {
   WINDOW,
 } from './world.ts';
 import type { Engine, Tile, Building, Animal, Enemy } from './model.ts';
+type TileVisual={key:string;group:T.Group;pending?:Tile;stamp?:[Tile['resource'],boolean,boolean,Tile['crop'],number,number,boolean]};
+const terrainSlot=(s:Engine['s'],x:number,z:number)=>{const n=worldSize(s);return ((z%n+n)%n)*n+(x%n+n)%n;};
 
 // All world objects are interactive, procedural meshes. No remote assets are required.
 export class ValleyScene {
+  gpuTimer?:GpuTimer;
+  animalBatches?:AnimalBatches;
   highQuality = true;
   get detailTier(){return this.highQuality?0:this.budget.tier;}
   budget = new FrameBudget();
@@ -50,6 +56,7 @@ export class ValleyScene {
   chunkMeshes = new Map<string, T.Group>();
   dirtyChunks = new Set<string>();
   terrainTiles: Tile[] | null = null;
+  terrainStamps?:string[];
   river!: T.InstancedMesh;
   bankBlend!: T.InstancedMesh;
   shoreFoam!:T.InstancedMesh;
@@ -102,7 +109,8 @@ export class ValleyScene {
   root = new T.Group();
   materials = new Map<string, T.MeshStandardMaterial>();
   geometries = new Map<string, T.BufferGeometry>();
-  tiles = new Map<string, { key: string; group: T.Group; pending?: Tile }>();
+  tiles = new Map<string, TileVisual>();
+  tileEntries?: (TileVisual|undefined)[];
   structures = new Map<number, { key: string; group: T.Group }>();
   creatures = new Map<string, T.Group>();
   warnings = new Map<number, T.Mesh>();
@@ -445,6 +453,10 @@ export class ValleyScene {
       WINDOW * WINDOW,
     );
     this.root.add(this.ground, this.grassSurface, this.river, this.flowers);
+    // Opaque surfaces behind props are submitted last. Early depth rejection
+    // avoids shading hidden base/ground pixels without changing their appearance.
+    this.grassSurface.renderOrder=this.river.renderOrder=10;
+    this.ground.renderOrder=20;this.terrainBase.renderOrder=30;
     const vertexShader = `varying vec2 surfaceUV; void main() { surfaceUV=uv; gl_Position=projectionMatrix*modelViewMatrix*instanceMatrix*vec4(position,1.0); }`;
     this.bankBlend = new T.InstancedMesh(
       new T.PlaneGeometry(1.05, 0.6),
@@ -518,12 +530,16 @@ export class ValleyScene {
     const s = this.engine.s,
       dummy = new T.Object3D(),
       o = worldOrigin(s);
+    this.terrainStamps??=[];
     this.terrainTiles = s.tiles;
     this.terrainBase.scale.x = this.terrainBase.scale.z = worldSize(s);
     this.terrainBase.position.x = o.x + (worldSize(s) - 1) / 2;
     this.terrainBase.position.z = o.z + (worldSize(s) - 1) / 2;
-    for (let i = 0; i < s.tiles.length; i++) {
-      const t = s.tiles[i];
+    for (const t of s.tiles) {
+      const shallow=t.terrain==='water'&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dz])=>tileAt(s,t.x+dx,t.z+dz)?.terrain!=='water');
+      const i=terrainSlot(s,t.x,t.z),stamp=`${t.x},${t.z},${t.terrain},${t.height},${shallow}`;
+      if(this.terrainStamps[i]===stamp)continue;
+      this.terrainStamps[i]=stamp;
       dummy.rotation.set(0, 0, 0);
       dummy.position.set(
         t.x,
@@ -541,7 +557,6 @@ export class ValleyScene {
       dummy.scale.set(1, t.terrain === 'water' ? 0.08 : 0, 1);
       dummy.updateMatrix();
       this.river.setMatrixAt(i, dummy.matrix);
-      const shallow=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dz])=>tileAt(s,t.x+dx,t.z+dz)?.terrain!=='water');
       this.river.setColorAt(i,new T.Color(shallow?0xb6e3dd:0xafdce0));
       this.updateTurf(t, i, dummy);
     }
@@ -553,7 +568,9 @@ export class ValleyScene {
     ]) {
       m.count = s.tiles.length;
       m.instanceMatrix.needsUpdate = true;
-      m.computeBoundingSphere();
+      // The full streamed window is a conservative bound for these ground layers.
+      // Avoid walking 14,400 instance matrices again on every window shift.
+      m.boundingSphere=new T.Sphere(new T.Vector3(o.x+(worldSize(s)-1)/2,0,o.z+(worldSize(s)-1)/2),worldSize(s)*Math.SQRT1_2+4);
     }
     this.river.instanceColor!.needsUpdate=true;
     let edge = 0;
@@ -1689,7 +1706,7 @@ export class ValleyScene {
             : t.terrain === 'path'
               ? 0xb9a580
               : palette[Math.floor(n * 3)];
-      this.ground.setColorAt(tileIndex(s, t.x, t.z), new T.Color(c));
+      this.ground.setColorAt(terrainSlot(s, t.x, t.z), new T.Color(c));
     }
     this.ground.instanceColor!.needsUpdate = true;
     this.lastSeason = season(s);
@@ -1701,33 +1718,39 @@ export class ValleyScene {
     const shifted = this.terrainTiles !== s.tiles;
     if (shifted) {this.refreshGround();this.waterSpots=s.tiles.filter(t=>t.terrain==='water').filter((_,i)=>i%13===0).map(t=>({x:t.x,z:t.z}));}
     let changed = shifted;
+    if(shifted){
     const active = new Set(s.tiles.map((t) => tileKey(t.x, t.z)));
     const activeChunks = new Set(s.tiles.map((t) => chunkKey(t.x, t.z)));
     for (const key of this.dirtyChunks)
       if (!activeChunks.has(key)) this.dirtyChunks.delete(key);
+    const removedChunks:string[]=[];
     for (const [key, group] of this.chunkMeshes)
       if (!activeChunks.has(key)) {
-        this.worldBatches?.remove(key);
+        removedChunks.push(key);
         this.chunkMeshes.delete(key);
         this.dirtyChunks.delete(key);
       }
+    this.worldBatches?.removeMany(removedChunks);
     for (const [id, entry] of this.tiles)
       if (!active.has(id)) {
         this.tiles.delete(id);
       }
-    const occupied = new Set(s.buildings.map(b=>tileKey(b.x,b.z)));
-    for (const t of s.tiles) {
-      const id = tileKey(t.x, t.z),
-        key = `${t.resource}-${t.tilled}-${t.water > 0}-${t.crop}-${t.crop ? Math.floor((t.growth / CROPS[t.crop].grow) * 5) : 0}-${season(s)}-${occupied.has(id)}`;
-      const old = this.tiles.get(id);
-      if (old?.key === key) continue;
+    }
+    if(shifted||!this.tileEntries)this.tileEntries=s.tiles.map(t=>this.tiles.get(tileKey(t.x,t.z)));
+    const currentSeason=season(s),occupiedIndices=new Set(s.buildings.map(b=>tileIndex(s,b.x,b.z)));
+    for (let index=0;index<s.tiles.length;index++) {
+      const t=s.tiles[index],old=this.tileEntries[index],stamp=old?.stamp;
+      const watered=t.water>0,stage=t.crop?Math.floor((t.growth/CROPS[t.crop].grow)*5):0,hasBuilding=occupiedIndices.has(index);
+      if(stamp&&stamp[0]===t.resource&&stamp[1]===t.tilled&&stamp[2]===watered&&stamp[3]===t.crop&&stamp[4]===stage&&stamp[5]===currentSeason&&stamp[6]===hasBuilding)continue;
+      const id=tileKey(t.x,t.z),key=`${t.resource}-${t.tilled}-${watered}-${t.crop}-${stage}-${currentSeason}-${hasBuilding}`;
       if (old) this.root.remove(old.group);
       const g = new T.Group();
       g.position.set(t.x, t.height, t.z);
       g.userData.tile = { x: t.x, z: t.z };
       g.updateMatrixWorld(true);
-      this.tiles.set(id, { key, group: g, pending: t });
-      if (!shifted) this.updateTurf(t, tileIndex(s, t.x, t.z));
+      const entry:TileVisual={key,group:g,pending:t,stamp:[t.resource,t.tilled,watered,t.crop,stage,currentSeason,hasBuilding]};
+      this.tiles.set(id,entry);this.tileEntries[index]=entry;
+      this.updateTurf(t, terrainSlot(s, t.x, t.z));
       this.dirtyChunks.add(chunkKey(t.x, t.z));
       changed = true;
     }
@@ -2238,10 +2261,14 @@ export class ValleyScene {
     this.waterTime.value = this.time;
     this.syncClock += dt;
     if (this.syncClock > 0.25 || this.terrainTiles !== this.engine.s.tiles) {
+      const started=frameProfile.begin();
       this.sync();
+      frameProfile.end('sceneSync',started);
       this.syncClock = 0;
     }
+    const chunkStarted=frameProfile.begin();
     this.flushChunk();
+    frameProfile.end('chunk',chunkStarted);
     const s = this.engine.s,
       p = s.player;
     const displayed=this.engine.network?.motion?.renderPose()||p;
@@ -2421,7 +2448,14 @@ export class ValleyScene {
     this.camera.updateMatrixWorld();
     this.viewFrustum.setFromProjectionMatrix(this.viewProjection.multiplyMatrices(this.camera.projectionMatrix,this.camera.matrixWorldInverse));
     const viewKey=[Math.round(this.target.x*2),Math.round(this.target.z*2),this.angle,this.zoom,this.width,this.height].join(',');
+    const cullStarted=frameProfile.begin();
     if(this.worldBatches?.setView(this.viewFrustum,viewKey))this.renderer.shadowMap.needsUpdate=true;
+    frameProfile.end('culling',cullStarted);
+    if(s.animals.length||this.animalBatches){
+      const started=frameProfile.begin();this.animalBatches??=new AnimalBatches(this.root);
+      this.animalBatches.update(s.animals.flatMap(a=>{const group=this.creatures.get(`a${a.id}`);return group?[{type:a.type,group}]:[];}),this.viewFrustum);
+      frameProfile.end('animalBatch',started);
+    }
     this.hover.visible = !!this.hoverTile;
     if (this.hoverTile)
       this.hover.position.set(
@@ -2553,7 +2587,12 @@ export class ValleyScene {
     }
     this.sun.position.set(p.x+light.x,light.y,p.z-8);
     this.sun.target.position.set(p.x, 0, p.z);
+    if(frameProfile.enabled){this.gpuTimer??=new GpuTimer(this.renderer.getContext() as WebGL2RenderingContext);this.gpuTimer.begin();}
+    const renderStarted=frameProfile.begin(),shadowUpdated=this.renderer.shadowMap.needsUpdate;
     this.renderer.render(this.scene, this.camera);
+    frameProfile.end(shadowUpdated?'renderSubmitShadow':'renderSubmit',renderStarted);
+    this.gpuTimer?.end();
+    if(frameProfile.enabled)Object.assign(frameProfile.metadata,{resolution:[this.canvas.width,this.canvas.height],dpr:this.renderer.getPixelRatio(),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,activeTiles:s.tiles.length,animals:s.animals.length});
     this.metrics.activeTiles = s.tiles.length;
     this.metrics.drawCalls = this.renderer.info.render.calls;
     this.metrics.triangles = this.renderer.info.render.triangles;
@@ -2624,6 +2663,8 @@ export class ValleyScene {
     c.stroke();
   }
   dispose() {
+    this.gpuTimer?.dispose();
+    this.animalBatches?.dispose();
     this.resizeObserver.disconnect();
     this.disposeHandlers.forEach((fn) => fn());
     for (const g of this.geometries.values()) g.dispose();

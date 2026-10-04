@@ -5,6 +5,7 @@ import { validServerCommand } from './protocol.ts';
 import { applyDelta, type WorldDelta } from './delta.ts';
 import { SHARED_PROTOCOL } from './shared-protocol.ts';
 import { RealtimeClient } from '../coop/realtime-client.ts';
+import {frameProfile} from '../game/profile.ts';
 import type { SleepStatus } from '../game/rest.ts';
 
 type Packet = {
@@ -224,6 +225,7 @@ export class ServerWorldClient {
     }
   }
   private apply(packet: Packet, reset = false, sentPose?: {x:number;z:number}) {
+    const started=frameProfile.begin();
     const state = this.accept(packet),
       current = this.engine();
     if (current) {
@@ -241,6 +243,7 @@ export class ServerWorldClient {
       this.bind(current);
       for (const event of packet.events || []) current.events.push(event);
     }
+    frameProfile.end('networkApplyCpu',started);
   }
   async enterShared() {
     if (this.shared || this.switching) return;
