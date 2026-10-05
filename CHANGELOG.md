@@ -1,5 +1,11 @@
 # Değişiklikler
 
+## 1.11.5 — Hafif Kamera · 5 Ekim 2026
+
+- Kamerada görünür kalan dünya parçalarının konum ve renk tamponları yeniden yazılmaz. Görüşe giren/çıkan parçalar için yerinde güncelleme yapılır; modeller, renkler ve ayrıntılar korunur.
+- Görünür nesneler değişmediyse culling işlemi gölge haritasını gereksiz yere yeniden çizdirmez.
+- Bölge kaldırma, tampon büyümesi ve aynı karede birden çok arazi değişikliği için regresyon kontrolleri; ölçüm yöntemi ve sınırlar `docs/verification-1.11.5.md` içinde.
+
 ## 1.11.4 — Sakin Akış · 4 Ekim 2026
 
 - Oyun ayrıntılı görüntü kapalı, dengeli modda başlar. Ayarlardan ayrıntılı mod elle açılabilir.

@@ -1,8 +1,23 @@
 import * as T from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-type Slot = { bucket: Bucket; index: number; chunk:string; matrix:T.Matrix4; color:T.Color; bounds:T.Box3 };
-type Bucket = { mesh: T.InstancedMesh; slots: Slot[] };
+type Slot = {
+  bucket: Bucket;
+  index: number;
+  drawIndex: number;
+  chunk: string;
+  matrix: T.Matrix4;
+  color: T.Color;
+  bounds: T.Box3;
+};
+type Bucket = {
+  mesh: T.InstancedMesh;
+  slots: Slot[];
+  visible: Slot[];
+  dirty: boolean;
+  first: number;
+  end: number;
+};
 const color = new T.Color();
 
 // A material's color belongs to the instance, so differently colored trees,
@@ -12,59 +27,110 @@ export class WorldBatches {
   chunks = new Map<string, Slot[]>();
   root: T.Group;
   visibleChunks: Set<string> | null = null;
-  view:T.Frustum|null=null;
-  private viewKey='';
-  setView(view:T.Frustum,key:string){
-    if(key===this.viewKey)return false;
-    this.viewKey=key;this.view=view.clone();this.refresh();return true;
+  view: T.Frustum | null = null;
+  private viewKey = '';
+  setView(view: T.Frustum, key: string) {
+    if (key === this.viewKey) return false;
+    this.viewKey = key;
+    this.view = view.clone();
+    return this.refresh();
   }
-  setVisibleChunks(keys:Set<string>) {
-    if(this.visibleChunks&&keys.size===this.visibleChunks.size&&[...keys].every(key=>this.visibleChunks!.has(key)))return false;
-    this.visibleChunks=keys;this.refresh();return true;
+  setVisibleChunks(keys: Set<string>) {
+    if (
+      this.visibleChunks &&
+      keys.size === this.visibleChunks.size &&
+      [...keys].every((key) => this.visibleChunks!.has(key))
+    )
+      return false;
+    this.visibleChunks = keys;
+    this.refresh();
+    return true;
+  }
+  private write(slot: Slot, index: number) {
+    const b = slot.bucket;
+    slot.drawIndex = index;
+    b.mesh.setMatrixAt(index, slot.matrix);
+    b.mesh.setColorAt(index, slot.color);
+    b.dirty = true;
+    b.first = Math.min(b.first, index);
+    b.end = Math.max(b.end, index + 1);
+  }
+  private hide(slot: Slot) {
+    if (slot.drawIndex < 0) return;
+    const b = slot.bucket,
+      index = slot.drawIndex,
+      last = b.visible.pop()!;
+    if (last !== slot) {
+      b.visible[index] = last;
+      this.write(last, index);
+    }
+    slot.drawIndex = -1;
+    b.dirty = true;
   }
   private refresh() {
-    for(const {mesh,slots} of this.buckets.values()){
-      let count=0;
-      for(const slot of slots)if((!this.visibleChunks||this.visibleChunks.has(slot.chunk))&&(!this.view||this.view.intersectsBox(slot.bounds))){
-        mesh.setMatrixAt(count,slot.matrix);mesh.setColorAt(count++,slot.color);
+    let changed = false;
+    for (const b of this.buckets.values()) {
+      for (const slot of b.slots) {
+        const visible =
+          (!this.visibleChunks || this.visibleChunks.has(slot.chunk)) &&
+          (!this.view || this.view.intersectsBox(slot.bounds));
+        if (!visible) this.hide(slot);
+        else if (slot.drawIndex < 0) {
+          const index = b.visible.length;
+          b.visible.push(slot);
+          this.write(slot, index);
+        }
       }
-      mesh.count=count;mesh.instanceMatrix.needsUpdate=true;
-      mesh.instanceMatrix.clearUpdateRanges();
-      if(count)mesh.instanceMatrix.addUpdateRange(0,count*16);
-      if(mesh.instanceColor){
-        mesh.instanceColor.clearUpdateRanges();
-        if(count)mesh.instanceColor.addUpdateRange(0,count*3);
-        mesh.instanceColor.needsUpdate=true;
+      if (!b.dirty) continue;
+      changed = true;
+      const mesh = b.mesh;
+      mesh.count = b.visible.length;
+      if (b.end > b.first) {
+        // Keep pending ranges until Three uploads them; several chunks can change
+        // before one rendered frame. Only newly visible/swapped slots are written.
+        mesh.instanceMatrix.addUpdateRange(
+          b.first * 16,
+          (b.end - b.first) * 16,
+        );
+        mesh.instanceMatrix.needsUpdate = true;
+        mesh.instanceColor!.addUpdateRange(b.first * 3, (b.end - b.first) * 3);
+        mesh.instanceColor!.needsUpdate = true;
       }
+      b.dirty = false;
+      b.first = Infinity;
+      b.end = 0;
     }
+    return changed;
   }
   constructor(root: T.Group) {
     this.root = root;
   }
-  removeMany(keys:string[]){for(const key of keys)this.remove(key,false);if(keys.length)this.refresh();}
-  remove(key: string, refresh=true) {
+  removeMany(keys: string[]) {
+    for (const key of keys) this.remove(key, false);
+    if (keys.length) this.refresh();
+  }
+  remove(key: string, refresh = true) {
     for (const slot of this.chunks.get(key) ?? []) {
+      this.hide(slot);
       const { bucket, index } = slot;
       const last = bucket.slots.pop()!;
       if (last !== slot) {
         last.index = index;
         bucket.slots[index] = last;
       }
-      bucket.mesh.count = bucket.slots.length;
-      bucket.mesh.instanceMatrix.needsUpdate = true;
-      if (bucket.mesh.instanceColor)
-        bucket.mesh.instanceColor.needsUpdate = true;
     }
     this.chunks.delete(key);
-    if(refresh)this.refresh();
+    if (refresh) this.refresh();
   }
   replace(key: string, objects: T.Mesh[]) {
-    this.remove(key,false);
+    this.remove(key, false);
     const slots: Slot[] = [];
-    const partBounds=new T.Box3();
+    const partBounds = new T.Box3();
     for (const object of objects) {
-      if(!object.geometry.boundingBox)object.geometry.computeBoundingBox();
-      partBounds.copy(object.geometry.boundingBox!).applyMatrix4(object.matrixWorld);
+      if (!object.geometry.boundingBox) object.geometry.computeBoundingBox();
+      partBounds
+        .copy(object.geometry.boundingBox!)
+        .applyMatrix4(object.matrixWorld);
       const source = object.material as T.MeshStandardMaterial;
       const materialKey = `${object.geometry.uuid}:${source.map?.uuid ?? ''}:${source.emissive.getHex()}`;
       let bucket = this.buckets.get(materialKey);
@@ -73,12 +139,20 @@ export class WorldBatches {
         material.color.set(0xffffff);
         const mesh = new T.InstancedMesh(object.geometry, material, 1024);
         mesh.count = 0;
+        mesh.setColorAt(0, color);
         mesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
         mesh.castShadow = mesh.receiveShadow = true;
         // setView compacts visible instances while preserving the source slots.
         mesh.frustumCulled = false;
         this.root.add(mesh);
-        bucket = { mesh, slots: [] };
+        bucket = {
+          mesh,
+          slots: [],
+          visible: [],
+          dirty: false,
+          first: Infinity,
+          end: 0,
+        };
         this.buckets.set(materialKey, bucket);
       }
       if (bucket.slots.length === bucket.mesh.instanceMatrix.count) {
@@ -91,6 +165,7 @@ export class WorldBatches {
         replacement.instanceMatrix.array.set(previous.instanceMatrix.array);
         replacement.setColorAt(0, color);
         replacement.instanceColor!.array.set(previous.instanceColor!.array);
+        replacement.count = previous.count;
         replacement.instanceMatrix.setUsage(T.DynamicDrawUsage);
         replacement.castShadow = replacement.receiveShadow = true;
         replacement.frustumCulled = false;
@@ -99,14 +174,17 @@ export class WorldBatches {
         this.root.add(replacement);
         bucket.mesh = replacement;
       }
-      const slot = { bucket, index: bucket.slots.length, chunk:key, matrix:object.matrixWorld.clone(), color:source.color.clone(), bounds:partBounds.clone().expandByScalar(2) };
+      const slot = {
+        bucket,
+        index: bucket.slots.length,
+        drawIndex: -1,
+        chunk: key,
+        matrix: object.matrixWorld.clone(),
+        color: source.color.clone(),
+        bounds: partBounds.clone().expandByScalar(2),
+      };
       bucket.slots.push(slot);
       slots.push(slot);
-      bucket.mesh.setMatrixAt(slot.index, object.matrixWorld);
-      bucket.mesh.setColorAt(slot.index, source.color);
-      bucket.mesh.count = bucket.slots.length;
-      bucket.mesh.instanceMatrix.needsUpdate = true;
-      bucket.mesh.instanceColor!.needsUpdate = true;
     }
     this.chunks.set(key, slots);
     this.refresh();
