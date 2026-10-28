@@ -28,8 +28,12 @@ Bu belge tüm Roamcroft 2.0 hedeflerinin tamamlandığını iddia etmez.
 
 UI dalındaki kurulum başarılı: 584 paket, 585 taranan paket. Typecheck,
 **198/198 test (0 başarısız/atlanan)**, build ve yerel runtime geçti.
-Son birleşimden sonra aynı kontroller yeniden çalıştırılır; teslimdeki kesin
-SHA ve CI durumu GitHub commit kontrolleri ile eşlenmelidir.
+`1e302c3` main/Sentry birleşimi `e6054de` ile tamamlandı. Tek çakışma
+`app/page.tsx` idi; mevcut DSN/başlatma ile yeni filtre birlikte korundu.
+Birleşimden sonra typecheck, 198/198 test (14,22 sn), build ve runtime/HTTP
+yeniden başarılı oldu. Statik çıktı **2.931.414 bayt**, sıkıştırılmış tahmin
+**1.581.562 bayt**, bütçe **3.000.000 bayt**. Sonraki belge commit'i oyun
+çıktısını değiştirmez; kesin teslim SHA/CI GitHub commit kontrolleriyle eşlenir.
 
 Runtime, gerçek yerel üretim Worker/D1/SQLite DO ve dört WebSocket istemcisiyle
 HTTP başlık/HTML nonce/statik varlık/service worker/oturum/CORS, ekonomik
@@ -75,6 +79,14 @@ kullanıcı, request, URL query/hash, breadcrumb, extra/context, yerel değişke
 ve ekler çıkarılır. Replay/tracing kapalı; otomatik oturum/breadcrumb/console
 entegrasyonları kapalı. Ayrıntıları gizlemek tanılamanın hassasiyetini azaltır;
 oyuncu verisini göndermekten kaçınmak için bilinçli tercihtir.
+
+Gerçek `app/page.tsx` init literal'i, kurulu React SDK ve aynı filtre kullanılarak
+Node üzerinden yapay TypeError gönderildi: ingest **HTTP 200**, flush başarılı,
+event ID `e06b8230fe024069a45c56a2365d3cac`. Test sentinel'i giden zarfın içinde
+bulunmadığı doğrulandı. Bu test tarayıcıdan yeni Sentry panel kaydını görme
+kanıtı değildir; mevcut canlı ROAMCROFT-3 kaydı kullanıcı tarafından bildirilmiştir.
+Canlı açılışta CSP ve konsol ayrıca kontrol edilir. Üretim oyuncu verisi okunmadı
+ve test hatasına dahil edilmedi.
 
 Tarihsel audit **23**; güncel `npm audit --json` **25 paket bulgusu**:
 **3 kritik / 10 yüksek / 11 orta / 1 düşük**. Düzeltilmedi. Araç zinciri ile

@@ -9,7 +9,7 @@
 - Oyun kabuğunda yanlış yazı seçimini azaltan, giriş/kod/kopyalanabilir metinleri koruyan seçim kuralları.
 - Mobil dikey/yatay panel hizası ve görev başlığının dar sütuna sıkışması düzeltildi; açık menüde Tab odak dolaşımı korunur.
 - Güncel main'in Sentry 11.10.0 bağımlılığı ve dar CSP izni korunur. Hata çıkışında oyuncu/kayıt/istek verisini dışlayan filtre ve regresyon testi eklendi.
-- Roamcroft 2.0 master planı, İngilizce ana README ve Türkçe alternatif. Bu sürüm 2.0 hedeflerinin bütünü değildir ve main'e yayımlanmış sayılmaz.
+- Roamcroft 2.0 master planı, İngilizce ana README ve Türkçe alternatif. Bu sürüm 2.0 hedeflerinin bütünü değildir; yayın durumu commit kontrolleri ve teslim kaydıyla doğrulanır.
 - Gerçek eşya hotbar'ı, ekipman, sürükle-bırak, ekonomi değişikliği, ortak maden ve portal SDK/reklam bu pakete dahil değildir.
 - Doğrulama kaydı: `docs/verification-ui-1.12.0.md`.
 
