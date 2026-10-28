@@ -95,4 +95,9 @@ export type Parameters = {
   "hud.calendar": { day: MessageValue; season: MessageValue };
   "story.chapter": { chapter: MessageValue };
   "mine.floor": { floor: MessageValue; name: MessageValue };
+  "bag.capacity": { capacity: MessageValue; used: MessageValue };
+  "bag.count": { count: MessageValue };
+  "bag.baseValue": { value: MessageValue };
+  "bag.slot": { count: MessageValue; name: MessageValue };
+  "release.title": { version: MessageValue };
 };

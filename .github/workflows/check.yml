@@ -1,7 +1,7 @@
 name: Roamcroft doğrulama
 on:
   push:
-    branches: [main, 'feature/**']
+    branches: [main, 'feature/**', 'codex/**']
   pull_request:
 permissions:
   contents: read

@@ -1,154 +1,140 @@
 # Roamcroft
 
-**Canlı oyun:** https://roamcroft.roamcroft.workers.dev
+An original isometric browser game about building a home in a living valley:
+grow crops, craft supplies, explore the wilderness and share a farm with friends.
+The world, characters, models, item artwork and generative music have their own
+identity. Stardew Valley and Minecraft are experience references, not asset or
+design sources to copy.
 
-**Kaynak sürümü: 1.7.0 — Birlikte Üreten Vadi.** Günlük iki teslim yolu, yarının siparişleri, üretim değeri karşılaştırması ve motor düzeyinde pazar kısıtlaması. [Değişiklikler](CHANGELOG.md) · [Sistem incelemesi](docs/system-gap-review.md) · [Doğrulama](docs/verification-1.7.0.md). Aşağıdaki ekranlar önceki 1.3.0 test çiftliğidir.
+[Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-![Masaüstü oyun ekranı](docs/screenshots/desktop.jpg)
+**Source version: 1.12.0 — Pack and Camp, development branch.** This is the first
+UI foundation for the 2.0 plan, not a completed Roamcroft 2.0 release.
+[Live game](https://roamcroft.roamcroft.workers.dev) is deployed separately;
+the source branch and its screenshots do not prove that the live build has updated.
 
-<img src="docs/screenshots/mobile.jpg" alt="Mobil oyun ekranı" width="390"/>
+![Roamcroft 1.12.0 desktop gameplay, captured locally](docs/screenshots/ui-1.12.0-world.jpg)
 
-Türkçe, tek oyunculu, izometrik bir çiftçilik ve hayatta kalma oyunu. Oyun dünyası Three.js ile çizilir. **Oyna**, mevcut çevrimdışı çiftliği açar. **Sunucu dünyası · Önizleme**, ayrı bir çiftlikte oyun kurallarını Workers üzerinde yürütür; tarayıcı yalnızca hareket tahmini ve görüntü üretir. Bu önizleme hesap veya co-op sistemi değildir. Oturum çerezine bağlı erişim ve kapasite sınırları [güvenlik mimarisinde](docs/server-security.md) açıklanır.
+![Roamcroft 1.12.0 pack and camp menu, captured locally](docs/screenshots/ui-1.12.0-pack.jpg)
 
-## Çalıştırma
+These are real local browser captures of this source version. Older files in
+`docs/screenshots` are historical references, not current release screenshots.
 
-Node.js 22.13.0 veya üzeri ve npm gerekir. CI ve Cloudflare için .node-version kullanılır.
+## Play
 
-```powershell
+- **English and Turkish.** First visits start in English. An explicitly saved
+  language choice is preserved; change it on the start screen or in Settings.
+- **Device farm:** offline play after the PWA shell is cached. Time does not
+  advance while the game is closed. Saves belong to this device and site origin.
+- **Server farm / shared surface farm, beta:** up to four players, independent
+  bags and characters, shared gold, world, storage, production and progress.
+  The Cloudflare Durable Object is authoritative; the host must remain connected.
+  Shared sleep is implemented. Shared mining and independent distant exploration
+  are not implemented; shared exploration stays near the host, about 20 tiles.
+- Download a save file to keep an offline copy. Server identity uses a secure
+  browser cookie, renewed for 30 days on connection. Clearing it loses access;
+  accounts and recovery are not implemented. Client save uploads to the server
+  are not accepted.
+
+## What's implemented
+
+- Six seasonal crops, irrigation, fertilizer, greenhouses and permanent apple/pear orchards.
+- 24 building definitions, three upgrade levels, production batches and optional automatic repeat.
+- Chickens, cows and sheep; feeding, affection, manual collection and breeding.
+- Crafting, market, deterministic daily orders, shared storage and protected overflow rewards.
+- Three villagers with schedules, gifts, friendships and dialogue; six earned story chapters.
+- 30 character levels, five skills, six talent branches, 20 quests, 12 achievements,
+  four collections and five village milestones.
+- Surface raids, five enemy types and a five-floor mine with lift checkpoints and a boss.
+- A deterministic streaming world: 25 active chunks / 3,600 tiles, with saved edits.
+- Warm grouped camp navigation, icon slots and selected-item details in the pack,
+  a compact HUD and mobile section picker.
+
+The pack remains the existing quantity-based inventory (600 units, or 900 with
+the collection reward). Its visual slots add no storage limit or capacity.
+Sorting changes the view only. The tool bar still has eight fixed tools; an
+item-based customizable hotbar, equipment and drag-and-drop are planned.
+
+## Controls
+
+| Input | Action |
+| --- | --- |
+| WASD / arrow keys | Walk |
+| Click terrain | Walk / use selected tool |
+| 1–8 | Select tool |
+| Tab | Open / close camp menu |
+| Q / E in menus | Previous / next section |
+| E in the world | Interact nearby |
+| Shift | Run, spending energy |
+| Ctrl / Space | Attack |
+| Mouse wheel / pinch | Zoom |
+| Drag | Pan camera |
+| Esc | Close menu / exit building / pause |
+
+Touch controls include a joystick and dedicated interact/attack buttons.
+Opening a menu pauses the offline farm; it does not pause other online players.
+Sound requires a user gesture. Balanced graphics is the default; detailed
+graphics is optional and is not silently reduced during play.
+
+## Develop and verify
+
+Node **22.13.0** is the CI baseline; use npm and the committed lock file.
+
+```sh
 npm ci
 npm run dev
 ```
 
-Terminalde görünen yerel adresi aç. Üretim derlemesi ve kontroller:
-
-```powershell
+```sh
 npm run typecheck
 npm test
 npm run build
-npm run start
+npm run check:runtime
 ```
 
-## Kontroller
+Build creates local output only. `check:runtime` uses local Worker/D1/DO test
+data and four WebSocket clients. Never point fixture tests at production.
+To preview the built Worker locally, run `npm start`. Stop it before rebuilding
+on Windows so it does not lock `dist/client`.
 
-| Girdi | Eylem |
-| --- | --- |
-| WASD / yön tuşları | Yürü |
-| Sol tık | Hedefe yürü, seçili aracı kullan |
-| 1–8 | Keşfet, balta, kazma, çapa, tohum, sula, kılıç, olta |
-| Tab | Tek pencere menüsünü aç/kapat |
-| E | Yakındaki kişi, hayvan, ürün veya yapı ile etkileşim |
-| Menüde Q/E | Önceki/sonraki sekme |
-| Shift | Enerji harcayarak koş |
-| Ctrl | Yakındaki düşmana saldır |
-| İnşada ←/→ | 90° döndür |
-| Sürükle | Kamerayı taşı |
-| Tekerlek / iki parmak | Yakınlaştır/uzaklaştır |
-| Esc | Menüden veya inşadan çık; duraklat |
+Static JS/CSS/images have a **3,000,000-byte budget** checked during build.
+`dist/client/asset-budget.json` reports raw size and estimated compressed size;
+neither is a real network or physical-device benchmark. Profiling is opt-in
+at `?profile=1`. Desktop viewport emulation is not a physical Android test.
 
-360° dijital joystick sol altta, saldırı sağ altta sabittir. Dokunma alanları en az 44 px'tir; dar ekranlarda sol menü kapalı başlar. Ana menüde tam ekran ve destekleyen tarayıcılarda Ana Ekrana Ekle bulunur. iOS'ta Safari Paylaş → Ana Ekrana Ekle kullanılabilir.
+## Architecture and saves
 
-Ses ilk kullanıcı etkileşiminden sonra Ses düğmesiyle açılır. Ayarlar'da müzik, doğa ve aksiyon sesleri ayrı ayarlanır. Ayrıntılı görüntü varsayılandır; çözünürlük ve gölgeler cihazın kare süresine göre dengelenir.
+TypeScript / React 19 / Three.js, Vinext/Vite and Cloudflare Workers with D1 and
+room-local SQLite Durable Objects. `app/page.tsx` loads the launcher, then the
+game, renderer and menus lazily. The game engine owns rules; rendering and
+localization do not own inventory or simulation state.
 
-## Oyun kuralları
+`lib/game/model.ts` owns the simulation, `lib/game/data.ts` its catalog,
+`lib/game/scene.ts` the renderer, `lib/server` the authoritative economy and
+`lib/coop` realtime movement. `lib/i18n` contains typed TR/EN catalogs.
 
-- Köy adını Kamp menüsünden değiştir. Günlükte kısa görev, sıradaki köy dönüm noktası ve uzun vadeli miras hedefi birlikte görünür. Beş dönüm noktası sırayla ve yalnızca bir kez malzeme verir: ilk hasat ve satış → atölye malzemeleri → sulama ve yem → işlenmiş ürünler → madencilik ekipmanı ve keşif erzakları. Ödüller köy adınla kayda işlenir.
-- Emanet menüsündeki dört koleksiyon sandığına kısmi bağış yapılabilir. Hasat sandığı çantayı 600'den 900 eşyaya çıkarır; çiftlik sandığı hayvanların günlük üretim hazırlığını %20 hızlandırır; ustaların sofrası makineleri %15 hızlandırır; sulama sandığı fıskiye menzilini 1'den 2 kareye çıkarır. Tab → Emanet ile açılır.
-- Bakır fıskiye, malzeme tarifinden üretilip dünyaya yerleştirilir. Bitişik sekiz ekim karesini sürekli sular; sulama emanetiyle 24 kareye ulaşır. Sulama/sera kapsamı küçük yapı alanları üzerinden hesaplanır.
-- Hayvanlar oyun günü başına bir yem tüketir ve en fazla bir üretim partisi hazırlar. Hazır ürün hayvana tıklanarak veya Çiftlik menüsünden toplanır. Yakınlığı 60 olan hayvanın partisi iki üründür. Toplanmayan ürün hayvanda 12 adede kadar bekler. Çanta doluysa toplama reddedilir; ürün silinmez.
-- Çanta dolduğunda kırmızı uyarı çıkar. Satın alma durur; makine çıktısı sığmıyorsa girdiler harcanmaz. Hasat, tarif ve görev gibi kazanılan fazla eşyalar kayıtlı teslimat sandığına aktarılır; Çanta menüsünden yer açıldığında alınır. Eski kayıtlardaki kapasite üstü eşyalar korunur.
-- Günlük sohbet köylü başına bir kez +2 dostluk verir. Gün değiştikçe diyalog değişir. Madenin ulaşılan katları asansöre kaydedilir; sonraki gün açılmış kattan keşfe başlanabilir.
-- Enerji 20'nin altına indikçe hem tıklayarak hem tuşlarla yürüme kademeli yavaşlar; sıfır enerjide de yürünebilir. Görev ve köy ödülleri kısa konfeti efekti verir; azaltılmış hareket tercihinde efekt gösterilmez.
-- Sol paneller daraltılabilir, etkin araç altın çerçeveyle vurgulanır. Nehir kıyısı geçişleri yumuşatılır ve her iki görüntü kalitesinde bina taban gölgeleri çizilir. Kamera nehir ve ağaçlara yaklaştıkça çevre sesi güçlenir; dönüşe göre stereo yön değişir. Gece, yağmur ve madende kuşlar susar. Menüde çevre sesleri yumuşakça kısılır.
+Save version 1 and the legacy `ocak-vadisi` identifiers are intentionally
+preserved. IndexedDB rotates two snapshots atomically with localStorage fallback;
+imports validate format, integrity and game bounds. The checksum is corruption
+detection, not a cryptographic anti-cheat signature. Restoring this repository
+does not restore a lost browser cookie or player save.
 
-- Hareket yönünde üretilen, sabit kenarı olmayan dünya. 12 × 12 karelik bölgelerden yalnızca oyuncunun çevresindeki 25 bölge (3600 kare) etkin tutulur. Beş dış biyom ve başlangıç köyü. Değiştirilmemiş arazi deterministik olarak yeniden üretilir; oyuncunun değişiklikleri kaydedilir. Uzak tarla, üretim yapısı ve hayvanlar yüklü alan dışındayken bekler.
-- Bir gün 5 dakika, bir mevsim 7 gün. Oyun, menüler açıkken veya sekme görünmüyorken durur. Kapatıldığında ilerleme hesaplanmaz.
-- Altı ekin; çapalama, ekme, sulama, gübre, hasat, tohum geri kazanımı ve mevsim koşulları. Uygun mevsimde olmayan ekinler ölmez; büyümeleri durur.
-- Yirmi yapı türü. Başlangıç evi ve pazar korunur. Yapılar 3. seviyeye kadar yükselir; gözcü kulesi, sur, kuyu, sera ve üretim yapıları kendi davranışlarına sahiptir. Yükseltilen yapılar taş destekler, ek depolama, küçük silolar veya köy sancakları kazanır.
-- El üretiminde üç işlik kuyruk; üretim, malzeme ve enerji harcar. Yapıların otomatik üretimi malzemeleri ortak çantadan alır; yapı yönetiminden durdurulabilir.
-- Ayrı Çiftlik menüsünde tavuk, inek ve koyun; ad verme, günlük ilgi, yakınlık, iki yetişkinden yavru, iki günde büyüme, üç günlük yavrulama aralığı. 60 yakınlıkta çift ürün. Hayvanlar engelleri dolaşarak sekiz kare yarıçaplı meraya yürür, gece yuvalarına döner ve ilgilenildikten sonra kısa süre oyuncuyu takip eder. Hayvan rota aramaları kare başına iki hayvanla sınırlandırılır. Kümes 1., ahır 3. seviyede açılır.
-- Yem değirmeni, balık tütsühanesi ve dokuma atölyesi; buğday → yem, balık → yemek, yün → sargı üretim zincirleri.
-- Sağlık, enerji, doygunluk, dinlenme, yemek, evde uyuma, balıkçılık ve ekipman yükseltmeleri.
-- Üçüncü günden başlayarak her üçüncü gece akın. Yakın dövüşte engeller görüşü keser. Düşmanlar yol bulur, savunma yapılarına hasar verir. Yenilgi karakteri eve döndürür ve altının %10'unu alır.
-- 30 karakter seviyesi; beş ustalık; altı ayrı, beş kademeli yetenek. Yetenek seçimi sınırlı seviye puanlarıyla yapılır.
-- Üç köylü, günlük sipariş ve hediye sınırları, 100 puanlık dostluk. Dostluk gerçek fiyat, üretim ve balıkçılık avantajları verir.
-- 18 görev, 12 başarım ve üç ödüllü keşif noktası. Kadim feneri 3. seviyeye yükseltmek akınları bitirir; serbest köy yaşamı devam eder.
-- Madenin üçüncü seviyesinde açılan beş katlı Kadim Maden. Her oyun günü bir keşif; her katta düşmanları temizleyip dört cevher birimi kazdıktan sonra kuzey geçidinden ilerleme. Güney asansörü ganimetle dönüş sağlar. Beşinci katın Derinlik Muhafızı yarı canında hızlanır; son geçit keşif ödülünü verir.
-- Bozkurt, mağara peltesi, kül büyücüsü, taş muhafız ve bölüm sonu muhafızı. Saldırı öncesi yere çizilen halkalar hedef alanı gösterir; hareket ederek kaçılabilir. Düşman can çubukları gerçek sağlık değerini gösterir.
-- Madendeyken vadi saati, tarlalar ve hayvanlar bekler. Açlık, savaş ve eldeki üretim kuyruğu çalışır. Maden katı, kalan düşmanlar, hazırlanmakta olan saldırılar ve yüzeydeki köy birlikte kaydedilir. Yenilgi köyü geri yükler.
+## Status, security and publishing
 
-## Kayıt ve taşınabilirlik
+[UI verification](docs/verification-ui-1.12.0.md) · [i18n baseline](docs/verification-portal-i18n.md)
+· [Portal roadmap](docs/PORTAL_ROADMAP.md) · [Contributor rules](AGENTS.md)
 
-Roamcroft, önceki Ocak Vadisi kayıtlarını aynı site adresinde okumaya devam eder. Tarayıcı veritabanı, yedek anahtarları ve kayıt zarfının iç kimliği uyumluluk için korunur; oyun adı ve indirilen kayıt dosyasının adı Roamcroft'tur.
+The previous dependency audit has **23 open package findings** (3 critical,
+10 high, 9 moderate, 1 low), tracked separately in the portal roadmap. Toolchain
+exposure and live Worker exposure require different analysis. This UI package
+does not upgrade dependencies or claim to resolve those findings.
 
-Kayıt, yaklaşık her 15 oyun saniyesinde uygun bir boşlukta bu tarayıcının IndexedDB veritabanına asenkron yazılır. Önceki localStorage kayıtları okunur; sayfa kapanışında küçük yerel kontrol kaydı denenir. IndexedDB kullanılamazsa localStorage yedeğine geçilir. Son geçerli kayıt ayrıca yedeklenir. JSON dışa aktarma ve içe aktarma Kamp menüsündedir. İçe aktarma; sürüm, bütünlük özeti, sayısal sınırlar, envanter, yapı konumları, kimlikler ve ilerleme alanlarını kontrol eder. Başka cihazda aynı vadide devam etmek için kayıt dosyasını taşı.
+Cloudflare Workers Builds has run for `main`. Pushing a development branch is
+not production deployment approval. CI verifies `main`, `feature/**`, `codex/**`
+and pull requests; production pushes/deploys need the user's explicit scope.
+GitHub Pages has not been verified as a hosting source (the Pages API returned 404).
 
-Bu sürümün kaydı cihaz ve site adresine bağlıdır; yerel adresle yayımlanmış adres aynı kayıt alanını paylaşmaz. Yerel önizlemede oynadıysan Kamp menüsünden dosyayı indirip yayımlanan oyuna yükle.
-
-## Kod yapısı
-
-- `lib/game/settlement.ts`: adlandırılabilir köy, beş sıralı dönüm noktası, kaynak ve üretimle birbirini besleyen ödüller.
-- `lib/game/progression.ts`: dört koleksiyon sandığı, kapasite, enerjiye göre hız ve alan tabanlı sulama/sera hesapları.
-- `lib/game/ambience.ts`: kamera uzaklığı, dönüşü, yakınlaştırması ve hava durumundan çevre sesi karışımı.
-
-- `lib/game/model.ts`: simülasyon, yol bulma, ekonomi, üretim, savaş, sosyal ilişkiler ve ilerleme.
-- `lib/game/data.ts`: eşya, ekin, yapı, tarif, görev, hayvan ve yetenek tanımları.
-- `lib/game/content.ts`: köylü diyalogları, günlük siparişler, keşifler ve başarımlar.
-- `lib/game/expedition.ts`: maden haritası üretimi, katlar, geçitler ve düşman davranış tanımları.
-- `lib/game/scene.ts`: prosedürel 3B modeller, arazi, kamera, seçme, gölgeler, animasyon ve hava efektleri.
-- `lib/game/save.ts` ve `storage.ts`: kayıt doğrulama, eski kayıt geçişi, IndexedDB ve yedekleme.
-- `lib/game/batches.ts`: farklı renkli nesnelerin dünya genelinde ortak çizimi, boşalan örnek yuvalarının yeniden kullanımı ve yapı modellerinin birleştirilmesi.
-- `lib/game/world.ts`: bölge üretimi, hareketli etkin pencere ve değişikliklerin korunması.
-- `components/game/GameIcon.tsx`: emoji kullanmayan, ortak oyun simgeleri.
-- `lib/game/audio.ts`: özgün üretken müzik ve ses efektleri.
-- `lib/game/webmcp.ts`: destekleyen tarayıcılarda aynı oyun motoruna erişen isteğe bağlı araçlar.
-- `components/game`: HUD ve etkileşimli oyun panelleri.
-- `tests`: oyun kuralları, ilerleme, kayıt ve 3B seçim regresyon testleri.
-- `public/art`: bu oyun için üretilmiş, dört sayfada 64 özgün eşya ve yapı çizimi.
-- `public/textures`: bu proje için üretilen özgün çayır, toprak ve ahşap kaplamaları.
-
-## Doğrulama sınırı
-
-99 otomatik test; simülasyon, kayıt geçişi, ekonomi, sosyal ilişkiler, A*, dokunma hareketleri, çevrimdışı kabuk, bulut koordinatları, CSP ve kapalı co-op uç noktasını kapsar. `npm run start` sonrasında `npm run check:http` gerçek üretim yanıtlarındaki altı başlığı ve HTML nonce eşleşmesini denetler. Test ayrıntıları [1.3.1 doğrulama notlarında](docs/verification-1.3.1.md) tutulur.
-
-Bulut kayıt ve co-op bu sürümde kapalıdır. [Çevrimiçi yol haritası](docs/online-roadmap.md) gelecek aşamaları açıklar.
-
-## Görüntü ve performans
-
-SSAO ve ara görüntü tamponu zinciri kaldırıldı. İki kalite modu da doğrudan aynı WebGL sahnesini çizer. Ayrıntılı mod güneş gölgeleri ve yüksek çözünürlük açar; yavaş cihazlarda çözünürlük otomatik azalır. WebGL bağlamı geri geldiğinde dengeli moda dönülür. Tek ekin değişimi yalnızca bulunduğu bölgeyi günceller. Ağaç, kaya ve ekin parçaları ortak geometri kullanan InstancedMesh gruplarıdır. Bölge hazırlığı karelere dağıtılır; uzak grupların GPU kaynakları bırakılır.
-
-Otomatik kontrol: 300 bölge geçişinde etkin arazi 3600 karede kaldı; değiştirilmemiş keşif kayıt büyütmedi. Ortak statik dünya testinde 25 bölge 5 çizim grubunda toplandı (bu sayı tüm sahnenin çizim sayısı değildir; gerçek dokular ek malzeme grupları oluşturabilir). Yerel Node testinde bölge verisi geçişlerinin medyanı yaklaşık 2–3 ms, p95 4–6 ms. Bu işlemci ölçümleri gerçek tarayıcı FPS veya bütün cihazlarda sıfır takılma garantisi değildir. FPS göstergesi oynanan cihazdaki kare aralığını gösterir.
-
-Yeni dünyalar kıvrımlı nehirler ve geçilebilir kıyı yolları içerir. Önceki kayıtların arazi üretim sürümü korunur; mevcut köy sıfırlanmaz. Eski nehirlerde de yeni su, sazlık, nilüfer ve balıkçı platformu görselleri kullanılır. Yeni aktif alan, eski 36×36 alanın 2,78 katıdır. Maden katları 36×36 olarak kalır.
-
-Eşya simgeleri emoji veya işletim sistemi ikonlarından bağımsız özgün resimlerdir. Ev verandası, çift kapılı ve silolu ahır, ayaklı/rampalı kümes, açık tezgâhlı marangoz, taş fırın, mandıra ve sera farklı model siluetlerine sahiptir. Modeller renk bilgilerini koruyarak birleştirilir. Ana arayüzde arka plan bulanıklığı kullanılmaz. Ayrıntılı görüntü kapalıyken de su animasyonu ve canlı hareketler çalışır.
-
-
-## Cloudflare yayını
-
-Tek yapılandırma kaynağı deployment.config.json'dur. Derleme sonundaki finalize-build betiği üretilen dist/server/wrangler.json içindeki D1 kimliğini doğrular. Dosyayı elle düzeltmek gerekmez.
-
-Yerel yayın komutları:
-
-    npx wrangler login
-    npm run typecheck
-    npm test
-    npm run build
-    npm run deploy
-
-Otomatik yayın için Cloudflare → Workers & Pages → roamcroft → Settings → Builds → Connect Git bölümünden user02718281828/Roamcroft deposu ve main dalı bağlanmalıdır. Proje kökü /, build komutu npm run build, deploy komutu npx wrangler deploy --config dist/server/wrangler.json, NODE_VERSION=22.13.0 olmalıdır. Üretim dışı dal yayını kapalı tutulur. Hesap bağlantısı tamamlanmadan yalnızca repodaki GitHub doğrulama iş akışı çalışır; otomatik yayın kurulmuş sayılmaz.
-
-[Cloudflare yapılandırma belgesi](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/) ve [build ortamı](https://developers.cloudflare.com/workers/ci-cd/builds/build-image/).
-
-Hatalı bir yayında önceki sürüme dönmek için npx wrangler rollback kullanılabilir. Tarayıcıdaki dünya kaydı bundan bağımsızdır; değişikliklerden önce JSON yedeği alınabilir.
-
-## Açılış bütçesi ve çevrimdışı kullanım
-
-Yedi PNG görseli toplam 14.02 MB'den 0.92 MB WebP'ye dönüştürüldü. Ham kaynaklar Git geçmişinde korunur. Menü yalnızca açıldığında yüklenir; Three.js çekirdeği ve çizicisi ayrı paketlerdir. Sistem yazı tipleri kullanılır, indirilecek web fontu yoktur.
-
-Her derleme statik dosya toplamını 3 MB ile sınırlar ve dist/client/asset-budget.json raporunu üretir. Rapor sıkıştırılmış aktarımı tahmin eder; gerçek ağ ölçümü değildir. Dünya yükleme çubuğu tamamlanan dokuları ve arazi bölgelerini sayar.
-
-Service worker, ilk başarılı çevrimiçi açılışta uygulama kabuğunu, kodu ve WebP dokularını saklar. Kurulum tamamlandıktan sonra oyun çevrimdışı açılabilir. API istekleri önbelleğe alınmaz. Güncelleme yeni oturumda etkinleşir; devam eden oyun zorla yenilenmez.
-
-Genişletilmiş içerik kapsamı ve tamamlanma durumu: [Gelişim planı](docs/development-plan.md).
-
-<!-- Otomatik deploy testi -->
+Portal SDKs, ads, analytics, prestige, accounts/recovery, shared mines and
+independent distant co-op exploration remain planned. Physical mobile, real WAN,
+long-session and portal iframe testing remain release gates. The existing social
+sharing JPG still has Turkish lettering; localized marketing artwork is pending.

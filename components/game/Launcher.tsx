@@ -1,4 +1,5 @@
 'use client';
+import { GAME_VERSION } from '@/lib/version';
 import { sourceText } from '@/lib/i18n/source';
 import { localize, translate } from '@/lib/i18n/core';
 import { useLocale } from '@/lib/i18n/react';
@@ -30,7 +31,7 @@ export default function Launcher(){
         <h1>Roamcroft</h1>
         <LanguageSettings />
         <p>{translate("m_f136549175")}</p>
-        <p className="launch-update"><b>{translate("m_a8102b388b")}</b><br/>{translate("m_9679efb662")}</p>
+        <p className="launch-update"><b>{translate('release.title', {version: GAME_VERSION})}</b><br/>{translate('release.description')}</p>
         <button onClick={()=>void play()} disabled={loading} aria-busy={loading}>{localize(loading?sourceText("m_cf4aea5756"):sourceText("m_18bb868678"))}</button>
         <button className="launch-server" onClick={()=>void play(true)} disabled={loading}>{translate("m_4b3434427a")}</button>
         {localize(error&&<p role="alert">{localize(error)}</p>)}

@@ -7,11 +7,10 @@ export function isLocale(value: unknown): value is Locale {
   return value === 'tr' || value === 'en';
 }
 
-/** Only the primary browser language selects the initial locale. */
-export function detectLocale(saved: unknown, languages: readonly string[] = []): Locale {
+/** A deliberate user choice wins; every fresh session starts in English. */
+export function detectLocale(saved: unknown, _languages: readonly string[] = []): Locale {
   if (isLocale(saved)) return saved;
-  const primary = languages[0]?.toLowerCase().split(/[-_]/)[0];
-  return isLocale(primary) ? primary : DEFAULT_LOCALE;
+  return DEFAULT_LOCALE;
 }
 
 type PreferenceStorage = Pick<Storage, 'getItem' | 'setItem'>;

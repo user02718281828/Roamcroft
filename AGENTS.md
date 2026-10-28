@@ -1,5 +1,11 @@
 # Roamcroft — proje hafızası ve çalışma kuralları
 
+Güncel uzun vadeli iş sırası ve durum kaynağı:
+`docs/ROAMCROFT_2_0_MASTER_PLAN.md`. Paket teslimlerinde son doğrulama belgesine
+bak; aşağıdaki 1.11.5 sayıları tarihsel tabandır. Main push/deploy yetkisini
+her oturumun kullanıcı talimatından belirle; geliştirme dalı izni üretim yayını
+izni sayılmaz.
+
 Bu dosya depoda çalışan kod ajanları için mimari rehberdir. İlk kaynak incelemesi
 28 Ekim 2026 tarihinde `main` dalındaki `becf1b8` commit'i üzerinde yapıldı.
 İncelenen uygulama sürümü **1.11.5 — Hafif Kamera** idi. Buradaki sayılar ve

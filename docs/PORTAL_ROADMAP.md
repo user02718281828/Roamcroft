@@ -1,5 +1,9 @@
 # Roamcroft — uluslararası portal yol haritası
 
+Uzun vadeli ana iş sırası ve durumlar: [Roamcroft 2.0 Master Plan](ROAMCROFT_2_0_MASTER_PLAN.md).
+Bu belge portal yayın kapılarını ayrıntılandırır. Yeni kullanıcı talimatıyla
+ilk açılış İngilizce olacaktır; yalnız açıkça saklanmış TR/EN tercihi önceliklidir.
+
 Bu plan 28 Ekim 2026 tarihindeki 1.11.5 tabanını esas alır. Oyun kuralları,
 kayıt sürümü ve ortak oyun otoritesi korunur. Her aşamanın çıkış koşulu
 sağlanmadan ona bağlı yayın aşamasına geçilmez. Commit, push, canlı dağıtım ve
@@ -7,7 +11,7 @@ bağımlılık yükseltmesi ayrıca kullanıcı talimatı gerektirir.
 
 | Öncelik | Aşama | Kapsam ve çıkış koşulu |
 | --- | --- | --- |
-| P0 / 1 | Türkçe ve İngilizce | Merkezi tip güvenli sözlükler; arayüz, içerik, olay ve hata metinleri; ayarlarda kalıcı dil; ilk açılışta tarayıcı algılama, desteklenmeyende İngilizce. Dil değişimi motoru veya bağlantıyı yeniden başlatmamalı; kayıtlar ve ağ protokolü değişmemeli. Sözlük eşliği, yer tutucular, algılama ve uyumluluk testleri; typecheck, test ve build. |
+| P0 / 1 | Türkçe ve İngilizce | Merkezi tip güvenli sözlükler; arayüz, içerik, olay ve hata metinleri; ayarlarda kalıcı dil; ilk açılış İngilizce, yalnız saklanmış kullanıcı tercihi öncelikli. Dil değişimi motoru veya bağlantıyı yeniden başlatmamalı; kayıtlar ve ağ protokolü değişmemeli. Sözlük eşliği, yer tutucular ve uyumluluk testleri; typecheck, test ve build. |
 | P0 / paralel yayın engeli | Bağımlılık güvenliği | Aşağıdaki 23 bulgunun onaylı ayrı işte giderilmesi; temiz kurulum ve yeniden audit; üretim Worker ve portal paketinin ayrı değerlendirilmesi. Bu i18n işi bağımlılıkları güncellemez. |
 | P0 / 2 | Kayıt güvenliği ve portal yaşam döngüsü | Mevcut çift yedek, atomiklik ve kayıt ACK davranışını koru. iframe/origin/depolama kısıtları, üçüncü taraf çerezleri, gizlenme/yeniden açılma, çevrimdışı ve depolama kotası testi. Bulut kaydı gerekiyorsa sunucu kimliği, sahiplik ve çakışma politikası tasarla; yerel JSON'u güvenilir sunucu kaydı sayma. Silinen çerez için kurtarma kısıtını oyuncuya açıkla. Eski kayıtlarla geri yükleme testi çıkış koşuludur. |
 | P1 / 3 | Onboarding | Her iki dilde kısa, atlanabilir ve tekrar açılabilir ilk oturum rehberi; hareket, tarım, enerji, kayıt ve online farkı. Mobil/dokunma ve klavye yolları; ilk anlamlı hasada kadar kullanılabilirlik testi. Ekonomi ve mevcut ilerleme ödülleri değiştirilmez. |

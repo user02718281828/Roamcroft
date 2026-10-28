@@ -5,6 +5,11 @@ import { useLocale } from '@/lib/i18n/react';
 
 import AudioSettings from './AudioSettings';
 import LanguageSettings from './LanguageSettings';
+import CampNavigation from './CampNavigation';
+import InventoryPanel from './InventoryPanel';
+import { GAME_VERSION } from '@/lib/version';
+import type { Panel } from '@/lib/ui/game-menu';
+export type { Panel } from '@/lib/ui/game-menu';
 import DailyOrders from './DailyOrders';
 import MaterialNeeds from './MaterialNeeds';
 import { settlementStory } from '@/lib/game/story';
@@ -84,21 +89,6 @@ import {
 import type { Engine } from '@/lib/game/model';
 import type { Bag } from '@/lib/game/data';
 import { NPCS, LANDMARKS, ACHIEVEMENTS } from '@/lib/game/content';
-export type Panel =
-  | 'online'
-  | 'build'
-  | 'craft'
-  | 'inventory'
-  | 'quests'
-  | 'market'
-  | 'settings'
-  | 'building'
-  | 'guide'
-  | 'villagers'
-  | 'ranch'
-  | 'bundles'
-  | 'mine'
-  | null;
 export function Cost({ bag, inventory }: { bag: Bag; inventory: Bag }) {
   useLocale();
   return (
@@ -198,7 +188,7 @@ export default function Panels({
           if (!open) setPanel(null);
         }}
       >
-        <SheetContent className="game-panel" data-panel={panel} showCloseButton>
+        <SheetContent className="game-panel camp-panel" data-panel={panel} translate="no" showCloseButton>
           <SheetHeader className="panel-header">
             <label className="mobile-panel-picker">
               <span>{translate("m_43decee4ab")}</span>
@@ -210,12 +200,7 @@ export default function Panels({
             <SheetTitle>{localize(panel ? titles[panel][0] : '')}</SheetTitle>
             <SheetDescription>{localize(panel ? titles[panel][1] : '')}</SheetDescription>
           </SheetHeader>
-          <Tabs className="panel-navigation" value={panel || 'inventory'} onValueChange={value=>setPanel(value as Panel)}>
-            <TabsList className="unified-tabs">
-              {engine.network?.server&&<TabsTrigger value="online">{translate("m_0d21bd5202")}</TabsTrigger>}
-              {([['inventory',sourceText("m_e18b002e4f")],['craft',sourceText("m_0d3d1e1ccb")],['build',sourceText("m_b2817cf111")],['quests',sourceText("m_301ef766a1")],['ranch',sourceText("m_d2684dfcdb")],['villagers',sourceText("m_b2743de707")],['bundles',sourceText("m_ecb4579f0d")],['mine',sourceText("m_a8525a6194")],['settings',sourceText("m_80ad54ad05")]] as const).map(([id,label])=><TabsTrigger key={id} value={id}>{localize(label)}</TabsTrigger>)}
-            </TabsList>
-          </Tabs>
+          <CampNavigation panel={panel} server={!!engine.network?.server} titles={titles} onSelect={setPanel}/>
           <div className="panel-pause">
             <Clock size={13} /> {localize(engine.network?.shared?sourceText("m_d859c09bdd"):coop?.active ? sourceText("m_d90f1633ed") : sourceText("m_49730237c2"))} <span className="keyboard-hint">{translate("m_e6d1a69097")}</span>
           </div>
@@ -609,20 +594,7 @@ export default function Panels({
             )}
             {panel === 'inventory' && (
               <>
-                <div className="inventory-summary">
-                  <BackpackIcon />
-                  <div>
-                    <b>
-                      {Object.values(s.inventory).reduce((a, b) => a + b, 0)}{' '}
-                      {translate("m_ead81339b6")}</b>
-                    <p>
-                      {inventoryUsed(s)} / {inventoryCapacity(s)} {translate("m_6afafb7774")}</p>
-                  </div>
-                </div>
-                {inventoryUsed(s) >= inventoryCapacity(s) && (
-                  <p className="inventory-warning" role="alert">
-                    {translate("m_6839d924fc")}</p>
-                )}
+                <InventoryPanel engine={engine} onSeed={onSeed} onBuild={onBuild}/>
                 {Object.values(s.overflow).some((n) => n > 0) && (
                   <article className="quest-card">
                     <h3>{translate("m_dd2d7e3d95")}</h3>
@@ -636,70 +608,6 @@ export default function Panels({
                       {translate("m_5c71127641")}</button>
                   </article>
                 )}
-                <Tabs defaultValue="Tümü">
-                  <TabsList className="game-tabs">
-                    {[sourceText("m_f43a65ad82"), sourceText("m_6f185074f6"), sourceText("m_eaf3725fa6"), sourceText("m_2f0db590c3")].map((c) => (
-                      <TabsTrigger value={c} key={c}>
-                        {localize(c)}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                  {[sourceText("m_f43a65ad82"), sourceText("m_6f185074f6"), sourceText("m_eaf3725fa6"), sourceText("m_2f0db590c3")].map((c) => (
-                    <TabsContent value={c} key={c}>
-                      <div className="inventory-grid">
-                        {Object.entries(s.inventory)
-                          .filter(
-                            ([id, n]) =>
-                              n > 0 &&
-                              (c === sourceText("m_f43a65ad82") || ITEMS[id]?.category === c),
-                          )
-                          .map(([id, n]) => {
-                            const item = ITEMS[id],
-                              crop = Object.keys(CROPS).find(
-                                (k) => CROPS[k].seed === id,
-                              );
-                            return (
-                              <article key={id} className="inventory-item">
-                                <span className="item-count">{n}</span>
-                                <span className="inventory-art">
-                                  <GameIcon id={id} />
-                                </span>
-                                <h3>{localize(item.name)}</h3>
-                                <p>
-                                  {localize(item.food
-                                    ? sourceText("m_1374f4702a", { p0: item.food })
-                                    : item.heal
-                                      ? sourceText("m_67a37325b9", { p0: item.heal })
-                                      : sourceText("m_dce10f2f9d", { p0: item.price }))}
-                                </p>
-                                {item.food || item.energy || item.heal ? (
-                                  <button onClick={() => engine.eat(id)}>
-                                    {translate("m_90de6b6295")}{' '}
-                                    {localize(item.energy ? `· ⚡ ${item.energy}` : '')}
-                                  </button>
-                                ) : crop ? (
-                                  <button onClick={() => onSeed(crop)}>
-                                    {translate("m_af50b9285a")}</button>
-                                ) : item.category === sourceText("m_e24bfc1261") ? (
-                                  <button onClick={()=>onBuild(id==='applesapling'?'appletree':'peartree')}>{translate("m_a13e68f6c0")}</button>
-                                ) : id === 'sprinkler' ? (
-                                  <button onClick={() => onBuild('sprinkler')}>
-                                    {translate("m_05635007d2")}</button>
-                                ) : id === 'fertilizer' ? (
-                                  <button onClick={() => onSeed('fertilizer')}>
-                                    {translate("m_0218b7078b")}</button>
-                                ) : (
-                                  <span className="item-kind">
-                                    {localize(item.category)}
-                                  </span>
-                                )}
-                              </article>
-                            );
-                          })}
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
               </>
             )}
             {panel === 'quests' && (
@@ -1351,7 +1259,7 @@ export default function Panels({
                     <RotateCcw size={16} /> {translate("m_184f5fac3d")}</button>
                 </div>
                 <div className="credits">
-                  {translate("m_9dd402e775")}<br />
+                  Roamcroft · {GAME_VERSION}<br />
                   {translate("m_e58ecd899c")}<br />
                   Three.js · React · TypeScript
                 </div>

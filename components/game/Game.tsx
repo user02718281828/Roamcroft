@@ -11,6 +11,8 @@ import VillagerPortrait from './VillagerPortrait';
 import { orchardStatus } from '@/lib/game/orchard';
 import './menu.css';
 import './mobile.css';
+import './ui-v2.css';
+import { nextPanel } from '@/lib/ui/game-menu';
 import MainMenu from './MainMenu';
 import Joystick from './Joystick';
 import {ServerWorldClient} from '@/lib/server/client';
@@ -148,7 +150,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     [selectedNPC, setSelectedNPC] = useState('narin'),
     [sound, setSoundState] = useState(false),
     [quality, setQuality] = useState(false),
-    [compactHud, setCompactHud] = useState(false),
+    [compactHud, setCompactHud] = useState(true),
     [saveStatus, setSaveStatus] = useState(''),
     [hover, setHover] = useState<{ x: number; z: number } | null>(null),
     [messages, setMessages] = useState<
@@ -535,8 +537,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
       if(key==='tab') {ev.preventDefault();setMainMenu(false);if(!ev.repeat)setPanel(p=>p?null:'inventory');return;}
       if(control.current.panel) {
         if(['q','e','arrowleft','arrowright'].includes(key) && !(key.startsWith('arrow')&&(ev.target as HTMLElement).getAttribute('role')==='tab')) {
-          ev.preventDefault();const tabs:Panel[]=[...(serverMode?['online' as const]:[]),'inventory','craft','build','quests','ranch','villagers','bundles','mine','settings'];
-          const current=Math.max(0,tabs.indexOf(control.current.panel));setPanel(tabs[(current+(['q','arrowleft'].includes(key)?tabs.length-1:1))%tabs.length]);
+          ev.preventDefault();setPanel(nextPanel(control.current.panel,['q','arrowleft'].includes(key)?-1:1,serverMode));
         }
         return;
       }
@@ -643,7 +644,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
         : TOOLS.find((t) => t.id === tool)?.name;
   frameProfile.end('reactFunctionCpu',renderStarted);
   return (
-    <main className={`game-shell ${compactHud ? 'hud-collapsed' : ''} ${panel ? 'has-panel' : ''}`}>
+    <main translate="no" className={`game-shell ${compactHud ? 'hud-collapsed' : ''} ${panel ? 'has-panel' : ''}`}>
       {serverMode&&<div className="server-status" role="status">{localize(authority.current?.status||sourceText("m_8ee7c652b8"))}{authority.current?.sleep&&<span> {translate("m_d6023f16fc")}{authority.current.sleep.ready.length}/{authority.current.sleep.ready.length+authority.current.sleep.waiting.length} {translate("m_5bfd1b5024")}</span>}</div>}
       <div ref={host} className="world" />
       <div className="world-vignette" />
@@ -765,7 +766,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
             aria-controls="left-quest left-actions"
             onClick={() => setCompactHud((v) => !v)}
           >
-            {localize(compactHud ? sourceText("m_dcc084f9a2") : sourceText("m_b59056b4d7"))}
+            <BookOpen aria-hidden="true"/><span>{localize(compactHud ? (s.mine ? FLOOR_NAMES[s.mine.floor - 1] : quest?.name || sourceText("m_69510f5f16")) : sourceText("m_b59056b4d7"))}</span>
           </button>
           {inventoryUsed(s) >= inventoryCapacity(s) && (
             <div className="hud-warning" role="alert">
@@ -999,11 +1000,11 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               >
                 <House size={13} /> {translate("m_4f02c4e6d9")}</button>
             )}
-            <small className="performance-readout">
+            {frameProfile.enabled && (<small className="performance-readout">
               {Math.round(
                 1000 / Math.max(1, scene.current?.metrics.frameMs || 16.7),
               )}{' '}
-              {translate("m_1de4961c8e")}{localize((scene.current?.metrics.frameMs||16.7).toFixed(1))} {translate("m_9dc43f788c")}{scene.current?.metrics.chunks || 0} {translate("m_daf138c7f4")}</small>
+              {translate("m_1de4961c8e")}{localize((scene.current?.metrics.frameMs||16.7).toFixed(1))} {translate("m_9dc43f788c")}{scene.current?.metrics.chunks || 0} {translate("m_daf138c7f4")}</small>)}
           </section>
           <div className="tool-info glass">
             <span>

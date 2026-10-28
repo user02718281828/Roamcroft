@@ -38,16 +38,16 @@ test('all authored catalog labels, descriptions and dialogue have English entrie
   for (const npc of NPCS) for (const lines of Object.values(npc.dialogue)) for (const line of lines) assert.ok(authored.has(line), line);
 });
 
-test('explicit preference wins; unsupported, empty or corrupt browser preferences fall back to English', () => {
+test('explicit preference wins; every first visit defaults to English regardless of browser language', () => {
   assert.equal(detectLocale('tr', ['en-US']), 'tr');
   assert.equal(detectLocale('en', ['tr-TR']), 'en');
-  assert.equal(detectLocale(null, ['tr-TR']), 'tr');
-  assert.equal(detectLocale(null, ['TR_tr']), 'tr');
+  assert.equal(detectLocale(null, ['tr-TR']), 'en');
+  assert.equal(detectLocale(null, ['TR_tr']), 'en');
   assert.equal(detectLocale(null, ['en-GB']), 'en');
   assert.equal(detectLocale('broken', ['de-DE', 'tr-TR']), 'en');
   assert.equal(detectLocale(null, []), 'en');
   const unavailable = {getItem() { throw Error('blocked'); }, setItem() { throw Error('blocked'); }};
-  assert.equal(readLocale(unavailable, ['tr-TR']), 'tr');
+  assert.equal(readLocale(unavailable, ['tr-TR']), 'en');
   assert.equal(readLocale(undefined, ['es']), 'en');
   assert.equal(readLocale({getItem: () => 'en', setItem() {}}, ['tr']), 'en');
 });
