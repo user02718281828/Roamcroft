@@ -1,4 +1,8 @@
 'use client';
+import { sourceText } from '@/lib/i18n/source';
+import { localize, translate } from '@/lib/i18n/core';
+import { useLocale } from '@/lib/i18n/react';
+
 import { useEffect, useRef, useState } from 'react';
 import type { Engine } from '@/lib/game/model';
 import SharedSleep from './SharedSleep';
@@ -15,8 +19,9 @@ export default function FriendLobby({
   engine: Engine;
   onEnter: () => void;
 }) {
+  useLocale();
   const [room, setRoom] = useState<Room | null>(null),
-    [name, setName] = useState('Gezgin'),
+    [name, setName] = useState(() => translate("m_768201cbf7")),
     [code, setCode] = useState(''),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
@@ -38,14 +43,14 @@ export default function FriendLobby({
         room: Room | null;
         error?: string;
       };
-      if (!response.ok) throw Error(data.error || 'Bağlantı kurulamadı.');
+      if (!response.ok) throw Error(data.error || sourceText("m_2008fbd8ba"));
       if (alive.current) {
         setRoom(data.room);
         setError('');
       }
     } catch (e) {
       if (alive.current)
-        setError(e instanceof Error ? e.message : 'Bağlantı kurulamadı.');
+        setError(e instanceof Error ? e.message : sourceText("m_2008fbd8ba"));
     } finally {
       pending.current = false;
       if (alive.current) setBusy(false);
@@ -65,18 +70,14 @@ export default function FriendLobby({
   }, []);
   return (
     <section className="friend-lobby">
-      <h3>Birlikte oyna · Beta</h3>
+      <h3>{translate("m_c33c2b9099")}</h3>
       <p>
-        Dört kişiye kadar aynı çiftlikte oynayın. Herkesin kendi çantası ve
-        karakteri var; altın, üretim, görevler ve yapılar ortak. Eşyaları
-        sandıkla paylaşın.
-      </p>
+        {translate("m_0412035f56")}</p>
       <SharedSleep engine={engine}/>
       {room ? (
         <>
           <label>
-            Davet kodu
-            <input readOnly value={room.code} aria-label="Lobi davet kodu" />
+            {translate("m_b2d8a657f7")}<input readOnly value={room.code} aria-label={translate("m_03a9ce23ee")} />
           </label>
           <button
             className="secondary-button"
@@ -84,18 +85,18 @@ export default function FriendLobby({
               void navigator.clipboard
                 .writeText(room.code)
                 .then(() => setCopied(true))
-                .catch(() => setError('Kodu seçip kopyalayabilirsin.'))
+                .catch(() => setError(sourceText("m_ff607fda5d")))
             }
           >
-            {copied ? 'Kopyalandı' : 'Davet kodunu kopyala'}
+            {localize(copied ? sourceText("m_02af74b2f0") : sourceText("m_a8a9de57da"))}
           </button>
           <ul>
             {room.members.map((m, i) => (
               <li key={i}>
-                {m.name}
-                {m.you ? ' · Sen' : ''}
-                {m.host ? ' · Ev sahibi' : ''} ·{' '}
-                {m.online ? 'Bağlı' : 'Bağlantı bekleniyor'}
+                {localize(m.name)}
+                {localize(m.you ? sourceText("m_f7e84cde04") : '')}
+                {localize(m.host ? sourceText("m_88a0c933ff") : '')} ·{' '}
+                {localize(m.online ? sourceText("m_fb8d508c13") : sourceText("m_d6f74da2d0"))}
               </li>
             ))}
           </ul>
@@ -112,16 +113,16 @@ export default function FriendLobby({
                 ?.enterShared?.()
                 .then(onEnter)
                 .catch((e) =>
-                  setError(e instanceof Error ? e.message : 'Bağlanılamadı.'),
+                  setError(e instanceof Error ? e.message : sourceText("m_3c3fee458f")),
                 )
                 .finally(() => {
                   if (alive.current) setBusy(false);
                 });
             }}
           >
-            {engine.network?.shared ? 'Çiftliğe dön' : 'Ortak çiftliğe gir'}
+            {localize(engine.network?.shared ? sourceText("m_82b001b4f6") : sourceText("m_a09d97eb25"))}
           </button>
-          <p>Lobi {room.members.length}/4. Önce ev sahibi çiftliğe girmeli.</p>
+          <p>{translate('lobby.memberCount', {count: room.members.length})}</p>
           <button
             className="secondary-button"
             disabled={busy}
@@ -132,20 +133,19 @@ export default function FriendLobby({
                   .leaveShared?.()
                   .then(() => setRoom(null))
                   .catch((e) =>
-                    setError(e instanceof Error ? e.message : 'Ayrılınamadı.'),
+                    setError(e instanceof Error ? e.message : sourceText("m_0fbfcbbc87")),
                   )
                   .finally(() => setBusy(false));
               } else void call({ op: 'leave' });
             }}
           >
-            {room.host ? 'Lobiyi kapat' : 'Lobiden ayrıl'}
+            {localize(room.host ? sourceText("m_306892bb7a") : sourceText("m_b29fbb0de2"))}
           </button>
         </>
       ) : (
         <>
           <label>
-            Oyuncu adın
-            <input
+            {translate("m_ec0762e936")}<input
               value={name}
               maxLength={24}
               onChange={(e) => setName(e.target.value)}
@@ -156,8 +156,7 @@ export default function FriendLobby({
             disabled={busy || !name.trim()}
             onClick={() => void call({ op: 'create', name })}
           >
-            Davet lobisi aç
-          </button>
+            {translate("m_0a0a86ccff")}</button>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -165,8 +164,7 @@ export default function FriendLobby({
             }}
           >
             <label>
-              Arkadaşının davet kodu
-              <input
+              {translate("m_f1c4a30cc5")}<input
                 value={code}
                 maxLength={24}
                 onChange={(e) => setCode(e.target.value)}
@@ -178,32 +176,23 @@ export default function FriendLobby({
               className="secondary-button"
               disabled={busy || !name.trim() || code.trim().length !== 24}
             >
-              Lobiye katıl
-            </button>
+              {translate("m_b7a8806e6c")}</button>
           </form>
         </>
       )}
-      <p>Beta: ortak yüzey çiftliği ve birlikte uyku açık. Ortak maden henüz kapalı.</p>
+      <p>{translate("m_e27b740ea7")}</p>
       <details>
-        <summary>Ortak oyun ve kayıt nasıl çalışır?</summary>
+        <summary>{translate("m_eee77dfd36")}</summary>
         <p>
-          İlk açılışta ev sahibinin sunucu çiftliğinin kopyasıyla başlar. Ortak
-          kayıt Cloudflare’da ev sahibine bağlı saklanır. Konuklar boş çantayla
-          gelir; eşyaları sonraki katılışlarında korunur. Üretimi başlatan
-          oyuncu ürünü alır; otomatik tekrar onun çantasını kullanır.
-        </p>
+          {translate("m_bf05e47358")}</p>
         <p>
-          Birlikte keşif alanı 20 karedir; sınırda arkadaşınızı bekleyin. Menü açmak
-          arkadaşlarının oyununu durdurmaz. Host bağlantısı 15 saniye kesilirse
-          dünya bekler; 5 dakika dönmezse lobi kapanır. Çerezinizi silmeyin:
-          karakter ve kayıt erişiminiz bu tarayıcıya bağlıdır.
-        </p>
+          {translate("m_0f789d2a9c")}</p>
       </details>
-      {error && (
+      {localize(error && (
         <p role="alert" className="inventory-warning">
-          {error}
+          {localize(error)}
         </p>
-      )}
+      ))}
     </section>
   );
 }

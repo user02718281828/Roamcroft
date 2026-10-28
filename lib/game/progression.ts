@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import type { State } from './model.ts';
 import type { Bag } from './data.ts';
 import { tileIndex } from './world.ts';
@@ -6,28 +7,28 @@ export const BUNDLES: Record<
   { name: string; description: string; items: Bag; reward: string }
 > = {
   pantry: {
-    name: 'Hasat sandığı',
-    description: 'İlk mahsullerini köyün ortak ambarına ayır.',
+    name: sourceText("m_eb9befcd94"),
+    description: sourceText("m_a3cb335a1f"),
     items: { wheat: 20, carrot: 12, potato: 8 },
-    reward: 'Çanta kapasitesi +300 eşya',
+    reward: sourceText("m_f98e265d6c"),
   },
   ranch: {
-    name: 'Çiftliğin bereketi',
-    description: 'Hayvanların ve arıların ürünlerini bir araya getir.',
+    name: sourceText("m_74380b33c3"),
+    description: sourceText("m_f90db55555"),
     items: { egg: 6, milk: 4, wool: 4, honey: 2 },
-    reward: 'Hayvan üretimi %20 hızlanır',
+    reward: sourceText("m_9832185b9a"),
   },
   artisan: {
-    name: 'Ustaların sofrası',
-    description: 'İşlenmiş ürünlerle köy atölyelerini destekle.',
+    name: sourceText("m_bdaf8e60d0"),
+    description: sourceText("m_10f64460e7"),
     items: { jam: 4, cheese: 3, bread: 6, soup: 3 },
-    reward: 'Tüm işleme makineleri %15 hızlanır',
+    reward: sourceText("m_22bf9e8cc5"),
   },
   irrigation: {
-    name: 'Suyun yolu',
-    description: 'Yeni sulama sistemini kurmak için malzeme bağışla.',
+    name: sourceText("m_6804ed8999"),
+    description: sourceText("m_3b6e6d75cd"),
     items: { copperbar: 6, bar: 4, crystal: 2 },
-    reward: 'Fıskiye menzili 1 kareden 2 kareye çıkar',
+    reward: sourceText("m_650b724c64"),
   },
 };
 export const inventoryUsed = (s: State) =>

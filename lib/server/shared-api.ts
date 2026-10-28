@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import { allowed, readBody, worldIdentity } from './api.ts';
 import { validPulse } from './protocol.ts';
 import { SHARED_PROTOCOL } from './shared-protocol.ts';
@@ -35,21 +36,21 @@ export async function handleShared(
   db: D1Database,
   now = Date.now(),
 ) {
-  if (request.method !== 'POST') return json({ error: 'POST gerekli.' }, 405);
+  if (request.method !== 'POST') return json({ error: sourceText("m_4e4ea38d7e") }, 405);
   if (
     request.headers.get('Origin') !== new URL(request.url).origin ||
     request.headers.get('Sec-Fetch-Site') === 'cross-site'
   )
-    return json({ error: 'Kaynak doğrulanamadı.' }, 403);
+    return json({ error: sourceText("m_f516389793") }, 403);
   if (
     request.headers.get('Content-Type')?.split(';')[0].trim() !==
     'application/json'
   )
-    return json({ error: 'JSON gerekli.' }, 415);
+    return json({ error: sourceText("m_dc2be08b0d") }, 415);
   if (request.headers.get('X-Roamcroft-Protocol') !== String(SHARED_PROTOCOL))
     return json(
       {
-        error: 'Online sürüm değişti. Sayfayı yenileyerek güncel sürüme geç.',
+        error: sourceText("m_f4f1ad9399"),
         protocolVersion: SHARED_PROTOCOL,
       },
       426,
@@ -59,10 +60,10 @@ export async function handleShared(
     raw = await readBody(request);
     body = JSON.parse(raw);
   } catch {
-    return json({ error: 'İstek okunamadı.' }, 400);
+    return json({ error: sourceText("m_49b8e07264") }, 400);
   }
   if (!body || typeof body !== 'object' || Array.isArray(body))
-    return json({ error: 'Geçersiz istek.' }, 400);
+    return json({ error: sourceText("m_805fb11525") }, 400);
   const connect = body.op === 'connect' && Object.keys(body).length === 1;
   if (
     !connect &&
@@ -74,12 +75,12 @@ export async function handleShared(
       Number(body.revision) >= 0
     )
   )
-    return json({ error: 'Geçersiz komut.' }, 400);
+    return json({ error: sourceText("m_5358cad9ac") }, 400);
   const identity = await worldIdentity(request, db, now);
-  if (!identity) return json({ error: 'Sunucu oturumu gerekli.' }, 401);
+  if (!identity) return json({ error: sourceText("m_61666f7ffe") }, 401);
   if (!(await allowed(db, 'shared:' + identity.id, now, 180, 60_000)))
     return Response.json(
-      { error: 'İstek sınırına ulaşıldı. Bir dakika bekle.' },
+      { error: sourceText("m_f2c4be0857") },
       {
         status: 429,
         headers: { 'Cache-Control': 'no-store', 'Retry-After': '60' },
@@ -97,7 +98,7 @@ export async function handleShared(
     return json(
       {
         error:
-          'Lobi kapandı veya üyeliğin sona erdi. Kişisel dünyana dönüp yeniden katıl.',
+          sourceText("m_0a45b5d43a"),
       },
       410,
     );
@@ -116,7 +117,7 @@ export async function handleShared(
     if (!row) {
       if (identity.id !== member.owner)
         return json(
-          { error: 'Ev sahibinin ortak çiftliğe girmesi bekleniyor.' },
+          { error: sourceText("m_18874acb6e") },
           423,
         );
       const original = await db
@@ -126,7 +127,7 @@ export async function handleShared(
         .bind(member.owner, now)
         .first<{ world: string }>();
       if (!original)
-        return json({ error: 'Ev sahibinin dünyası bulunamadı.' }, 410);
+        return json({ error: sourceText("m_a1554bd1e0") }, 410);
       const world = JSON.parse(original.world) as WorldRecord;
       if (world.state.mine) {
         const e = new Engine(world.state);
@@ -152,7 +153,7 @@ export async function handleShared(
         )
         .bind(member.owner)
         .first<Row>();
-      if (!row) return json({ error: 'Ortak dünya hazırlanamadı.' }, 503);
+      if (!row) return json({ error: sourceText("m_d8f319ff34") }, 503);
     }
     const record = JSON.parse(row.world) as SharedRecord;
     if (
@@ -164,7 +165,7 @@ export async function handleShared(
       return json(
         {
           error:
-            'Ev sahibinin bağlantısı bekleniyor. Ortak dünya duraklatıldı.',
+            sourceText("m_26673c8934"),
         },
         423,
       );
@@ -193,12 +194,12 @@ export async function handleShared(
       if (!active.has(id)) player.present = false;
     const existing = record.players[identity.id];
     if (!connect && (!existing || !existing.present))
-      return json({ error: 'Önce ortak çiftliğe bağlan.' }, 409);
+      return json({ error: sourceText("m_7147b3e91e") }, 409);
     if (!existing && Object.keys(record.players).length >= 32)
       return json(
         {
           error:
-            'Bu çiftliğin 32 kalıcı oyuncu kaydı dolu. Mevcut oyuncular katılabilir.',
+            sourceText("m_eee579c8dc"),
         },
         409,
       );
@@ -235,13 +236,13 @@ export async function handleShared(
         );
       if (nonce !== p.nonce || pulse.seq !== p.seq + 1)
         return json(
-          { error: 'Oturum sırası değişti; yeniden eşitleniyor.' },
+          { error: sourceText("m_84d3dc8043") },
           409,
         );
       let seq = p.commandSeq;
       for (const command of pulse.commands)
         if (command.seq !== ++seq)
-          return json({ error: 'Komut sırası geçersiz.' }, 409);
+          return json({ error: sourceText("m_9eef75e71a") }, 409);
       const result = advanceShared(
         record,
         member.owner,
@@ -273,7 +274,7 @@ export async function handleShared(
     }
     const encoded = JSON.stringify(record);
     if (new TextEncoder().encode(encoded).length > 1_900_000)
-      return json({ error: 'Ortak kayıt kapasitesine ulaşıldı.' }, 507);
+      return json({ error: sourceText("m_109ac33c91") }, 507);
     const results = await db.batch([
       db
         .prepare(
@@ -311,7 +312,7 @@ export async function handleShared(
       );
   }
   return json(
-    { error: 'Dünya başka bir eylemi işliyor; tekrar deneniyor.' },
+    { error: sourceText("m_bd4470093f") },
     429,
   );
 }

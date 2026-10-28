@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import {Engine,createState,type State} from '../game/model.ts';
 import type {Command,Pose} from '../coop/protocol.ts';
 import {validServerCommand} from './protocol.ts';
@@ -22,7 +23,7 @@ export function advanceWorld(record:WorldRecord,pose:Pose,commands:Command[],ela
     engine.tick(dt);remaining-=dt;
   }
   for(const command of commands){
-    if(!validServerCommand(command))throw Error('Geçersiz komut.');
+    if(!validServerCommand(command))throw Error(sourceText("m_5358cad9ac"));
     const method=(engine as unknown as Record<string,(...args:unknown[])=>unknown>)[command.method];
     method.apply(engine,command.args);
   }

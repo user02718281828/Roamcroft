@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import {Engine,walkable} from '../game/model.ts';
 import type {State} from '../game/model.ts';
 import {movementSpeed} from '../game/progression.ts';
@@ -54,7 +55,7 @@ export class CoopAuthority {
       let command:unknown;try{command=JSON.parse(row.payload);}catch{continue;}
       if(!validCommand(command)) continue;
       if(command.method==='act' && e.isPortal(Number(command.args[0]),Number(command.args[1]))) {
-        peer.message='Maden geçişini ev sahibi başlatır.';peer.messageId=row.id;continue;
+        peer.message=sourceText("m_e254720441");peer.messageId=row.id;continue;
       }
       const saved={player:e.s.player,path:e.path,pending:e.pending,fishing:e.fishing,cooldown:e.actionCooldown,resting:e.resting,action:e.playerAction};
       e.s.player=peer.player;e.path=[];e.pending=null;e.fishing=this.fishing.get(row.member)||null;e.actionCooldown=this.cooldown.get(row.member)||0;e.networkActor=true;e.resting=this.resting.get(row.member)||false;
@@ -62,7 +63,7 @@ export class CoopAuthority {
       try {
         const fn=(e as unknown as Record<string,(...args:unknown[])=>unknown>)[command.method];
         const result=fn.apply(e,command.args);
-        peer.message=e.events.slice(before).at(-1)?.text || (result===false ? 'Bu eylem şu anda yapılamıyor.' : 'İşlem ortak dünyaya işlendi.');
+        peer.message=e.events.slice(before).at(-1)?.text || (result===false ? sourceText("m_3dc4605da8") : sourceText("m_b22869e506"));
         peer.messageId=row.id;
       } finally {
         this.cooldown.set(row.member,e.actionCooldown);

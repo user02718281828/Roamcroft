@@ -1,4 +1,6 @@
 // Opt-in production diagnostics (?profile=1). No gameplay state or network data is exported.
+import { translate } from '../i18n/core.ts';
+import { subscribeLocale } from '../i18n/locale.ts';
 export function distribution(values: number[]) {
   if (!values.length) return null;
   const sorted = [...values].sort((a, b) => a - b),
@@ -23,6 +25,7 @@ export class FrameProfile {
   private panel?: HTMLElement;
   private output?: HTMLElement;
   private observer?: PerformanceObserver;
+  private unsubscribeLocale?: () => void;
   start(seconds = 30) {
     this.frames = [];
     this.phases.clear();
@@ -83,14 +86,14 @@ export class FrameProfile {
     panel.style.cssText =
       'position:fixed;right:8px;bottom:70px;z-index:1000;background:#10271eee;color:white;padding:8px;max-width:360px;font:12px monospace';
     const title = document.createElement('summary');
-    title.textContent = 'Performans ölçümü';
+    title.textContent = translate('profile.title');
     panel.appendChild(title);
     const button = document.createElement('button');
-    button.textContent = '30 saniye ölç';
+    button.textContent = translate('profile.start');
     button.style.cssText = 'padding:10px';
     button.onclick = () => {
       this.start();
-      output.textContent = 'Ölçülüyor';
+      output.textContent = translate('profile.recording');
       output.dataset.status = 'recording';
     };
     panel.appendChild(button);
@@ -99,6 +102,11 @@ export class FrameProfile {
     output.style.cssText =
       'max-height:180px;overflow:auto;white-space:pre-wrap';
     panel.appendChild(output);
+    this.unsubscribeLocale = subscribeLocale(() => {
+      title.textContent = translate('profile.title');
+      button.textContent = translate('profile.start');
+      if (output.dataset.status === 'recording') output.textContent = translate('profile.recording');
+    });
     this.panel = panel;
     this.output = output;
     document.body.appendChild(panel);
@@ -112,6 +120,7 @@ export class FrameProfile {
       } catch {}
   }
   dispose() {
+    this.unsubscribeLocale?.();
     this.observer?.disconnect();
     this.panel?.remove();
     this.recording = false;

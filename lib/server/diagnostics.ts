@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 type Route = 'shared' | 'lobby' | 'world';
 // Do not log bodies, cookies, invite codes, player names, exception messages or stacks.
 export async function guardOnline(
@@ -19,7 +20,7 @@ export async function guardOnline(
     response = Response.json(
       {
         error:
-          'Sunucuya şu anda ulaşılamıyor. İşlem onaylanmadı; bağlantı yeniden denenecek.',
+          sourceText("m_d2867f52c3"),
       },
       {
         status: 503,

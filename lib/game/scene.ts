@@ -1,3 +1,6 @@
+import { sourceText } from '../i18n/source.ts';
+import { localizeText } from '../i18n/core.ts';
+import { subscribeLocale } from '../i18n/locale.ts';
 import * as T from 'three';
 import {frameProfile,GpuTimer} from './profile.ts';
 import {AnimalBatches} from './actor-batches.ts';
@@ -182,18 +185,22 @@ export class ValleyScene {
     this.canvas = this.renderer.domElement;
     this.canvas.setAttribute(
       'aria-label',
-      'Roamcroft oyun dünyası. Yürümek veya seçili aracı kullanmak için araziye tıkla.',
+      localizeText(sourceText("m_73de4581b9")),
     );
+    this.disposeHandlers.push(subscribeLocale(() => {
+      this.canvas.setAttribute('aria-label', localizeText(sourceText('m_73de4581b9')));
+      this.root.traverse(object => { object.userData.refreshLanguage?.(); });
+    }));
     this.canvas.tabIndex = 0;
     const lost = (event: Event) => {
       event.preventDefault();
       this.contextLost = true;
-      engine.emit('Görüntü yeniden hazırlanıyor…', 'info');
+      engine.emit(sourceText("m_f583360ece"), 'info');
     };
     const restored = () => {
       this.contextLost = false;
       this.setQuality(false);
-      engine.emit('Görüntü dengeli modda geri yüklendi.', 'good');
+      engine.emit(sourceText("m_bfec87c5e3"), 'good');
     };
     this.canvas.addEventListener('webglcontextlost', lost);
     this.canvas.addEventListener('webglcontextrestored', restored);
@@ -1923,22 +1930,8 @@ export class ValleyScene {
   recenter() {
     this.pan.set(0, 0, 0);
   }
-  nameTag(parent: T.Object3D, text: string, y: number) {
+  nameTag(parent: T.Object3D, text: string, y: number, authored = true) {
     const canvas = document.createElement('canvas');
-    canvas.width = Math.min(384,Math.max(120,text.length*23+36));
-    canvas.height = 72;
-    const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = 'rgba(27,49,38,.88)';
-    ctx.beginPath();
-    ctx.roundRect(4, 4, canvas.width-8, 60, 15);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(232,207,151,.5)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = '#f1dfb4';
-    ctx.font = '600 34px Georgia';
-    ctx.textAlign = 'center';
-    ctx.fillText(text, canvas.width/2, 45, canvas.width-28);
     const texture = new T.CanvasTexture(canvas);
     const sprite = new T.Sprite(
       new T.SpriteMaterial({
@@ -1948,19 +1941,39 @@ export class ValleyScene {
       }),
     );
     sprite.position.y = y;
-    sprite.scale.set(canvas.width/180, 0.4, 1);
     sprite.userData.nameTag = true;
+    const draw = () => {
+      const label = authored ? localizeText(text) : text;
+      canvas.width = Math.min(384, Math.max(120, label.length * 23 + 36));
+      canvas.height = 72;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = 'rgba(27,49,38,.88)';
+      ctx.beginPath();
+      ctx.roundRect(4, 4, canvas.width - 8, 60, 15);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(232,207,151,.5)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = '#f1dfb4';
+      ctx.font = '600 34px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, canvas.width / 2, 45, canvas.width - 28);
+      sprite.scale.set(canvas.width / 180, 0.4, 1);
+      texture.needsUpdate = true;
+    };
+    sprite.userData.refreshLanguage = draw;
+    draw();
     parent.add(sprite);
   }
   makeVillagers() {
     if (this.engine.s.mine) {
       for (const [spot, label, color] of [
-        [MINE_LIFT, 'Asansör · Vadiye dön', 0xdeb46f],
+        [MINE_LIFT, sourceText("m_8a21c0150b"), 0xdeb46f],
         [
           MINE_STAIRS,
           this.engine.s.mine.floor === 5
-            ? 'Dağın kalbi · Hazine'
-            : 'Alt kata geç',
+            ? sourceText("m_df295fed8c")
+            : sourceText("m_4c08be0f50"),
           0x9ac9df,
         ],
       ] as const) {
@@ -2021,7 +2034,7 @@ export class ValleyScene {
             0.9,
           );
       } else if (l.id === 'ruins') {
-        this.nameTag(g, 'Kadim maden · Seviye 3', 2.7);
+        this.nameTag(g, sourceText("m_ee93c474f3"), 2.7);
         for (const x of [-0.85, 0.85]) {
           this.mesh(g, 'cylinder', 0x9fa693, x, 0.9, 0, 0.22, 1.8, 0.22);
           this.box(g, 0xb4b89c, x, 1.85, 0, 0.5, 0.2, 0.5);
@@ -2175,7 +2188,7 @@ export class ValleyScene {
     for(const [id,g] of this.remotePlayers)if(!active.has(id)){this.root.remove(g);releaseModel(g);this.remotePlayers.delete(id);this.remoteMotion.delete(id);}
     for(const peer of peers){
       let g=this.remotePlayers.get(peer.id);
-      if(!g){g=new T.Group();this.makeCharacter(g,[0xb88b78,0x82a79b,0xc3a46d,0xa397b6][peer.id.charCodeAt(0)%4]);compactModel(g);this.nameTag(g,peer.name,1.9);g.position.set(peer.player.x,0,peer.player.z);this.remotePlayers.set(peer.id,g);this.root.add(g);}
+      if(!g){g=new T.Group();this.makeCharacter(g,[0xb88b78,0x82a79b,0xc3a46d,0xa397b6][peer.id.charCodeAt(0)%4]);compactModel(g);this.nameTag(g,peer.name,1.9,false);g.position.set(peer.player.x,0,peer.player.z);this.remotePlayers.set(peer.id,g);this.root.add(g);}
       let motion=this.remoteMotion.get(peer.id);
       if(!motion){motion=new RemoteMotion();this.remoteMotion.set(peer.id,motion);}
       const now=performance.now();

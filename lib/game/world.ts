@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import type { State, Tile } from './model.ts';
 
 export const CHUNK = 12;
@@ -45,14 +46,14 @@ export function biomeAt(x: number, z: number, seed: number) {
   if (x >= 0 && x < 36 && z >= 0 && z < 36) return 'Roamcroft';
   const n = hash(Math.floor(x / 48), Math.floor(z / 48), seed);
   return n < 0.28
-    ? 'Çam ormanı'
+    ? sourceText("m_431211cde9")
     : n < 0.5
-      ? 'Bakır sırtları'
+      ? sourceText("m_b4d55c5731")
       : n < 0.7
-        ? 'Çiçek ovası'
+        ? sourceText("m_00e496fbbe")
         : n < 0.85
-          ? 'Mantar korusu'
-          : 'Kristal bozkırı';
+          ? sourceText("m_daeecf93be")
+          : sourceText("m_3e705c585f");
 }
 export function generatedTile(
   seed: number,
@@ -80,13 +81,13 @@ export function generatedTile(
   const resource =
     trail || terrain !== 'grass'
       ? null
-      : b === 'Çam ormanı' && n < 0.32
+      : b === sourceText("m_431211cde9") && n < 0.32
         ? 'tree'
-        : b === 'Mantar korusu' && n < 0.2
+        : b === sourceText("m_daeecf93be") && n < 0.2
           ? 'mushroom'
-          : b === 'Kristal bozkırı' && n < 0.13
+          : b === sourceText("m_3e705c585f") && n < 0.13
             ? 'crystal'
-            : b === 'Bakır sırtları' && n < 0.2
+            : b === sourceText("m_b4d55c5731") && n < 0.2
               ? n < 0.1
                 ? 'copper'
                 : 'iron'

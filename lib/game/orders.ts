@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import { type Bag } from './data.ts';
 import { bagValue } from './economy.ts';
 import type { State } from './model.ts';
@@ -7,34 +8,34 @@ export type DailyOrder = OrderDefinition & {token: string; day: number; gold: nu
 const stock: Record<string, {fresh: OrderDefinition[]; prepared: OrderDefinition[]}> = {
   narin: {
     fresh: [
-      {id:'supper',name:'Sofraya taze havuç',description:'Akşam sofrasına ayırdığım sebzeleri tamamlayabilir misin?',input:{carrot:6},level:1,seasons:[0,2]},
-      {id:'grain',name:'Yarınki öğütme',description:'Değirmene gidecek buğdayı bugün hazırlıyorum. Bir çuvalı senin tarladan dolduralım.',input:{wheat:9},level:1},
+      {id:'supper',name:sourceText("m_5688cf17f9"),description:sourceText("m_966b2ba482"),input:{carrot:6},level:1,seasons:[0,2]},
+      {id:'grain',name:sourceText("m_a0da77559a"),description:sourceText("m_c4ee4be145"),input:{wheat:9},level:1},
     ],
     prepared: [
-      {id:'soup',name:'Tencereden sofraya',description:'Bu kez sebze yerine hazır çorba getir. Karşılığında gelecek ekimin için gübre ayırdım.',input:{soup:2},supplies:{fertilizer:2},level:4},
-      {id:'jam',name:'Kavanozları dolduralım',description:'Meyve bahçenin ürününü marmelat olarak değerlendirelim. Yeni ekimin toprağına da katkım olsun.',input:{applejam:2},supplies:{fertilizer:3},level:4},
-      {id:'cheese',name:'Çiftlikten sofraya',description:'İki peynirle ortak sofrayı tamamlayabiliriz. Hayvanlarına bir sonraki gün için yem hazırladım.',input:{cheese:2},supplies:{feed:4},level:6},
+      {id:'soup',name:sourceText("m_3cfda54396"),description:sourceText("m_dd7016395f"),input:{soup:2},supplies:{fertilizer:2},level:4},
+      {id:'jam',name:sourceText("m_6d4449565b"),description:sourceText("m_e85349dad8"),input:{applejam:2},supplies:{fertilizer:3},level:4},
+      {id:'cheese',name:sourceText("m_521f819163"),description:sourceText("m_d012435508"),input:{cheese:2},supplies:{feed:4},level:6},
     ],
   },
   torin: {
     fresh: [
-      {id:'repair',name:'Onarıma malzeme',description:'İşlenmemiş taş ve odun da işimi görür; kesimini ben tamamlarım.',input:{stone:8,wood:4},level:1},
-      {id:'fiber',name:'Bağları yenile',description:'Malzeme demetlerini bağlamak için lif, dayanaklar için biraz odun gerekiyor.',input:{fiber:12,wood:8},level:1},
+      {id:'repair',name:sourceText("m_80289445c8"),description:sourceText("m_13a7a462e8"),input:{stone:8,wood:4},level:1},
+      {id:'fiber',name:sourceText("m_1340a7d3cf"),description:sourceText("m_bbc4171f42"),input:{fiber:12,wood:8},level:1},
     ],
     prepared: [
-      {id:'planks',name:'Ölçülü tahtalar',description:'Hazır kereste getirirsen daha çabuk işe koyulurum. Sana da bağlantı halatı ayırdım.',input:{plank:8},supplies:{rope:2},level:2},
-      {id:'bricks',name:'Ocağın kenarı',description:'Pişmiş tuğla getir; karşılığında bir sonraki yapın için kereste vereyim.',input:{brick:6},supplies:{plank:2},level:3},
-      {id:'rope',name:'Sağlam bağlantılar',description:'İşlenmiş halatla malzemeleri sabitleyelim. Yapı stoğun için kereste hazır.',input:{rope:8},supplies:{plank:3},level:3},
+      {id:'planks',name:sourceText("m_bd719214df"),description:sourceText("m_a2b745e3a8"),input:{plank:8},supplies:{rope:2},level:2},
+      {id:'bricks',name:sourceText("m_d419475872"),description:sourceText("m_35eaf59324"),input:{brick:6},supplies:{plank:2},level:3},
+      {id:'rope',name:sourceText("m_692cd06c16"),description:sourceText("m_e3c3dac276"),input:{rope:8},supplies:{plank:3},level:3},
     ],
   },
   lale: {
     fresh: [
-      {id:'catch',name:'Kıyıdan gelen',description:'Bugünün balık teslimatını birlikte tamamlayalım.',input:{fish:3},level:1},
-      {id:'rivermeal',name:'Kıyıda öğle arası',description:'Balığın yanına birkaç orman meyvesi ekleyelim; kıyıda uzun bir gün var.',input:{fish:2,berry:4},level:1},
+      {id:'catch',name:sourceText("m_15ba1ffcec"),description:sourceText("m_12e68954b8"),input:{fish:3},level:1},
+      {id:'rivermeal',name:sourceText("m_9341fe5193"),description:sourceText("m_2037c254b7"),input:{fish:2,berry:4},level:1},
     ],
     prepared: [
-      {id:'packedfish',name:'Yola hazır yemek',description:'Pişmiş balık getirirsen yemeği taşımak kolay olur. Keşif çantana bir sargı bırakırım.',input:{grilledfish:3},supplies:{bandage:1},level:2},
-      {id:'bread',name:'Kıyı azığı',description:'Bugün balık yerine ekmek lazım. Uzun yürüyüşlerinde kullanman için sargı hazırladım.',input:{bread:3},supplies:{bandage:1},level:2},
+      {id:'packedfish',name:sourceText("m_bb8f17f776"),description:sourceText("m_b3bce054e4"),input:{grilledfish:3},supplies:{bandage:1},level:2},
+      {id:'bread',name:sourceText("m_ea60537eb9"),description:sourceText("m_85b9e13af5"),input:{bread:3},supplies:{bandage:1},level:2},
     ],
   },
 };

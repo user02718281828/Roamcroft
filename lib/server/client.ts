@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import type { Engine, State, Event } from '../game/model.ts';
 import type { Command, Peer } from '../coop/protocol.ts';
 import { applySharedState } from '../coop/authority.ts';
@@ -31,7 +32,7 @@ const SHARED_FLAG = 'roamcroft-shared-active';
 export class ServerWorldClient {
   connected = false;
   shared = false;
-  status = 'Sunucuya bağlanıyor…';
+  status = sourceText("m_8ee7c652b8");
   latencyMs = 0;
   private lastPulseAt = 0;
   private nonce = '';
@@ -81,7 +82,7 @@ export class ServerWorldClient {
         }
         if (revision !== packet.revision) throw Error('Revision mismatch');
       } catch {
-        throw Object.assign(Error('Dünya güncellemesi yeniden eşitleniyor.'), {
+        throw Object.assign(Error(sourceText("m_cf4a39ea2d")), {
           status: 409,
         });
       }
@@ -89,7 +90,7 @@ export class ServerWorldClient {
       this.revision = revision;
     } else if (packet.delta && this.state)
       this.state = applyDelta(this.state, packet.delta, this.seq);
-    else throw Object.assign(Error('Dünya verisi eksik.'), { status: 409 });
+    else throw Object.assign(Error(sourceText("m_1cbd423178")), { status: 409 });
     if (packet.revision !== undefined) this.revision = packet.revision;
     this.selfId = packet.you?.id || '';
     if(!this.realtime?.ready)this.peers = (packet.peers || []).filter((p) => p.id !== this.selfId);
@@ -135,14 +136,14 @@ export class ServerWorldClient {
         this.incompatible = true;
         this.connected = false;
       }
-      throw Object.assign(Error(packet.error || 'Sunucu yanıt vermedi.'), {
+      throw Object.assign(Error(packet.error || sourceText("m_4af2285e3e")), {
         status: response.status,
       });
     }
     if (path === '/api/shared' && packet.protocolVersion !== SHARED_PROTOCOL) {
       this.incompatible = true;
       this.connected = false;
-      throw Object.assign(Error('Online sürüm değişti. Sayfayı yenile.'), {
+      throw Object.assign(Error(sourceText("m_e00926e69e")), {
         status: 426,
       });
     }
@@ -167,13 +168,13 @@ export class ServerWorldClient {
     if(this.realtime){
       const m=this.realtime.metrics;
       this.status=this.realtime.ready
-        ? `Ortak çiftlik · ${this.peers.length+1}/4 · RTT ${Math.round(m.rtt)} ms · akış ±${Math.round(m.arrivalJitter)} ms · tampon ${Math.round(m.buffer)} ms`
-        : 'Gerçek zamanlı bağlantı yeniden kuruluyor…';
+        ? sourceText("m_0385c5e30b", { p0: this.peers.length+1, p1: Math.round(m.rtt), p2: Math.round(m.arrivalJitter), p3: Math.round(m.buffer) })
+        : sourceText("m_2d079a7b65");
       return;
     }
     this.status = this.shared
-      ? `Ortak çiftlik · ${this.peers.length + 1}/4 · ${this.latencyMs} ms · Kaydedildi`
-      : 'Sunucu dünyası · kaydedildi';
+      ? sourceText("m_3cfeec12f7", { p0: this.peers.length + 1, p1: this.latencyMs })
+      : sourceText("m_45239a25c3");
   }
   async start() {
     let packet = await this.request(
@@ -237,7 +238,7 @@ export class ServerWorldClient {
         state,
         reset
           ? undefined
-          : this.realtime?.ready ? {id:this.selfId,name:'Gezgin',player:state.player} : packet.you || { id: 'self', name: 'Gezgin', player: state.player },
+          : this.realtime?.ready ? {id:this.selfId,name:sourceText("m_768201cbf7"),player:state.player} : packet.you || { id: 'self', name: sourceText("m_768201cbf7"), player: state.player },
         this.realtime?.ready ? undefined : sentPose,
       );
       this.bind(current);
@@ -300,7 +301,7 @@ export class ServerWorldClient {
     this.flag(false);
     this.label();
     this.engine()?.emit(
-      'Ortak oturum kapandı. Kişisel çiftliğine döndün. Ortak kayıt ev sahibinde korunuyor.',
+      sourceText("m_1306d5c37a"),
       'info',
     );
   }
@@ -314,12 +315,12 @@ export class ServerWorldClient {
       this.queue.length >= 16 ||
       !validServerCommand(command)
     ) {
-      this.engine()?.emit('Bu işlem şu anda sunucuya gönderilemiyor.', 'bad');
+      this.engine()?.emit(sourceText("m_497e43ec30"), 'bad');
       return false;
     }
     this.commandSeq++;
     this.queue.push(command);
-    this.status = 'İşlem sunucuya gönderiliyor…';
+    this.status = sourceText("m_ab131fe43d");
     this.changed();
     return true;
   }
@@ -393,11 +394,11 @@ export class ServerWorldClient {
       this.pending = null;
       this.connected = true;
       this.label();
-      if (this.queue.length) this.status = 'İşlem sunucuya gönderiliyor…';
+      if (this.queue.length) this.status = sourceText("m_ab131fe43d");
     } catch (error) {
       this.connected = false;
       this.status =
-        error instanceof Error ? error.message : 'Bağlantı bekleniyor.';
+        error instanceof Error ? error.message : sourceText("m_0a3d617fb5");
       const status = (error as { status: number }).status;
       if (this.shared && status === 410) {
         try {
@@ -412,7 +413,7 @@ export class ServerWorldClient {
           this.acknowledge(packet);
           this.apply(packet, true);
           this.engine()?.emit(
-            'Dünya sunucuyla eşitlendi. Son işlemini kontrol et.',
+            sourceText("m_ae5b31ecab"),
             'info',
           );
           this.label();
@@ -422,7 +423,7 @@ export class ServerWorldClient {
     this.changed();
   }
   async flush() {
-    if (this.stopped) throw Error('Oturum kapalı.');
+    if (this.stopped) throw Error(sourceText("m_e71cac949d"));
     await this.flight;
     if (this.timer) clearTimeout(this.timer);
     do {
@@ -436,7 +437,7 @@ export class ServerWorldClient {
       (this.queue.length > 0 || this.pending)
     );
     this.schedule();
-    if (!this.connected || this.pending || this.queue.length) throw Error(this.status || 'İşlemler henüz kaydedilmedi.');
+    if (!this.connected || this.pending || this.queue.length) throw Error(this.status || sourceText("m_fe37989ef5"));
   }
   async exitToMenu() {
     await this.flush();

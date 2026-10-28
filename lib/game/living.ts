@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 export type HumanAction = 'idle' | 'standing' | 'walking' | 'running' | 'working' | 'harvesting' | 'eating' | 'fishing' | 'sitting' | 'sleeping' | 'talking' | 'greeting';
 export type AnimalAction = 'grazing' | 'walking' | 'running' | 'following' | 'sleeping' | 'lying' | 'happy' | 'fleeing';
 export function sunlight(time:number) {
@@ -7,15 +8,15 @@ export function sunlight(time:number) {
 }
 export function schedule(index:number,time:number,home:{x:number;z:number}) {
   const hour=time*24;
-  if(hour<6||hour>=22)return {x:11+index*2,z:16,action:'sleeping' as HumanAction,label:'Evde dinleniyor'};
-  if(hour<8)return {x:13+index,z:18,action:'sitting' as HumanAction,label:'Kahvaltı molasında'};
-  if(hour>=12&&hour<14)return {x:15+index,z:19,action:'talking' as HumanAction,label:'Köy meydanında'};
-  if(hour>=18)return {x:14+index,z:18,action:'sitting' as HumanAction,label:'Akşam buluşmasında'};
-  return {...home,action:'working' as HumanAction,label:'İşinin başında'};
+  if(hour<6||hour>=22)return {x:11+index*2,z:16,action:'sleeping' as HumanAction,label:sourceText("m_856a1ef5c1")};
+  if(hour<8)return {x:13+index,z:18,action:'sitting' as HumanAction,label:sourceText("m_d4f8c1aef7")};
+  if(hour>=12&&hour<14)return {x:15+index,z:19,action:'talking' as HumanAction,label:sourceText("m_42874f82f7")};
+  if(hour>=18)return {x:14+index,z:18,action:'sitting' as HumanAction,label:sourceText("m_044083937a")};
+  return {...home,action:'working' as HumanAction,label:sourceText("m_388601b9a0")};
 }
 export function timedGreeting(time:number) {
   const hour=time*24;
-  return hour<6||hour>=22?'Geç oldu. Yarın yeniden görüşelim.':hour<10?'Günaydın! Yeni bir güne hazır mısın?':hour<17?'İşler nasıl gidiyor? Biraz soluklanalım.':'Akşam serinliği çöktü. Meydandaki sofraya uğra.';
+  return hour<6||hour>=22?sourceText("m_8a23206ea3"):hour<10?sourceText("m_0709a55a3d"):hour<17?sourceText("m_f245a52afb"):sourceText("m_17f1262615");
 }
 export function humanPose(action:HumanAction,time:number) {
   const wave=Math.sin(time*(action==='running'?18:11)),breath=Math.sin(time*2);

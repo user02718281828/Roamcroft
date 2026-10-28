@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import type { Tile } from './model.ts';
 
 export const MINE_ENTRANCE = { x: 7, z: 5 };
@@ -5,15 +6,15 @@ export const MINE_LIFT = { x: 18, z: 27 };
 export const MINE_STAIRS = { x: 18, z: 8 };
 export const MINE_FLOORS = 5;
 export const FLOOR_NAMES = [
-  'Bakır galerisi',
-  'Yankı tünelleri',
-  'Demir uçurumu',
-  'Kristal mezarlığı',
-  'Dağın kalbi',
+  sourceText("m_1895e00c3f"),
+  sourceText("m_1671ac6014"),
+  sourceText("m_ec2b12a6ca"),
+  sourceText("m_9027d1cf86"),
+  sourceText("m_0e7fdc83f5"),
 ];
 export const ENEMIES = {
   wolf: {
-    name: 'Bozkurt',
+    name: sourceText("m_8f6b082242"),
     hp: 42,
     speed: 1.5,
     damage: 8,
@@ -25,7 +26,7 @@ export const ENEMIES = {
     xp: 22,
   },
   slime: {
-    name: 'Mağara peltesi',
+    name: sourceText("m_5d578214dd"),
     hp: 55,
     speed: 0.8,
     damage: 10,
@@ -37,7 +38,7 @@ export const ENEMIES = {
     xp: 25,
   },
   shaman: {
-    name: 'Kül büyücüsü',
+    name: sourceText("m_67d5abe9ce"),
     hp: 60,
     speed: 1,
     damage: 16,
@@ -49,7 +50,7 @@ export const ENEMIES = {
     xp: 38,
   },
   golem: {
-    name: 'Taş muhafız',
+    name: sourceText("m_3c71bc7bc2"),
     hp: 125,
     speed: 0.65,
     damage: 23,
@@ -61,7 +62,7 @@ export const ENEMIES = {
     xp: 55,
   },
   guardian: {
-    name: 'Derinlik Muhafızı',
+    name: sourceText("m_b618bf4107"),
     hp: 460,
     speed: 0.85,
     damage: 30,

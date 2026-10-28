@@ -1,5 +1,10 @@
 'use client';
+import { sourceText } from '@/lib/i18n/source';
+import { localize, translate } from '@/lib/i18n/core';
+import { useLocale } from '@/lib/i18n/react';
+
 import AudioSettings from './AudioSettings';
+import LanguageSettings from './LanguageSettings';
 import DailyOrders from './DailyOrders';
 import MaterialNeeds from './MaterialNeeds';
 import { settlementStory } from '@/lib/game/story';
@@ -95,13 +100,14 @@ export type Panel =
   | 'mine'
   | null;
 export function Cost({ bag, inventory }: { bag: Bag; inventory: Bag }) {
+  useLocale();
   return (
     <div className="cost">
       {Object.entries(bag).map(([id, n]) => (
         <span
           key={id}
           className={(inventory[id] || 0) < n ? 'missing' : ''}
-          title={`${ITEMS[id]?.name}: ${inventory[id] || 0} / ${n}`}
+          title={localize(sourceText("m_9cd1eb4d3d", { p0: ITEMS[id]?.name, p1: inventory[id] || 0, p2: n }))}
         >
           <i>
             <GameIcon id={id} />
@@ -153,33 +159,34 @@ export default function Panels({
   saveStatus: string;
   onApproach: (x: number, z: number) => void;
 }) {
+  useLocale();
   const s = engine.s,
     [confirm, setConfirm] = useState<'reset' | 'demolish' | null>(null),
     [quantity, setQuantity] = useState(1),
     file = useRef<HTMLInputElement>(null);
   const titles: Record<NonNullable<Panel>, [string, string]> = {
-    online: ['Birlikte oyna', 'Davet koduyla aynı çiftlikte buluşun.'],
+    online: [sourceText("m_d9c859e464"), sourceText("m_7ad162b3bb")],
     bundles: [
-      'Köy emanetleri',
-      'Ortak sandıkları doldur, vadine kalıcı iyileştirmeler kazandır.',
+      sourceText("m_1d65450c69"),
+      sourceText("m_afc133e70e"),
     ],
-    mine: ['Maden asansörü', 'Açılan katlar sonraki keşiflerde seni bekler.'],
-    build: ['Köyünü inşa et', 'Her yapı, vadinin geleceğine bir adım.'],
-    craft: ['Üretim atölyesi', 'Malzemeleri işle. Araçlarını geliştir.'],
+    mine: [sourceText("m_7a6c3dd877"), sourceText("m_2c9235b59e")],
+    build: [sourceText("m_6941efa97f"), sourceText("m_4c4db148a7")],
+    craft: [sourceText("m_508194b685"), sourceText("m_1b3f640d05")],
     inventory: [
-      'Gezginin çantası',
-      'Topladığın, yetiştirdiğin ve ürettiğin her şey.',
+      sourceText("m_350094d967"),
+      sourceText("m_cd559e6fb5"),
     ],
-    quests: ['Vadi günlüğü', 'Küçük adımlar, büyük bir hikâye.'],
-    market: ['Söğüt pazarı', 'Tüccar Narin her gün tezgâhının başında.'],
-    settings: ['Kamp menüsü', 'Oyun kaydı, ses ve kontroller.'],
-    building: ['Yapı yönetimi', 'Köyündeki üretimi ve savunmayı yönet.'],
-    villagers: ['Vadi sakinleri', 'Bir köyü yuva yapan, içindeki insanlardır.'],
+    quests: [sourceText("m_69510f5f16"), sourceText("m_7cdba6b34b")],
+    market: [sourceText("m_5ffaaf5c73"), sourceText("m_fc0e12d1b8")],
+    settings: [sourceText("m_748dc76205"), sourceText("m_c156f08d8b")],
+    building: [sourceText("m_f909a095ec"), sourceText("m_a689ae9b8d")],
+    villagers: [sourceText("m_b1632198ae"), sourceText("m_908ad66c98")],
     ranch: [
-      'Çiftliğim',
-      'Barınaklarını kur, hayvanlarını büyüt, ürünlerini topla.',
+      sourceText("m_99476bffac"),
+      sourceText("m_0de183d105"),
     ],
-    guide: ['Gezginin el kitabı', 'Vadideki ilk gününden kadim fenere.'],
+    guide: [sourceText("m_6cb0038efb"), sourceText("m_8941b3f1c2")],
   };
   const b = s.buildings.find((b) => b.id === selectedBuilding),
     d = b ? BUILDINGS[b.type] : null;
@@ -194,23 +201,23 @@ export default function Panels({
         <SheetContent className="game-panel" data-panel={panel} showCloseButton>
           <SheetHeader className="panel-header">
             <label className="mobile-panel-picker">
-              <span>Bölüm</span>
-              <select aria-label="Oyun menüsü" value={panel||'inventory'} onChange={event=>setPanel(event.target.value as Panel)}>
-                {Object.entries(titles).filter(([id])=>(id!=='online'||engine.network?.server)&&(id!=='building'||!!b)).map(([id,[title]])=><option key={id} value={id}>{title}</option>)}
+              <span>{translate("m_43decee4ab")}</span>
+              <select aria-label={translate("m_fd6ed6ce71")} value={panel||'inventory'} onChange={event=>setPanel(event.target.value as Panel)}>
+                {Object.entries(titles).filter(([id])=>(id!=='online'||engine.network?.server)&&(id!=='building'||!!b)).map(([id,[title]])=><option key={id} value={id}>{localize(title)}</option>)}
               </select>
             </label>
             <span className="eyebrow">Roamcroft</span>
-            <SheetTitle>{panel ? titles[panel][0] : ''}</SheetTitle>
-            <SheetDescription>{panel ? titles[panel][1] : ''}</SheetDescription>
+            <SheetTitle>{localize(panel ? titles[panel][0] : '')}</SheetTitle>
+            <SheetDescription>{localize(panel ? titles[panel][1] : '')}</SheetDescription>
           </SheetHeader>
           <Tabs className="panel-navigation" value={panel || 'inventory'} onValueChange={value=>setPanel(value as Panel)}>
             <TabsList className="unified-tabs">
-              {engine.network?.server&&<TabsTrigger value="online">Online</TabsTrigger>}
-              {([['inventory','Çanta'],['craft','Üretim'],['build','İnşa'],['quests','Günlük'],['ranch','Çiftlik'],['villagers','Dostlar'],['bundles','Emanet'],['mine','Maden'],['settings','Ayarlar']] as const).map(([id,label])=><TabsTrigger key={id} value={id}>{label}</TabsTrigger>)}
+              {engine.network?.server&&<TabsTrigger value="online">{translate("m_0d21bd5202")}</TabsTrigger>}
+              {([['inventory',sourceText("m_e18b002e4f")],['craft',sourceText("m_0d3d1e1ccb")],['build',sourceText("m_b2817cf111")],['quests',sourceText("m_301ef766a1")],['ranch',sourceText("m_d2684dfcdb")],['villagers',sourceText("m_b2743de707")],['bundles',sourceText("m_ecb4579f0d")],['mine',sourceText("m_a8525a6194")],['settings',sourceText("m_80ad54ad05")]] as const).map(([id,label])=><TabsTrigger key={id} value={id}>{localize(label)}</TabsTrigger>)}
             </TabsList>
           </Tabs>
           <div className="panel-pause">
-            <Clock size={13} /> {engine.network?.shared?'Sen beklemedesin · Ortak dünya açık':coop?.active ? 'Ortak dünya · Ev sahibi zamanın akışını yönetir' : 'Duraklatıldı'} <span className="keyboard-hint">· Tab: kapat · Q / E: sekme değiştir</span>
+            <Clock size={13} /> {localize(engine.network?.shared?sourceText("m_d859c09bdd"):coop?.active ? sourceText("m_d90f1633ed") : sourceText("m_49730237c2"))} <span className="keyboard-hint">{translate("m_e6d1a69097")}</span>
           </div>
           <div className="panel-body" key={panel}>
             {panel === 'online' && engine.network?.server && <FriendLobby engine={engine} onEnter={()=>setPanel(null)}/>}
@@ -226,26 +233,21 @@ export default function Panels({
               <div className="ranch-content">
                 <CropPlanner engine={engine} onSeed={onSeed}/>
                 <section className="orchard-overview">
-                  <div className="orchard-heading"><GameIcon id="appletree"/><div><h3>Meyve bahçem</h3><p>Bugün dik, yarının gölgesini büyüt.</p></div></div>
-                  <div className="ranch-builds"><button className="secondary-button" onClick={()=>onBuild('appletree')}><GameIcon id="appletree"/> Elma dik</button><button className="secondary-button" onClick={()=>onBuild('peartree')}><GameIcon id="peartree"/> Armut dik</button><button className="secondary-button" onClick={()=>setPanel('market')}>Fidan satın al</button></div>
-                  {s.buildings.filter(b=>BUILDINGS[b.type].orchard).length===0?<p>Elma fidanı iki, armut fidanı üç günde ağaca dönüşür. Ağaçlar kalıcıdır; mevsiminde her gün yeniden hasat edebilirsin.</p>:<div className="orchard-grid">{s.buildings.filter(b=>BUILDINGS[b.type].orchard).map(tree=>{
+                  <div className="orchard-heading"><GameIcon id="appletree"/><div><h3>{translate("m_a97a486592")}</h3><p>{translate("m_124bda5cf3")}</p></div></div>
+                  <div className="ranch-builds"><button className="secondary-button" onClick={()=>onBuild('appletree')}><GameIcon id="appletree"/> {translate("m_b35ca9a231")}</button><button className="secondary-button" onClick={()=>onBuild('peartree')}><GameIcon id="peartree"/> {translate("m_517aa5c85f")}</button><button className="secondary-button" onClick={()=>setPanel('market')}>{translate("m_a4b37e529c")}</button></div>
+                  {s.buildings.filter(b=>BUILDINGS[b.type].orchard).length===0?<p>{translate("m_b165844571")}</p>:<div className="orchard-grid">{s.buildings.filter(b=>BUILDINGS[b.type].orchard).map(tree=>{
                     const status=orchardStatus(tree,s)!;
-                    return <article className={`orchard-tree ${status.ready?'is-ripe':''}`} key={tree.id}><GameIcon id={tree.type}/><div><b>{BUILDINGS[tree.type].name}</b><p>{status.label}</p><small>{tree.x}, {tree.z} · {status.age} günlük</small></div><button className="secondary-button" onClick={()=>onApproach(tree.x,tree.z)}>{status.ready?'Git ve topla':'Yanına git'}</button></article>;
+                    return <article className={`orchard-tree ${status.ready?'is-ripe':''}`} key={tree.id}><GameIcon id={tree.type}/><div><b>{localize(BUILDINGS[tree.type].name)}</b><p>{localize(status.label)}</p><small>{tree.x}, {tree.z} · {status.age} {translate("m_d864e81ece")}</small></div><button className="secondary-button" onClick={()=>onApproach(tree.x,tree.z)}>{localize(status.ready?sourceText("m_6d351d32b5"):sourceText("m_0accdae7ef"))}</button></article>;
                   })}</div>}
-                  <p className="orchard-chain"><GameIcon id="apple"/> Hasat <span>→</span><GameIcon id="applejam"/> Mutfakta işle <span>→</span><GameIcon id="gold"/> Yeni bahçeni kur</p>
+                  <p className="orchard-chain"><GameIcon id="apple"/> {translate("m_c801d0c1d2")}<span>→</span><GameIcon id="applejam"/> {translate("m_6d90689664")}<span>→</span><GameIcon id="gold"/> {translate("m_38c98abf19")}</p>
                 </section>
                 <div className="ranch-intro">
                   <GameIcon id="barn" />
                   <div>
                     <h3>
-                      {s.animals.length} hayvan · {s.inventory.feed || 0} yem
-                    </h3>
+                      {s.animals.length} {translate("m_b67723f6d2")}{s.inventory.feed || 0} {translate("m_a8ff7611bf")}</h3>
                     <p>
-                      Her hayvan günde bir yem yer. Hazır yumurta, süt ve yünü
-                      aşağıdan ya da hayvana tıklayarak topla. Yavrular iki
-                      günde büyür. Gündüz merada dolaşır, gece yuvalarına
-                      dönerler. İlgilendiğin hayvan kısa süre seni takip eder.
-                    </p>
+                      {translate("m_f0102e22bd")}</p>
                   </div>
                 </div>
                 <div className="ranch-builds">
@@ -255,12 +257,11 @@ export default function Panels({
                       className="secondary-button"
                       onClick={() => onBuild(id)}
                     >
-                      <GameIcon id={id} /> {BUILDINGS[id].name} kur
-                    </button>
+                      <GameIcon id={id} /> {localize(BUILDINGS[id].name)} {translate("m_6e6be560ca")}</button>
                   ))}
                 </div>
                 {s.animals.length > 0 && (
-                  <h3 className="subheading">Hayvanların</h3>
+                  <h3 className="subheading">{translate("m_bde4d65937")}</h3>
                 )}
                 {s.animals.map((a) => (
                   <article className="ranch-animal" key={a.id}>
@@ -270,9 +271,9 @@ export default function Panels({
                       </span>
                       <div>
                         <Input
-                          aria-label="Hayvanın adı"
+                          aria-label={translate("m_3bc0ca32ea")}
                           className="animal-name"
-                          placeholder={ANIMALS[a.type].name}
+                          placeholder={localize(ANIMALS[a.type].name)}
                           defaultValue={a.name || ''}
                           maxLength={24}
                           onBlur={(event) =>
@@ -280,25 +281,23 @@ export default function Panels({
                           }
                         />
                         <small>
-                          {(a.ready || 0) > 0
-                            ? `${a.ready} ürün toplanmayı bekliyor`
+                          {localize((a.ready || 0) > 0
+                            ? sourceText("m_e7b0ac730b", { p0: a.ready })
                             : s.day - (a.bornDay ?? -3) < 2
-                              ? 'Yavru · büyüyor'
+                              ? sourceText("m_b896afaeff")
                               : a.fed
-                                ? 'Tok · ürün hazırlanıyor'
-                                : 'Yem bekliyor'}{' '}
-                          · Yakınlık {a.bond || 0}/100
+                                ? sourceText("m_4325f4ece5")
+                                : sourceText("m_62d1280a9c"))}{' '}
+                          {translate("m_a426e743e1")}{a.bond || 0}/100
                           {' · '}
-                          {
-                            (
+                          {localize((
                               {
-                                walking: 'Dolaşıyor',running:'Koşuyor',happy:'Mutlu',lying:'Uzanıyor',fleeing:'Tehlikeden kaçıyor',
-                                grazing: 'Otluyor',
-                                sleeping: 'Uyuyor',
-                                following: 'Seni takip ediyor',
+                                walking: sourceText("m_c2969b879c"),running:sourceText("m_e45eb25410"),happy:sourceText("m_5ee5dcb38b"),lying:sourceText("m_0787eefa64"),fleeing:sourceText("m_4b1ed5eaba"),
+                                grazing: sourceText("m_51e64616d2"),
+                                sleeping: sourceText("m_90584e8f62"),
+                                following: sourceText("m_aa8678c123"),
                               } as const
-                            )[engine.animalMotion.get(a.id)?.mood ?? 'grazing']
-                          }
+                            )[engine.animalMotion.get(a.id)?.mood ?? 'grazing'])}
                         </small>
                       </div>
                     </div>
@@ -314,16 +313,16 @@ export default function Panels({
                         disabled={!a.ready}
                         onClick={() => engine.harvestAnimal(a.id)}
                       >
-                        Ürünü topla · {a.ready || 0}
+                        {translate("m_e7951cc58c")}{a.ready || 0}
                       </button>
                       <button
                         className="secondary-button"
                         disabled={a.fedDay === s.day || !s.inventory.feed}
                         onClick={() => engine.feedAnimal(a.id)}
                       >
-                        {a.fedDay === s.day
-                          ? 'Bugün beslendi'
-                          : 'Besle · 1 yem'}
+                        {localize(a.fedDay === s.day
+                          ? sourceText("m_cf3f3e4525")
+                          : sourceText("m_ea15287ad1"))}
                       </button>
                       <button
                         className="secondary-button"
@@ -331,20 +330,19 @@ export default function Panels({
                         onClick={() => engine.petAnimal(a.id)}
                       >
                         <Heart size={15} />{' '}
-                        {a.pettedDay === s.day
-                          ? 'Bugün ilgilenildi'
-                          : 'İlgilen'}
+                        {localize(a.pettedDay === s.day
+                          ? sourceText("m_f26221ff32")
+                          : sourceText("m_50d85742fb"))}
                       </button>
                       <button
                         className="secondary-button"
                         onClick={() => engine.breedAnimal(a.id)}
                       >
-                        Yavru yetiştir · 6 yem
-                      </button>
+                        {translate("m_3d45319205")}</button>
                     </div>
                   </article>
                 ))}
-                <h3 className="subheading">Çiftliğe kat</h3>
+                <h3 className="subheading">{translate("m_bc644d1926")}</h3>
                 {Object.entries(ANIMALS).map(([id, a]) => {
                   const home = s.buildings.find(
                     (b) =>
@@ -359,16 +357,16 @@ export default function Panels({
                           <GameIcon id={id} />
                         </span>
                         <div>
-                          <h3>{a.name}</h3>
+                          <h3>{localize(a.name)}</h3>
                           <small>
-                            {BUILDINGS[a.home].name} · {ITEMS[a.product].name}
+                            {localize(BUILDINGS[a.home].name)} · {localize(ITEMS[a.product].name)}
                           </small>
                         </div>
                       </div>
                       <p>
-                        {home
-                          ? `Her ${a.time} saniyede ürün verir. 60 yakınlıkta verim ikiye katlanır.`
-                          : `Önce ${BUILDINGS[a.home].name.toLocaleLowerCase('tr')} kur veya kapasitesini yükselt.`}
+                        {localize(home
+                          ? sourceText("m_17b9afd887", { p0: a.time })
+                          : sourceText("m_db86f2d0ce", { p0: BUILDINGS[a.home].name.toLocaleLowerCase('tr') }))}
                       </p>
                       <div className="catalog-bottom">
                         <span className="gold-text">
@@ -379,8 +377,7 @@ export default function Panels({
                           disabled={!home || s.gold < a.cost || !!s.mine}
                           onClick={() => engine.buyAnimal(id)}
                         >
-                          Sahiplen
-                        </button>
+                          {translate("m_78541222ac")}</button>
                       </div>
                     </article>
                   );
@@ -389,47 +386,43 @@ export default function Panels({
                   className="secondary-button full-width"
                   onClick={() => setPanel('craft')}
                 >
-                  <GameIcon id="feed" /> Yem üretimine git
-                </button>
+                  <GameIcon id="feed" /> {translate("m_348b08268f")}</button>
               </div>
             )}
             {panel === 'build' && (
               <>
                 {inventoryUsed(s) >= inventoryCapacity(s) && (
                   <p className="inventory-warning" role="alert">
-                    ÇANTA DOLU · Ürün sat, kullan veya emanet sandıklarına
-                    bağışla.
-                  </p>
+                    {translate("m_6839d924fc")}</p>
                 )}
                 {Object.values(s.overflow).some((n) => n > 0) && (
                   <article className="quest-card">
-                    <h3>Teslimat sandığı</h3>
-                    <p>Çantana sığmayan ödüller burada korunur.</p>
+                    <h3>{translate("m_dd2d7e3d95")}</h3>
+                    <p>{translate("m_f19fb961a0")}</p>
                     <Cost bag={s.overflow} inventory={s.overflow} />
                     <button
                       className="primary-button"
                       disabled={inventoryUsed(s) >= inventoryCapacity(s)}
                       onClick={() => engine.collectDelivery()}
                     >
-                      Boş yerlere al
-                    </button>
+                      {translate("m_5c71127641")}</button>
                   </article>
                 )}
                 <Tabs defaultValue="Tümü">
                   <TabsList className="game-tabs">
-                    {['Tümü', 'Bahçe', 'Köy', 'Üretim', 'Savunma'].map((c) => (
+                    {[sourceText("m_f43a65ad82"), sourceText("m_58b7a69368"), sourceText("m_aeb79ca9a6"), sourceText("m_0d3d1e1ccb"), sourceText("m_28925851ca")].map((c) => (
                       <TabsTrigger key={c} value={c}>
-                        {c}
+                        {localize(c)}
                       </TabsTrigger>
                     ))}
                   </TabsList>
-                  {['Tümü', 'Bahçe', 'Köy', 'Üretim', 'Savunma'].map((c) => (
+                  {[sourceText("m_f43a65ad82"), sourceText("m_58b7a69368"), sourceText("m_aeb79ca9a6"), sourceText("m_0d3d1e1ccb"), sourceText("m_28925851ca")].map((c) => (
                     <TabsContent value={c} key={c}>
                       <div className="catalog">
                         {Object.entries(BUILDINGS)
                           .filter(
                             ([id, x]) =>
-                              (c === 'Tümü' || x.category === c) &&
+                              (c === sourceText("m_f43a65ad82") || x.category === c) &&
                               id !== 'home' &&
                               id !== 'market',
                           )
@@ -448,14 +441,14 @@ export default function Panels({
                                     <GameIcon id={id} />
                                   </span>
                                   <div>
-                                    <h3>{x.name}</h3>
+                                    <h3>{localize(x.name)}</h3>
                                     <span className="catalog-tag">
-                                      {x.category} · Sv. {x.level}
+                                      {localize(x.category)} {translate("m_539f968770")}{x.level}
                                     </span>
                                   </div>
                                   {!unlocked && <Lock size={15} />}
                                 </div>
-                                <p>{x.desc}</p>
+                                <p>{localize(x.desc)}</p>
                                 <div className="catalog-bottom">
                                   <Cost bag={x.cost} inventory={s.inventory} />
                                   <button
@@ -467,11 +460,11 @@ export default function Panels({
                                     }
                                     onClick={() => onBuild(id)}
                                   >
-                                    {exists
-                                      ? 'İnşa edildi'
+                                    {localize(exists
+                                      ? sourceText("m_993b5e2c2e")
                                       : unlocked
-                                        ? 'Yerleştir'
-                                        : `Sv. ${x.level}`}
+                                        ? sourceText("m_cc3f40f85c")
+                                        : sourceText("m_5d22ce1415", { p0: x.level }))}
                                   </button>
                                 </div>
                               </article>
@@ -482,9 +475,7 @@ export default function Panels({
                   ))}
                 </Tabs>
                 <p className="panel-note">
-                  Yerleştirdikten sonra aynı yapıyı tekrar kurabilirsin. Esc
-                  veya Keşfet ile inşa modundan çık.
-                </p>
+                  {translate("m_1c00d39031")}</p>
               </>
             )}
             {panel === 'craft' && (
@@ -492,7 +483,7 @@ export default function Panels({
                 <ProductionWorkshop engine={engine}/>
                 <div className="queue">
                   <div className="section-label">
-                    <h3>Üretim kuyruğu</h3>
+                    <h3>{translate("m_ec9bfba661")}</h3>
                     <span>{s.jobs.length} / 3</span>
                   </div>
                   {s.jobs.length ? (
@@ -502,32 +493,32 @@ export default function Panels({
                           <GameIcon id={j.recipe} />
                         </span>
                         <div>
-                          <b>{RECIPES[j.recipe].name}</b>
+                          <b>{localize(RECIPES[j.recipe].name)}</b>
                           <Progress value={(1 - j.remaining / j.total) * 100} />
                         </div>
-                        <small>{Math.ceil(j.remaining)} sn</small>
+                        <small>{Math.ceil(j.remaining)} {translate("m_1928e61fec")}</small>
                       </div>
                     ))
                   ) : (
-                    <p>Bir tarif seçerek üretime başla.</p>
+                    <p>{translate("m_4f7f24d9c1")}</p>
                   )}
                 </div>
                 <Tabs defaultValue="Malzeme">
                   <TabsList className="game-tabs">
-                    {['Malzeme', 'Yemek', 'Ekipman'].map((c) => (
+                    {[sourceText("m_97571bb067"), sourceText("m_a8372e80d2"), sourceText("m_ae38913760")].map((c) => (
                       <TabsTrigger value={c} key={c}>
-                        {c}
+                        {localize(c)}
                       </TabsTrigger>
                     ))}
                   </TabsList>
-                  {['Malzeme', 'Yemek', 'Ekipman'].map((c) => (
+                  {[sourceText("m_97571bb067"), sourceText("m_a8372e80d2"), sourceText("m_ae38913760")].map((c) => (
                     <TabsContent value={c} key={c}>
                       <div className="catalog">
                         {Object.entries(RECIPES)
                           .filter(([, r]) =>
-                            c === 'Ekipman'
+                            c === sourceText("m_ae38913760")
                               ? !!r.upgrade
-                              : c === 'Yemek'
+                              : c === sourceText("m_a8372e80d2")
                                 ? Object.keys(r.output).some(
                                     (k) => ITEMS[k].food,
                                   )
@@ -561,27 +552,27 @@ export default function Panels({
                                     <GameIcon id={id} />
                                   </span>
                                   <div>
-                                    <h3>{r.name}</h3>
+                                    <h3>{localize(r.name)}</h3>
                                     <span className="catalog-tag">
-                                      {r.upgrade
-                                        ? `Sv. ${tier} → ${Math.min(3, tier + 1)}`
+                                      {localize(r.upgrade
+                                        ? sourceText("m_d0952e354b", { p0: tier, p1: Math.min(3, tier + 1) })
                                         : Object.entries(r.output)
                                             .map(
                                               ([k, n]) =>
-                                                `${n} ${ITEMS[k].name}`,
+                                                sourceText("m_8cbaa55a52", { p0: n, p1: ITEMS[k].name }),
                                             )
-                                            .join(', ')}{' '}
+                                            .join(', '))}{' '}
                                       · <Zap size={11} /> 4
                                     </span>
                                   </div>
                                 </div>
-                                {r.station && (
+                                {localize(r.station && (
                                   <p className={station ? '' : 'missing'}>
                                     <GameIcon id={r.station} />{' '}
-                                    {BUILDINGS[r.station].name}{' '}
-                                    {station ? 'hazır' : 'gerekli'}
+                                    {localize(BUILDINGS[r.station].name)}{' '}
+                                    {localize(station ? sourceText("m_5aa460c91c") : 'gerekli')}
                                   </p>
-                                )}
+                                ))}
                                 <div className="catalog-bottom">
                                   <Cost bag={cost} inventory={s.inventory} />
                                   <button
@@ -596,14 +587,14 @@ export default function Panels({
                                     }
                                     onClick={() => engine.craft(id)}
                                   >
-                                    {locked
-                                      ? `Sv. ${r.level}`
+                                    {localize(locked
+                                      ? sourceText("m_5d22ce1415", { p0: r.level })
                                       : r.upgrade && tier >= 3
-                                        ? 'En üst seviye'
-                                        : !station ? 'İstasyon gerekli'
-                                        : s.jobs.length >= 3 ? 'Kuyruk dolu'
-                                        : s.player.energy < 4 ? 'Enerji gerekli'
-                                        : !canAfford(s,cost) ? 'Malzeme eksik' : 'Üret'}
+                                        ? sourceText("m_a7e10db1a5")
+                                        : !station ? sourceText("m_740f7b7127")
+                                        : s.jobs.length >= 3 ? sourceText("m_efb85b57f5")
+                                        : s.player.energy < 4 ? sourceText("m_820aaa9be8")
+                                        : !canAfford(s,cost) ? sourceText("m_28c47c7cff") : sourceText("m_fb3b1a2ce1"))}
                                   </button>
                                 </div>
                                 <MaterialNeeds engine={engine} cost={cost} kind="craft" target={id}/>
@@ -623,49 +614,44 @@ export default function Panels({
                   <div>
                     <b>
                       {Object.values(s.inventory).reduce((a, b) => a + b, 0)}{' '}
-                      eşya
-                    </b>
+                      {translate("m_ead81339b6")}</b>
                     <p>
-                      {inventoryUsed(s)} / {inventoryCapacity(s)} kapasite
-                    </p>
+                      {inventoryUsed(s)} / {inventoryCapacity(s)} {translate("m_6afafb7774")}</p>
                   </div>
                 </div>
                 {inventoryUsed(s) >= inventoryCapacity(s) && (
                   <p className="inventory-warning" role="alert">
-                    ÇANTA DOLU · Ürün sat, kullan veya emanet sandıklarına
-                    bağışla.
-                  </p>
+                    {translate("m_6839d924fc")}</p>
                 )}
                 {Object.values(s.overflow).some((n) => n > 0) && (
                   <article className="quest-card">
-                    <h3>Teslimat sandığı</h3>
-                    <p>Çantana sığmayan ödüller burada korunur.</p>
+                    <h3>{translate("m_dd2d7e3d95")}</h3>
+                    <p>{translate("m_f19fb961a0")}</p>
                     <Cost bag={s.overflow} inventory={s.overflow} />
                     <button
                       className="primary-button"
                       disabled={inventoryUsed(s) >= inventoryCapacity(s)}
                       onClick={() => engine.collectDelivery()}
                     >
-                      Boş yerlere al
-                    </button>
+                      {translate("m_5c71127641")}</button>
                   </article>
                 )}
                 <Tabs defaultValue="Tümü">
                   <TabsList className="game-tabs">
-                    {['Tümü', 'Yiyecek', 'Tohum', 'Kaynak'].map((c) => (
+                    {[sourceText("m_f43a65ad82"), sourceText("m_6f185074f6"), sourceText("m_eaf3725fa6"), sourceText("m_2f0db590c3")].map((c) => (
                       <TabsTrigger value={c} key={c}>
-                        {c}
+                        {localize(c)}
                       </TabsTrigger>
                     ))}
                   </TabsList>
-                  {['Tümü', 'Yiyecek', 'Tohum', 'Kaynak'].map((c) => (
+                  {[sourceText("m_f43a65ad82"), sourceText("m_6f185074f6"), sourceText("m_eaf3725fa6"), sourceText("m_2f0db590c3")].map((c) => (
                     <TabsContent value={c} key={c}>
                       <div className="inventory-grid">
                         {Object.entries(s.inventory)
                           .filter(
                             ([id, n]) =>
                               n > 0 &&
-                              (c === 'Tümü' || ITEMS[id]?.category === c),
+                              (c === sourceText("m_f43a65ad82") || ITEMS[id]?.category === c),
                           )
                           .map(([id, n]) => {
                             const item = ITEMS[id],
@@ -678,36 +664,33 @@ export default function Panels({
                                 <span className="inventory-art">
                                   <GameIcon id={id} />
                                 </span>
-                                <h3>{item.name}</h3>
+                                <h3>{localize(item.name)}</h3>
                                 <p>
-                                  {item.food
-                                    ? `Doygunluk +${item.food}`
+                                  {localize(item.food
+                                    ? sourceText("m_1374f4702a", { p0: item.food })
                                     : item.heal
-                                      ? `Sağlık +${item.heal}`
-                                      : `${item.price} altın / adet`}
+                                      ? sourceText("m_67a37325b9", { p0: item.heal })
+                                      : sourceText("m_dce10f2f9d", { p0: item.price }))}
                                 </p>
                                 {item.food || item.energy || item.heal ? (
                                   <button onClick={() => engine.eat(id)}>
-                                    Kullan{' '}
-                                    {item.energy ? `· ⚡ ${item.energy}` : ''}
+                                    {translate("m_90de6b6295")}{' '}
+                                    {localize(item.energy ? `· ⚡ ${item.energy}` : '')}
                                   </button>
                                 ) : crop ? (
                                   <button onClick={() => onSeed(crop)}>
-                                    Ekime geç
-                                  </button>
-                                ) : item.category === 'Fidan' ? (
-                                  <button onClick={()=>onBuild(id==='applesapling'?'appletree':'peartree')}>Fidanı dik</button>
+                                    {translate("m_af50b9285a")}</button>
+                                ) : item.category === sourceText("m_e24bfc1261") ? (
+                                  <button onClick={()=>onBuild(id==='applesapling'?'appletree':'peartree')}>{translate("m_a13e68f6c0")}</button>
                                 ) : id === 'sprinkler' ? (
                                   <button onClick={() => onBuild('sprinkler')}>
-                                    Fıskiyeyi yerleştir
-                                  </button>
+                                    {translate("m_05635007d2")}</button>
                                 ) : id === 'fertilizer' ? (
                                   <button onClick={() => onSeed('fertilizer')}>
-                                    Gübrele
-                                  </button>
+                                    {translate("m_0218b7078b")}</button>
                                 ) : (
                                   <span className="item-kind">
-                                    {item.category}
+                                    {localize(item.category)}
                                   </span>
                                 )}
                               </article>
@@ -724,22 +707,19 @@ export default function Panels({
                 <SettlementPanel engine={engine} />
                 <Tabs defaultValue="Görevler">
                   <TabsList className="game-tabs">
-                    <TabsTrigger value="Görevler">Görevler</TabsTrigger>
-                    <TabsTrigger value="Yetenekler">Yetenekler</TabsTrigger>
-                    <TabsTrigger value="Başarımlar">Başarımlar</TabsTrigger>
-                    <TabsTrigger value="Ustalıklar">Ustalıklar</TabsTrigger>
-                    <TabsTrigger value="Köy">Köy</TabsTrigger>
+                    <TabsTrigger value="Görevler">{translate("m_7d03cf59fb")}</TabsTrigger>
+                    <TabsTrigger value="Yetenekler">{translate("m_277b511cb9")}</TabsTrigger>
+                    <TabsTrigger value="Başarımlar">{translate("m_a625b27c7c")}</TabsTrigger>
+                    <TabsTrigger value="Ustalıklar">{translate("m_efafcb83bb")}</TabsTrigger>
+                    <TabsTrigger value="Köy">{translate("m_aeb79ca9a6")}</TabsTrigger>
                   </TabsList>
                   <TabsContent value="Görevler">
                     <div className="journal-intro">
                       <span>✦</span>
                       <div>
-                        <h3>Vadinin ışığını geri getir.</h3>
+                        <h3>{translate("m_0c10f9ee2e")}</h3>
                         <p>
-                          Seviye 10’a ulaş. Kadim feneri kur ve üç kez ışıkla
-                          doldur. Karanlık sona erse de köyün yaşamaya devam
-                          eder.
-                        </p>
+                          {translate("m_0b57624d24")}</p>
                       </div>
                     </div>
                     {QUESTS.map((q, index) => {
@@ -752,28 +732,28 @@ export default function Panels({
                         >
                           <div className="section-label">
                             <span className="quest-number">
-                              {done ? (
+                              {localize(done ? (
                                 <Check size={16} />
                               ) : (
                                 String(index + 1).padStart(2, '0')
-                              )}
+                              ))}
                             </span>
-                            <h3>{q.name}</h3>
+                            <h3>{localize(q.name)}</h3>
                             <span>
                               {value}/{q.target}
                             </span>
                           </div>
-                          <p>{q.desc}</p>
+                          <p>{localize(q.desc)}</p>
                           <Progress value={(value / q.target) * 100} />
                           <div className="quest-rewards">
                             <span>◈ {q.reward.gold}</span>
-                            <span>✦ {q.reward.xp} DP</span>
+                            <span>✦ {q.reward.xp} {translate("m_bf2be7a0aa")}</span>
                             <button
                               className="primary-button"
                               disabled={done || value < q.target}
                               onClick={() => engine.claim(q.id)}
                             >
-                              {done ? 'Tamamlandı' : 'Ödülü al'}
+                              {localize(done ? sourceText("m_7c6f3f5f37") : sourceText("m_780491daae"))}
                             </button>
                           </div>
                         </article>
@@ -784,10 +764,9 @@ export default function Panels({
                     <div className="talent-points">
                       <Star size={20} />
                       <div>
-                        <b>{engine.talentPoints()} yetenek puanı</b>
+                        <b>{engine.talentPoints()} {translate("m_30202c47f1")}</b>
                         <p>
-                          Her seviye, kalıcı bir seçim. Her yetenek en fazla 5.
-                        </p>
+                          {translate("m_c727e227c8")}</p>
                       </div>
                     </div>
                     {Object.entries(TALENTS).map(([id, t]) => {
@@ -799,7 +778,7 @@ export default function Panels({
                               <GameIcon id={id} />
                             </span>
                             <div>
-                              <h3>{t.name}</h3>
+                              <h3>{localize(t.name)}</h3>
                               <div className="talent-ranks">
                                 {[0, 1, 2, 3, 4].map((n) => (
                                   <i
@@ -810,7 +789,7 @@ export default function Panels({
                               </div>
                             </div>
                           </div>
-                          <p>{t.desc}</p>
+                          <p>{localize(t.desc)}</p>
                           <button
                             className="primary-button"
                             disabled={
@@ -820,9 +799,9 @@ export default function Panels({
                             }
                             onClick={() => engine.unlockTalent(id)}
                           >
-                            {rank >= 5
-                              ? 'Ustalaştın'
-                              : `Geliştir · 1 puan + ◈ ${(rank + 1) * 40}`}
+                            {localize(rank >= 5
+                              ? sourceText("m_33470c75ee")
+                              : sourceText("m_bd564f9d12", { p0: (rank + 1) * 40 }))}
                           </button>
                         </article>
                       );
@@ -837,13 +816,13 @@ export default function Panels({
                           <div className="section-label">
                             <h3>
                               <GameIcon id={done ? 'gold' : 'beacon'} />{' '}
-                              {a.name}
+                              {localize(a.name)}
                             </h3>
                             <span>
                               {Math.min(value, a.target)}/{a.target}
                             </span>
                           </div>
-                          <p>{a.description}</p>
+                          <p>{localize(a.description)}</p>
                           <Progress
                             value={Math.min(100, (value / a.target) * 100)}
                           />
@@ -854,34 +833,33 @@ export default function Panels({
                               disabled={done || value < a.target}
                               onClick={() => engine.claimAchievement(a.id)}
                             >
-                              {done ? 'Kazanıldı' : 'Ödülü al'}
+                              {localize(done ? sourceText("m_c638ad4e86") : sourceText("m_780491daae"))}
                             </button>
                           </div>
                         </article>
                       );
                     })}
-                    <h3 className="subheading">Keşif defteri</h3>
+                    <h3 className="subheading">{translate("m_f320cb07e7")}</h3>
                     {LANDMARKS.map((l) => (
                       <article className="quest-card" key={l.id}>
                         <div className="section-label">
                           <h3>
-                            {s.discoveries.includes(l.id) ? '✦' : '◇'} {l.name}
+                            {localize(s.discoveries.includes(l.id) ? '✦' : '◇')} {localize(l.name)}
                           </h3>
                           <span>
                             {l.x}, {l.z}
                           </span>
                         </div>
                         <p>
-                          {s.discoveries.includes(l.id)
+                          {localize(s.discoveries.includes(l.id)
                             ? l.description
-                            : 'Bu bölgeyi ziyaret ederek saklı erzakları bul.'}
+                            : sourceText("m_04ad97f5ab"))}
                         </p>
                         <button
                           className="secondary-button"
                           onClick={() => onApproach(l.x, l.z)}
                         >
-                          Bölgeye yürü
-                        </button>
+                          {translate("m_c2884b024d")}</button>
                       </article>
                     ))}
                   </TabsContent>
@@ -889,42 +867,40 @@ export default function Panels({
                     {Object.entries({
                       farming: [
                         'seed',
-                        'Çiftçilik',
-                        'Her ustalık seviyesi ekin büyümesini %2 hızlandırır.',
+                        sourceText("m_4ebfebd02e"),
+                        sourceText("m_6f8ff76093"),
                       ],
                       gathering: [
                         'axe',
-                        'Toplayıcılık',
-                        'Ağaç ve maden işleyerek deneyim kazan.',
+                        sourceText("m_14327aea77"),
+                        sourceText("m_6bced267fb"),
                       ],
                       crafting: [
                         'workshop',
-                        'Zanaatkârlık',
-                        'Üret, inşa et ve ticaret yap.',
+                        sourceText("m_e2ecc290d7"),
+                        sourceText("m_2962483969"),
                       ],
                       combat: [
                         'sword',
-                        'Muhafızlık',
-                        'Her ustalık seviyesi kılıç hasarını 2 artırır.',
+                        sourceText("m_b9dfd3d099"),
+                        sourceText("m_f43d3500b3"),
                       ],
                       fishing: [
                         'fish',
-                        'Balıkçılık',
-                        'Her ustalık seviyesi yakalama şansını %2 artırır.',
+                        sourceText("m_d2f669c08a"),
+                        sourceText("m_57e49bf46d"),
                       ],
                     }).map(([key, [icon, name, desc]]) => (
                       <article className="skill-card" key={key}>
                         <GameIcon id={String(icon)} />
                         <div>
                           <div className="section-label">
-                            <h3>{name}</h3>
-                            <b>Sv. {skillLevel(s, key)}</b>
+                            <h3>{localize(name)}</h3>
+                            <b>{translate("m_419b788dc3")}{skillLevel(s, key)}</b>
                           </div>
-                          <p>{desc}</p>
+                          <p>{localize(desc)}</p>
                           <small>
-                            {Math.floor(s.skills[key] || 0)} deneyim · En yüksek
-                            seviye 10
-                          </small>
+                            {Math.floor(s.skills[key] || 0)} {translate("m_12faeafcbe")}</small>
                         </div>
                       </article>
                     ))}
@@ -932,21 +908,21 @@ export default function Panels({
                   <TabsContent value="Köy">
                     <div className="village-stats">
                       {[
-                        ['home', 'Yapı', s.buildings.length],
-                        ['chicken', 'Hayvan', s.animals.length],
-                        ['seed', 'Ekin', s.tiles.filter((t) => t.crop).length],
-                        ['sword', 'Yenilen akıncı', s.stats.kills || 0],
-                        ['day', 'Gün', s.day],
-                        ['gold', 'Ticaret geliri', s.stats.sell || 0],
+                        ['home', sourceText("m_b451ee8141"), s.buildings.length],
+                        ['chicken', sourceText("m_707c2a7513"), s.animals.length],
+                        ['seed', sourceText("m_3b84f672e2"), s.tiles.filter((t) => t.crop).length],
+                        ['sword', sourceText("m_ba4f188ba7"), s.stats.kills || 0],
+                        ['day', sourceText("m_35784c3627"), s.day],
+                        ['gold', sourceText("m_737d1b72e4"), s.stats.sell || 0],
                       ].map(([icon, label, n]) => (
                         <div key={label}>
                           <GameIcon id={String(icon)} />
-                          <b>{n}</b>
-                          <small>{label}</small>
+                          <b>{localize(n)}</b>
+                          <small>{localize(label)}</small>
                         </div>
                       ))}
                     </div>
-                    <h3 className="subheading">Köy sakinleri</h3>
+                    <h3 className="subheading">{translate("m_b5969bf541")}</h3>
                     {s.animals.length ? (
                       s.animals.map((a) => (
                         <div className="animal-row" key={a.id}>
@@ -954,15 +930,15 @@ export default function Panels({
                             <GameIcon id={a.type} />
                           </span>
                           <div>
-                            <b>{ANIMALS[a.type].name}</b>
+                            <b>{localize(ANIMALS[a.type].name)}</b>
                             <small>
-                              {a.ready
-                                ? `${a.ready} ürün toplanmayı bekliyor`
+                              {localize(a.ready
+                                ? sourceText("m_e7b0ac730b", { p0: a.ready })
                                 : a.producedDay === s.day
-                                  ? 'Yeni ürün yarın'
+                                  ? sourceText("m_adeacccacd")
                                   : a.fed
-                                    ? `${Math.ceil(ANIMALS[a.type].time - a.timer)} sn sonra ${ITEMS[ANIMALS[a.type].product].name}`
-                                    : 'Yem bekliyor'}
+                                    ? sourceText("m_c9faa3c5ab", { p0: Math.ceil(ANIMALS[a.type].time - a.timer), p1: ITEMS[ANIMALS[a.type].product].name })
+                                    : sourceText("m_62d1280a9c"))}
                             </small>
                           </div>
                           <Progress
@@ -972,9 +948,7 @@ export default function Panels({
                       ))
                     ) : (
                       <p className="panel-note">
-                        Bir kümes kurup pazardan tavuk satın alarak
-                        başlayabilirsin.
-                      </p>
+                        {translate("m_9e1cd0c9aa")}</p>
                     )}
                   </TabsContent>
                 </Tabs>
@@ -987,22 +961,21 @@ export default function Panels({
                   <div>
                     <h3>Narin</h3>
                     <p>
-                      “Toprak emek ister, güzel bir hasat da iyi bir fiyat.”
-                    </p>
+                      {translate("m_32911e8db4")}</p>
                   </div>
                   <b>◈ {s.gold}</b>
                 </div>
-                <button className="secondary-button" onClick={()=>setPanel('villagers')}>Satmadan önce günlük siparişlere bak</button>
+                <button className="secondary-button" onClick={()=>setPanel('villagers')}>{translate("m_be4efe6dcd")}</button>
                 <Tabs defaultValue="Satın al">
                   <TabsList className="game-tabs">
-                    {['Satın al', 'Sat', 'Hayvanlar'].map((c) => (
+                    {[sourceText("m_28ba80fbab"), sourceText("m_fdeb71b569"), sourceText("m_6b255f5461")].map((c) => (
                       <TabsTrigger value={c} key={c}>
-                        {c}
+                        {localize(c)}
                       </TabsTrigger>
                     ))}
                   </TabsList>
                   <div className="quantity-selector">
-                    <span>İşlem adedi</span>
+                    <span>{translate("m_9b3036150b")}</span>
                     {[1, 5, 10].map((n) => (
                       <button
                         key={n}
@@ -1013,17 +986,17 @@ export default function Panels({
                       </button>
                     ))}
                   </div>
-                  {['Satın al', 'Sat'].map((tab) => (
+                  {[sourceText("m_28ba80fbab"), sourceText("m_fdeb71b569")].map((tab) => (
                     <TabsContent value={tab} key={tab}>
                       <div className="market-list">
                         {Object.entries(ITEMS)
                           .filter(([id]) =>
-                            tab === 'Sat'
+                            tab === sourceText("m_fdeb71b569")
                               ? (s.inventory[id] || 0) > 0
                               : marketSells(id),
                           )
                           .map(([id, item]) => {
-                            const buy = tab === 'Satın al',
+                            const buy = tab === sourceText("m_28ba80fbab"),
                               price = tradeUnitPrice(s, id, buy) * quantity;
                             return (
                               <div className="market-row" key={id}>
@@ -1031,9 +1004,9 @@ export default function Panels({
                                   <GameIcon id={id} />
                                 </span>
                                 <div>
-                                  <b>{item.name}</b>
+                                  <b>{localize(item.name)}</b>
                                   <small>
-                                    Çantanda: {s.inventory[id] || 0}
+                                    {translate("m_9e0bbc87d1")}{s.inventory[id] || 0}
                                   </small>
                                 </div>
                                 <button
@@ -1046,7 +1019,7 @@ export default function Panels({
                                     engine.trade(id, quantity, buy)
                                   }
                                 >
-                                  {buy ? 'Al' : 'Sat'} · ◈ {price}
+                                  {localize(buy ? sourceText("m_1af8ffa278") : sourceText("m_fdeb71b569"))} · ◈ {price}
                                 </button>
                               </div>
                             );
@@ -1062,17 +1035,15 @@ export default function Panels({
                             <GameIcon id={id} />
                           </span>
                           <div>
-                            <h3>{a.name}</h3>
+                            <h3>{localize(a.name)}</h3>
                             <span className="catalog-tag">
-                              {BUILDINGS[a.home].name} · 1 yem / ürün
-                            </span>
+                              {localize(BUILDINGS[a.home].name)} {translate("m_16c76b355e")}</span>
                           </div>
                         </div>
                         <p>
-                          Her {a.time} saniyede{' '}
-                          {ITEMS[a.product].name.toLocaleLowerCase('tr')}{' '}
-                          üretir. Barınak başına her seviyede 3 hayvan.
-                        </p>
+                          {translate("m_d0b61c46f3")}{a.time} {translate("m_a97f66cafc")}{' '}
+                          {localize(ITEMS[a.product].name.toLocaleLowerCase('tr'))}{' '}
+                          {translate("m_ac934b57af")}</p>
                         <div className="catalog-bottom">
                           <span className="gold-text">◈ {a.cost}</span>
                           <button
@@ -1089,8 +1060,7 @@ export default function Panels({
                             }
                             onClick={() => engine.buyAnimal(id)}
                           >
-                            Sahiplen
-                          </button>
+                            {translate("m_78541222ac")}</button>
                         </div>
                       </article>
                     ))}
@@ -1105,15 +1075,15 @@ export default function Panels({
                   <span>
                     <GameIcon id={b.type} />
                   </span>
-                  <h2>{d.name}</h2>
+                  <h2>{localize(d.name)}</h2>
                   <p>
-                    Seviye {b.level} / 3 · {b.x}, {b.z}
+                    {translate("m_3493f04db5")}{b.level} / 3 · {b.x}, {b.z}
                   </p>
                 </div>
-                <p className="detail-description">{d.desc}</p>
-                {d.orchard&&<div className="orchard-overview"><GameIcon id={b.type}/><h3>{orchardStatus(b,s)!.label}</h3><p>Hasat başına {2+b.level} meyve. Mevsimleri: {d.orchard.seasons.map(i=>SEASONS[i]).join(', ')}.</p><button className="primary-button" onClick={()=>onApproach(b.x,b.z)}>{orchardStatus(b,s)!.ready?'Ağaca git ve meyveleri topla':'Ağacın yanına git'}</button></div>}
+                <p className="detail-description">{localize(d.desc)}</p>
+                {d.orchard&&<div className="orchard-overview"><GameIcon id={b.type}/><h3>{localize(orchardStatus(b,s)!.label)}</h3><p>{translate("m_e364b3ca55")}{2+b.level} {translate("m_943256d599")}{localize(d.orchard.seasons.map(i=>SEASONS[i]).join(', '))}.</p><button className="primary-button" onClick={()=>onApproach(b.x,b.z)}>{localize(orchardStatus(b,s)!.ready?sourceText("m_9c2a091a9e"):sourceText("m_f01799e925"))}</button></div>}
                 <div className="section-label">
-                  <h3>Yapı sağlığı</h3>
+                  <h3>{translate("m_2e8984bca4")}</h3>
                   <span>
                     {Math.ceil(b.hp)} / {d.hp * b.level}
                   </span>
@@ -1122,8 +1092,8 @@ export default function Panels({
                 {d.production && <MachineCard engine={engine} building={b}/>}
                 {b.type==='chest' && <StoragePanel engine={engine}/>}
                 <div className="building-buttons">
-                  <button className="secondary-button" onClick={() => engine.rotateBuilding(b.id)}>90° döndür · {(b.rotation || 0)*90}°</button>
-                  {['fence','wall'].includes(b.type) && <button className="secondary-button" onClick={()=>engine.reshapeBuilding(b.id)}>{b.corner ? 'Düz parçaya dönüştür' : 'L köşe yap'}</button>}
+                  <button className="secondary-button" onClick={() => engine.rotateBuilding(b.id)}>{translate("m_545873dce4")}{(b.rotation || 0)*90}°</button>
+                  {['fence','wall'].includes(b.type) && <button className="secondary-button" onClick={()=>engine.reshapeBuilding(b.id)}>{localize(b.corner ? sourceText("m_0bc2541fab") : sourceText("m_5a88dc46be"))}</button>}
                   {b.type === 'home' && (
                     <button
                       className="primary-button"
@@ -1131,7 +1101,7 @@ export default function Panels({
                         if (engine.sleep()) setPanel(null);
                       }}
                     >
-                      {engine.network?.shared?'Birlikte uyumaya hazırım':'Uyu · Yeni güne geç'}
+                      {localize(engine.network?.shared?sourceText("m_fc28150d16"):sourceText("m_a848ca9e7d"))}
                     </button>
                   )}
                   {b.type === 'market' && (
@@ -1139,15 +1109,13 @@ export default function Panels({
                       className="primary-button"
                       onClick={() => setPanel('market')}
                     >
-                      Pazarı aç
-                    </button>
+                      {translate("m_94ab14556e")}</button>
                   )}
                   <button
                     className="secondary-button"
                     onClick={() => onApproach(b.x, b.z)}
                   >
-                    Yapının yanına yürü
-                  </button>
+                    {translate("m_20983697d0")}</button>
                   <button
                     className="secondary-button"
                     disabled={
@@ -1156,15 +1124,14 @@ export default function Panels({
                     }
                     onClick={() => engine.repair(b.id)}
                   >
-                    Onar · 3 odun + 2 taş
-                  </button>
+                    {translate("m_86d2901ff7")}</button>
                   {b.level < 3 && (
                     <div className="upgrade-box">
-                      <h3>Seviye {b.level + 1}</h3>
+                      <h3>{translate("m_3493f04db5")}{b.level + 1}</h3>
                       <p>
-                        {d.production
-                          ? 'Üretim hızı artar.'
-                          : 'Dayanıklılık ve yapı kapasitesi artar.'}
+                        {localize(d.production
+                          ? sourceText("m_d0ad2daf55")
+                          : sourceText("m_feb398e854"))}
                       </p>
                       <Cost bag={upgradeCost(b)} inventory={s.inventory} />
                       <button
@@ -1174,10 +1141,10 @@ export default function Panels({
                         }
                         onClick={() => engine.upgrade(b.id)}
                       >
-                        Yükselt{' '}
-                        {s.level < b.level * 2
-                          ? `· Sv. ${b.level * 2} gerekli`
-                          : ''}
+                        {translate("m_6837a56bef")}{' '}
+                        {localize(s.level < b.level * 2
+                          ? sourceText("m_66f5985239", { p0: b.level * 2 })
+                          : '')}
                       </button>
                     </div>
                   )}
@@ -1186,8 +1153,7 @@ export default function Panels({
                       className="danger-button"
                       onClick={() => setConfirm('demolish')}
                     >
-                      <Trash2 size={15} /> Yapıyı sök · %50 malzeme iadesi
-                    </button>
+                      <Trash2 size={15} /> {translate("m_a829409f02")}</button>
                   )}
                 </div>
               </>
@@ -1197,7 +1163,7 @@ export default function Panels({
                 <TabsList className="game-tabs">
                   {NPCS.map((n) => (
                     <TabsTrigger key={n.id} value={n.id}>
-                      {n.name}
+                      {localize(n.name)}
                     </TabsTrigger>
                   ))}
                 </TabsList>
@@ -1218,8 +1184,8 @@ export default function Panels({
                           <VillagerPortrait id={n.id}/>
                         </span>
                         <div>
-                          <h2>{n.name}</h2>
-                          <p>{n.role}</p>
+                          <h2>{localize(n.name)}</h2>
+                          <p>{localize(n.role)}</p>
                           <div className="friendship">
                             {[20, 40, 60, 80, 100].map((v) => (
                               <Heart
@@ -1233,37 +1199,35 @@ export default function Panels({
                         </div>
                       </div>
                       <p className="friendship-effect">
-                        {n.id === 'narin'
-                          ? `Dostluk avantajı: pazarda %${Math.floor(friendship * 0.1)} indirim.`
+                        {localize(n.id === 'narin'
+                          ? sourceText("m_faf89b44d0", { p0: Math.floor(friendship * 0.1) })
                           : n.id === 'torin'
-                            ? `Dostluk avantajı: el üretimleri %${Math.floor(friendship * 0.1)} daha kısa sürer.`
-                            : `Dostluk avantajı: balık yakalama şansı +%${Math.floor(friendship * 0.05)}.`}
+                            ? sourceText("m_ddbaa69235", { p0: Math.floor(friendship * 0.1) })
+                            : sourceText("m_e2ab0b74b4", { p0: Math.floor(friendship * 0.05) }))}
                       </p>
-                      <p className="npc-routine">{schedule(NPCS.indexOf(n),s.time,n).label} · {timedGreeting(s.time)}</p><div className="dialogue-box">
-                        <p><b>Köyden haber · </b>{settlementStory(s).chapter.voices[n.id as 'narin'|'torin'|'lale']}</p>
+                      <p className="npc-routine">{localize(schedule(NPCS.indexOf(n),s.time,n).label)} · {localize(timedGreeting(s.time))}</p><div className="dialogue-box">
+                        <p><b>{translate("m_6b0121ad74")}</b>{localize(settlementStory(s).chapter.voices[n.id as 'narin'|'torin'|'lale'])}</p>
                         <p>
-                          {
-                            n.dialogue[stage][
+                          {localize(n.dialogue[stage][
                               (s.day - 1) % n.dialogue[stage].length
-                            ]
-                          }
+                            ])}
                         </p>
                         <button
                           className="secondary-button"
                           disabled={s.talks[n.id] === s.day}
                           onClick={() => engine.talk(n.id)}
                         >
-                          {s.talks[n.id] === s.day
-                            ? 'Bugün sohbet edildi'
-                            : 'Sohbet et · Dostluk +2'}
+                          {localize(s.talks[n.id] === s.day
+                            ? sourceText("m_6aad92c42a")
+                            : sourceText("m_ccddb79392"))}
                         </button>
                       </div>
                       <DailyOrders engine={engine} npc={n.id}/>
                       <div className="gift-box">
                         <div>
-                          <h3>Sevdiği hediye</h3>
+                          <h3>{translate("m_7591437fe3")}</h3>
                           <p>
-                            <GameIcon id={n.gift} /> {ITEMS[n.gift].name} · ♥
+                            <GameIcon id={n.gift} /> {localize(ITEMS[n.gift].name)} · ♥
                             +12
                           </p>
                         </div>
@@ -1272,22 +1236,20 @@ export default function Panels({
                           disabled={gifted || !s.inventory[n.gift]}
                           onClick={() => engine.gift(n.id)}
                         >
-                          {gifted ? 'Bugün verildi' : 'Hediye ver'}
+                          {localize(gifted ? sourceText("m_80499fc07d") : sourceText("m_2a985d4c56"))}
                         </button>
                       </div>
                       <button
                         className="secondary-button full-width"
                         onClick={() => onApproach(engine.npcMotion.get(n.id)?.x??n.x, engine.npcMotion.get(n.id)?.z??n.z)}
                       >
-                        {n.name} yanına yürü
-                      </button>
+                        {localize(n.name)} {translate("m_6e78076b66")}</button>
                       {n.id === 'narin' && (
                         <button
                           className="primary-button full-width"
                           onClick={() => setPanel('market')}
                         >
-                          Pazar tezgâhına bak
-                        </button>
+                          {translate("m_e5468d1bc2")}</button>
                       )}
                     </TabsContent>
                   );
@@ -1296,31 +1258,29 @@ export default function Panels({
             )}
             {panel === 'settings' && (
               <>
-                {engine.network?.server&&<button className="primary-button" onClick={()=>setPanel('online')}>Arkadaşlarla oyna</button>}
+                <div className="settings-section"><LanguageSettings /></div>
+                {engine.network?.server&&<button className="primary-button" onClick={()=>setPanel('online')}>{translate("m_77d4059a4f")}</button>}
                 <div className="settings-section">
                   <SettlementName engine={engine} />
-                  <h3>Oyun kaydı</h3>
+                  <h3>{translate("m_3c2585310d")}</h3>
                   <p>
-                    {engine.network?.server?'Dünya sunucuda saklanır. Bu tarayıcının çerezini silersen erişimini kaybedersin; oturum her bağlantıda 30 gün uzar. Dosya indirerek çevrimdışı bir kopyasını koruyabilirsin. Sunucuya kayıt dosyası yüklenemez.':'Dünya bu tarayıcının veritabanına kaydedilir. Başka cihaza taşımak için kayıt dosyası indir. Oyun kapalıyken zaman ilerlemez.'}
+                    {localize(engine.network?.server?sourceText("m_f5bdf0c1dd"):sourceText("m_ca81e1548d"))}
                   </p>
                   <div className="save-status">
                     <Save size={15} />
-                    {saveStatus ||
-                      (engine.network?.server?'Sunucu bağlantısında otomatik kayıt açık':'Otomatik kayıt açık · Yaklaşık 15 saniyede bir')}
+                    {localize(saveStatus ||
+                      (engine.network?.server?sourceText("m_f2cfff6525"):sourceText("m_6c7efee6cf")))}
                   </div>
                   <div className="save-actions"><button className="primary-button" onClick={onSave}>
-                    <Save size={16} /> Şimdi kaydet
-                  </button>
+                    <Save size={16} /> {translate("m_345776972d")}</button>
                   <button className="secondary-button" onClick={onExport}>
-                    <Download size={16} /> Kayıt dosyası indir
-                  </button>
+                    <Download size={16} /> {translate("m_3bd6103a31")}</button>
                   <button
                     className="secondary-button"
                     disabled={engine.network?.server}
                     onClick={() => file.current?.click()}
                   >
-                    <Upload size={16} /> Kayıt dosyası yükle
-                  </button>
+                    <Upload size={16} /> {translate("m_453bf55c4b")}</button>
                   <input
                     hidden
                     ref={file}
@@ -1335,72 +1295,64 @@ export default function Panels({
                   </div>
                 </div>
                 <div className="settings-section">
-                  <h3>Görüntü kalitesi</h3>
+                  <h3>{translate("m_f3d4d53c08")}</h3>
                   <p>
-                    Oyun dengeli modda başlar. Ayrıntılı mod, yumuşak güneş gölgeleri ve daha keskin
-                    görüntü sağlar. Seçtiğin netlik ve ayrıntılar oyun sırasında
-                    otomatik olarak azaltılmaz.
-                  </p>
+                    {translate("m_3621ea4cd0")}</p>
                   <label className="quality-setting">
-                    <span>Ayrıntılı görüntü</span>
+                    <span>{translate("m_ee2de2a139")}</span>
                     <Switch checked={quality} onCheckedChange={setQuality} />
                   </label>
                 </div>
                 <div className="settings-section">
-                  <h3>Ses</h3>
-                  <p>Vadinin müziği, kuşlar ve oyun sesleri.</p>
+                  <h3>{translate("m_9ab936ba64")}</h3>
+                  <p>{translate("m_b98f5b706b")}</p>
                   <AudioSettings audio={audio}/>
                   <button
                     className="secondary-button"
                     onClick={() => setSound(!sound)}
                   >
                     {sound ? <Volume2 size={17} /> : <VolumeX size={17} />}{' '}
-                    {sound ? 'Sesi kapat' : 'Sesi aç'}
+                    {localize(sound ? sourceText("m_9e37e5ce56") : sourceText("m_b1e169c43b"))}
                   </button>
                 </div>
                 <div className="settings-section">
-                  <h3>Kontroller</h3>
+                  <h3>{translate("m_f3c26534c7")}</h3>
                   <div className="key-guide">
                     {[
-                      ['W A S D / Oklar', 'Yürü'],
-                      ['Tab', 'Tek pencere menüsü'],
-                      ['1 – 8', 'Araç seç'],
-                      ['Sol tık', 'Yürü / aracı kullan'],
-                      ['Ctrl', 'Yakındaki düşmana saldır'],
-                      ['Shift', 'Koş (enerji tüketir)'],
-                      ['E', 'Yakındaki kişi / ürün / yapı ile etkileşim'],
-                      ['Menüde Q / E veya ← / →', 'Sekme değiştir'],
-                      ['İnşada ← / →', 'Nesneyi 90° döndür'],
-                      ['Fare tekerleği', 'Yakınlaştır / uzaklaştır'],
-                      ['Sürükle', 'Haritayı taşı'],
-                      ['Esc', 'Menüyü kapat / duraklat'],
+                      [sourceText("m_bfe3acbf97"), sourceText("m_52b61e1819")],
+                      ['Tab', sourceText("m_ceb9f80c28")],
+                      ['1 – 8', sourceText("m_e6b26269ae")],
+                      [sourceText("m_16782e4568"), sourceText("m_995c03f9a9")],
+                      ['Ctrl', sourceText("m_de69a6e31c")],
+                      ['Shift', sourceText("m_6e6749655d")],
+                      ['E', sourceText("m_3cca9491e7")],
+                      [sourceText("m_52a4a7534f"), sourceText("m_e59f433691")],
+                      [sourceText("m_4eb2de9ec0"), sourceText("m_f90db5988b")],
+                      [sourceText("m_960b20ae98"), sourceText("m_99d8711725")],
+                      [sourceText("m_3b4a9f186b"), sourceText("m_319e0d814c")],
+                      ['Esc', sourceText("m_14ee164206")],
                     ].map(([key, action]) => (
                       <div key={key}>
-                        <kbd>{key}</kbd>
-                        <span>{action}</span>
+                        <kbd>{localize(key)}</kbd>
+                        <span>{localize(action)}</span>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div className="settings-section">
-                  <h3>Yeni vadi</h3>
+                  <h3>{translate("m_2315e60bae")}</h3>
                   <p>
-                    Yeni bir dünya başlatmak mevcut kaydını değiştirir. Önce
-                    kayıt dosyanı indirebilirsin.
-                  </p>
+                    {translate("m_ad8d5b30e5")}</p>
                   <button
                     className="danger-button"
                     disabled={engine.network?.server}
                     onClick={() => setConfirm('reset')}
                   >
-                    <RotateCcw size={16} /> Yeni oyuna başla
-                  </button>
+                    <RotateCcw size={16} /> {translate("m_184f5fac3d")}</button>
                 </div>
                 <div className="credits">
-                  Roamcroft · 1.11.5
-                  <br />
-                  Özgün dünya, modeller ve müzik.
-                  <br />
+                  {translate("m_9dd402e775")}<br />
+                  {translate("m_e58ecd899c")}<br />
                   Three.js · React · TypeScript
                 </div>
               </>
@@ -1410,75 +1362,75 @@ export default function Panels({
                 {[
                   [
                     '01',
-                    'İlk hasadın',
-                    'Evin doğusundaki altın renkli buğdaylara tıkla. Keşfet aracıyla olgun ekinleri topla. Domates ve mısır kökte kalıp yeniden ürün verir; diğer ekinler hasatta bir tohum geri verir. Çapa, ekini söküp yer açar. Çiftlik → Ekim planı bölümünde süre ve mevsimleri görebilirsin.',
+                    sourceText("m_05cd8d5fbe"),
+                    sourceText("m_0bf7ed6ddd"),
                   ],
                   [
                     '02',
-                    'Toprak ve su',
-                    'Çapayı seç, boş çayıra tıkla. Tohum aracını ve ekini seçerek dik. Sulama kabıyla su ver. Kuyu, 3 kare yakınını otomatik sular; yağmur tüm tarlalara ulaşır.',
+                    sourceText("m_830dea6b24"),
+                    sourceText("m_09fb67b337"),
                   ],
                   [
                     '03',
-                    'Mevsimler',
-                    'Bir gün 5 dakika, bir mevsim 7 gündür. Buğday her mevsim büyür. Havuç ilkbahar ve sonbaharda; domates ilkbahar ve yazda yetişir. Sera tüm mevsimleri açar. Uygun olmayan mevsimde ekin ölmez, büyümesi durur.',
+                    sourceText("m_b666f8304f"),
+                    sourceText("m_0e2d0138f6"),
                   ],
                   [
                     '04',
-                    'Kendi köyün',
-                    'Ağaç ve kayalara tıkla; uygun aracı otomatik kullanırsın. İnşa menüsünden yapı seçip boş bir kareye yerleştir. Yeni yapıların yanında yolları açık bırak. Seviye atladıkça yeni yapılar açılır.',
+                    sourceText("m_2e25d4ef44"),
+                    sourceText("m_df62f39eab"),
                   ],
                   [
                     '05',
-                    'Üretim ve hayvanlar',
-                    'El yapımı tarifler en fazla 3 işlik kuyruğa alınır. Üretim → Makinelerim bölümünden bir tarif ve tek parti ya da otomatik tekrar seç. Malzeme partinin başında makineye ayrılır. Dolu çantada bitmiş ürün makinede bekler. Yapıya tıklayıp üretimi duraklatabilirsin. Çiftlik menüsünden kümes ve ahır kur; tavuk, inek ve koyun sahiplen. İki yetişkin ve 6 yemle yavru yetiştirebilirsin. Hayvanlar günde bir yem tüketir, günde bir kez ürün hazırlar. Hazır ürünü hayvana tıklayarak veya Çiftlik menüsünden topla. İlgilendiğin hayvanların yakınlığı ve verimi artar.',
+                    sourceText("m_13f2cc23a5"),
+                    sourceText("m_ab81436cfa"),
                   ],
                   [
                     '06',
-                    'Hayatta kal',
-                    'Sağlık, enerji ve doygunluğunu izle. Çantadan yiyecek tüket. Dinlen düğmesiyle otur; kamp ateşi yanında daha hızlı toparlanırsın. Akşam evin yakınına gelerek uyuyabilirsin. Yenilirsen köylüler seni eve taşır; altınının %10’unu kaybedersin.',
+                    sourceText("m_29c556b3a9"),
+                    sourceText("m_0155ba96e9"),
                   ],
                   [
                     '07',
-                    'Geceyi savun',
-                    'Üçüncü geceden başlayarak her 3 günde akıncılar gelir. Boşluk veya kılıçla saldır. Sur yolları kapatır; gözcü kuleleri otomatik ateş eder. Demir eriterek kılıç ve zırhını geliştir.',
+                    sourceText("m_8164eb2fa6"),
+                    sourceText("m_f8118ad2bd"),
                   ],
                   [
                     '08',
-                    'Kadim fener',
-                    'Kuzeydeki madenlikte demir, bakır ve ay kristalleri ara. Görev ödüllerini günlükten al. Seviye 10’da kadim feneri inşa et, 3. seviyeye yükselt ve vadiyi karanlıktan kurtar.',
+                    sourceText("m_80a04ccbbc"),
+                    sourceText("m_95231db34f"),
                   ],
                   [
                     '09',
-                    'Kadim maden',
-                    '3. seviyede kuzeybatıdaki kadim harabeye ulaş ve el aracıyla girişe tıkla. Her oyun günü bir keşif yapabilirsin. Beş katın her birinde düşmanları yenip en az dört birim cevher kaz; kuzey geçidi sonraki kata götürür. Güney asansörü ganimetlerinle vadiye döndürür. Yeraltında vadi saati, tarlalar ve hayvanlar bekler; açlığın ve üretim kuyruğun ilerler.',
+                    sourceText("m_a94cf5f6c9"),
+                    sourceText("m_d6e35a1345"),
                   ],
                   [
                     '10',
-                    'Derinlik Muhafızı',
-                    'Pelteler yakın dövüşür, kül büyücüleri uzaktan alan saldırısı yapar, taş muhafızlar ağır darbeler indirir. Kırmızı halkalar darbenin düşeceği yeri gösterir; yürüyerek dışına çık. Beşinci kattaki muhafız yarı canında hızlanır. Son geçitten hazineyi alarak keşfi tamamla. Yenilgi seni köye taşır; altınının %10’unu kaybedersin.',
+                    sourceText("m_b618bf4107"),
+                    sourceText("m_d51b412032"),
                   ],
                   [
                     '11',
-                    'Ucu açık dünya',
-                    'İstediğin yöne yürüdükçe çam ormanları, bakır sırtları, çiçek ovaları ve kristal bozkırları açılır. Kestiğin ağaçlar ve yapılar geride kaldığında saklanır. Uzak tarlalar ve hayvanlar sen dönene kadar bekler. Haritanın altındaki Eve dön düğmesi seni başlangıç köyüne taşır; çatışma sırasında kullanılamaz.',
+                    sourceText("m_0f9299e397"),
+                    sourceText("m_8b6879edb3"),
                   ],
                 ].map(([n, title, text]) => (
                   <section key={n}>
-                    <span>{n}</span>
+                    <span>{localize(n)}</span>
                     <div>
-                      <h3>{title}</h3>
-                      <p>{text}</p>
+                      <h3>{localize(title)}</h3>
+                      <p>{localize(text)}</p>
                     </div>
                   </section>
                 ))}
                 <div className="season-card">
-                  <b>Şu an: {SEASONS[season(s)]}</b>
+                  <b>{translate("m_1b4347b42b")}{localize(SEASONS[season(s)])}</b>
                   <p>
-                    {Object.values(CROPS)
+                    {localize(Object.values(CROPS)
                       .filter((c) => c.seasons.includes(season(s)))
                       .map((c) => c.name)
-                      .join(' · ')}
+                      .join(' · '))}
                   </p>
                 </div>
               </div>
@@ -1495,18 +1447,18 @@ export default function Panels({
         <AlertDialogContent className="game-confirm">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirm === 'reset'
-                ? 'Yeni bir vadiye geçilsin mi?'
-                : 'Yapı sökülsün mü?'}
+              {localize(confirm === 'reset'
+                ? sourceText("m_fa539a903a")
+                : sourceText("m_7d983fd273"))}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {confirm === 'reset'
-                ? 'Bu tarayıcıdaki mevcut oyun kaydı değişecek. İndirdiğin kayıt dosyalarını daha sonra yükleyebilirsin.'
-                : 'Yapı kaldırılır ve ilk inşa malzemelerinin yarısı çantana döner. Bu yapıdaki hayvanlar yeni barınak bekler.'}
+              {localize(confirm === 'reset'
+                ? sourceText("m_af3cdfc738")
+                : sourceText("m_0ee0224367"))}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Vazgeç</AlertDialogCancel>
+            <AlertDialogCancel>{translate("m_39a8d28c1c")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (confirm === 'reset') onReset();
@@ -1517,7 +1469,7 @@ export default function Panels({
                 setConfirm(null);
               }}
             >
-              {confirm === 'reset' ? 'Yeni oyun' : 'Yapıyı sök'}
+              {localize(confirm === 'reset' ? sourceText("m_0a89501c7e") : sourceText("m_4e29c62c0b"))}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1526,6 +1478,7 @@ export default function Panels({
   );
 }
 function BackpackIcon() {
+  useLocale();
   return (
     <span className="bag-art">
       <GameIcon id="bag" />

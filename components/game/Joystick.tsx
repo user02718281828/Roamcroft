@@ -1,9 +1,13 @@
 'use client';
+import { translate } from '@/lib/i18n/core';
+import { useLocale } from '@/lib/i18n/react';
+
 import {useEffect,useRef} from 'react';
 import {JoystickInput} from '@/lib/game/joystick';
 import type {StickVector} from '@/lib/game/joystick';
 
 export default function Joystick({disabled,onMove}:{disabled:boolean;onMove:(vector:StickVector)=>void}){
+  useLocale();
   const input=useRef(new JoystickInput()),knob=useRef<HTMLSpanElement>(null),base=useRef<HTMLDivElement>(null),output=useRef(onMove);
   const radius=useRef(30);
   output.current=onMove;
@@ -15,7 +19,7 @@ export default function Joystick({disabled,onMove}:{disabled:boolean;onMove:(vec
     window.addEventListener('blur',release);window.addEventListener('resize',release);document.addEventListener('visibilitychange',release);
     return()=>{window.removeEventListener('blur',release);window.removeEventListener('resize',release);document.removeEventListener('visibilitychange',release);output.current({x:0,y:0});};
   },[]);
-  return <div ref={base} className="joystick" role="group" aria-label="Hareket joystick'i" aria-disabled={disabled} tabIndex={0}
+  return <div ref={base} className="joystick" role="group" aria-label={translate("m_98ae69620f")} aria-disabled={disabled} tabIndex={0}
     onPointerDown={event=>{event.preventDefault();if(disabled)return;const box=event.currentTarget.getBoundingClientRect();radius.current=Math.max(20,box.width/2-23);if(!input.current.begin(event.pointerId,box.x+box.width/2,box.y+box.height/2))return;event.currentTarget.setPointerCapture(event.pointerId);event.currentTarget.dataset.held='true';const v=input.current.move(event.pointerId,event.clientX,event.clientY,radius.current);if(v)draw(v.x,v.y);}}
     onPointerMove={event=>{if(disabled)return;const v=input.current.move(event.pointerId,event.clientX,event.clientY,radius.current);if(v){event.preventDefault();draw(v.x,v.y);}}}
     onPointerUp={event=>{if(input.current.end(event.pointerId))reset();}}
@@ -26,6 +30,6 @@ export default function Joystick({disabled,onMove}:{disabled:boolean;onMove:(vec
     onBlur={reset}>
     <span className="joystick-ring"/><span className="joystick-axis joystick-axis-x"/><span className="joystick-axis joystick-axis-y"/>
     <span ref={knob} className="joystick-knob"><span/></span>
-    <span className="joystick-label">YÜRÜ</span>
+    <span className="joystick-label">{translate("m_199e9beead")}</span>
   </div>;
 }

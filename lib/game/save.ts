@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import {
   ANIMALS,
   BUILDINGS,
@@ -25,7 +26,7 @@ export const SAVE_KEY = 'ocak-vadisi.save.v1',
 const own = (o: object, k: string) => Object.hasOwn(o, k);
 function assert(
   test: unknown,
-  message = 'Kayıt verisi geçersiz.',
+  message = sourceText("m_8c74ffdbb5"),
 ): asserts test {
   if (!test) throw new Error(message);
 }
@@ -54,28 +55,28 @@ export function serialize(state: State) {
   });
 }
 export function deserialize(text: string): State {
-  assert(text.length < 32_000_000, 'Kayıt dosyası çok büyük.');
+  assert(text.length < 32_000_000, sourceText("m_0806e1acd3"));
   let envelope: unknown;
   try {
     envelope = JSON.parse(text);
   } catch {
-    throw new Error('Dosya okunabilir bir oyun kaydı değil.');
+    throw new Error(sourceText("m_6042946e34"));
   }
   assert(
     object(envelope) &&
       envelope.format === 'ocak-vadisi' &&
       envelope.version === SAVE_VERSION,
-    'Bu kayıt sürümü desteklenmiyor.',
+    sourceText("m_bd81d6a7db"),
   );
   const s = envelope.payload;
   assert(object(s));
   assert(
     envelope.checksum === checksum(JSON.stringify(s)),
-    'Kayıt bütünlüğü doğrulanamadı. Yedek kaydı kullan.',
+    sourceText("m_af1f09e46f"),
   );
   assert(s.version === SAVE_VERSION);
   if (s.settlement === undefined)
-    s.settlement = { name: 'Yuvam', milestones: [] };
+    s.settlement = { name: sourceText("m_a1d6250bee"), milestones: [] };
   assert(object(s.settlement) && typeof s.settlement.name === 'string');
   assert(
     s.settlement.name.trim().length > 0 &&
@@ -125,7 +126,7 @@ export function deserialize(text: string): State {
     ['nextId', 4, 1e9, true],
     ['raidDay', 0, 1000000, true],
   ] as const)
-    assert(number(s[key], min, max, int), `${key}: kayıt değeri geçersiz.`);
+    assert(number(s[key], min, max, int), sourceText("m_0a00af5339", { p0: key }));
   assert(['sun', 'rain'].includes(String(s.weather)));
   assert(typeof s.won === 'boolean');
   assert(object(s.player));
@@ -169,7 +170,7 @@ export function deserialize(text: string): State {
     );
   }
   for (const [k, v] of Object.entries(s.inventory))
-    assert(own(ITEMS, k) && number(v, 0, 10000000, true), 'Envanter geçersiz.');
+    assert(own(ITEMS, k) && number(v, 0, 10000000, true), sourceText("m_5519b1404a"));
   for (const key of ['talents', 'friendship', 'contracts', 'gifts'])
     if (s[key] === undefined) s[key] = {};
   for (const key of ['discoveries', 'achievements'])
@@ -190,7 +191,7 @@ export function deserialize(text: string): State {
           key !== 'constructor' &&
           key !== 'prototype' &&
           number(val, 0, 1e12),
-        'İlerleme verisi geçersiz.',
+        sourceText("m_5c43f6ab65"),
       );
   }
   for (const [key, value] of Object.entries(
@@ -376,7 +377,7 @@ export function deserialize(text: string): State {
       !positions.has(
         `${Math.round(result.player.x)},${Math.round(result.player.z)}`,
       ),
-    'Karakter konumu geçersiz.',
+    sourceText("m_9abfc8517b"),
   );
   if (result.mine) {
     const surface = result.mine.surface;
@@ -427,7 +428,7 @@ export function loadLocal(): { state: State; message: string } {
       try {
         return {
           state: deserialize(primary),
-          message: 'Kayıtlı vadine hoş geldin.',
+          message: sourceText("m_4486e9e448"),
         };
       } catch {
         const backup = localStorage.getItem(BACKUP_KEY);
@@ -435,26 +436,26 @@ export function loadLocal(): { state: State; message: string } {
           try {
             return {
               state: deserialize(backup),
-              message: 'Son kayıt okunamadı. Yedek kayıt geri yüklendi.',
+              message: sourceText("m_50737c4b4f"),
             };
           } catch {}
         }
         return {
           state: createState(),
           message:
-            'Kayıt okunamadı. Yeni vadi açıldı; eski kayıt üzerine yazılmadan önce dosyanı kontrol et.',
+            sourceText("m_1490453db4"),
         };
       }
     }
   } catch {
     return {
       state: createState(),
-      message: 'Tarayıcı kaydı kullanılamıyor. Ayarlardan kayıt dosyası indir.',
+      message: sourceText("m_f5ae9dfa31"),
     };
   }
   return {
     state: createState(),
     message:
-      'Vadine hoş geldin. Olgun buğdaylara tıklayarak ilk hasadını topla.',
+      sourceText("m_e5f8e03bd0"),
   };
 }

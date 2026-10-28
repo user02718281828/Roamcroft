@@ -1,6 +1,6 @@
 // Derleme sırasında sürüm ve uygulama dosyaları bu iki sabite yazılır.
 const VERSION='roamcroft-dev';
-const SHELL=['/','/manifest.json','/icon-192.png','/icon-512.png','/favicon.svg'];
+const SHELL=['/','/manifest.json','/manifest.tr.json','/icon-192.png','/icon-512.png','/favicon.svg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(SHELL))));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('roamcroft-')&&key!==VERSION).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE_UPDATE')event.waitUntil(self.skipWaiting());});

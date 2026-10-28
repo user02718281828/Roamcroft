@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import type {State} from '../game/model.ts';
 
 export type WorldDelta={baseSeq:number;changes:Partial<State>;tiles?:[number,State['tiles'][number]][]};
@@ -14,7 +15,7 @@ export function makeDelta(before:ReturnType<typeof captureState>,state:State,bas
   return {baseSeq,changes,...(tiles.length?{tiles}:{})};
 }
 export function applyDelta(state:State,delta:WorldDelta,seq:number):State{
-  if(delta.baseSeq!==seq)throw Error('Dünya güncelleme sırası değişti.');
+  if(delta.baseSeq!==seq)throw Error(sourceText("m_47f65f3bf9"));
   const next={...state,...delta.changes,tiles:delta.changes.tiles||state.tiles.slice()};
   for(const [index,tile] of delta.tiles||[])next.tiles[index]=tile;
   return next;

@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import type { State } from './model.ts';
 import {frameProfile} from './profile.ts';
 import {
@@ -22,7 +23,7 @@ function openDatabase() {
       };
       request.onblocked = () => {
         database = null;
-        reject(new Error('Kayıt veritabanı başka bir sekmede meşgul.'));
+        reject(new Error(sourceText("m_90bdc26ffd")));
       };
     });
   return database;
@@ -49,20 +50,20 @@ export async function loadStored() {
         if (local && Date.parse(JSON.parse(local).savedAt) > current.savedAt)
           return {
             state: deserialize(local),
-            message: 'Son oyun kaydın yüklendi.',
+            message: sourceText("m_41dcb7a97e"),
           };
       } catch {}
       try {
         return {
           state: deserialize(serialize(current.state)),
-          message: 'Kayıtlı dünyana hoş geldin.',
+          message: sourceText("m_9fa2f4b871"),
         };
       } catch {
         const backup = await readSnapshot('backup');
         if (backup)
           return {
             state: deserialize(serialize(backup.state)),
-            message: 'Yedek dünya kaydı geri yüklendi.',
+            message: sourceText("m_184d1b5f80"),
           };
       }
     }

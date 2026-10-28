@@ -36,4 +36,5 @@ const headersPath=resolve(root,'dist/client/_headers');
 const headers=await readFile(headersPath,'utf8').catch(()=>'');
 const security=Object.entries({...BASE_HEADERS,'Content-Security-Policy':contentSecurityPolicy()}).map(([key,value])=>`  ${key}: ${value}`).join('\n');
 await writeFile(headersPath,headers+'\n/*\n'+security+'\n/sw.js\n  Cache-Control: no-cache\n/manifest.json\n  Cache-Control: no-cache\n');
+await writeFile(headersPath,await readFile(headersPath,'utf8')+'/manifest.tr.json\n  Cache-Control: no-cache\n');
 console.info('D1 bağlantısı doğrulandı; çevrimdışı uygulama dosyaları hazırlandı.');

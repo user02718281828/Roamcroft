@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import type {MotionControl} from '../coop/realtime-client.ts';
 import {frameProfile} from './profile.ts';
 import type {ActionSound} from './audio.ts';
@@ -313,7 +314,7 @@ export function createState(seed = 84621): State {
     },
   ];
   const s: State = {
-    settlement: { name: 'Yuvam', milestones: [] },
+    settlement: { name: sourceText("m_a1d6250bee"), milestones: [] },
     world: { x: 0, z: 0, generation: 2, edits: {} },
     mine: null,
     version: SAVE_VERSION,
@@ -435,7 +436,7 @@ export class Engine {
   >();
   constructor(state: State = createState(), preserveWindow = false) {
     this.s = state;
-    state.settlement ??= { name: 'Yuvam', milestones: [] };
+    state.settlement ??= { name: sourceText("m_a1d6250bee"), milestones: [] };
     state.talks ??= {};
     state.overflow ??= {};
     state.storage ??= {};
@@ -472,7 +473,7 @@ export class Engine {
     }
     if (full)
       this.emit(
-        'ÇANTA DOLU · Fazla ürünler depoya veya teslimat sandığına kaldırıldı.',
+        sourceText("m_124cfc4a4f"),
         'bad',
       );
     return !full;
@@ -489,7 +490,7 @@ export class Engine {
     )
       return false;
     this.s.settlement.name = clean;
-    this.emit(`${clean}: yuvanın adı kaydedildi.`, 'good');
+    this.emit(sourceText("m_c590422a14", { p0: clean }), 'good');
     return true;
   }
   claimMilestone(id: string) {
@@ -499,7 +500,7 @@ export class Engine {
       return false;
     this.s.settlement.milestones.push(id);
     this.add(milestone.reward);
-    this.celebrate(`${this.s.settlement.name} · ${milestone.name}!`);
+    this.celebrate(sourceText("m_1d3c6c040c", { p0: this.s.settlement.name, p1: milestone.name }));
     return true;
   }
   storageCapacity() {
@@ -511,9 +512,9 @@ export class Engine {
     if(!Object.hasOwn(ITEMS,item)||!Number.isSafeInteger(quantity)||quantity<=0||!this.storageCapacity())return false;
     const source=deposit?this.s.inventory:this.s.storage,target=deposit?this.s.storage:this.s.inventory;
     const room=deposit?this.storageCapacity()-Object.values(this.s.storage).reduce((n,v)=>n+v,0):inventoryCapacity(this.s)-inventoryUsed(this.s);
-    if((source[item]||0)<quantity||room<quantity){this.emit(deposit?'Depoda yeterli yer yok.':'ÇANTA DOLU · Daha küçük miktar al.','bad');return false;}
+    if((source[item]||0)<quantity||room<quantity){this.emit(deposit?sourceText("m_3f7e8095b8"):sourceText("m_2be30d1d33"),'bad');return false;}
     source[item]-=quantity;target[item]=(target[item]||0)+quantity;
-    this.emit(deposit?'Ürünler ortak depoya kaldırıldı.':'Ürünler çantana alındı.','good');return true;
+    this.emit(deposit?sourceText("m_27d1e20058"):sourceText("m_5a4669cf33"),'good');return true;
   }
   depositMaterials() {
     if(this.network?.guest)return this.network.send('depositMaterials',[]);
@@ -525,7 +526,7 @@ export class Engine {
   prepareMaterials(kind: MaterialTarget, id: string | number, token?: string) {
     if (this.network?.guest) return this.network.send('prepareMaterials', token === undefined ? [kind, id] : [kind, id, token]);
     const cost = materialCost(this.s, kind, id, token);
-    if (!cost) { this.emit('Bu ihtiyaç listesi artık geçerli değil. Menüyü güncelle.', 'bad'); return false; }
+    if (!cost) { this.emit(sourceText("m_604fcca0f9"), 'bad'); return false; }
     const plan = materialPlan(this.s, cost);
     if (!plan.ready) { this.emit(plan.reason!, 'info'); return false; }
     // Validate the entire transfer before mutating either bag. A competing
@@ -534,7 +535,7 @@ export class Engine {
       this.s.storage[item] -= amount;
       this.s.inventory[item] = (this.s.inventory[item] || 0) + amount;
     }
-    this.emit(`${plan.total} eksik malzeme depodan alındı. İşlemi şimdi başlatabilirsin.`, 'good');
+    this.emit(sourceText("m_544b5b7258", { p0: plan.total }), 'good');
     return true;
   }
   collectDelivery() {
@@ -567,7 +568,7 @@ export class Engine {
     ) {
       this.s.bundles.completed.push(bundle);
       this.gainXp(100, 'crafting');
-      this.celebrate(`${definition.name} tamamlandı! ${definition.reward}`);
+      this.celebrate(sourceText("m_beac2f2771", { p0: definition.name, p1: definition.reward }));
     }
     return true;
   }
@@ -588,7 +589,7 @@ export class Engine {
     if (this.s.talks[id] !== this.s.day) {
       this.s.talks[id] = this.s.day;
       this.s.friendship[id] = Math.min(100, (this.s.friendship[id] || 0) + 2);
-      this.emit(`${npc.name} ile sohbet ettin. Dostluk +2`, 'good');
+      this.emit(sourceText("m_30b1df9f57", { p0: npc.name }), 'good');
     }
     return true;
   }
@@ -606,14 +607,14 @@ export class Engine {
     if (!a || !a.ready) return false;
     const output = { [ANIMALS[a.type].product]: a.ready };
     if (!inventoryFits(this.s, output)) {
-      this.emit('ÇANTA DOLU · Ürün hayvanında seni bekliyor.', 'bad');
+      this.emit(sourceText("m_a7402906df"), 'bad');
       return false;
     }
     this.add(output);
     this.stat('animalharvest', a.ready);
     a.ready = 0;
     this.gainXp(4, 'farming');
-    this.emit('Çiftlik ürünleri toplandı.', 'good');
+    this.emit(sourceText("m_7472aac906"), 'good');
     return true;
   }
   spend(cost: Bag) {
@@ -630,7 +631,7 @@ export class Engine {
       this.s.player.energy = 100;
       this.s.gold += this.s.level * 15;
       this.emit(
-        `Seviye ${this.s.level}! Yeni tarifler ve yapılar açıldı.`,
+        sourceText("m_8eeccf7470", { p0: this.s.level }),
         'good',
       );
     }
@@ -660,7 +661,7 @@ export class Engine {
       !!buildingAt(this.s, x, z);
     const path = this.findPath(t.x, t.z, action);
     if (!path) {
-      this.emit('Buraya ulaşan açık bir yol yok.', 'bad');
+      this.emit(sourceText("m_83cb940d7e"), 'bad');
       return;
     }
     this.path = path;
@@ -710,9 +711,9 @@ export class Engine {
   }
   returnHome() {
     if(this.network?.server)return this.network.send('returnHome',[]);
-    if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
+    if(this.network?.guest) {this.emit(sourceText("m_dcb29f639a"),'info');return false;}
     if (this.s.mine || this.s.enemies.length) {
-      this.emit('Güvende olduğunda eve dönebilirsin.', 'bad');
+      this.emit(sourceText("m_73805d6dee"), 'bad');
       return false;
     }
     const home = this.s.buildings.find((b) => b.type === 'home');
@@ -722,7 +723,7 @@ export class Engine {
     if (!spot) return false;
     Object.assign(this.s.player, spot);
     this.clearMovement();
-    this.emit('Ocak evine döndün.', 'good');
+    this.emit(sourceText("m_d4b1d83238"), 'good');
     return true;
   }
   isPortal(x: number, z: number) {
@@ -741,7 +742,7 @@ export class Engine {
   }
   enterMine(floor = 1) {
     if(this.network?.server)return this.network.send('enterMine',[floor]);
-    if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
+    if(this.network?.guest) {this.emit(sourceText("m_dcb29f639a"),'info');return false;}
     if (
       !Number.isInteger(floor) ||
       floor < 1 ||
@@ -756,19 +757,19 @@ export class Engine {
     )
       return false;
     if (s.level < 3) {
-      this.emit('Kadim maden, 3. seviyede açılır.', 'bad');
+      this.emit(sourceText("m_7d58d7b26c"), 'bad');
       return false;
     }
     if (
       s.enemies.length ||
       (!s.won && s.day >= 3 && s.day % 3 === 0 && s.raidDay !== s.day)
     ) {
-      this.emit('Köyün akın tehlikesi altında. Önce savunmayı tamamla.', 'bad');
+      this.emit(sourceText("m_11748b8bfe"), 'bad');
       return false;
     }
     if (s.stats.mineday === s.day) {
       this.emit(
-        'Asansörün bakımı sürüyor. Yarın yeni bir keşfe çıkabilirsin.',
+        sourceText("m_804118d410"),
         'bad',
       );
       return false;
@@ -830,13 +831,13 @@ export class Engine {
     this.clearMovement();
     this.worldRevision++;
     this.emit(
-      `${floor}. kat · ${FLOOR_NAMES[floor - 1]}. Düşmanları yen, en az 4 cevher darbesi çıkar.`,
+      sourceText("m_76b7ddaf54", { p0: floor, p1: FLOOR_NAMES[floor - 1] }),
       'info',
     );
   }
   descendMine() {
     if(this.network?.server)return this.network.send('descendMine',[]);
-    if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
+    if(this.network?.guest) {this.emit(sourceText("m_dcb29f639a"),'info');return false;}
     const s = this.s,
       mine = s.mine;
     if (
@@ -846,7 +847,7 @@ export class Engine {
       return false;
     if (s.enemies.length || mine.mined < 4) {
       this.emit(
-        `Geçit mühürlü: ${s.enemies.length} düşman kaldı · Cevher ${Math.min(4, mine.mined)}/4.`,
+        sourceText("m_7c8c2006da", { p0: s.enemies.length, p1: Math.min(4, mine.mined) }),
         'bad',
       );
       return false;
@@ -859,7 +860,7 @@ export class Engine {
       this.gainXp(220, 'combat');
       this.leaveMine(true);
       this.emit(
-        'Dağın kalbini kurtardın! +400 altın, 12 ay kristali ve derinlik hazinesi.',
+        sourceText("m_3479abc674"),
         'good',
       );
     }
@@ -867,7 +868,7 @@ export class Engine {
   }
   leaveMine(forced = false) {
     if(this.network?.server)return this.network.send('leaveMine',[]);
-    if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
+    if(this.network?.guest) {this.emit(sourceText("m_dcb29f639a"),'info');return false;}
     const s = this.s,
       mine = s.mine;
     if (
@@ -886,7 +887,7 @@ export class Engine {
     this.worldRevision++;
     if (!forced)
       this.emit(
-        'Cevherlerinle vadiye döndün. Yeni keşif yarın açılır.',
+        sourceText("m_98f760ee6e"),
         'good',
       );
     return true;
@@ -909,18 +910,18 @@ export class Engine {
       return false;
     const cost = 40 * ((this.s.talents[id] || 0) + 1);
     if (this.s.gold < cost) {
-      this.emit('Yetenek eğitimi için altının yetersiz.', 'bad');
+      this.emit(sourceText("m_08939f5c92"), 'bad');
       return false;
     }
     this.s.gold -= cost;
     this.s.talents[id] = (this.s.talents[id] || 0) + 1;
-    this.emit(`${TALENTS[id].name} geliştirildi.`, 'good');
+    this.emit(sourceText("m_e060438953", { p0: TALENTS[id].name }), 'good');
     return true;
   }
   energy(cost: number) {
     cost *= 1 - 0.08 * (this.s.talents.vigor || 0);
     if (this.s.player.energy < cost) {
-      this.emit('Enerjin azaldı. Dinlen düğmesini kullan veya yiyecek tüket.', 'bad');
+      this.emit(sourceText("m_12215a31cf"), 'bad');
       return false;
     }
     this.s.player.energy -= cost;
@@ -948,7 +949,7 @@ export class Engine {
     if (t.terrain === 'wall') return;
     if (this.s.mine && !['hand', 'pickaxe', 'sword'].includes(tool)) {
       this.emit(
-        'Yeraltında kazma ve kılıç kullanabilirsin. İnşaat ve tarım için vadiye dön.',
+        sourceText("m_325d38212a"),
         'bad',
       );
       return;
@@ -962,7 +963,7 @@ export class Engine {
       const orchard = orchardStatus(b, this.s);
       if (orchard) {
         if (tool !== 'hand' || !orchard.ready) { this.emit(orchard.label, 'info', x, z); return; }
-        if (!inventoryFits(this.s, { [orchard.fruit]: orchard.yield })) { this.emit('ÇANTA DOLU · Meyveler dalında seni bekliyor.', 'bad'); return; }
+        if (!inventoryFits(this.s, { [orchard.fruit]: orchard.yield })) { this.emit(sourceText("m_791f46fa29"), 'bad'); return; }
         if (!this.energy(2)) return;
         b.harvestDay = this.s.day;
         this.add({ [orchard.fruit]: orchard.yield });
@@ -970,10 +971,10 @@ export class Engine {
         this.gainXp(18, 'farming');
         this.playerAction = { kind: 'harvesting', remaining: .8 };
         this.actionCooldown = .4;
-        this.emit(`+${orchard.yield} ${ITEMS[orchard.fruit].name} · Yarın yeniden`, 'good', x, z, 'harvest');
+        this.emit(sourceText("m_1f9eb53f3c", { p0: orchard.yield, p1: ITEMS[orchard.fruit].name }), 'good', x, z, 'harvest');
         return;
       }
-      this.emit(`${BUILDINGS[b.type].name} · Seviye ${b.level}`);
+      this.emit(sourceText("m_885d443580", { p0: BUILDINGS[b.type].name, p1: b.level }));
       return;
     }
     if (t.resource) {
@@ -985,7 +986,7 @@ export class Engine {
               ? 'pickaxe'
               : 'hand';
       if (tool !== required && tool !== 'hand') {
-        this.emit('Bu kaynak için uygun aracı seç.', 'bad');
+        this.emit(sourceText("m_63ae232e4d"), 'bad');
         return;
       }
       if (!this.energy(3)) return;
@@ -1008,14 +1009,14 @@ export class Engine {
       if (this.s.mine) this.s.mine.mined += power;
       this.gainXp(7 * power);
       this.actionCooldown = 0.38;
-      this.emit(`+${count} ${ITEMS[id].name}`, 'good', x, z, required === 'hand' ? 'harvest' : required);
+      this.emit(sourceText("m_53d5fdea60", { p0: count, p1: ITEMS[id].name }), 'good', x, z, required === 'hand' ? 'harvest' : required);
       return;
     }
     if (tool === 'hoe' && t.crop) {
       if (!this.energy(1)) return;
       t.crop = null; t.growth = 0; t.fertilized = false;
       this.actionCooldown = .4;
-      this.emit('Ekin söküldü. Toprak yeni ekime hazır.', 'info', x, z, 'hoe');
+      this.emit(sourceText("m_023ad3e1e8"), 'info', x, z, 'hoe');
       return;
     }
     if (t.crop && t.growth >= CROPS[t.crop].grow) {
@@ -1034,7 +1035,7 @@ export class Engine {
       this.actionCooldown = .4;
       this.stat('harvest');
       this.gainXp(16, 'farming');
-      this.emit(`+${count} ${c.name} · ${c.regrow ? 'Sulamayı sürdür; yeniden ürün verecek' : '+1 tohum'}`, 'good', x, z, 'harvest');
+      this.emit(sourceText("m_eb7afad007", { p0: count, p1: c.name, p2: c.regrow ? sourceText("m_5d53a76ee3") : sourceText("m_aa09c67c93") }), 'good', x, z, 'harvest');
       return;
     }
     if (tool === 'hoe' && t.terrain === 'grass' && !t.tilled) {
@@ -1042,15 +1043,15 @@ export class Engine {
       t.tilled = true;
       this.stat('till');
       this.gainXp(3, 'farming');
-      this.emit('Toprak ekime hazır.', 'good', x, z, 'hoe');
+      this.emit(sourceText("m_9ca2a064c9"), 'good', x, z, 'hoe');
     } else if (tool === 'seed' && t.tilled && !t.crop) {
       const c = CROPS[selection];
       if (!c || this.s.level < c.level) {
-        this.emit('Bu ekin için seviyen yetersiz.', 'bad');
+        this.emit(sourceText("m_4e931c4ef2"), 'bad');
         return;
       }
       if (!this.s.inventory[c.seed]) {
-        this.emit('Tohumun kalmadı. Pazardan alabilirsin.', 'bad');
+        this.emit(sourceText("m_65c6c71eab"), 'bad');
         return;
       }
       if (!this.energy(1)) return;
@@ -1059,23 +1060,23 @@ export class Engine {
       t.growth = 0;
       this.stat('plant');
       this.gainXp(5, 'farming');
-      this.emit(`${c.name} ekildi.`, 'good', x, z, 'seed');
+      this.emit(sourceText("m_aff534b1be", { p0: c.name }), 'good', x, z, 'seed');
     } else if (tool === 'water' && t.tilled) {
       if (t.water > 90) return;
       if (!this.energy(1)) return;
       t.water = 100;
-      this.emit('Toprak sulandı.', 'good', x, z, 'water');
+      this.emit(sourceText("m_998c1b5b01"), 'good', x, z, 'water');
     } else if (tool === 'fertilize' && t.tilled && !t.fertilized) {
       if (!this.spend({ fertilizer: 1 })) {
-        this.emit('Önce gübre üret.', 'bad');
+        this.emit(sourceText("m_1b2379b9f8"), 'bad');
         return;
       }
       t.fertilized = true;
-      this.emit('Verim ve büyüme hızı arttı.', 'good', x, z);
+      this.emit(sourceText("m_b32b93bf11"), 'good', x, z);
     } else if (tool === 'fish' && t.terrain === 'water') {
       if (!this.energy(3)) return;
       this.fishing = { x, z, timer: 3.4 };
-      this.emit('Olta atıldı…', 'info', x, z, 'fish');
+      this.emit(sourceText("m_32856f759d"), 'info', x, z, 'fish');
     } else if (tool === 'hoe' && t.terrain === 'path') {
       if (!this.energy(2)) return;
       t.terrain = 'grass';
@@ -1083,10 +1084,10 @@ export class Engine {
       this.stat('till');
       this.gainXp(3, 'farming');
     } else if (tool === 'seed' && !t.tilled)
-      this.emit('Önce çapa ile toprağı işle.', 'info');
+      this.emit(sourceText("m_13d8882414"), 'info');
     else if (t.crop)
       this.emit(
-        `${CROPS[t.crop].name} · %${Math.floor((t.growth / CROPS[t.crop].grow) * 100)} büyüdü${t.water <= 0 ? ' · Su gerekiyor' : ''}`,
+        sourceText("m_a79de4cf0a", { p0: CROPS[t.crop].name, p1: Math.floor((t.growth / CROPS[t.crop].grow) * 100), p2: t.water <= 0 ? sourceText("m_4458aab9b6") : '' }),
       );
   }
   build(type: string, x: number, z: number, rotation = this.placementRotation, corner = this.placementCorner) {
@@ -1098,11 +1099,11 @@ export class Engine {
       t = tileAt(s, x, z);
     if (!d || !t) return false;
     if (s.level < d.level) {
-      this.emit(`Seviye ${d.level} gerekli.`, 'bad');
+      this.emit(sourceText("m_97af3dbd9a", { p0: d.level }), 'bad');
       return false;
     }
     if (d.unique && s.buildings.some((b) => b.type === type)) {
-      this.emit('Bu yapı vadide zaten var.', 'bad');
+      this.emit(sourceText("m_8edd380493"), 'bad');
       return false;
     }
     if (
@@ -1118,11 +1119,11 @@ export class Engine {
       s.animals.some((a) => Math.hypot(a.x - x, a.z - z) < 0.7) ||
       s.enemies.some((e) => Math.hypot(e.x - x, e.z - z) < 0.7)
     ) {
-      this.emit('Yapı için boş bir çayır karesi seç.', 'bad');
+      this.emit(sourceText("m_c248ac03e3"), 'bad');
       return false;
     }
     if (!this.spend(d.cost)) {
-      this.emit('Yapı için malzemelerin yetersiz.', 'bad');
+      this.emit(sourceText("m_cc61fb4959"), 'bad');
       return false;
     }
     s.buildings.push({
@@ -1145,7 +1146,7 @@ export class Engine {
     if (d.orchard) this.stat('orchard');
     if (type === 'beacon') s.stats.beacon = 1;
     this.gainXp(35, 'crafting');
-    this.emit(`${d.name} inşa edildi!`, 'good', x, z);
+    this.emit(sourceText("m_0bdb678193", { p0: d.name }), 'good', x, z);
     return true;
   }
   rotateBuilding(id: number) {
@@ -1173,7 +1174,7 @@ export class Engine {
     const selected = b && machineRecipes(b.type).find(r => r.id === recipe);
     if (!b || !selected || this.s.level < selected.level || b.processing) return false;
     b.recipe = recipe; b.timer = 0; b.repeat = false;
-    this.emit('Tarif seçildi. Malzemeler hazırsa bir parti başlat.', 'good');
+    this.emit(sourceText("m_e187c59a01"), 'good');
     return true;
   }
   setMachineRepeat(id: number, repeat: boolean) {
@@ -1181,7 +1182,7 @@ export class Engine {
     const b = this.s.buildings.find(b => b.id === id);
     if (!b || !machineRecipe(b) || typeof repeat !== 'boolean') return false;
     b.repeat = repeat;
-    this.emit(repeat ? 'Otomatik tekrar açık; her partide çantadan malzeme alınır.' : 'Otomatik tekrar kapalı. Çalışan parti korunur.', 'info');
+    this.emit(repeat ? sourceText("m_e31835c365") : sourceText("m_af810dc82f"), 'info');
     return true;
   }
   withProductionInventory(recipient:string|undefined,action:()=>void) {
@@ -1195,11 +1196,11 @@ export class Engine {
     if(this.network?.guest) return this.network.send('startProduction',[id]);
     const b = this.s.buildings.find(b => b.id === id), r = b && machineRecipe(b);
     if (!b || !r || b.processing || b.hp <= 0 || this.s.level < r.level) return false;
-    if (!this.spend(r.input)) { this.emit('Üretim için malzemelerin yetersiz.', 'bad'); return false; }
+    if (!this.spend(r.input)) { this.emit(sourceText("m_2926de3734"), 'bad'); return false; }
     b.processing = true; b.enabled = true;
     if(this.productionRecipient)b.recipient=this.productionRecipient;
     b.timer = Math.max(0, Math.min(b.timer, r.time));
-    this.emit('Malzemeler makineye yüklendi. Dünyaya dönünce üretim ilerler.', 'good');
+    this.emit(sourceText("m_1e3a4f95a8"), 'good');
     return true;
   }
   upgrade(id: number) {
@@ -1207,28 +1208,28 @@ export class Engine {
     const b = this.s.buildings.find((b) => b.id === id);
     if (!b) return false;
     if (b.level >= 3) {
-      this.emit('Yapı en yüksek seviyede.');
+      this.emit(sourceText("m_14bb949f6d"));
       return false;
     }
     if (this.s.level < b.level * 2) {
-      this.emit(`Seviye ${b.level * 2} gerekli.`, 'bad');
+      this.emit(sourceText("m_97af3dbd9a", { p0: b.level * 2 }), 'bad');
       return false;
     }
     if (!this.spend(upgradeCost(b))) {
-      this.emit('Yükseltme için malzemelerin yetersiz.', 'bad');
+      this.emit(sourceText("m_de60a6c4d7"), 'bad');
       return false;
     }
     b.level++;
     b.hp = BUILDINGS[b.type].hp * b.level;
     this.stat('upgrade');
     this.gainXp(50, 'crafting');
-    this.emit(`${BUILDINGS[b.type].name} seviye ${b.level}!`, 'good', b.x, b.z);
+    this.emit(sourceText("m_7f250c6352", { p0: BUILDINGS[b.type].name, p1: b.level }), 'good', b.x, b.z);
     if (b.type === 'beacon') {
       this.s.stats.beacon = b.level;
       if (b.level === 3) {
         this.s.won = true;
         this.s.enemies = [];
-        this.emit('Kadim fener uyandı. Vadi artık güvende!', 'good');
+        this.emit(sourceText("m_47a892cfaf"), 'good');
       }
     }
     return true;
@@ -1238,18 +1239,18 @@ export class Engine {
     const b = this.s.buildings.find((b) => b.id === id);
     if (!b || b.hp >= BUILDINGS[b.type].hp * b.level) return false;
     if (!this.spend({ wood: 3, stone: 2 })) {
-      this.emit('Onarmak için 3 odun ve 2 taş gerekli.', 'bad');
+      this.emit(sourceText("m_5ca5687a14"), 'bad');
       return false;
     }
     b.hp = Math.min(BUILDINGS[b.type].hp * b.level, b.hp + 80);
-    this.emit('Yapı onarıldı.', 'good');
+    this.emit(sourceText("m_b6b55c576e"), 'good');
     return true;
   }
   demolish(id: number) {
     if(this.network?.guest) return this.network.send('demolish',[id]);
     const b = this.s.buildings.find((b) => b.id === id);
     if (!b || b.type === 'home' || b.type === 'market') {
-      this.emit('Başlangıç evi ve pazar korunuyor.', 'bad');
+      this.emit(sourceText("m_f09122c2fc"), 'bad');
       return false;
     }
     const reserved = b.processing && machineRecipe(b);
@@ -1263,7 +1264,7 @@ export class Engine {
       ),
     );
     this.s.buildings = this.s.buildings.filter((b) => b.id !== id);
-    this.emit('Yapı söküldü. Malzemelerin yarısı geri alındı.');
+    this.emit(sourceText("m_b92972c0ae"));
     return true;
   }
   craft(id: string) {
@@ -1273,17 +1274,17 @@ export class Engine {
     const s = this.s;
     if (s.jobs.length >= 3) {
       this.emit(
-        'Üretim kuyruğu dolu. Dünyaya dönerek üretimin bitmesini bekle.',
+        sourceText("m_90d3ed4329"),
         'bad',
       );
       return false;
     }
     if (s.level < r.level) {
-      this.emit(`Seviye ${r.level} gerekli.`, 'bad');
+      this.emit(sourceText("m_97af3dbd9a", { p0: r.level }), 'bad');
       return false;
     }
     if (r.station && !s.buildings.some((b) => b.type === r.station)) {
-      this.emit(`${BUILDINGS[r.station].name} inşa etmelisin.`, 'bad');
+      this.emit(sourceText("m_8e9edc2e4c", { p0: BUILDINGS[r.station].name }), 'bad');
       return false;
     }
     const tier = r.upgrade
@@ -1291,14 +1292,14 @@ export class Engine {
         s.jobs.filter((j) => RECIPES[j.recipe].upgrade === r.upgrade).length
       : 0;
     if (r.upgrade && tier >= 3) {
-      this.emit('Aletin son yükseltmesi tamamlandı veya sırada.');
+      this.emit(sourceText("m_0b32066591"));
       return false;
     }
     const cost = Object.fromEntries(
       Object.entries(r.input).map(([k, v]) => [k, v * (tier + 1)]),
     );
     if (!canAfford(s, cost)) {
-      this.emit('Üretim için malzemelerin yetersiz.', 'bad');
+      this.emit(sourceText("m_2926de3734"), 'bad');
       return false;
     }
     if (!this.energy(4)) return false;
@@ -1307,7 +1308,7 @@ export class Engine {
       (r.upgrade ? 30 : r.station ? 12 : 7) *
       (1 - 0.001 * (s.friendship.torin || 0));
     s.jobs.push({ recipe: id, remaining: duration, total: duration, ...(this.productionRecipient?{recipient:this.productionRecipient}:{}) });
-    this.emit(`${r.name} sıraya alındı. Dünyaya dönünce üretilecek.`, 'good');
+    this.emit(sourceText("m_53b94d6264", { p0: r.name }), 'good');
     return true;
   }
   eat(id: string) {
@@ -1321,7 +1322,7 @@ export class Engine {
       (!i.energy || p.energy >= 100) &&
       (!i.heal || p.health >= 100)
     ) {
-      this.emit('Şu an buna ihtiyacın yok.');
+      this.emit(sourceText("m_64e24c4da0"));
       return false;
     }
     this.s.inventory[id]--;
@@ -1329,13 +1330,13 @@ export class Engine {
     p.hunger = Math.min(100, p.hunger + (i.food || 0));
     p.energy = Math.min(100, p.energy + (i.energy || 0));
     p.health = Math.min(100, p.health + (i.heal || 0));
-    this.emit(`${i.name} tüketildi.`, 'good');
+    this.emit(sourceText("m_1c15ca0184", { p0: i.name }), 'good');
     return true;
   }
   trade(id: string, quantity: number, buy: boolean) {
     if(this.network?.guest) return this.network.send('trade',[id,quantity,buy]);
     if (this.s.mine) {
-      this.emit('Pazara ulaşmak için madenden çık.', 'bad');
+      this.emit(sourceText("m_eb5a42b8f7"), 'bad');
       return false;
     }
     const item = ITEMS[id];
@@ -1350,15 +1351,15 @@ export class Engine {
     const value = tradeUnitPrice(this.s, id, buy) * quantity;
     if (buy) {
       if (!marketSells(id)) {
-        this.emit('Bu ürün pazarda satılmıyor; üretim veya keşifle elde et.', 'bad');
+        this.emit(sourceText("m_d38f5b86b8"), 'bad');
         return false;
       }
       if (this.s.gold < value) {
-        this.emit('Altının yetersiz.', 'bad');
+        this.emit(sourceText("m_76f98ce395"), 'bad');
         return false;
       }
       if (!inventoryFits(this.s, { [id]: quantity })) {
-        this.emit('ÇANTA DOLU · Satın almadan önce yer aç.', 'bad');
+        this.emit(sourceText("m_7480c07055"), 'bad');
         return false;
       }
       this.s.gold -= value;
@@ -1372,7 +1373,7 @@ export class Engine {
       if (xp) this.gainXp(xp, 'crafting');
     }
     this.emit(
-      `${quantity} ${item.name} ${buy ? 'alındı' : 'satıldı'}.`,
+      sourceText("m_f0c21295d3", { p0: quantity, p1: item.name, p2: buy ? sourceText("m_2d71b985bf") : sourceText("m_f5daadc130") }),
       'good',
     );
     return true;
@@ -1389,18 +1390,18 @@ export class Engine {
       );
     if (!home) {
       this.emit(
-        `${BUILDINGS[d.home].name} gerekiyor veya barınak dolu.`,
+        sourceText("m_fd97c3fb1b", { p0: BUILDINGS[d.home].name }),
         'bad',
       );
       return false;
     }
     if (s.gold < d.cost) {
-      this.emit('Altının yetersiz.', 'bad');
+      this.emit(sourceText("m_76f98ce395"), 'bad');
       return false;
     }
     const spot = this.nearbyFree(home.x, home.z);
     if (!spot) {
-      this.emit('Barınağın çevresinde boş yer aç.', 'bad');
+      this.emit(sourceText("m_b039203e4b"), 'bad');
       return false;
     }
     s.gold -= d.cost;
@@ -1415,7 +1416,7 @@ export class Engine {
     });
     this.stat('animals');
     this.gainXp(20, 'farming');
-    this.emit(`${d.name} köyüne katıldı!`, 'good');
+    this.emit(sourceText("m_66dc95bc6f", { p0: d.name }), 'good');
     return true;
   }
   petAnimal(id: number) {
@@ -1434,7 +1435,7 @@ export class Engine {
       motion.path = [];
     }
     this.gainXp(4, 'farming');
-    this.emit(`${a.name || ANIMALS[a.type].name} seninle yakınlaştı.`, 'good');
+    this.emit(sourceText("m_9d96f419c7", { p0: a.name || ANIMALS[a.type].name }), 'good');
     return true;
   }
   renameAnimal(id: number, name: string) {
@@ -1463,7 +1464,7 @@ export class Engine {
       s.animals.filter((v) => v.home === a.home).length >= 3 * home.level
     ) {
       this.emit(
-        'Aynı barınakta iki yetişkin, boş yer ve son yavrulamadan sonra 3 gün gerekir.',
+        sourceText("m_4e8e544d3f"),
         'bad',
       );
       return false;
@@ -1471,7 +1472,7 @@ export class Engine {
     const spot = this.nearbyFree(home.x, home.z);
     if (!spot || !this.spend({ feed: 6 })) {
       this.emit(
-        'Yavrulama için 6 yem ve barınak çevresinde boş yer gerekir.',
+        sourceText("m_3bbaaafdcd"),
         'bad',
       );
       return false;
@@ -1492,7 +1493,7 @@ export class Engine {
     this.stat('births');
     this.gainXp(30, 'farming');
     this.emit(
-      'Çiftliğe bir yavru katıldı! İki gün sonra ürün vermeye başlar.',
+      sourceText("m_dba2d16462"),
       'good',
     );
     return true;
@@ -1504,11 +1505,11 @@ export class Engine {
     if (!npc || this.s.contracts[id] === this.s.day) return false;
     const offers = dailyOrders(this.s, id), order = token === undefined ? offers[0] : offers.find(o => o.token === token);
     if (!order || this.s.level < order.level) {
-      this.emit('Sipariş değişti veya gerekli seviyeye henüz ulaşmadın.', 'bad');
+      this.emit(sourceText("m_536952841c"), 'bad');
       return false;
     }
     if (!this.spend(order.input)) {
-      this.emit('Sipariş için istenen ürünler eksik.', 'bad');
+      this.emit(sourceText("m_330b8d51c0"), 'bad');
       return false;
     }
     this.s.contracts[id] = this.s.day;
@@ -1518,7 +1519,7 @@ export class Engine {
     if (order.supplies) this.add(order.supplies);
     this.stat('orders');
     this.gainXp(order.xp, 'crafting');
-    this.celebrate(`${npc.name}: ${order.name} tamamlandı. +${order.gold} altın · Dostluk +8${order.supplies?' · Malzeme ödülü teslim edildi':''}`);
+    this.celebrate(sourceText("m_5256ccc880", { p0: npc.name, p1: order.name, p2: order.gold, p3: order.supplies?sourceText("m_8de478c126"):'' }));
     return true;
   }
   gift(id: string) {
@@ -1528,12 +1529,12 @@ export class Engine {
     const actor=this.npcMotion.get(id);if(actor){actor.action='greeting';actor.wait=3;}
     if (!npc || this.s.gifts[id] === this.s.day) return false;
     if (!this.spend({ [npc.gift]: 1 })) {
-      this.emit(`${ITEMS[npc.gift].name} çantanda yok.`, 'bad');
+      this.emit(sourceText("m_b7db14d9b2", { p0: ITEMS[npc.gift].name }), 'bad');
       return false;
     }
     this.s.gifts[id] = this.s.day;
     this.s.friendship[id] = Math.min(100, (this.s.friendship[id] || 0) + 12);
-    this.emit(`${npc.name} hediyene sevindi. Dostluk +12`, 'good');
+    this.emit(sourceText("m_892188b0b7", { p0: npc.name }), 'good');
     return true;
   }
   claimAchievement(id: string) {
@@ -1547,7 +1548,7 @@ export class Engine {
       return false;
     this.s.achievements.push(id);
     this.s.gold += a.rewardGold;
-    this.emit(`Başarım: ${a.name} · +${a.rewardGold} altın`, 'good');
+    this.emit(sourceText("m_cd9e95e509", { p0: a.name, p1: a.rewardGold }), 'good');
     return true;
   }
   claim(id: string) {
@@ -1563,7 +1564,7 @@ export class Engine {
     this.s.gold += q.reward.gold;
     this.add(q.reward.items);
     this.gainXp(q.reward.xp);
-    this.celebrate(`${q.name} tamamlandı! +${q.reward.gold} altın`);
+    this.celebrate(sourceText("m_4be3c981c3", { p0: q.name, p1: q.reward.gold }));
     return true;
   }
   nearbyFree(x: number, z: number) {
@@ -1597,7 +1598,7 @@ export class Engine {
             Math.hypot(a.x - p.x, a.z - p.z) - Math.hypot(b.x - p.x, b.z - p.z),
         )[0];
     if (!e) {
-      this.emit('Kılıç menzilinde düşman yok.');
+      this.emit(sourceText("m_cb1846c1d2"));
       return false;
     }
     const damage =
@@ -1626,8 +1627,8 @@ export class Engine {
       if (!this.s.enemies.length)
         this.emit(
           this.s.mine
-            ? 'Galeri temizlendi. Cevherleri topla ve kuzeydeki geçide ulaş.'
-            : 'Akın püskürtüldü. Vadi yeniden güvende.',
+            ? sourceText("m_6faff9b6e2")
+            : sourceText("m_4e304c98c8"),
           'good',
         );
     }
@@ -1678,7 +1679,7 @@ export class Engine {
         });
       }
     }
-    this.emit('Gece akını! Kılıcını kuşan; gözcü kuleleri seni korur.', 'bad');
+    this.emit(sourceText("m_29469a3ba9"), 'bad');
   }
   nextDay() {
     const s = this.s;
@@ -1705,13 +1706,13 @@ export class Engine {
       }
     }
     this.emit(
-      `${s.day}. gün · ${s.weather === 'rain' ? 'Yağmur tarlaları suluyor.' : 'Günaydın, gezgin.'}`,
+      sourceText("m_50f06ea5ba", { p0: s.day, p1: s.weather === 'rain' ? sourceText("m_25f2ce58eb") : sourceText("m_bf90ade1ef") }),
       'good',
     );
   }
   sleep() {
     if(this.network?.server)return this.network.send('sleep',[]);
-    if(this.network?.guest) {this.emit('Bu geçişi ortak dünyada ev sahibi yönetir.','info');return false;}
+    if(this.network?.guest) {this.emit(sourceText("m_dcb29f639a"),'info');return false;}
     const s = this.s, p = s.player, blocked=sleepBlockReason(s);
     if(blocked){this.emit(blocked,'info');return false;}
     this.path = [];
@@ -1736,7 +1737,7 @@ export class Engine {
     p.energy = 100;
     p.hunger = Math.max(0, p.hunger - 10);
     this.playerAction={kind:'sleeping',remaining:2};
-    this.emit('Dinlendin. Yeni bir gün seni bekliyor.', 'good');
+    this.emit(sourceText("m_474159898f"), 'good');
     return true;
   }
   cancelSleep() {
@@ -1761,7 +1762,7 @@ export class Engine {
     this.path = [];
     this.pending = null;
     this.fishing = null;
-    this.emit('Köylüler seni eve taşıdı. Altınının %10’unu kaybettin.', 'bad');
+    this.emit(sourceText("m_519a5b6669"), 'bad');
   }
   systems(dt: number) {
     const s = this.s,
@@ -1776,7 +1777,7 @@ export class Engine {
         this.add(place.reward.items);
         this.gainXp(place.reward.xp);
         this.emit(
-          `${place.name} keşfedildi! +${place.reward.gold} altın`,
+          sourceText("m_885482e251", { p0: place.name, p1: place.reward.gold }),
           'good',
           place.x,
           place.z,
@@ -1796,7 +1797,7 @@ export class Engine {
         }
         this.stat('craft');
         this.gainXp(10, 'crafting');
-        this.emit(`${r.name} hazır!`, 'good');
+        this.emit(sourceText("m_dbcf16bb5b", { p0: r.name }), 'good');
         s.jobs.shift();
       }
     }
@@ -1832,7 +1833,7 @@ export class Engine {
         if (b.timer >= prod.time && inventoryFits(s, prod.output)) {
           this.add(prod.output); b.timer = 0; b.processing = false;
           this.stat('production'); this.gainXp(2, 'crafting');
-          this.emit(`${BUILDINGS[b.type].name}: üretim tamamlandı.`, 'good', b.x, b.z);
+          this.emit(sourceText("m_ab5ca71d69", { p0: BUILDINGS[b.type].name }), 'good', b.x, b.z);
         }
       });
     }
@@ -2057,7 +2058,7 @@ export class Engine {
           );
           p.health = Math.max(0, p.health - damage);
           this.resting = false;
-          this.emit(`−${damage} can`, 'bad', p.x, p.z);
+          this.emit(sourceText("m_90ee550bda", { p0: damage }), 'bad', p.x, p.z);
         }
         continue;
       }
@@ -2137,7 +2138,7 @@ export class Engine {
               obstacle.hp = 1;
             else {
               s.buildings = s.buildings.filter((b) => b.id !== obstacle.id);
-              this.emit(`${BUILDINGS[obstacle.type].name} yıkıldı!`, 'bad');
+              this.emit(sourceText("m_9553260ef2", { p0: BUILDINGS[obstacle.type].name }), 'bad');
             }
           }
         }
@@ -2175,12 +2176,12 @@ export class Engine {
           this.add({ fish: 1 });
           if (this.random() < 0.02 * (s.talents.angler || 0)) {
             this.add({ crystal: 1 });
-            this.emit('Nehirden bir ay kristali çıktı!', 'good');
+            this.emit(sourceText("m_4b13dd6aa6"), 'good');
           }
           this.stat('fish');
           this.gainXp(13, 'fishing');
-          this.emit('+1 Nehir balığı', 'good', this.fishing.x, this.fishing.z);
-        } else this.emit('Balık kaçtı. Yeniden deneyebilirsin.');
+          this.emit(sourceText("m_c5841800c8"), 'good', this.fishing.x, this.fishing.z);
+        } else this.emit(sourceText("m_3e423c7522"));
         this.fishing = null;
       }
     }

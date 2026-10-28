@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import type { Engine } from '../game/model.ts';
 import type { Peer } from './protocol.ts';
 import {
@@ -128,7 +129,7 @@ export class RealtimeClient implements MotionControl {
             })),
         );
       } catch {
-        ws.close(1002, 'Geçersiz sunucu paketi.');
+        ws.close(1002, sourceText("m_97ca497084"));
       }
     };
     ws.onopen = () => {

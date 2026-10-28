@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import { Engine } from '../game/model.ts';
 import { integrateInput } from '../game/network-movement.ts';
 import {
@@ -321,17 +322,17 @@ export class RoomCore {
         Number.isSafeInteger(body.revision)
       )
     )
-      return { status: 400, data: { error: 'Geçersiz komut.' } };
+      return { status: 400, data: { error: sourceText("m_5358cad9ac") } };
     if (user !== this.owner && !this.hostReady(now))
       return {
         status: 423,
-        data: { error: 'Ev sahibinin bağlantısı bekleniyor.' },
+        data: { error: sourceText("m_fb24cbce85") },
       };
     let p = this.record.players[user];
     if (!p && !connect)
-      return { status: 409, data: { error: 'Önce ortak çiftliğe bağlan.' } };
+      return { status: 409, data: { error: sourceText("m_7147b3e91e") } };
     if (!p && Object.keys(this.record.players).length >= 32)
-      return { status: 409, data: { error: 'Kalıcı oyuncu sınırı.' } };
+      return { status: 409, data: { error: sourceText("m_7770d5ea7e") } };
     p = ensureSharedPlayer(this.record, user, this.owner, name, now);
     let events: ReturnType<typeof advanceShared>['events'] = [];
     if (!connect && validPulse(body.pulse)) {
@@ -356,9 +357,9 @@ export class RoomCore {
         };
       }
       if (pulse.seq !== p.seq + 1 || nonce !== p.nonce)
-        return { status: 409, data: { error: 'Oturum sırası değişti.' } };
+        return { status: 409, data: { error: sourceText("m_b8587e1632") } };
       if (pulse.commands.some((c, i) => c.seq !== p.commandSeq + i + 1))
-        return { status: 409, data: { error: 'Komut sırası geçersiz.' } };
+        return { status: 409, data: { error: sourceText("m_9eef75e71a") } };
       this.syncRuntime();
       // HTTP carries durable commands only, including while the socket reconnects.
       // Never revive the old pose-authoritative path for a disconnected actor.

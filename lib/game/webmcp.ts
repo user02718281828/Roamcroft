@@ -1,3 +1,6 @@
+import { sourceText } from '../i18n/source.ts';
+import { localizeText } from '../i18n/core.ts';
+import { subscribeLocale } from '../i18n/locale.ts';
 import { BUILDINGS, CROPS, RECIPES, TOOLS } from './data.ts';
 import { tileAt } from './model.ts';
 import type { Engine } from './model.ts';
@@ -22,15 +25,15 @@ export function gameTools(
 ): Tool[] {
   const args = (input: unknown) => {
     if (!input || typeof input !== 'object' || Array.isArray(input))
-      throw new Error('Nesne biçiminde girdi gerekli.');
+      throw new Error(sourceText("m_ffd385958b"));
     return input as Record<string, unknown>;
   };
   return [
     {
       name: 'read_game_state',
-      title: 'Vadi durumunu oku',
+      title: sourceText("m_39323e3926"),
       description:
-        'Karakter, envanter, ilerleme, yapılar, ekinler ve üretim kuyruğunu okur.',
+        sourceText("m_b965d4b90a"),
       inputSchema: {
         type: 'object',
         properties: {},
@@ -59,9 +62,9 @@ export function gameTools(
     },
     {
       name: 'start_tile_action',
-      title: 'Arazi eylemine başla',
+      title: sourceText("m_12a80871d4"),
       description:
-        'Karakteri seçilen kareye doğru yürütür ve varınca aracı kullanır. Eylemi başlatır; yürüme ve etkileşim sonraki oyun karelerinde tamamlanır. Duraklatılmış oyunda çalışmaz.',
+        sourceText("m_f40f48a753"),
       inputSchema: {
         type: 'object',
         properties: {
@@ -79,25 +82,25 @@ export function gameTools(
       annotations: { readOnlyHint: false, untrustedContentHint: false },
       execute: (input) => {
         const a = args(input);
-        if (isPaused()) throw new Error('Önce oyuna dön.');
+        if (isPaused()) throw new Error(sourceText("m_53ac96d9b9"));
         if (
           !Number.isInteger(a.x) ||
           !Number.isInteger(a.z) ||
           !tileAt(engine.s, a.x as number, a.z as number)
         )
-          throw new Error('Geçersiz arazi koordinatı.');
+          throw new Error(sourceText("m_ab80ea08cd"));
         if (
           typeof a.tool !== 'string' ||
           ![...TOOLS.map((t) => t.id), 'build', 'fertilize'].includes(a.tool)
         )
-          throw new Error('Geçersiz araç.');
+          throw new Error(sourceText("m_091013ca14"));
         const selection =
           typeof a.selection === 'string' ? a.selection : 'wheat';
         if (
           (a.tool === 'build' && !Object.hasOwn(BUILDINGS, selection)) ||
           (a.tool === 'seed' && !Object.hasOwn(CROPS, selection))
         )
-          throw new Error('Geçersiz yapı veya ekin.');
+          throw new Error(sourceText("m_c7b854675b"));
         engine.go(a.x as number, a.z as number, a.tool, selection);
         onChange();
         return {
@@ -109,9 +112,9 @@ export function gameTools(
     },
     {
       name: 'queue_crafting',
-      title: 'Üretimi sıraya al',
+      title: sourceText("m_00115f4ec9"),
       description:
-        'Malzemeyi ve enerjiyi harcayarak tarifi üretim kuyruğuna alır. Ürün, oyun zamanı ilerleyince tamamlanır.',
+        sourceText("m_159487bb60"),
       inputSchema: {
         type: 'object',
         properties: { recipe: { type: 'string', enum: Object.keys(RECIPES) } },
@@ -122,7 +125,7 @@ export function gameTools(
       execute: (input) => {
         const a = args(input);
         if (typeof a.recipe !== 'string' || !Object.hasOwn(RECIPES, a.recipe))
-          throw new Error('Geçersiz tarif.');
+          throw new Error(sourceText("m_a1e539aec9"));
         const success = engine.craft(a.recipe);
         onChange();
         return {
@@ -139,17 +142,21 @@ export function registerGameTools(
   onChange: () => void,
   isPaused: () => boolean,
 ) {
-  const context = (document as Document & { modelContext?: Context })
-      .modelContext,
+  const context = (document as Document & { modelContext?: Context }).modelContext;
+  let lifecycle = new AbortController();
+  const register = () => {
+    lifecycle.abort();
     lifecycle = new AbortController();
-  if (context?.registerTool) {
+    if (!context?.registerTool) return;
     for (const tool of gameTools(engine, onChange, isPaused)) {
       try {
         void Promise.resolve(
-          context.registerTool(tool, { signal: lifecycle.signal }),
+          context.registerTool({...tool, title: localizeText(tool.title), description: localizeText(tool.description)}, { signal: lifecycle.signal }),
         ).catch(() => {});
       } catch {}
     }
-  }
-  return () => lifecycle.abort();
+  };
+  register();
+  const unsubscribe = context?.registerTool ? subscribeLocale(register) : () => {};
+  return () => { unsubscribe(); lifecycle.abort(); };
 }

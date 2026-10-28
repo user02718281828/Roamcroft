@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import { Engine, walkable, type State, type Event } from '../game/model.ts';
 import type { Peer, Pose, Command } from '../coop/protocol.ts';
 import { advanceWorld, type WorldRecord } from './world.ts';
@@ -47,10 +48,10 @@ function requestSleep(e:Engine,record:SharedRecord,owner:string,user:string,now:
   const blocked=sleepBlockReason(e.s);
   if(blocked){e.emit(blocked,'info');return;}
   const participants=sleepParticipants(record,now);
-  if(!participants.includes(owner)){e.emit('Ev sahibi bağlantısını bekle.','info');return;}
+  if(!participants.includes(owner)){e.emit(sourceText("m_2b251a0b29"),'info');return;}
   record.sleep??={day:e.s.day,expires:now+90000,participants,votes:[]};
   if(!record.sleep.votes.includes(user))record.sleep.votes.push(user);
-  e.emit(`Uykuya hazırsın · ${record.sleep.votes.length}/${participants.length}. Herkes evin yakınında hazır olmalı.`, 'info');
+  e.emit(sourceText("m_fd196d0098", { p0: record.sleep.votes.length, p1: participants.length }), 'info');
 }
 function finishSharedSleep(e:Engine,record:SharedRecord,owner:string,now:number) {
   validateSharedSleep(record,now);
@@ -262,19 +263,19 @@ export function advanceShared(
   }
   for (const c of commands) {
     if(c.method==='sleep'){requestSleep(e,record,owner,user,now);continue;}
-    if(c.method==='cancelSleep'){delete record.sleep;e.emit('Ortak uyku isteği iptal edildi.','info');continue;}
+    if(c.method==='cancelSleep'){delete record.sleep;e.emit(sourceText("m_0d10cf1d1a"),'info');continue;}
     if (
       ['enterMine', 'descendMine', 'leaveMine'].includes(c.method) ||
       (c.method === 'act' && e.isPortal(Number(c.args[0]), Number(c.args[1])))
     ) {
       e.emit(
-        'Ortak maden yolculuğu henüz açık değil. Yüzeyde birlikte oynayabilirsiniz.',
+        sourceText("m_13a439487e"),
         'info',
       );
       continue;
     }
     if (user !== owner && ['demolish', 'renameSettlement'].includes(c.method)) {
-      e.emit('Bu işlemi ev sahibi yapabilir.', 'bad');
+      e.emit(sourceText("m_ea1fa8f0c2"), 'bad');
       continue;
     }
     if (
@@ -293,7 +294,7 @@ export function advanceShared(
             ) < 0.8,
         ))
     ) {
-      e.emit('Yakınında ve oyunculardan uzakta boş bir yer seç.', 'bad');
+      e.emit(sourceText("m_d22ad972b5"), 'bad');
       continue;
     }
     if (c.method === 'returnHome' && user !== owner) {

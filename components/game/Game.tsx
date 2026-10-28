@@ -1,4 +1,9 @@
 'use client';
+import { sourceText } from '@/lib/i18n/source';
+import { localize, localizeText, translate } from '@/lib/i18n/core';
+import { useLocale } from '@/lib/i18n/react';
+import { getLocale, intlLocale } from '@/lib/i18n/locale';
+
 import GameIcon from './GameIcon';
 import {frameProfile} from '@/lib/game/profile';
 import {profileFixture} from '@/lib/game/profile-fixture';
@@ -85,6 +90,7 @@ import {
 import { registerGameTools } from '@/lib/game/webmcp';
 
 export default function Game({autoStart=false,serverMode=false,onExit}:{autoStart?:boolean;serverMode?:boolean;onExit?:()=>void}={}) {
+  useLocale();
   const renderStarted=frameProfile.begin();
   useEffect(()=>{frameProfile.mount();return()=>frameProfile.dispose();},[]);
   const exitPending=useRef(false);
@@ -106,7 +112,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     let canceled = false;
     if(serverMode){
       const client=new ServerWorldClient(()=>engine.current,()=>control.current.paused||document.hidden,()=>refresh(n=>n+1));authority.current=client;
-      void client.start().then(state=>{if(canceled)return;nextState.current=state;initialMessage.current='Sunucu dünyasına bağlandın.';setStorageReady(true);}).catch(error=>{if(!canceled)setError(error instanceof Error?error.message:'Sunucuya bağlanılamadı.');});
+      void client.start().then(state=>{if(canceled)return;nextState.current=state;initialMessage.current=sourceText("m_7619685fa5");setStorageReady(true);}).catch(error=>{if(!canceled)setError(error instanceof Error?error.message:sourceText("m_7d7982e90d"));});
       return()=>{canceled=true;client.dispose();};
     }
     void loadStored().then((loaded) => {
@@ -117,7 +123,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
       if(fixture){
         nextState.current=profileFixture(fixture==='dense');
       }else nextState.current = loaded.state;
-      initialMessage.current = fixture?'Yerel performans test dünyası.':loaded.message;
+      initialMessage.current = fixture?sourceText("m_0ced9d4f13"):loaded.message;
       setStorageReady(true);
     });
     return () => {
@@ -182,22 +188,22 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     const building=e.s.buildings.find(b=>Math.hypot(b.x-p.x,b.z-p.z)<1.8);
     if(building){if(orchardStatus(building,e.s)?.ready){e.act(building.x,building.z,'hand');return;}setSelectedBuilding(building.id);setPanel('building');return;}
     const target=e.s.tiles.filter(t=>(t.resource||t.crop||(control.current.tool==='fish'&&t.terrain==='water'))&&Math.hypot(t.x-p.x,t.z-p.z)<1.8).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0];
-    if(target)e.act(target.x,target.z,control.current.tool==='fish'?'fish':'hand');else e.emit('Bir ürün, kaynak veya yapıya biraz daha yaklaş.');
+    if(target)e.act(target.x,target.z,control.current.tool==='fish'?'fish':'hand');else e.emit(sourceText("m_6455e5a37b"));
   };
   const setSound = (value: boolean) => {
     void audio.current?.enable(value).then((enabled) => {
       setSoundState(enabled);
       if (value && !enabled)
         engine.current?.emit(
-          'Ses başlatılamadı. Tarayıcı ses iznini kontrol et.',
+          sourceText("m_eb97b6015c"),
           'bad',
         );
     });
   };
   const doSave = async () => {
-    if(serverMode){if(!authority.current)throw Error('Sunucu oturumu hazır değil.');await authority.current.flush();setSaveStatus('Sunucu dünyası kaydedildi.');return;}
+    if(serverMode){if(!authority.current)throw Error(sourceText("m_36e4fe8a78"));await authority.current.flush();setSaveStatus(sourceText("m_a21b2f953a"));return;}
     if(coop.current?.active) {
-      try {await coop.current.publish();setSaveStatus('Ortak dünya sunucuya kaydedildi.');} catch(error){setSaveStatus(error instanceof Error ? error.message : 'Kayıt bekleniyor.');throw error;}
+      try {await coop.current.publish();setSaveStatus(sourceText("m_281c7779e7"));} catch(error){setSaveStatus(error instanceof Error ? error.message : sourceText("m_e2bf9be3f4"));throw error;}
       return;
     }
     if (engine.current) {
@@ -205,21 +211,21 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
       const ok = await saveStored(engine.current.s);
       setSaveStatus(
         ok
-          ? 'Kaydedildi · ' + new Date().toLocaleTimeString('tr-TR')
-          : 'Kayıt yapılamadı. Dosya indirerek ilerlemeni koru.',
+          ? sourceText("m_f0ec215938", { p0: new Date().toLocaleTimeString(intlLocale()) })
+          : sourceText("m_d0bb9477bf"),
       );
       engine.current.emit(
-        ok ? 'Vadin kaydedildi.' : 'Tarayıcı kaydı kullanılamıyor.',
+        ok ? sourceText("m_fd40e204c8") : sourceText("m_cdf082cbcb"),
         ok ? 'good' : 'bad',
       );
-      if(!ok)throw Error('Kayıt yapılamadı. Ayarlar bölümünden dosya indir.');
+      if(!ok)throw Error(sourceText("m_18bab29cd0"));
     }
   };
   const doExit = async () => {
     if(exitPending.current)return;
     exitPending.current=true;keys.current.clear();joystick.current={x:0,y:0};
     try {
-      if(serverMode){if(!authority.current)throw Error('Sunucu oturumu hazır değil.');await authority.current.exitToMenu();}
+      if(serverMode){if(!authority.current)throw Error(sourceText("m_36e4fe8a78"));await authority.current.exitToMenu();}
       else {await doSave();if(coop.current?.active)await coop.current.leave();}
       allowSave.current=false;
       if(onExit)onExit();else window.location.reload();
@@ -236,14 +242,14 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     a.download = `roamcroft-gun-${engine.current.s.day}.json`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    engine.current.emit('Kayıt dosyası indirildi.', 'good');
+    engine.current.emit(sourceText("m_59b60599c0"), 'good');
   };
   const doImport = async (file: File) => {
     setLoadError('');
-    if(serverMode){setLoadError('Sunucu dünyasına dosya yüklenemez. Kayıt yüklemek için cihazdaki oyunu aç.');return;}
-    if(coop.current?.active){engine.current?.emit('Kayıt yüklemek için önce ortak odadan ayrıl.','bad');return;}
+    if(serverMode){setLoadError(sourceText("m_8e46a19b48"));return;}
+    if(coop.current?.active){engine.current?.emit(sourceText("m_c4b41e9fae"),'bad');return;}
     try {
-      if (file.size > 32_000_000) throw new Error('Kayıt dosyası çok büyük.');
+      if (file.size > 32_000_000) throw new Error(sourceText("m_0806e1acd3"));
       const state = deserialize(await file.text());
       nextState.current = state;
       allowSave.current = true;
@@ -254,16 +260,16 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
       setPaused(false);
       setEpoch((n) => n + 1);
     } catch (e) {
-      setLoadError(e instanceof Error ? e.message : 'Kayıt yüklenemedi.');
+      setLoadError(e instanceof Error ? e.message : sourceText("m_af9676cedc"));
       engine.current?.emit(
-        e instanceof Error ? e.message : 'Kayıt yüklenemedi.',
+        e instanceof Error ? e.message : sourceText("m_af9676cedc"),
         'bad',
       );
     }
   };
   const doReset = () => {
-    if(serverMode){engine.current?.emit('Sunucu dünyası bu menüden sıfırlanmaz.','info');return;}
-    if(coop.current?.active){engine.current?.emit('Yeni oyun için önce ortak odadan ayrıl.','bad');return;}
+    if(serverMode){engine.current?.emit(sourceText("m_dbb0a7206e"),'info');return;}
+    if(coop.current?.active){engine.current?.emit(sourceText("m_f7193a4977"),'bad');return;}
     setMainMenu(false);
     const seed = new Uint32Array(1);
     crypto.getRandomValues(seed);
@@ -288,7 +294,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     const loaded = nextState.current
       ? {
           state: nextState.current,
-          message: initialMessage.current || 'Vadin hazır.',
+          message: initialMessage.current || sourceText("m_510ac3aca5"),
         }
       : loadLocal();
     nextState.current = null;
@@ -298,7 +304,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     coop.current?.bind(e);
     authority.current?.bind(e);
     e.emit(loaded.message);
-    allowSave.current = !serverMode && !coop.current?.active && !loaded.message.startsWith('Kayıt okunamadı');
+    allowSave.current = !serverMode && !coop.current?.active && !loaded.message.startsWith(sourceText("m_77c932fee6"));
     setReady(false);
     setLoadingProgress(0);
     setError('');
@@ -430,7 +436,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               const completed=initialChunks-view.dirtyChunks.size+view.assetsLoaded,total=initialChunks+3;
               const percent=Math.min(100,Math.round(completed/total*100));
               if(percent!==lastProgress){lastProgress=percent;setLoadingProgress(percent);}
-              if(view.dirtyChunks.size===0&&view.assetsLoaded===3){worldReady=true;setReady(true);if(view.assetsFailed)e.emit('Bazı dokular yüklenemedi; temel görünümle devam edebilirsin.');}
+              if(view.dirtyChunks.size===0&&view.assetsLoaded===3){worldReady=true;setReady(true);if(view.assetsFailed)e.emit(sourceText("m_b46fd5695f"));}
             }
             ui += dt;
             if (ui > 0.25) {
@@ -492,9 +498,8 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                 frameProfile.end('saveWallTime',saveStarted);
                 setSaveStatus(
                   saved
-                    ? 'Otomatik kaydedildi · ' +
-                        new Date().toLocaleTimeString('tr-TR')
-                    : 'Kayıt yapılamadı. Dosya indir.',
+                    ? sourceText("m_71c57272af", { p0: new Date().toLocaleTimeString(intlLocale()) })
+                    : sourceText("m_a1023d4d92"),
                 );
               };
               if ('requestIdleCallback' in window)
@@ -511,11 +516,11 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
           frame = requestAnimationFrame(loop);
         } catch (err) {
           setError(
-            err instanceof Error ? err.message : 'Görüntü başlatılamadı.',
+            err instanceof Error ? err.message : sourceText("m_25de8c0a47"),
           );
         }
       })
-      .catch(() => setError('Oyun motoru yüklenemedi. Sayfayı yenile.'));
+      .catch(() => setError(sourceText("m_30fb8bdc99")));
     const down = (ev: KeyboardEvent) => {
       if(exitPending.current){ev.preventDefault();return;}
       const tag = (ev.target as HTMLElement).tagName;
@@ -585,10 +590,10 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
   const portalLabel =
     hover && engine.current?.isPortal(hover.x, hover.z)
       ? !s?.mine
-        ? 'Kadim maden · Seviye 3'
+        ? sourceText("m_ee93c474f3")
         : hover.z === MINE_LIFT.z
-          ? 'Asansör · Vadiye dön'
-          : 'Mühürlü geçit · Alt kat'
+          ? sourceText("m_8a21c0150b")
+          : sourceText("m_28921c7dd9")
       : null;
   const label =
     portalLabel ||
@@ -598,29 +603,29 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
         ? BUILDINGS[b.type].name
         : t?.resource
           ? {
-              tree: 'Orman ağacı',
-              bush: 'Orman meyveleri',
-              stone: 'Taş yatağı',
-              iron: 'Demir yatağı',
-              copper: 'Bakır yatağı',
-              crystal: 'Ay kristali',
-              mushroom: 'Mantar',
+              tree: sourceText("m_970fbd3e86"),
+              bush: sourceText("m_e559023fd7"),
+              stone: sourceText("m_2eea9f6a73"),
+              iron: sourceText("m_bffe70f622"),
+              copper: sourceText("m_e63ad63532"),
+              crystal: sourceText("m_ff5675eb85"),
+              mushroom: sourceText("m_4d04550421"),
             }[t.resource]
           : t?.crop
             ? CROPS[t.crop].name
             : t?.tilled
-              ? 'Ekim alanı'
+              ? sourceText("m_f797da3bfb")
               : t?.terrain === 'water'
-                ? 'Söğüt Nehri'
+                ? sourceText("m_08a7477a9a")
                 : s?.mine
-                  ? 'Maden galerisi'
-                  : 'Çayır');
+                  ? sourceText("m_23b47d8342")
+                  : sourceText("m_a751b91f52"));
   const quest = s ? recommendedQuest(s) : null;
   const chooseBuild = (type: string) => {
     setBuild(type);
     setTool('build');
     setPanel(null);
-    engine.current?.emit(`${BUILDINGS[type].name}: boş bir kareye tıkla.`);
+    engine.current?.emit(sourceText("m_87dfec49e7", { p0: BUILDINGS[type].name }));
   };
   const chooseSeed = (type: string) => {
     if (type === 'fertilizer') setTool('fertilize');
@@ -634,33 +639,32 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     tool === 'build'
       ? BUILDINGS[build].name
       : tool === 'fertilize'
-        ? 'Gübre'
+        ? sourceText("m_08026178a9")
         : TOOLS.find((t) => t.id === tool)?.name;
   frameProfile.end('reactFunctionCpu',renderStarted);
   return (
     <main className={`game-shell ${compactHud ? 'hud-collapsed' : ''} ${panel ? 'has-panel' : ''}`}>
-      {serverMode&&<div className="server-status" role="status">{authority.current?.status||'Sunucuya bağlanıyor…'}{authority.current?.sleep&&<span> · Uyku: {authority.current.sleep.ready.length}/{authority.current.sleep.ready.length+authority.current.sleep.waiting.length} hazır · Online menüsü</span>}</div>}
+      {serverMode&&<div className="server-status" role="status">{localize(authority.current?.status||sourceText("m_8ee7c652b8"))}{authority.current?.sleep&&<span> {translate("m_d6023f16fc")}{authority.current.sleep.ready.length}/{authority.current.sleep.ready.length+authority.current.sleep.waiting.length} {translate("m_5bfd1b5024")}</span>}</div>}
       <div ref={host} className="world" />
       <div className="world-vignette" />
       {!ready && (
         <div className="loading-screen">
           <Flame size={40} />
           <h1>Roamcroft</h1>
-          <p>{error || 'Vadin uyanıyor…'}</p>
-          {!error && <><progress aria-label="Dünya yükleme ilerlemesi" max={100} value={loadingProgress}/><small>%{loadingProgress} · Arazi ve dokular hazırlanıyor</small></>}
-          {error && (
+          <p>{localize(error || sourceText("m_6e40333eda"))}</p>
+          {!error && <><progress aria-label={translate("m_2cbfcb4e20")} max={100} value={loadingProgress}/><small>%{loadingProgress} {translate("m_e602c67473")}</small></>}
+          {localize(error && (
             <>
               <p className="error-help">
-                {serverMode&&!storageReady?'Sunucu dünyası için internet bağlantısı ve bu tarayıcının oturum çerezi gerekir. Başlangıca dönerek tekrar bağlanabilirsin.':'WebGL destekli güncel bir tarayıcı ve donanım hızlandırması gerekir.'}
+                {localize(serverMode&&!storageReady?sourceText("m_5fd10a1450"):sourceText("m_971e307971"))}
               </p>
               <button
                 className="primary-button"
                 onClick={() => location.reload()}
               >
-                Başlangıca dön
-              </button>
+                {translate("m_50643503b2")}</button>
             </>
-          )}
+          ))}
         </div>
       )}
       {s && (
@@ -674,7 +678,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               <div>
                 <h1>Roamcroft</h1>
                 <span className="settlement-brand" title={s.settlement.name}>
-                  {s.settlement.name} · {settlementRank(s)}
+                  {s.settlement.name} · {localize(settlementRank(s))}
                 </span>
               </div>
             </div>
@@ -685,45 +689,45 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                     <GameIcon id={id} />
                   </span>
                   <b>{s.inventory[id] || 0}</b>
-                  <small>{ITEMS[id].name}</small>
+                  <small>{localize(ITEMS[id].name)}</small>
                 </div>
               ))}
               <div className="resource gold">
                 <span>◈</span>
-                <b>{s.gold.toLocaleString('tr-TR')}</b>
-                <small>Altın</small>
+                <b>{localize(s.gold.toLocaleString(intlLocale()))}</b>
+                <small>{translate("m_6ee0381c24")}</small>
               </div>
             </div>
             <div className="header-actions">
               <button
                 className="icon-button sound-button"
-                aria-label={sound ? 'Sesi kapat' : 'Sesi aç'}
-                title={sound ? 'Sesi kapat' : 'Sesi aç'}
+                aria-label={localize(sound ? sourceText("m_9e37e5ce56") : sourceText("m_b1e169c43b"))}
+                title={localize(sound ? sourceText("m_9e37e5ce56") : sourceText("m_b1e169c43b"))}
                 onClick={() => setSound(!sound)}
               >
                 {sound ? <Volume2 /> : <VolumeX />}
               </button>
               <button
                 className="icon-button pause-button"
-                aria-label={paused ? 'Devam et' : 'Duraklat'}
+                aria-label={localize(paused ? sourceText("m_26183306dc") : sourceText("m_19b6acde33"))}
                 onClick={() => setPaused(!paused)}
               >
                 {paused ? <Play /> : <Pause />}
               </button>
-              <button className="icon-button mobile-fullscreen" aria-label="Tam ekran aç" onClick={()=>void enterGameFullscreen().then(ok=>{if(!ok)engine.current?.emit('Tam ekran açılamadı. Yeniden deneyebilir veya tarayıcı menüsünden Ana ekrana ekle seçeneğini kullanabilirsin.');})}><Maximize/></button>
+              <button className="icon-button mobile-fullscreen" aria-label={translate("m_ec2f69611c")} onClick={()=>void enterGameFullscreen().then(ok=>{if(!ok)engine.current?.emit(sourceText("m_fbf300983c"));})}><Maximize/></button>
               <button
                 className="icon-button"
-                aria-label="Ana menü"
+                aria-label={translate("m_489a38bb4a")}
                 onClick={() => setMainMenu(true)}
               >
                 <Settings />
               </button>
             </div>
           </header>
-          <div className="mobile-vitals" aria-label="Karakter durumu">
-            <span className={s.player.health<25?'low':''} aria-label={`Sağlık ${Math.ceil(s.player.health)}`}><Heart/>{Math.ceil(s.player.health)}</span>
-            <span className={s.player.energy<20?'low':''} aria-label={`Enerji ${Math.ceil(s.player.energy)}`}><Zap/>{Math.ceil(s.player.energy)}</span>
-            <span className={s.player.hunger<20?'low':''} aria-label={`Doygunluk ${Math.ceil(s.player.hunger)}`}><Wheat/>{Math.ceil(s.player.hunger)}</span>
+          <div className="mobile-vitals" aria-label={translate("m_a674b3c775")}>
+            <span className={s.player.health<25?'low':''} aria-label={localize(sourceText("m_f13da9bb3b", { p0: Math.ceil(s.player.health) }))}><Heart/>{Math.ceil(s.player.health)}</span>
+            <span className={s.player.energy<20?'low':''} aria-label={localize(sourceText("m_501862068d", { p0: Math.ceil(s.player.energy) }))}><Zap/>{Math.ceil(s.player.energy)}</span>
+            <span className={s.player.hunger<20?'low':''} aria-label={localize(sourceText("m_6d230f7a9e", { p0: Math.ceil(s.player.hunger) }))}><Wheat/>{Math.ceil(s.player.hunger)}</span>
           </div>
           <div className="hud-left">
           <section className="status-card glass">
@@ -732,22 +736,22 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
             </div>
             <div className="status-main">
               <div className="player-name">
-                Gezgin <span>SV. {s.level}</span>
+                {translate("m_fcc172abee")}<span>{translate("m_c798c7e332")}{s.level}</span>
               </div>
               <Progress
                 value={(s.xp / xpNext(s.level)) * 100}
-                aria-label="Seviye ilerlemesi"
+                aria-label={translate("m_87689ad6a3")}
               />
               <div className="vitals">
-                <span title="Sağlık">
+                <span title={translate("m_5aed93824f")}>
                   <Heart />
                   {Math.ceil(s.player.health)}
                 </span>
-                <span title="Enerji">
+                <span title={translate("m_2cfd3126aa")}>
                   <Zap />
                   {Math.ceil(s.player.energy)}
                 </span>
-                <span title="Doygunluk">
+                <span title={translate("m_65edabcfc1")}>
                   <Wheat />
                   {Math.ceil(s.player.hunger)}
                 </span>
@@ -756,12 +760,12 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
           </section>
           <button
             className="hud-toggle glass"
-            aria-label={compactHud ? 'Yan panelleri aç' : 'Yan panelleri daralt'}
+            aria-label={localize(compactHud ? sourceText("m_c7781fb6e8") : sourceText("m_02bd45b132"))}
             aria-expanded={!compactHud}
             aria-controls="left-quest left-actions"
             onClick={() => setCompactHud((v) => !v)}
           >
-            {compactHud ? 'Aç' : 'Menüleri daralt'}
+            {localize(compactHud ? sourceText("m_dcc084f9a2") : sourceText("m_b59056b4d7"))}
           </button>
           {inventoryUsed(s) >= inventoryCapacity(s) && (
             <div className="hud-warning" role="alert">
@@ -769,7 +773,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                 className="inventory-warning"
                 onClick={() => setPanel('inventory')}
               >
-                ÇANTA DOLU · {inventoryUsed(s)}/{inventoryCapacity(s)}
+                {translate("m_b4f7275752")}{inventoryUsed(s)}/{inventoryCapacity(s)}
               </button>
             </div>
           )}
@@ -777,17 +781,15 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
             {s.mine ? (
               <>
                 <span className="eyebrow">
-                  KADİM MADEN · KAT {s.mine.floor} / 5
+                  {translate("m_eaac15e06d")}{s.mine.floor} / 5
                 </span>
-                <h2>{FLOOR_NAMES[s.mine.floor - 1]}</h2>
+                <h2>{localize(FLOOR_NAMES[s.mine.floor - 1])}</h2>
                 <p>
-                  Kırmızı saldırı alanlarından uzaklaş. Geçidi açmak için
-                  galeriyi temizle.
-                </p>
-                <Progress aria-label="Maden cevheri hedefi" value={Math.min(100, (s.mine.mined / 4) * 100)} />
+                  {translate("m_b071e3dd8e")}</p>
+                <Progress aria-label={translate("m_f6d4a8c493")} value={Math.min(100, (s.mine.mined / 4) * 100)} />
                 <div className="mine-objectives">
-                  <span>{s.enemies.length} düşman</span>
-                  <span>Cevher {Math.min(4, s.mine.mined)}/4</span>
+                  <span>{s.enemies.length} {translate("m_8e4fbba012")}</span>
+                  <span>{translate("m_8730a9f542")}{Math.min(4, s.mine.mined)}/4</span>
                 </div>
                 <div className="mine-buttons">
                   <button
@@ -797,8 +799,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                       engine.current?.go(MINE_LIFT.x, MINE_LIFT.z);
                     }}
                   >
-                    Asansöre dön
-                  </button>
+                    {translate("m_1fb3d1131c")}</button>
                   <button
                     className="primary-button"
                     disabled={!!s.enemies.length || s.mine.mined < 4}
@@ -807,28 +808,28 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                       engine.current?.go(MINE_STAIRS.x, MINE_STAIRS.z);
                     }}
                   >
-                    {s.mine.floor === 5 ? 'Hazineye ulaş' : 'Alt kata ilerle'}
+                    {localize(s.mine.floor === 5 ? sourceText("m_c42e1defd6") : sourceText("m_737899082e"))}
                   </button>
                 </div>
               </>
             ) : (
               <>
                 <span className="eyebrow">
-                  {s.won ? 'VADİNİN KORUYUCUSU' : 'VADİ GÜNLÜĞÜ'}
+                  {localize(s.won ? sourceText("m_1507bc2ab8") : sourceText("m_84c1e3c1f2"))}
                 </span>
-                <h2>{quest?.name || 'Yuvan büyüyor'}</h2>
+                <h2>{localize(quest?.name || sourceText("m_c5faa545a9"))}</h2>
                 <button
                   className="horizon-link"
                   onClick={() => setPanel('quests')}
                 >
-                  Sonraki köy hedefi ·{' '}
-                  {nextMilestone(s)?.name || 'Kendi hikâyeni yaz'}
+                  {translate("m_5fd99c8eb3")}{' '}
+                  {localize(nextMilestone(s)?.name || sourceText("m_bb34997f5c"))}
                 </button>
-                <p>{quest?.desc || 'Kendi hikâyeni yazmaya devam et.'}</p>
+                <p>{localize(quest?.desc || sourceText("m_5961fb6829"))}</p>
                 {quest && (
                   <>
                     <Progress
-                      aria-label={`${quest.name} görev ilerlemesi`}
+                      aria-label={localize(sourceText("m_3ef72850cc", { p0: quest.name }))}
                       value={Math.min(
                         100,
                         ((s.stats[quest.stat] || 0) / quest.target) * 100,
@@ -846,9 +847,9 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                           else setPanel('quests');
                         }}
                       >
-                        {(s.stats[quest.stat] || 0) >= quest.target
-                          ? 'Ödülü al'
-                          : 'Günlüğü aç'}{' '}
+                        {localize((s.stats[quest.stat] || 0) >= quest.target
+                          ? sourceText("m_780491daae")
+                          : sourceText("m_f3c1e63c30"))}{' '}
                         <ArrowRight size={12} />
                       </button>
                     </div>
@@ -861,7 +862,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                     setPanel('mine');
                   }}
                 >
-                  <Compass size={15} /> Kadim madene git <span>Sv. 3</span>
+                  <Compass size={15} /> {translate("m_cbb0c6bb78")}<span>{translate("m_f2516599d1")}</span>
                 </button>
               </>
             )}
@@ -869,10 +870,10 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
           <nav
             id="left-actions"
             className="main-actions glass"
-            aria-label="Oyun menüleri"
+            aria-label={translate("m_1720f0820e")}
           >
-            <button onClick={()=>setPanel('inventory')} title="Menü (Tab)"><Backpack/><span>Menü</span></button>
-            <button onClick={()=>{if(engine.current)engine.current.toggleRest();}} title="Otur / kalk"><Pause/><span>Dinlen</span></button>
+            <button onClick={()=>setPanel('inventory')} title={translate("m_45a70ad025")}><Backpack/><span>{translate("m_a314bd0b56")}</span></button>
+            <button onClick={()=>{if(engine.current)engine.current.toggleRest();}} title={translate("m_d178441945")}><Pause/><span>{translate("m_9eb4ab0bb4")}</span></button>
           </nav>
           </div>
           <div className="calendar glass">
@@ -887,37 +888,37 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
             </div>
             <div>
               <b>
-                {SEASONS[season(s)]} · {((s.day - 1) % 7) + 1}. gün
+                {translate('hud.calendar', {season: localize(SEASONS[season(s)]), day: ((s.day - 1) % 7) + 1})}
               </b>
               <span>
-                {String(Math.floor(s.time * 24)).padStart(2, '0')}:
-                {String(Math.floor(s.time * 24 * 60) % 60).padStart(2, '0')}{' '}
+                {localize(String(Math.floor(s.time * 24)).padStart(2, '0'))}:
+                {localize(String(Math.floor(s.time * 24 * 60) % 60).padStart(2, '0'))}{' '}
                 <i />{' '}
-                {s.mine
-                  ? 'Yeraltı · Vadi saati durdu'
+                {localize(s.mine
+                  ? sourceText("m_e52838391a")
                   : s.weather === 'rain'
-                    ? season(s)===3 ? 'Kar yağışlı' : 'Yağmurlu'
-                    : 'Açık hava'}
+                    ? season(s)===3 ? sourceText("m_12ca8a5279") : sourceText("m_82703561d8")
+                    : sourceText("m_1afa980f33"))}
               </span>
             </div>
           </div>
-          <nav className="world-actions" aria-label="Kamera">
+          <nav className="world-actions" aria-label={translate("m_32edeecd77")}>
             <button
               onClick={() => scene.current?.recenter()}
-              aria-label="Karaktere odaklan"
-              title="Karaktere odaklan"
+              aria-label={translate("m_86749934b7")}
+              title={translate("m_86749934b7")}
             >
               <Target />
             </button>
             <button
               onClick={() => scene.current?.setZoom(-2)}
-              aria-label="Yakınlaştır"
+              aria-label={translate("m_c265542277")}
             >
               <Plus />
             </button>
             <button
               onClick={() => scene.current?.setZoom(2)}
-              aria-label="Uzaklaştır"
+              aria-label={translate("m_2e4fb0e294")}
             >
               <Minus />
             </button>
@@ -925,33 +926,33 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               onClick={() => {
                 if (scene.current) scene.current.angle += Math.PI / 2;
               }}
-              aria-label="Görüşü döndür"
-              title="Görüşü döndür"
+              aria-label={translate("m_c535d96e07")}
+              title={translate("m_c535d96e07")}
             >
               <Compass />
             </button>
             <button
               onClick={() => setPanel('guide')}
-              aria-label="Gezginin el kitabı"
+              aria-label={translate("m_6cb0038efb")}
             >
               <HelpCircle />
             </button>
           </nav>
           <div className="location-label">
             <span>✧</span>{' '}
-            {s.player.z < 10
-              ? 'AYTAŞI SIRTLARI'
+            {localize(s.player.z < 10
+              ? sourceText("m_0055690dc6")
               : s.player.x > 25
-                ? 'SÖĞÜT NEHRİ'
+                ? sourceText("m_cb5f8ded2d")
                 : s.player.z > 26
-                  ? 'YABAN ORMANI'
-                  : 'SÖĞÜT ÇAYIRI'}{' '}
+                  ? sourceText("m_7b91cd54b9")
+                  : sourceText("m_586b0c7c7f"))}{' '}
             <span>✧</span>
           </div>
           <div className="messages" aria-live="polite">
             {messages.map((m) => (
               <div className={m.kind} key={m.id}>
-                {m.kind === 'good' && <Check size={13} />} {m.text}
+                {m.kind === 'good' && <Check size={13} />} {localizeText(m.text, getLocale(), 0, [s.settlement.name, ...s.animals.map(animal => animal.name || ''), ...(coop.current?.peers.map(peer => peer.name) || [])])}
               </div>
             ))}
           </div>
@@ -959,13 +960,13 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
             <div>
               <Compass size={14} />
               <b>
-                {s.mine
-                  ? 'KADİM MADEN'
+                {localize(s.mine
+                  ? sourceText("m_53956bd7ff")
                   : biomeAt(s.player.x, s.player.z, s.seed).toLocaleUpperCase(
                       'tr',
-                    )}
+                    ))}
               </b>
-              <span>K</span>
+              <span>{translate('compass.north')}</span>
             </div>
             <canvas
               width={144}
@@ -986,7 +987,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               }}
             />
             <small>
-              {Math.round(s.player.x)}, {Math.round(s.player.z)} · Gün {s.day}
+              {Math.round(s.player.x)}, {Math.round(s.player.z)} {translate("m_a83646a513")}{s.day}
             </small>
             {!s.mine && (
               <button
@@ -996,15 +997,13 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                   scene.current?.recenter();
                 }}
               >
-                <House size={13} /> Eve dön
-              </button>
+                <House size={13} /> {translate("m_4f02c4e6d9")}</button>
             )}
             <small className="performance-readout">
               {Math.round(
                 1000 / Math.max(1, scene.current?.metrics.frameMs || 16.7),
               )}{' '}
-              FPS · {(scene.current?.metrics.frameMs||16.7).toFixed(1)} ms/kare · {scene.current?.metrics.chunks || 0} bölge
-            </small>
+              {translate("m_1de4961c8e")}{localize((scene.current?.metrics.frameMs||16.7).toFixed(1))} {translate("m_9dc43f788c")}{scene.current?.metrics.chunks || 0} {translate("m_daf138c7f4")}</small>
           </section>
           <div className="tool-info glass">
             <span>
@@ -1021,11 +1020,11 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               />
             </span>
             <div>
-              <b>{toolLabel}</b>
+              <b>{localize(toolLabel)}</b>
               <p>
-                {hover ? label : 'Bir kare seç'}{' '}
-                {t?.crop &&
-                  `· %${Math.floor((t.growth / CROPS[t.crop].grow) * 100)}`}
+                {localize(hover ? label : sourceText("m_a86a248616"))}{' '}
+                {localize(t?.crop &&
+                  sourceText("m_3b4a32bf1b", { p0: Math.floor((t.growth / CROPS[t.crop].grow) * 100) }))}
               </p>
             </div>
           </div>
@@ -1037,7 +1036,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                   disabled={s.level < c.level}
                   className={seed === id ? 'active' : ''}
                   onClick={() => setSeed(id)}
-                  title={`${c.name} · ${c.seasons.map((n) => SEASONS[n]).join(', ')}`}
+                  title={localize(sourceText("m_ae04d0e6f6", { p0: c.name, p1: c.seasons.map((n) => SEASONS[n]).join(', ') }))}
                 >
                   <span>
                     <GameIcon id={id} />
@@ -1053,14 +1052,14 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                 <GameIcon id={build} />
               </span>
               <div>
-                <b>{BUILDINGS[build].name}</b>
-                <small>Boş kareye yerleştir · {rotation * 90}°</small>
+                <b>{localize(BUILDINGS[build].name)}</b>
+                <small>{translate("m_765cdcc523")}{rotation * 90}°</small>
               </div>
-              <button onClick={() => setRotation(r => (r + 1) % 4)} title="90 derece döndür (yön tuşları)">Döndür</button>
-              {['fence','wall'].includes(build) && <button onClick={() => setCorner(v=>!v)}>{corner ? 'L köşe' : 'Düz'}</button>}
+              <button onClick={() => setRotation(r => (r + 1) % 4)} title={translate("m_bc383dfb63")}>{translate("m_b7b08d2989")}</button>
+              {['fence','wall'].includes(build) && <button onClick={() => setCorner(v=>!v)}>{localize(corner ? sourceText("m_3f379f7557") : sourceText("m_fd48f38b96"))}</button>}
               <button
                 onClick={() => setTool('hand')}
-                aria-label="İnşa modundan çık"
+                aria-label={translate("m_3760dabe7d")}
               >
                 <X size={17} />
               </button>
@@ -1069,15 +1068,12 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
           <footer className="bottom-hud">
             <div className="control-hints">
               <span>
-                <kbd>W A S D</kbd> Yürü
-              </span>
+                <kbd>W A S D</kbd> {translate("m_864e75d241")}</span>
               <span>
-                <kbd>R</kbd> Dinlen
-              </span>
+                <kbd>R</kbd> {translate("m_b7f4ae32d1")}</span>
               <span>
-                <kbd>Boşluk</kbd> Saldır
-              </span>
-              <span>Sürükle · Haritayı taşı</span>
+                <kbd>{translate("m_361fbf0539")}</kbd> {translate("m_36ad4dc2b4")}</span>
+              <span>{translate("m_579318f8e9")}</span>
             </div>
             <div className="toolbar glass">
               {TOOLS.map((t) => (
@@ -1086,23 +1082,23 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                   aria-pressed={tool === t.id}
                   className={tool === t.id ? 'selected' : ''}
                   onClick={() => setTool(t.id)}
-                  title={t.name}
+                  title={localize(t.name)}
                 >
 
                   <span>
                     <GameIcon id={t.id === 'fish' ? 'rod' : t.id} />
                   </span>
-                  <small>{t.name}</small>
+                  <small>{localize(t.name)}</small>
                 </button>
               ))}
             </div>
           </footer>
           <div className="touch-controls">
             <Joystick disabled={control.current.paused} onMove={vector=>{joystick.current=vector;}}/>
-            <button className="touch-interact" aria-label={tool==='build'?'Önüne yerleştir':'Yakındakiyle etkileş'} disabled={control.current.paused} onClick={interact}><GameIcon id={tool==='build'?'build':'hand'}/></button>
+            <button className="touch-interact" aria-label={localize(tool==='build'?sourceText("m_af7443454c"):sourceText("m_d55ed84703"))} disabled={control.current.paused} onClick={interact}><GameIcon id={tool==='build'?'build':'hand'}/></button>
             <button
               className="touch-attack"
-              aria-label="Saldır"
+              aria-label={translate("m_ef89a5085b")}
               onClick={() => {
                 if (!control.current.paused) engine.current?.attack();
               }}
@@ -1114,20 +1110,18 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
             <div className="activity-banner glass">
               {engine.current.resting ? (
                 <>
-                  <Moon size={15} /> Dinleniyorsun · Enerji yenileniyor{' '}
+                  <Moon size={15} /> {translate("m_601359b3e5")}{' '}
                   <button
                     onClick={() => {
                       if (engine.current) engine.current.toggleRest();
                     }}
                   >
-                    Kalk
-                  </button>
+                    {translate("m_cd39584541")}</button>
                 </>
               ) : (
                 <>
-                  🎣 Balık bekleniyor…{' '}
-                  {Math.ceil(engine.current.fishing!.timer)} sn
-                </>
+                  {translate("m_76457e7ce5")}{' '}
+                  {Math.ceil(engine.current.fishing!.timer)} {translate("m_1928e61fec")}</>
               )}
             </div>
           )}
@@ -1136,15 +1130,15 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               <Swords size={17} />
               <div>
                 <b>
-                  {s.mine
+                  {localize(s.mine
                     ? s.enemies.some((e) => e.kind === 'guardian')
-                      ? 'Derinlik Muhafızı'
-                      : 'Maden çatışması'
-                    : 'Gece akını'}
+                      ? sourceText("m_b618bf4107")
+                      : sourceText("m_c65df465f1")
+                    : sourceText("m_42a349bbf9"))}
                 </b>
                 <span>
-                  {s.enemies.length} düşman ·{' '}
-                  {s.mine ? 'Saldırı halkalarından kaçın' : 'Köyünü savun'}
+                  {s.enemies.length} {translate("m_e4529116b7")}{' '}
+                  {localize(s.mine ? sourceText("m_1f2bd35a81") : sourceText("m_f2710a7b36"))}
                 </span>
               </div>
               <button
@@ -1153,8 +1147,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                   scene.current?.recenter();
                 }}
               >
-                Kılıcı kuşan
-              </button>
+                {translate("m_e7c0f3d384")}</button>
             </div>
           )}
           {s.jobs.length > 0 && !panel && (
@@ -1166,22 +1159,22 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                 <GameIcon id={s.jobs[0].recipe} />
               </span>
               <div>
-                <b>{RECIPES[s.jobs[0].recipe].name}</b>
+                <b>{localize(RECIPES[s.jobs[0].recipe].name)}</b>
                 <Progress
-                  aria-label={`${RECIPES[s.jobs[0].recipe].name} üretim ilerlemesi`}
+                  aria-label={localize(sourceText("m_ac809c28c6", { p0: RECIPES[s.jobs[0].recipe].name }))}
                   value={(1 - s.jobs[0].remaining / s.jobs[0].total) * 100}
                 />
               </div>
-              <small>{Math.ceil(s.jobs[0].remaining)} sn</small>
+              <small>{Math.ceil(s.jobs[0].remaining)} {translate("m_1928e61fec")}</small>
             </button>
           )}
           {paused && !panel && (
             <div className="pause-banner glass">
-              <Pause size={18} /> Oyun duraklatıldı{' '}
-              <button onClick={() => setPaused(false)}>Devam et</button>
+              <Pause size={18} /> {translate("m_a985fc165d")}{' '}
+              <button onClick={() => setPaused(false)}>{translate("m_26183306dc")}</button>
             </div>
           )}
-          {panel && <Suspense fallback={<div className="panel-loading" role="status">Menü hazırlanıyor…</div>}><Panels
+          {panel && <Suspense fallback={<div className="panel-loading" role="status">{translate("m_2b60fcaf24")}</div>}><Panels
             audio={audio.current}
             engine={engine.current!}
             coop={coop.current}

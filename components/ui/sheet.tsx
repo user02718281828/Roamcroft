@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import { translate } from '@/lib/i18n/core';
+import { useLocale } from '@/lib/i18n/react';
 import { Dialog as SheetPrimitive } from '@base-ui/react/dialog';
 
 import { cn } from '@/lib/utils';
@@ -46,6 +48,7 @@ function SheetContent({
   side?: 'top' | 'right' | 'bottom' | 'left';
   showCloseButton?: boolean;
 }) {
+  useLocale();
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -71,7 +74,7 @@ function SheetContent({
             }
           >
             <XIcon />
-            <span className="sr-only">Kapat</span>
+            <span className="sr-only">{translate('ui.close')}</span>
           </SheetPrimitive.Close>
         )}
       </SheetPrimitive.Popup>

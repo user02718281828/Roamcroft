@@ -1,3 +1,4 @@
+import { sourceText } from '../i18n/source.ts';
 import {allowed,readBody,worldIdentity} from './api.ts';
 const TTL=5*60_000,PRESENCE=90_000;
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
@@ -9,16 +10,16 @@ export async function initLobby(db:D1Database){let pending=initialized.get(db);i
 ]);initialized.set(db,pending);pending.catch(()=>initialized.delete(db));}await pending;}
 type Room={code:string;owner:string;expires:number};
 export async function handleLobby(request:Request,db:D1Database,now=Date.now()){
-  if(request.method!=='POST')return json({error:'POST gerekli.'},405);
-  if(request.headers.get('Origin')!==new URL(request.url).origin||request.headers.get('Sec-Fetch-Site')==='cross-site')return json({error:'Kaynak doğrulanamadı.'},403);
-  if(request.headers.get('Content-Type')?.split(';')[0].trim()!=='application/json')return json({error:'JSON gerekli.'},415);
+  if(request.method!=='POST')return json({error:sourceText("m_4e4ea38d7e")},405);
+  if(request.headers.get('Origin')!==new URL(request.url).origin||request.headers.get('Sec-Fetch-Site')==='cross-site')return json({error:sourceText("m_f516389793")},403);
+  if(request.headers.get('Content-Type')?.split(';')[0].trim()!=='application/json')return json({error:sourceText("m_dc2be08b0d")},415);
   let body:Record<string,unknown>;
-  try{const raw=await readBody(request);if(raw.length>1024)return json({error:'İstek fazla büyük.'},413);body=JSON.parse(raw);}catch{return json({error:'İstek okunamadı.'},400);}
-  if(!body||typeof body!=='object'||Array.isArray(body)||!['create','join','status','leave'].includes(String(body.op)))return json({error:'Geçersiz işlem.'},400);
+  try{const raw=await readBody(request);if(raw.length>1024)return json({error:sourceText("m_a8ff28005b")},413);body=JSON.parse(raw);}catch{return json({error:sourceText("m_49b8e07264")},400);}
+  if(!body||typeof body!=='object'||Array.isArray(body)||!['create','join','status','leave'].includes(String(body.op)))return json({error:sourceText("m_67df87f438")},400);
   const keys=body.op==='create'?['op','name']:body.op==='join'?['op','name','code']:['op'];
-  if(Object.keys(body).some(k=>!keys.includes(k)))return json({error:'Geçersiz alan.'},400);
-  const identity=await worldIdentity(request,db,now);if(!identity)return json({error:'Önce başlangıç ekranından sunucu dünyasına bağlan.'},401);
-  if(!await allowed(db,'lobby:'+identity.id,now,30,60_000))return json({error:'Biraz bekleyip yeniden dene.'},429);
+  if(Object.keys(body).some(k=>!keys.includes(k)))return json({error:sourceText("m_57d30714bc")},400);
+  const identity=await worldIdentity(request,db,now);if(!identity)return json({error:sourceText("m_8fa3f78668")},401);
+  if(!await allowed(db,'lobby:'+identity.id,now,30,60_000))return json({error:sourceText("m_b1e6a79046")},429);
   await initLobby(db);
   await db.batch([
     db.prepare('DELETE FROM friend_members WHERE room IN (SELECT code FROM friend_lobbies WHERE expires<=?)').bind(now),
@@ -32,8 +33,8 @@ export async function handleLobby(request:Request,db:D1Database,now=Date.now()){
     return json({room:null});
   }
   if(body.op==='create'||body.op==='join'){
-    if(typeof body.name!=='string'||!body.name.trim()||body.name.length>24||body.name.split('').some(c=>c.charCodeAt(0)<32||c.charCodeAt(0)===127))return json({error:'1–24 karakterlik bir ad gir.'},400);
-    if(room&&!(body.op==='create'&&room.owner===identity.id)&&!(body.op==='join'&&room.code===body.code))return json({error:'Önce mevcut lobiden ayrıl.'},409);
+    if(typeof body.name!=='string'||!body.name.trim()||body.name.length>24||body.name.split('').some(c=>c.charCodeAt(0)<32||c.charCodeAt(0)===127))return json({error:sourceText("m_5438516563")},400);
+    if(room&&!(body.op==='create'&&room.owner===identity.id)&&!(body.op==='join'&&room.code===body.code))return json({error:sourceText("m_1fcf77fe63")},409);
     if(!room){
       if(body.op==='create'){
         const code=Array.from(crypto.getRandomValues(new Uint8Array(12)),n=>n.toString(16).padStart(2,'0')).join('');
@@ -41,11 +42,11 @@ export async function handleLobby(request:Request,db:D1Database,now=Date.now()){
           db.prepare('INSERT OR IGNORE INTO friend_lobbies(code,owner,expires) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM friend_lobbies)<200 AND NOT EXISTS (SELECT 1 FROM friend_members WHERE user=?)').bind(code,identity.id,now+TTL,identity.id),
           db.prepare('INSERT OR IGNORE INTO friend_members(user,room,name,seen) SELECT ?,code,?,? FROM friend_lobbies WHERE owner=?').bind(identity.id,body.name.trim(),now,identity.id),
         ]);
-        if(!results[1].meta.changes)return json({error:'Lobi açılamadı; tekrar bağlan.'},409);
+        if(!results[1].meta.changes)return json({error:sourceText("m_9892130860")},409);
       }else{
-        if(typeof body.code!=='string'||!/^[a-f0-9]{24}$/.test(body.code))return json({error:'Davet kodunu kontrol et.'},400);
+        if(typeof body.code!=='string'||!/^[a-f0-9]{24}$/.test(body.code))return json({error:sourceText("m_0f6be70131")},400);
         const result=await db.prepare('INSERT OR IGNORE INTO friend_members(user,room,name,seen) SELECT ?,code,?,? FROM friend_lobbies WHERE code=? AND expires>? AND (SELECT COUNT(*) FROM friend_members WHERE room=?)<4').bind(identity.id,body.name.trim(),now,body.code,now,body.code).run();
-        if(!result.meta.changes)return json({error:'Lobi dolu, kapanmış veya kod geçersiz.'},409);
+        if(!result.meta.changes)return json({error:sourceText("m_6d86faec9d")},409);
       }
       room=await db.prepare('SELECT r.* FROM friend_lobbies r JOIN friend_members m ON m.room=r.code WHERE m.user=?').bind(identity.id).first<Room>();
     }

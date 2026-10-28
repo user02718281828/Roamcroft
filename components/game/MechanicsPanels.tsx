@@ -1,3 +1,6 @@
+import { sourceText } from '@/lib/i18n/source';
+import { localize, translate } from '@/lib/i18n/core';
+import { useLocale } from '@/lib/i18n/react';
 import type { Engine } from '@/lib/game/model';
 import { BUNDLES } from '@/lib/game/progression';
 import { ITEMS } from '@/lib/game/data';
@@ -16,18 +19,19 @@ import { Progress } from '@/components/ui/progress';
 import GameIcon from './GameIcon';
 
 export function SettlementName({ engine }: { engine: Engine }) {
+  useLocale();
   const [name, setName] = useState(engine.s.settlement.name);
   const [feedback, setFeedback] = useState('');
   return (
     <div className="settlement-name">
-      <label htmlFor="settlement-name">Köyünün adı</label>
+      <label htmlFor="settlement-name">{translate("m_3ef997348f")}</label>
       <form
         onSubmit={(event) => {
           event.preventDefault();
           setFeedback(
             engine.renameSettlement(name)
-              ? 'Köyünün adı kaydedildi.'
-              : '1–32 karakterlik bir ad gir.',
+              ? sourceText("m_2fec4782aa")
+              : sourceText("m_0ceeef9cda"),
           );
         }}
       >
@@ -39,37 +43,35 @@ export function SettlementName({ engine }: { engine: Engine }) {
           required
         />
         <button className="primary-button" type="submit">
-          Adı kaydet
-        </button>
+          {translate("m_04b69901df")}</button>
       </form>
       <output>
-        {feedback || 'Yaptığın yollar, yapılar ve tarlalar bu dünyada kalır.'}
+        {localize(feedback || sourceText("m_e484ddff90"))}
       </output>
     </div>
   );
 }
 
 export function SettlementPanel({ engine }: { engine: Engine }) {
+  useLocale();
   const story=settlementStory(engine.s);
   const s = engine.s,
     next = nextMilestone(s),
     quest = recommendedQuest(s);
   return (
-    <section className="settlement-board" aria-label="Köy gelişimi">
-      <span className="eyebrow">{settlementRank(s)}</span>
+    <section className="settlement-board" aria-label={translate("m_4d3e61ac52")}>
+      <span className="eyebrow">{localize(settlementRank(s))}</span>
       <h3>{s.settlement.name}</h3>
-      <article className="planning-card"><span className="eyebrow">Vadi hikâyesi · {story.stage+1}. bölüm</span><h4>{story.chapter.title}</h4><p>{story.chapter.text}</p>
-        {!!story.memories.length&&<details><summary>Birlikte geride bıraktıklarımız</summary>{story.memories.map(ch=><p key={ch.title}><b>{ch.title}</b><br/>{ch.text}</p>)}</details>}
+      <article className="planning-card"><span className="eyebrow">{translate('story.chapter', {chapter: story.stage+1})}</span><h4>{localize(story.chapter.title)}</h4><p>{localize(story.chapter.text)}</p>
+        {!!story.memories.length&&<details><summary>{translate("m_eeb0786f4e")}</summary>{story.memories.map(ch=><p key={ch.title}><b>{localize(ch.title)}</b><br/>{localize(ch.text)}</p>)}</details>}
       </article>
       <p className="panel-note">
-        Kazandığın malzemeler bir sonraki işliğin, tarlan ve keşfin için. Köy
-        dönüm noktalarını sırayla tamamla.
-      </p>
+        {translate("m_f2ae57ef04")}</p>
       {quest && (
         <article className="quest-card">
-          <span className="horizon-label">Şimdi · kısa hedef</span>
-          <h4>{quest.name}</h4>
-          <p>{quest.desc}</p>
+          <span className="horizon-label">{translate("m_7120151d74")}</span>
+          <h4>{localize(quest.name)}</h4>
+          <p>{localize(quest.desc)}</p>
           <Progress
             value={Math.min(
               100,
@@ -81,7 +83,7 @@ export function SettlementPanel({ engine }: { engine: Engine }) {
             disabled={(s.stats[quest.stat] || 0) < quest.target}
             onClick={() => engine.claim(quest.id)}
           >
-            Görev ödülünü al ·{' '}
+            {translate("m_b75de63449")}{' '}
             {Math.min(quest.target, s.stats[quest.stat] || 0)}/{quest.target}
           </button>
         </article>
@@ -97,34 +99,34 @@ export function SettlementPanel({ engine }: { engine: Engine }) {
           >
             <summary>
               <span className="horizon-label">
-                {done
-                  ? 'Köyüne katıldı'
+                {localize(done
+                  ? sourceText("m_0338c7da41")
                   : active
-                    ? 'Sıradaki · orta hedef'
+                    ? sourceText("m_47303aa72c")
                     : index === MILESTONES.length - 1
-                      ? 'Büyük hedef'
-                      : 'Gelecek dönüm noktası'}
+                      ? sourceText("m_78887bcd4e")
+                      : sourceText("m_75eeb9eb6b"))}
               </span>
               <h4>
-                {index + 1}. {m.name}
+                {index + 1}. {localize(m.name)}
               </h4>
             </summary>
             {m.requirements.map((r) => (
               <div key={r.label}>
                 <p>
-                  {r.label} · {Math.min(r.target, r.value(s))}/{r.target}
+                  {localize(r.label)} · {Math.min(r.target, r.value(s))}/{r.target}
                 </p>
                 <Progress
                   value={Math.min(100, (r.value(s) / r.target) * 100)}
                 />
               </div>
             ))}
-            <p>{m.next}</p>
+            <p>{localize(m.next)}</p>
             <div className="cost">
               {Object.entries(m.reward).map(([id, count]) => (
-                <span key={id} title={ITEMS[id].name}>
+                <span key={id} title={localize(ITEMS[id].name)}>
                   <GameIcon id={id} />
-                  {count} {ITEMS[id].name}
+                  {count} {localize(ITEMS[id].name)}
                 </span>
               ))}
             </div>
@@ -133,32 +135,28 @@ export function SettlementPanel({ engine }: { engine: Engine }) {
               disabled={!active || !milestoneReady(s, m)}
               onClick={() => engine.claimMilestone(m.id)}
             >
-              {done
-                ? 'Köy günlüğüne işlendi'
+              {localize(done
+                ? sourceText("m_5fcac75bca")
                 : active
-                  ? 'Sonraki adımın malzemelerini al'
-                  : 'Önceki dönüm noktasını tamamla'}
+                  ? sourceText("m_3e9699753c")
+                  : sourceText("m_5d54d1e8ca"))}
             </button>
           </details>
         );
       })}
       <p className="panel-note">
-        Sonraki oyun gününde hayvanlar yeni ürün hazırlar, dostların yeni sohbet
-        ve siparişlerle gelir. Çıkmadan önce ekinlerini sula ve üretim sıranı
-        hazırla. Oyun kapalıyken zaman ilerlemez.
-      </p>
+        {translate("m_24bf19360b")}</p>
     </section>
   );
 }
 
 export function BundlesPanel({ engine }: { engine: Engine }) {
+  useLocale();
   const s = engine.s;
   return (
     <div className="bundle-list">
       <p className="panel-note">
-        Bağışladığın ürünler burada kalır. Bir sandığı tamamladığında ödülü tüm
-        vadide kalıcı olarak açılır.
-      </p>
+        {translate("m_cc6d85ddea")}</p>
       {Object.entries(BUNDLES).map(([id, bundle]) => {
         const paid = s.bundles.donations[id] ?? {};
         const complete = s.bundles.completed.includes(id);
@@ -170,9 +168,9 @@ export function BundlesPanel({ engine }: { engine: Engine }) {
             key={id}
           >
             <h3>
-              {bundle.name} {complete ? '· Tamamlandı' : ''}
+              {localize(bundle.name)} {localize(complete ? sourceText("m_a188229dca") : '')}
             </h3>
-            <p>{bundle.description}</p>
+            <p>{localize(bundle.description)}</p>
             <Progress value={(100 * count) / total} />
             {Object.entries(bundle.items).map(([item, required]) => {
               const remaining = required - (paid[item] || 0);
@@ -181,7 +179,7 @@ export function BundlesPanel({ engine }: { engine: Engine }) {
                 <div className="bundle-item" key={item}>
                   <GameIcon id={item} />
                   <span>
-                    {ITEMS[item].name}
+                    {localize(ITEMS[item].name)}
                     <small>
                       {paid[item] || 0} / {required}
                     </small>
@@ -191,15 +189,15 @@ export function BundlesPanel({ engine }: { engine: Engine }) {
                     disabled={complete || quantity <= 0}
                     onClick={() => engine.donate(id, item, quantity)}
                   >
-                    {remaining
-                      ? `${quantity || remaining} bağışla`
-                      : 'Teslim edildi'}
+                    {localize(remaining
+                      ? sourceText("m_976673a2be", { p0: quantity || remaining })
+                      : sourceText("m_1edbe5d0d1"))}
                   </button>
                 </div>
               );
             })}
             <p className="bundle-reward">
-              {complete ? 'Etkin' : 'Kalıcı ödül'} · {bundle.reward}
+              {localize(complete ? sourceText("m_de91313104") : sourceText("m_388ad6341e"))} · {localize(bundle.reward)}
             </p>
           </article>
         );
@@ -217,6 +215,7 @@ export function MinePanel({
   onApproach: (x: number, z: number) => void;
   onClose: () => void;
 }) {
+  useLocale();
   const s = engine.s,
     checkpoint = Math.min(5, s.stats.minecheckpoint || 1);
   const near =
@@ -225,32 +224,27 @@ export function MinePanel({
   return (
     <>
       <p className="panel-note">
-        İlerlediğin katlar asansöre kaydedilir. Sonraki gün açılmış bir kattan
-        başlayabilirsin. Her katta cevher topla ve düşmanları yen; güney
-        asansörüyle ganimetini çıkar.
-      </p>
+        {translate("m_d11b61a9e5")}</p>
       {!near && (
         <button
           className="primary-button full-width"
           onClick={() => onApproach(MINE_ENTRANCE.x, MINE_ENTRANCE.z + 2)}
         >
-          Maden girişine yürü
-        </button>
+          {translate("m_415bd26e1e")}</button>
       )}
       {s.stats.mineday === s.day && (
         <p className="panel-note">
-          Bugünkü keşif kullanıldı. Yarın yeniden açılır.
-        </p>
+          {translate("m_dc50c6d5d4")}</p>
       )}
       {FLOOR_NAMES.map((name, index) => (
         <article className="catalog-card" key={name}>
           <h3>
-            {index + 1}. kat · {name}
+            {translate('mine.floor', {floor: index + 1, name: localize(name)})}
           </h3>
           <p>
-            {index + 1 <= checkpoint
-              ? 'Asansör durağı açık'
-              : 'Önce üst katın geçidini aç'}
+            {localize(index + 1 <= checkpoint
+              ? sourceText("m_a7eb0a8e40")
+              : sourceText("m_c96c872b4b"))}
           </p>
           <button
             className="primary-button"
@@ -265,8 +259,7 @@ export function MinePanel({
               if (engine.enterMine(index + 1)) onClose();
             }}
           >
-            Bu kattan başla
-          </button>
+            {translate("m_90c456e6de")}</button>
         </article>
       ))}
     </>
