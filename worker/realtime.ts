@@ -1,3 +1,4 @@
+import { sourceText } from '../lib/i18n/source.ts';
 import { DurableObject } from 'cloudflare:workers';
 import { worldIdentity, allowed, readBody } from '../lib/server/api.ts';
 import { initLobby } from '../lib/server/lobby.ts';
@@ -33,26 +34,26 @@ export async function routeRealtime(request: Request, env: Env) {
     request.headers.get('Origin') !== url.origin ||
     request.headers.get('Sec-Fetch-Site') === 'cross-site'
   )
-    return json({ error: 'Kaynak doğrulanamadı.' }, 403);
+    return json({ error: sourceText("m_f516389793") }, 403);
   if (socket) {
     if (request.headers.get('Upgrade')?.toLowerCase() !== 'websocket')
-      return json({ error: 'WebSocket gerekli.' }, 426);
+      return json({ error: sourceText("m_43c98f7890") }, 426);
     if (url.searchParams.get('v') !== String(REALTIME_VERSION))
-      return json({ error: 'Online sürümü yenile.' }, 426);
+      return json({ error: sourceText("m_09df375081") }, 426);
   } else {
-    if (request.method !== 'POST') return json({ error: 'POST gerekli.' }, 405);
+    if (request.method !== 'POST') return json({ error: sourceText("m_4e4ea38d7e") }, 405);
     if (
       request.headers.get('Content-Type')?.split(';')[0] !== 'application/json'
     )
-      return json({ error: 'JSON gerekli.' }, 415);
+      return json({ error: sourceText("m_dc2be08b0d") }, 415);
     if (request.headers.get('X-Roamcroft-Protocol') !== String(SHARED_PROTOCOL))
       return json(
-        { error: 'Online sürüm değişti. Sayfayı yenileyerek güncel sürüme geç.', protocolVersion: SHARED_PROTOCOL },
+        { error: sourceText("m_f4f1ad9399"), protocolVersion: SHARED_PROTOCOL },
         426,
       );
   }
   const identity = await worldIdentity(request, env.DB, now);
-  if (!identity) return json({ error: 'Sunucu oturumu gerekli.' }, 401);
+  if (!identity) return json({ error: sourceText("m_61666f7ffe") }, 401);
   if (
     !(await allowed(
       env.DB,
@@ -62,7 +63,7 @@ export async function routeRealtime(request: Request, env: Env) {
       60000,
     ))
   )
-    return new Response(JSON.stringify({ error: 'İstek sınırı.' }), {
+    return new Response(JSON.stringify({ error: sourceText("m_7ddda23089") }), {
       status: 429,
       headers: {
         'Content-Type': 'application/json',
@@ -77,7 +78,7 @@ export async function routeRealtime(request: Request, env: Env) {
     .bind(identity.id, now, now - 90000)
     .first<Member>();
   if (!member)
-    return json({ error: 'Lobi kapandı. Kişisel çiftliğine dön.' }, 410);
+    return json({ error: sourceText("m_111e55970e") }, 410);
   const headers = new Headers(request.headers);
   headers.set('X-Room-User', identity.id);
   headers.set('X-Room-Owner', member.owner);
@@ -162,7 +163,7 @@ export class RealtimeRoom extends DurableObject<Env> {
         .bind(owner, room, now)
         .first();
       if (!live) {
-        this.stop('Lobi kapandı.');
+        this.stop(sourceText("m_41a31d8697"));
         return;
       }
       const hash = async (text: string) =>
@@ -188,7 +189,7 @@ export class RealtimeRoom extends DurableObject<Env> {
         )
           this.dbRevision = previous.revision;
         else if (previous?.revision !== this.dbRevision) {
-          this.stop('Bulut kaydı çakıştı.', true);
+          this.stop(sourceText("m_24760c73d0"), true);
           return;
         }
         this.attempt = undefined;
@@ -214,7 +215,7 @@ export class RealtimeRoom extends DurableObject<Env> {
         )
           this.dbRevision = row.revision;
         else {
-          this.stop('Bulut kaydı çakıştı.', true);
+          this.stop(sourceText("m_24760c73d0"), true);
           return;
         }
       } else this.dbRevision = revision;
@@ -246,7 +247,7 @@ export class RealtimeRoom extends DurableObject<Env> {
         if (!ids.has(id)) p.present = false;
       for (const [ws, connection] of this.sockets)
         if (!ids.has(connection.user)) {
-          ws.close(4001, 'Üyelik sona erdi.');
+          ws.close(4001, sourceText("m_b6cf079ae9"));
           this.sockets.delete(ws);
           c.disconnect(connection.user, connection.epoch);
         }
@@ -304,7 +305,7 @@ export class RealtimeRoom extends DurableObject<Env> {
         this.savedAt = now;
         this.ctx.waitUntil(
           this.persist().catch(() =>
-            this.stop('Kayıt bekleniyor. Yeniden bağlan.'),
+            this.stop(sourceText("m_fcb6d5e160")),
           ),
         );
       }
@@ -327,12 +328,12 @@ export class RealtimeRoom extends DurableObject<Env> {
       room = request.headers.get('X-Room-Code')!,
       name = decodeURIComponent(request.headers.get('X-Room-Name') || '');
     if (!user || !owner || !room)
-      return json({ error: 'Kimlik gerekli.' }, 401);
+      return json({ error: sourceText("m_ceacdfbf67") }, 401);
     if (this.blocked)
       return json(
         {
           error:
-            'Bulut kaydı çakıştı. Oda güvenlik için durduruldu; kayıtlar üzerine yazılmadı.',
+            sourceText("m_ce050629c2"),
         },
         503,
       );
@@ -351,15 +352,15 @@ export class RealtimeRoom extends DurableObject<Env> {
         )
           .bind(owner)
           .first<{ world: string; revision: number }>();
-        if (!row) return json({ error: 'Dünya bulunamadı.' }, 503);
+        if (!row) return json({ error: sourceText("m_9b89933d91") }, 503);
         this.core = new RoomCore(JSON.parse(row.world), owner, row.revision);
         this.dbRevision = row.revision;
       }
       const c = this.core;
       if (c.record.room !== room) {
         if (user !== owner)
-          return json({ error: 'Ev sahibi bekleniyor.' }, 423);
-        this.stop('Yeni lobi açıldı.');
+          return json({ error: sourceText("m_26573dfe88") }, 423);
+        this.stop(sourceText("m_1ff6fe3fd0"));
         c.record.room = room;
         c.record.history = [];
         for (const p of Object.values(c.record.players))
@@ -380,13 +381,13 @@ export class RealtimeRoom extends DurableObject<Env> {
       this.lastActivity = Date.now();
       if (request.headers.get('Upgrade')?.toLowerCase() === 'websocket') {
         if (!c.record.players[user]?.present)
-          return json({ error: 'Önce ortak çiftliğe gir.' }, 409);
+          return json({ error: sourceText("m_a6339b6cc5") }, 409);
         if (user !== owner && !c.hostReady(Date.now()))
-          return json({ error: 'Ev sahibi bekleniyor.' }, 423);
+          return json({ error: sourceText("m_26573dfe88") }, 423);
         const hello = c.connect(user, name, Date.now());
         for (const [ws, con] of this.sockets)
           if (con.user === user) {
-            ws.close(4002, 'Yeni bağlantı.');
+            ws.close(4002, sourceText("m_0268365e19"));
             this.sockets.delete(ws);
           }
         const pair = new WebSocketPair(),
@@ -417,7 +418,7 @@ export class RealtimeRoom extends DurableObject<Env> {
             )
               throw Error();
           } catch {
-            server.close(1008, 'Geçersiz hareket paketi.');
+            server.close(1008, sourceText("m_56af168273"));
           }
         });
         const close = () => {
@@ -434,10 +435,10 @@ export class RealtimeRoom extends DurableObject<Env> {
       try {
         body = JSON.parse(await readBody(request));
       } catch {
-        return json({ error: 'İstek okunamadı.' }, 400);
+        return json({ error: sourceText("m_49b8e07264") }, 400);
       }
       if (!body || typeof body !== 'object' || Array.isArray(body))
-        return json({ error: 'Geçersiz komut.' }, 400);
+        return json({ error: sourceText("m_5358cad9ac") }, 400);
       const result = await c.pulse(
         user,
         name,
@@ -456,7 +457,7 @@ export class RealtimeRoom extends DurableObject<Env> {
     try {
       return await result;
     } catch {
-      this.stop('Kayıt bağlantısı kesildi.');
+      this.stop(sourceText("m_22d6e3890e"));
       // Reload only the last committed state on the next request.
       const raw = [
         ...this.ctx.storage.sql.exec<{ payload: string }>(
@@ -472,7 +473,7 @@ export class RealtimeRoom extends DurableObject<Env> {
         this.attempt = saved.attempt;
         this.blocked = !!saved.blocked;
       }
-      return json({ error: 'İşlem onaylanmadı. Yeniden bağlan.' }, 503);
+      return json({ error: sourceText("m_77e58a4444") }, 503);
     }
   }
 }
