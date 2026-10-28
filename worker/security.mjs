@@ -11,7 +11,7 @@ export function contentSecurityPolicy(nonce) {
   if(nonce!==undefined&&!/^[a-f0-9]{32}$/.test(nonce))throw new Error('Geçersiz CSP nonce.');
   return ["default-src 'self'",`script-src 'self'${nonce?` 'nonce-${nonce}'`:''}`,
     "script-src-attr 'none'", "style-src 'self' 'unsafe-inline'", "img-src 'self' data: blob:",
-    "font-src 'self'", "connect-src 'self'", "worker-src 'self'", "media-src 'self' blob:",
+    "font-src 'self'", "connect-src 'self' https://o4512335936815104.ingest.de.sentry.io", "worker-src 'self'", "media-src 'self' blob:",
     "object-src 'none'", "base-uri 'none'", "frame-src 'none'", "frame-ancestors 'none'", "form-action 'self'"].join('; ');
 }
 
