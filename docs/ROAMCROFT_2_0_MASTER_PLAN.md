@@ -30,6 +30,14 @@ Durum sözlüğü:
 
 ## Öncelik sırası ve tamamlanma kapıları
 
+Güncel sürüm sırası: **1.13.0 Gameplay Foundation** (ilk 30 dakika, ekonomi
+karşılaştırması, araç hissi/yönlendirme) → **1.14.0 Inventory & Hotbar 2.0**
+(gerçek eşya/ekipman/güvenli göç) → **Living World & Online 2.0** (köy,
+savaş/keşif, ortak maden, hesaplar, büyük ortak dünya). Son iki aşama uygulanmış
+değildir. [1.13.0 araştırması](gameplay-foundation-1.13.0.md) bu sıranın ilk
+paketidir. Bu oturumda 1.13.0 için main/Cloudflare yayınına izin yoktur;
+somut ve doğrulanmış paket sonrasında ayrıca kullanıcı onayı gerekir.
+
 | Sıra | Paket | Durum / çıkış koşulu |
 | --- | --- | --- |
 | P0 / 0 | Güvenli GitHub yedeği | **TAMAMLANDI:** `codex/roamcroft-2-ui`, i18n checkpoint `38b4f9315c902ac2415d1aadbddb0e99fc95d3ac`. Typecheck, 193 test, build ve yerel runtime geçti. Main değişmedi. |
