@@ -1,12 +1,14 @@
 # Değişiklikler
 
-## 1.12.0 — Çantam ve Kampım · geliştirme dalı
+## 1.12.0 — Çantam ve Kampım · 29 Ekim 2026
 
 - Türkçe/İngilizce altyapısı; yeni ilk açılış İngilizce, açıkça saklanan dil tercihi korunur.
 - Masaüstünde üç gruplu kamp gezinmesi; küçük ekranlarda tek bölüm seçicisi ve kaydırılabilir içerik.
 - Çantada özgün ikonlu eşya yuvaları, miktarlar, kategori filtresi, yalnız görünümü sıralama ve seçili eşya ayrıntısı. Kullanmak, ekmek veya yerleştirmek ayrı açık eylemdir; mevcut çanta/kapasite ve kayıt biçimi değişmez.
 - Varsayılan kompakt HUD; hayati değerler korunur, geniş ayrıntılar açılabilir. Kare tanılaması yalnız `?profile=1` ile görünür.
 - Oyun kabuğunda yanlış yazı seçimini azaltan, giriş/kod/kopyalanabilir metinleri koruyan seçim kuralları.
+- Mobil dikey/yatay panel hizası ve görev başlığının dar sütuna sıkışması düzeltildi; açık menüde Tab odak dolaşımı korunur.
+- Güncel main'in Sentry 11.10.0 bağımlılığı ve dar CSP izni korunur. Hata çıkışında oyuncu/kayıt/istek verisini dışlayan filtre ve regresyon testi eklendi.
 - Roamcroft 2.0 master planı, İngilizce ana README ve Türkçe alternatif. Bu sürüm 2.0 hedeflerinin bütünü değildir ve main'e yayımlanmış sayılmaz.
 - Gerçek eşya hotbar'ı, ekipman, sürükle-bırak, ekonomi değişikliği, ortak maden ve portal SDK/reklam bu pakete dahil değildir.
 - Doğrulama kaydı: `docs/verification-ui-1.12.0.md`.

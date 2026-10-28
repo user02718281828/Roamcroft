@@ -367,7 +367,7 @@
   "m_a8525a6194": "Maden",
   "m_d859c09bdd": "Sen beklemedesin · Ortak dünya açık",
   "m_d90f1633ed": "Ortak dünya · Ev sahibi zamanın akışını yönetir",
-  "m_e6d1a69097": "· Tab: kapat · Q / E: sekme değiştir",
+  "m_e6d1a69097": "· Esc: kapat · Tab: odak · Q / E: bölüm",
   "m_a97a486592": "Meyve bahçem",
   "m_124bda5cf3": "Bugün dik, yarının gölgesini büyüt.",
   "m_b35ca9a231": " Elma dik",
@@ -547,7 +547,7 @@
   "m_f3c26534c7": "Kontroller",
   "m_bfe3acbf97": "W A S D / Oklar",
   "m_52b61e1819": "Yürü",
-  "m_ceb9f80c28": "Tek pencere menüsü",
+  "m_ceb9f80c28": "Menüyü aç / odağı taşı",
   "m_e6b26269ae": "Araç seç",
   "m_16782e4568": "Sol tık",
   "m_995c03f9a9": "Yürü / aracı kullan",
@@ -1330,5 +1330,6 @@
   "bag.legacyHelp": "Bu eşya tanınmıyor; burada kullanılabilir bir eylemi yok.",
   "bag.slot": "{name} · {count} adet",
   "release.title": "{version} · Çantam ve Kampım",
-  "release.description": "Daha sakin bir HUD, gruplu kamp menüsü ve yeni çanta görünümü."
+  "release.description": "Daha sakin bir HUD, gruplu kamp menüsü ve yeni çanta görünümü.",
+  "common.required": "gerekli"
 }

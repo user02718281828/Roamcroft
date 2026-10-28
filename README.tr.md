@@ -5,7 +5,7 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
 [English](README.md) · [Değişiklikler](CHANGELOG.md) · [2.0 master planı](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Kaynak sürümü: 1.12.0 — Çantam ve Kampım, geliştirme dalı.** Bu paket UI 2.0
+**Kaynak sürümü: 1.12.0 — Çantam ve Kampım.** Bu paket UI 2.0
 temelidir; bütün 2.0 hedeflerinin veya canlı yayının tamamlandığı anlamına gelmez.
 [Canlı oyun](https://roamcroft.roamcroft.workers.dev) ayrı yayımlanır.
 Ana README'deki yeni görseller bu kaynak sürümünden yerel tarayıcıda alınır;
@@ -47,8 +47,8 @@ vardır; ortak maden ve uzak bağımsız keşif kapalıdır.
 ## Kontroller ve geliştirme
 
 WASD/oklar yürüme; 1–8 araç; Tab menü; E yakındaki etkileşim; Shift koşu;
-Ctrl/Boşluk saldırı; fare tekerleği/pinch yakınlaştırma; sürükleme kamera;
-Esc menü/inşadan çıkış veya duraklama. Menüde Q/E bölüm değiştirir.
+Ctrl saldırı; fare tekerleği/pinch yakınlaştırma; sürükleme kamera;
+Esc menü/inşadan çıkış veya duraklama. Menüde Q/E bölüm, Tab odak değiştirir.
 Dokunmada joystick ve ayrı saldırı/etkileşim düğmeleri vardır. Menü çevrimdışı
 çiftliği durdurur, ortak dünyadaki arkadaşlarını durdurmaz.
 
@@ -73,14 +73,18 @@ Kayıt sürümü 1 ve eski `ocak-vadisi` anahtarları bilerek korunur. IndexedDB
 iki yedekli atomik rotasyon, localStorage geri dönüşü ve JSON içe/dışa aktarma
 vardır. Depoyu geri yüklemek tarayıcı kaydını/çerezini geri getirmez.
 
-Önceki audit'in 23 bulgusu (3 kritik, 10 yüksek, 9 orta, 1 düşük) açıktır;
-bu pakette bağımlılık yükseltilmez. Portal SDK/reklam/analitik, prestij,
+Tarihsel audit 23 bulguydu. 29 Ekim kurulum/audit sonucu 25'tir (3 kritik,
+10 yüksek, 11 orta, 1 düşük); giderilmiş sayılmaz. Mevcut Sentry bağımlılığı
+korunur; bağımlılık yükseltmesi yapılmaz. Hata gönderiminde yalnız tür/sürüm/kod
+konumu tutulur; oyuncu/kayıt/istek verisi ve serbest mesajlar filtrelenir.
+Portal SDK/reklam/oynanış analitiği, prestij,
 hesap/kurtarma ve diğer 2.0 hedefleri [master planda](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 durum/kabul koşullarıyla izlenir. Fiziksel cihaz, gerçek WAN, uzun oturum ve
 portal iframe testleri tamamlanmış sayılmaz. Sosyal paylaşım JPG'sindeki Türkçe
 yazıların yerelleştirilmesi bekler.
 
 Main üzerindeki Cloudflare Workers Builds bağlantısı doğrulandı. Bu görevde
-main/deploy yapılmaz; geliştirme dalı push'u üretim yayını değildir. GitHub Pages
+yayın için önce geliştirme dalı, tüm kontroller ve güncel main birleşimi gerekir.
+Geliştirme dalı push'u üretim yayını değildir; oturumun açık izni esas alınır. GitHub Pages
 API sorgusu 404 döndü; Pages'in gerçek yayın kaynağı olduğu varsayılmaz.
 [Doğrulama](docs/verification-ui-1.12.0.md) ve [AGENTS](AGENTS.md) ayrıntıları içerir.

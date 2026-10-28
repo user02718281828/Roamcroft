@@ -555,7 +555,7 @@ export default function Panels({
                                   <p className={station ? '' : 'missing'}>
                                     <GameIcon id={r.station} />{' '}
                                     {localize(BUILDINGS[r.station].name)}{' '}
-                                    {localize(station ? sourceText("m_5aa460c91c") : 'gerekli')}
+                                    {station ? translate("m_5aa460c91c") : translate('common.required')}
                                   </p>
                                 ))}
                                 <div className="catalog-bottom">

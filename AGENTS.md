@@ -6,6 +6,14 @@ bak; aşağıdaki 1.11.5 sayıları tarihsel tabandır. Main push/deploy yetkisi
 her oturumun kullanıcı talimatından belirle; geliştirme dalı izni üretim yayını
 izni sayılmaz.
 
+1.12.0 UI temelinin güncel doğrulaması: `docs/verification-ui-1.12.0.md`.
+İlk açılış İngilizcedir; yalnız açıkça saklanan dil tercihi korunur. Çanta
+yuvaları yalnız gösterimdir; gerçek eşya hotbar'ı veya yeni kayıt şeması yoktur.
+Sentry main `1e302c3` ile eklenmiştir; SDK ve dar CSP izni korunmalı, mahremiyet
+çıkış filtresi gevşetilmemelidir. 29 Ekim audit sonucu 25'tir; aşağıdaki 23
+bulgu tarihsel sonuçtur. CodeScene bakım planı `docs/modularization-plan.md`;
+motor/çizici refactoring'i UI tesliminden ayrı yürütülür.
+
 Bu dosya depoda çalışan kod ajanları için mimari rehberdir. İlk kaynak incelemesi
 28 Ekim 2026 tarihinde `main` dalındaki `becf1b8` commit'i üzerinde yapıldı.
 İncelenen uygulama sürümü **1.11.5 — Hafif Kamera** idi. Buradaki sayılar ve

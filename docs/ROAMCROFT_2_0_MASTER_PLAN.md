@@ -4,7 +4,8 @@ Bu belge Roamcroft 2.0 vizyonunun tek ana iş sırası ve durum kaynağıdır.
 [AGENTS.md](../AGENTS.md) güvenlik/uyumluluk kuralları geçerlidir;
 [PORTAL_ROADMAP.md](PORTAL_ROADMAP.md) portal yayın kapılarını ayrıntılandırır.
 Bir plan maddesi çalışan özellik değildir. 2.0 tamamlanmış veya yayımlanmış
-sayılmaz. Başlangıç tabanı: 1.11.5 + doğrulanmış TR/EN çalışması.
+sayılmaz. Başlangıç tabanı: 1.11.5 + doğrulanmış TR/EN çalışması. Güncel main'e
+ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
 ## Vizyon ve karar ilkeleri
 
@@ -32,7 +33,7 @@ Durum sözlüğü:
 | Sıra | Paket | Durum / çıkış koşulu |
 | --- | --- | --- |
 | P0 / 0 | Güvenli GitHub yedeği | **TAMAMLANDI:** `codex/roamcroft-2-ui`, i18n checkpoint `38b4f9315c902ac2415d1aadbddb0e99fc95d3ac`. Typecheck, 193 test, build ve yerel runtime geçti. Main değişmedi. |
-| P0 / 1 | UI 2.0 temeli | **PLANLANDI:** Gruplu menüler, küçük ekran düzeni, sade HUD, ikon yuvalı çanta, seçili eşya ayrıntısı, seçim/kopyalama kuralları, İngilizce ilk açılış. Bu paket aşağıdaki tüm 2.0 başlıklarının tamamı değildir. |
+| P0 / 1 | UI 2.0 temeli | **TAMAMLANDI (sınırlı paket):** Gruplu menüler, küçük ekran düzeni, sade HUD, ikon yuvalı çanta, seçili eşya ayrıntısı, seçim/kopyalama kuralları, İngilizce ilk açılış. [1.12.0 doğrulaması](verification-ui-1.12.0.md). Fiziksel cihaz ve aşağıdaki diğer 2.0 hedefleri ayrıca eksiktir. |
 | P0 / 2 | İlk 30 dakika ve araç hissi | **PLANLANDI:** Ölçülebilir ilk oturum hedefleri, isteğe bağlı onboarding, araç geri bildirimi, başlangıç ekonomisi deneyi. UI temeli ve kayıt karşılaştırmaları gerekir. |
 | P1 / 3 | Gerçek envanter/hotbar | **PLANLANDI:** Eşya/araç modeli, göç ve sunucu doğrulaması tasarlanıp kabul edildikten sonra uygulanır. Görsel çanta yuvaları bu mekanik sayılmaz. |
 | P1 / 4 | Üretim, köy, keşif ve savaş derinliği | **PLANLANDI:** Ekonomi baz çizgisi ve oyuncu denemeleriyle küçük dikey paketler; salt içerik kotası yok. |
@@ -101,9 +102,10 @@ eşzamanlı taşıma ve mobil iptal testlerinde sıfır kayıp/çoğaltma.
 ## 4. Arayüz 2.0
 
 **MEVCUT:** Merkezi modal, mobil bölüm seçicisi, ortak bileşenler, TR/EN metinler.
-**EKSİK:** Tutarlı bilgi hiyerarşisi, az sekme karmaşası, oyun hissi veren çanta,
-her ekran boyunda taşma kanıtı ve sakin varsayılan HUD.
-**PLANLANDI / P0, ilk paket:** Masaüstünde gruplu kamp menüsü; mobilde tek yerel
+**TAMAMLANDI / P0, ilk paket:** Tutarlı kamp grupları, seçili eşya ayrıntısı ve
+sakin varsayılan HUD; 1440×900, 390×844, 844×390, 320×568 yerel tarayıcı kontrolü.
+**EKSİK:** Fiziksel cihaz/ekran klavyesi/PWA ve oyuncu kullanılabilirlik kanıtı.
+Masaüstünde gruplu kamp menüsü; mobilde tek yerel
 seçici; modal başlığı/kapatma ve içerik kaydırması; seçili eşya ayrıntısı; az
 kalabalık HUD. Bağımlılık: i18n, mevcut odak/duraklama kuralları.
 
@@ -203,7 +205,7 @@ kopma/yeni katılım/boss ölümü/asansör oylaması atomik; D1/DO çakışmas�
 ## 11. Diller
 
 **TAMAMLANDI, i18n temeli:** TR/EN merkezi sözlük, tip güvenliği, kalıcı seçim,
-kanonik kayıt/ağ metninden ayrı istemci gösterimi. **PLANLANDI / P0:** İlk kez
+kanonik kayıt/ağ metninden ayrı istemci gösterimi. **TAMAMLANDI / P0:** İlk kez
 açıldığında tarayıcı dili ne olursa olsun İngilizce; açıkça kaydedilmiş `tr`
 veya `en` korunur. Bu kullanıcı talimatı eski tarayıcı algılama kararını değiştirir.
 Yeni dil eklenmez. **EKSİK:** Editoryal İngilizce inceleme ve sosyal kartlar.
@@ -280,17 +282,53 @@ fiziksel cihaz testi sayılmaz. Yerel test verisi canlı veritabanına yazılmaz
 
 **MEVCUT:** GitHub deposu, doğrulama Actions'ı, main üzerinde başarılı Cloudflare
 Workers Builds kontrolü. Pages API sorgusu 404 döndü; Pages kaynak kabul edilmez.
-**EKSİK:** Güncel İngilizce README, Türkçe alternatif, güncel ekran görüntüleri,
-her yeni paket için changelog/doğrulama ve açık yayın durumu.
-**PLANLANDI / P0–P1:** Kaynak ve tanıtım sürümünü eşitle; tarihsel ekranları
+**TAMAMLANDI (1.12.0 paketi):** Güncel İngilizce README, Türkçe alternatif,
+gerçek yerel ekran görüntüleri ve changelog/doğrulama kaydı.
+**PLANLANDI / her yayın:** Kaynak ve tanıtım sürümünü eşitle; tarihsel ekranları
 arşiv olarak etiketle veya ana tanıtımdan çıkar. Depo açıklaması gerçek özellikleri anlatır.
 
 Kabul: Her pakette typecheck/test/build/ilgili runtime ve yalnız kaynak dosyalı
 commit; `.env`, sırlar, `work`, `node_modules`, `dist` gönderilmez. `codex/`
 dalına push, CI ve remote SHA doğrulaması. Main/üretim yayını için kullanıcının
-o oturumdaki açık kapsamı esas alınır; bu görevin son A/D talimatı gereği main
-push/deploy yapılmaz. Canlı açılış kontrolü bir dağıtım veya yeni sürüm kanıtı
+o oturumdaki açık kapsamı esas alınır. 29 Ekim güncel devam talimatı, tamamlanmış
+paketin tüm kritik kontrolleri ve Sentry birleştirmesi sonrası normal main
+push/otomatik yayınına izin verir. Önceki main yasağı bu talimatla değiştirilmiştir.
+Canlı açılış kontrolü tek başına bir dağıtım veya yeni sürüm kanıtı
 olarak sunulmaz; dağıtım yapılırsa yayımlanan SHA ayrıca eşlenir.
+
+## 29 Ekim 2026 altyapı ve kalite güncellemesi
+
+- **MEVCUT / kullanıcı tarafından canlı doğrulanmış:** Sentry `@sentry/react`
+  11.10.0, main `1e302c3`, ROAMCROFT-3 canlı test kaydı. Sponsored Team planının
+  28 Ekim 2027'ye kadar geçerli olduğu kullanıcı tarafından bildirildi; hesap
+  planı bağımsız kontrol edilmedi. SDK/CSP bu pakette korunur. Yeni mahremiyet
+  filtresi hata türü/kod konumu/sürümü saklar; serbest mesaj, oyuncu, istek,
+  breadcrumb, kayıt ve ekleri göndermez. Son sürümde teslimat ayrıca doğrulanır.
+- **MEVCUT / kullanıcı testi:** BrowserStack iPhone 15 Pro / Safari üzerinde
+  eski canlı oyun açıldı; yatay tam ekran beklentisi karşılanmadı. Yeni UI için
+  fiziksel cihaz kanıtı değildir. **EKSİK:** Yeni UI'de iOS Safari ve Android
+  Chrome dikey/yatay; çentik, joystick/kamera, klavye, PWA Ana Ekran ve yaşam
+  döngüsü. Tarayıcı çubuğunu gizleme ile oyunun görünür alanı kullanması ayrı
+  test edilir; Safari'nin desteklemediği fullscreen davranışı vaat edilmez.
+- **PLANLANDI / P1:** [CodeScene kaynaklı modülerleştirme planı](modularization-plan.md).
+  29 Ekim GitHub analizi: genel 7,4, hotspot 4,9; model 1,15, scene yaklaşık 1,7.
+  Kullanıcı özeti kaynak alınmıştır. UI öncesi yerel değişiklikleri kapsamayan
+  bir bakım göstergesidir; oyun hatası/güvenlik açığı kanıtı değildir. act,
+  createState, combat, systems, wanderAnimals, tick için önce davranış testleri.
+  Büyük motor/çizici değişikliği bu pakete dahil değildir.
+- **GÜNCEL DENETİM:** 29 Ekim `npm ci`/`npm audit --json`: **25 paket bulgusu**,
+  3 kritik / 10 yüksek / 11 orta / 1 düşük. Tarihsel 23 sonuç korunur, giderilmiş
+  sayılmaz. Toplu güncelleme yok; araç zinciri/canlı erişilebilirlik ayrı kontrollü iş.
+- Domain satın alınmadı (kullanıcı bildirimi). Güncel adres
+  `https://roamcroft.roamcroft.workers.dev/`. Domain/DNS/origin taşıma bu işin
+  kapsamında değil. Gelecek taşımada IndexedDB ve güvenli oturum otomatik
+  taşınmaz; yerel dışa aktarma ve hesap/kurtarma ayrı çıkış koşuludur.
+
+Sonraki sıra: ilk 30 dakika/başlangıç ekonomisi → gerçek hotbar/araç → toplama,
+üretim ve darbe hissi → yaşayan köy → savaş/keşif → Online 2.0. Modülerleştirme,
+ilgili riskli davranışa dokunmadan önce küçük test paketleriyle araya girer;
+sonrasında portal, performans, izinli analitik ve gelir. Reklam SDK'sı veya
+portal hesabı bu UI oturumunda eklenmez.
 
 ## Devam protokolü
 
@@ -302,8 +340,10 @@ güncellenir. Yarım işler ve sıradaki kabul testi aşağıdaki teslim kaydın
 ## Bu oturumun teslim kaydı
 
 - i18n yedeği: **TAMAMLANDI**, yukarıdaki `38b4f93` checkpoint'i GitHub'da.
-- UI 2.0 temeli: **PLANLANDI / uygulama sürüyor**; son doğrulama sonrası kapsam
-  ve commit bilgisi burada güncellenecek.
+- UI 2.0 temeli: **TAMAMLANDI (1.12.0 sınırlı paket)**; önceki kaynaklar
+  `fa20119` yerel checkpoint'iyle kurtarıldı. [Doğrulama kaydı](verification-ui-1.12.0.md)
+  test/görsel kapsamını açıklar. Yayın SHA'sı ve gerçek durum GitHub commit
+  kontrolleri ve oturum teslim raporuyla eşlenir; plan bir canlı sürüm kanıtı değildir.
 - Hotbar/equip/drag-drop, ekonomi, düşman dengesi, kısa davet kodu, hesap,
   ortak maden, portal SDK/reklam/analitik/prestij: **EKSİK / PLANLANDI**.
 - En önemli sonraki görev: UI temelinin ardından ilk 30 dakikalık yeni oyuncu

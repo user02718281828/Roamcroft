@@ -534,7 +534,8 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
         else setPaused((p) => !p);
         return;
       }
-      if(key==='tab') {ev.preventDefault();setMainMenu(false);if(!ev.repeat)setPanel(p=>p?null:'inventory');return;}
+      // The modal owns Tab focus traversal; Escape closes it.
+      if(key==='tab') {if(control.current.panel)return;ev.preventDefault();setMainMenu(false);if(!ev.repeat)setPanel('inventory');return;}
       if(control.current.panel) {
         if(['q','e','arrowleft','arrowright'].includes(key) && !(key.startsWith('arrow')&&(ev.target as HTMLElement).getAttribute('role')==='tab')) {
           ev.preventDefault();setPanel(nextPanel(control.current.panel,['q','arrowleft'].includes(key)?-1:1,serverMode));
@@ -912,12 +913,14 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               <Target />
             </button>
             <button
+              className="camera-secondary"
               onClick={() => scene.current?.setZoom(-2)}
               aria-label={translate("m_c265542277")}
             >
               <Plus />
             </button>
             <button
+              className="camera-secondary"
               onClick={() => scene.current?.setZoom(2)}
               aria-label={translate("m_2e4fb0e294")}
             >
@@ -933,6 +936,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
               <Compass />
             </button>
             <button
+              className="camera-secondary"
               onClick={() => setPanel('guide')}
               aria-label={translate("m_6cb0038efb")}
             >

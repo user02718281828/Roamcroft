@@ -14,7 +14,7 @@ for (const [key, text] of Object.entries(tr)) {
 lines.push('};', '');
 const output = lines.join('\n'), target = new URL('parameters.ts', root);
 if (process.argv.includes('--check')) {
-  if (readFileSync(target, 'utf8') !== output) throw Error('i18n: parameter types are stale; run node scripts/generate-i18n.mjs');
+  if (readFileSync(target, 'utf8').replaceAll('\r\n', '\n') !== output) throw Error('i18n: parameter types are stale; run node scripts/generate-i18n.mjs');
 } else writeFileSync(target, output);
 // Retain the installed application's id, origin and URLs; localize only presentation.
 const manifestUrl = new URL('../public/manifest.json', import.meta.url);
@@ -23,7 +23,7 @@ for (const [locale, catalog] of [['tr', tr], ['en', en]]) {
   const url = locale === 'en' ? manifestUrl : new URL('../public/manifest.tr.json', import.meta.url);
   const manifest = JSON.stringify({...baseManifest, lang: locale, description: catalog['meta.description']}, null, 2) + '\n';
   if (process.argv.includes('--check')) {
-    if (readFileSync(url, 'utf8') !== manifest) throw Error(`i18n: stale ${locale} manifest`);
+    if (readFileSync(url, 'utf8').replaceAll('\r\n', '\n') !== manifest) throw Error(`i18n: stale ${locale} manifest`);
   } else writeFileSync(url, manifest);
 }
 console.log(`i18n: ${Object.keys(tr).length} messages, matching keys and placeholders`);

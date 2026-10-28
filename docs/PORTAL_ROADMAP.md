@@ -21,7 +21,14 @@ bağımlılık yükseltmesi ayrıca kullanıcı talimatı gerektirir.
 | P1 / 7 | Yayın | Önce yerel üretim Worker/D1/DO ve dört istemcili runtime kontrolü; sonra hedef portalın test ortamı, gerçek WAN/çok cihaz ve fiziksel Android/PWA. Dil, iframe, ilk yükleme bütçesi, kayıt kurtarma, reklam/SDK hata senaryoları ve erişilebilirlik kontrolü. Sınırlı test yayını → ölçüm → düzeltme → kullanıcı onayıyla genel yayın. Üretim sırları ve geri dönüş planı ayrı tutulur. |
 | P2 / 8 | Prestij | Portal yayını için zorunlu ön koşul değildir. Önce çok günlük ekonomi ve oyuncu geri bildirimi. Kalıcı ilerleme/sıfırlama kapsamı, geri alma/yedekleme, ortak çiftlik sahipliği ve yeni kayıt göçü ayrı tasarım ve onay gerektirir. Mevcut kayıtları kendiliğinden sıfırlama. |
 
-## Güvenlik yayın engeli: mevcut 23 paket bulgusu
+## Güvenlik yayın engeli: tarihsel 23 paket bulgusu
+
+29 Ekim 2026 güncellemesi: `npm ci` ve `npm audit --json` artık **25** paket
+bulgusu bildiriyor (3 kritik, 10 yüksek, 11 orta, 1 düşük). Aşağıdaki tablo
+önceki audit'in tarihsel dökümüdür. Güncel orta listesi ayrıca `@hono/node-server`
+ve `systeminformation` içeriyor. Sayısal artışın tek başına Sentry'den kaynaklandığı
+sonucu çıkarılmaz; güncel advisory verisi de değişebilir. Bağımlılık düzeltmesi
+bu UI paketine dahil değildir; portal çıkışı öncesi ayrı erişilebilirlik analizi gerekir.
 
 Önceki kurulum/audit incelemesindeki dağılım: **3 kritik, 10 yüksek, 9 orta,
 1 düşük**. Bunlar paket kayıtlarıdır; aynı danışmanlık birden fazla üst pakette
@@ -52,7 +59,11 @@ fiziksel Android, uzun oturum, WAN ve ölçek/maliyet sonuçları bu planla
 doğrulanmış sayılmaz. Mevcut açık işler arasında hesap/kurtarma, ortak maden,
 uzak bağımsız ortak keşif ve çok günlük ekonomi testi vardır.
 
-## İlk aşamanın uygulama durumu
+## İlk aşamanın tarihsel uygulama durumu (28 Ekim)
+
+1.12.0'da aşağıdaki tarayıcı algılama davranışı, kullanıcının talimatıyla
+ilk açılış İngilizce olacak şekilde değiştirildi; saklanan tercih korunur.
+Güncel UI/kalite sonucu: [1.12.0 doğrulaması](verification-ui-1.12.0.md).
 
 Türkçe/İngilizce altyapısı ve 1.310 girdilik iki sözlük uygulandı. Başlangıç
 ekranı ve ayarlarda kalıcı seçim; tarayıcı algılama; arayüz, katalog, konuşma,

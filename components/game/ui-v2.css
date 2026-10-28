@@ -87,8 +87,13 @@
   .camp-panel .pack-summary{padding:5px 0 8px;}
   .camp-panel .pack-summary strong{font-size:16px;}
   .camp-panel .pack-sort>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}
+  .camp-panel .quality-setting{padding-right:12px;}
   .game-shell.hud-collapsed .hud-left .status-card{display:none;}
   .game-shell.hud-collapsed .resource-bar{display:flex;justify-content:flex-start;max-width:170px;margin-right:auto;}
   .game-shell.hud-collapsed .hud-left .main-actions{display:flex;}
+  .game-shell .hud-toggle{position:fixed;top:calc(90px + env(safe-area-inset-top,0px));left:calc(60px + env(safe-area-inset-left,0px));width:max-content;max-width:calc(100% - 120px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px));min-height:44px;max-height:44px;padding:7px 10px;}
+  .game-shell .hud-toggle>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .game-shell .messages{top:calc(140px + env(safe-area-inset-top,0px));}
+  .game-shell .world-actions .camera-secondary{display:none;}
 }
 @media (prefers-reduced-motion:reduce){.pack-slot{transition:none;}}

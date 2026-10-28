@@ -32,6 +32,7 @@ test('worker applies six headers and replaces attacker-supplied nonce without bu
 });
 test('CSP blocks inline scripts, framing, foreign connections and dangerous objects',()=>{
   const csp=contentSecurityPolicy();
+  assert.equal(csp.split('; ').find(value=>value.startsWith('connect-src ')),"connect-src 'self' https://o4512335936815104.ingest.de.sentry.io");
   assert.match(csp,/script-src 'self';/);assert.ok(!csp.includes('unsafe-eval'));
   for(const directive of ["script-src-attr 'none'","frame-ancestors 'none'","object-src 'none'","connect-src 'self'"])assert.ok(csp.includes(directive));
   assert.throws(()=>contentSecurityPolicy("x'; script-src *"));

@@ -367,7 +367,7 @@
   "m_a8525a6194": "Mine",
   "m_d859c09bdd": "You are waiting · Shared world is running",
   "m_d90f1633ed": "Shared world · The host controls time",
-  "m_e6d1a69097": "· Tab: close · Q / E: switch tab",
+  "m_e6d1a69097": "· Esc: close · Tab: focus · Q / E: section",
   "m_a97a486592": "My orchard",
   "m_124bda5cf3": "Plant today, grow tomorrow's shade.",
   "m_b35ca9a231": " Plant apple tree",
@@ -547,7 +547,7 @@
   "m_f3c26534c7": "Controls",
   "m_bfe3acbf97": "W A S D / Arrows",
   "m_52b61e1819": "Walk",
-  "m_ceb9f80c28": "Single-window menu",
+  "m_ceb9f80c28": "Open menu / move focus",
   "m_e6b26269ae": "Select tool",
   "m_16782e4568": "Left click",
   "m_995c03f9a9": "Walk / use tool",
@@ -1330,5 +1330,6 @@
   "bag.legacyHelp": "This item is unrecognized; no action is available here.",
   "bag.slot": "{name} · {count} units",
   "release.title": "{version} · Pack and Camp",
-  "release.description": "A calmer HUD, grouped camp menu and a new pack view."
+  "release.description": "A calmer HUD, grouped camp menu and a new pack view.",
+  "common.required": "required"
 }

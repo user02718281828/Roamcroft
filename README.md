@@ -8,7 +8,7 @@ design sources to copy.
 
 [Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Source version: 1.12.0 — Pack and Camp, development branch.** This is the first
+**Source version: 1.12.0 — Pack and Camp.** This is the first
 UI foundation for the 2.0 plan, not a completed Roamcroft 2.0 release.
 [Live game](https://roamcroft.roamcroft.workers.dev) is deployed separately;
 the source branch and its screenshots do not prove that the live build has updated.
@@ -62,11 +62,11 @@ item-based customizable hotbar, equipment and drag-and-drop are planned.
 | WASD / arrow keys | Walk |
 | Click terrain | Walk / use selected tool |
 | 1–8 | Select tool |
-| Tab | Open / close camp menu |
+| Tab / Escape | Open camp menu / close menu; Tab moves focus inside it |
 | Q / E in menus | Previous / next section |
 | E in the world | Interact nearby |
 | Shift | Run, spending energy |
-| Ctrl / Space | Attack |
+| Ctrl | Attack |
 | Mouse wheel / pinch | Zoom |
 | Drag | Pan camera |
 | Esc | Close menu / exit building / pause |
@@ -124,10 +124,14 @@ does not restore a lost browser cookie or player save.
 [UI verification](docs/verification-ui-1.12.0.md) · [i18n baseline](docs/verification-portal-i18n.md)
 · [Portal roadmap](docs/PORTAL_ROADMAP.md) · [Contributor rules](AGENTS.md)
 
-The previous dependency audit has **23 open package findings** (3 critical,
-10 high, 9 moderate, 1 low), tracked separately in the portal roadmap. Toolchain
+The historical audit had **23 open package findings**. The 29 October install
+and audit report **25** (3 critical, 10 high, 11 moderate, 1 low), tracked in
+the master plan and portal roadmap. Toolchain
 exposure and live Worker exposure require different analysis. This UI package
-does not upgrade dependencies or claim to resolve those findings.
+preserves the existing Sentry dependency and does not upgrade dependencies or
+claim to resolve those findings. Browser error monitoring keeps only error type,
+release and code locations; free-form messages, player data, requests, breadcrumbs
+and attachments are removed before sending. Replay and tracing are disabled.
 
 Cloudflare Workers Builds has run for `main`. Pushing a development branch is
 not production deployment approval. CI verifies `main`, `feature/**`, `codex/**`
