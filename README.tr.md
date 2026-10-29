@@ -5,9 +5,9 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
 [English](README.md) · [Değişiklikler](CHANGELOG.md) · [2.0 master planı](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Kaynak sürümü: 1.13.1 — Mobile Recovery.** Kullanıcı 29 Ekim 2026'da
-başarılı kontroller koşuluyla main/Cloudflare yayınına onay verdi; fiziksel
-Android kabulünü yayın sonrasına erteledi. Fiziksel kabul ve diğer 2.0 hedefleri eksiktir.
+**Kaynak sürümü: 1.13.2 — mobil menü yaması (geliştirme dalı, yayımlanmadı).**
+Canlı 1.13.1 main `a182541` üzerinde kalır. Yama için ayrı yayın onayı ve
+fiziksel Android doğrulaması gerekir.
 [Canlı oyun](https://roamcroft.roamcroft.workers.dev) ayrı yayımlanır.
 Ana README'deki görseller üzerinde belirtilen sürümden yerel tarayıcıda alınır;
 eski 1.3 ekranları güncel sürüm olarak sunulmaz.

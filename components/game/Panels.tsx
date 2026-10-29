@@ -41,6 +41,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetClose,
 } from '@/components/ui/sheet';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
@@ -1348,6 +1349,7 @@ export default function Panels({
               </div>
             )}
           </div>
+          <SheetClose className="camp-return" type="button">{translate('ui.close')}</SheetClose>
         </SheetContent>
       </Sheet>
       <AlertDialog

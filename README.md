@@ -8,9 +8,9 @@ design sources to copy.
 
 [Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Source version: 1.13.1 — Mobile Recovery.** Release approved on 29 October
-2026, subject to successful verification. The user postponed physical Android
-acceptance until after release; physical-device testing remains incomplete.
+**Source version: 1.13.2 — mobile menu hotfix (development branch, not deployed).**
+Live 1.13.1 remains on main `a182541`. The hotfix requires separate approval
+and physical Android verification.
 [Live game](https://roamcroft.roamcroft.workers.dev) is deployed separately;
 the source branch and its screenshots do not prove that the live build has updated.
 

@@ -1,5 +1,12 @@
 # Değişiklikler
 
+## 1.13.2 — Mobil menü kapatma · geliştirme dalı, yayımlanmadı
+
+- Mobil navigasyonun şeffaf tam genişlik katmanının X dokunmasını yutması düzeltildi: boş katman hit testing'den çıkarıldı, etkileşimli çocuklar korundu, kapatma hedefi üst katmana alındı ve 48×48 yapıldı.
+- Mobil menü altında ayrı 44px Kapat alternatifi; mevcut Back/Escape yolu korundu. Menünün yüksekliği 720px ile sınırlandı; filtre/sıralama tek satır, yinelenen eşya başlığı azaltıldı.
+- Gerçek Panels/Base UI ve derlenmiş CSS üzerinde hit testing + sentetik touch ile aç/kapat/yeniden aç, açık navigasyon, alternatif kapatma, Back ve Escape regresyon fikstürü eklendi.
+- Kullanıcının Android'de hareket/balta-saldırı/iki parmak kamerası geçti; X başarısızdı. Envanterin büyük panel hissi ve deponun keşfedilememesi sonraki UI/Inventory işi olarak kaydedildi. Fiziksel cihazda yama kabulü henüz yok; ekonomi/şema/online/Sentry/CSP değişmedi.
+
 ## 1.13.1 — Mobile Recovery · geliştirme dalı, 29 Ekim 2026
 
 - Gerçek Android kullanıcı geri bildirimi sonrası daha içeride ve safe-area uyumlu joystick; oyun kaydından ayrı sağ/sol düzeni, boyut ve hassasiyet tercihi.

@@ -35,6 +35,14 @@ Back geçmiş girdisi aynı URL'dedir. Güncel audit 25: 3 kritik/11 yüksek/10 
 1 düşük; güvenlik ayrı iş. Sanat yönü/kaynak haritası `docs/ART_DIRECTION_2_0.md`.
 1.14.0 mekanik veya şema hâlâ uygulanmadı; mobil kabulden önce başlanmaz.
 
+1.13.2 acil menü yaması: `docs/verification-mobile-1.13.2.md`. Geliştirme
+dalındadır; main/yayın izni yok. Mobil `.camp-menu` boş alanı X'i örtmemeli:
+container pointer-events:none, gerçek kontroller auto ve X üst katmandadır.
+Görsel 44px boyut yeterli değildir; elementFromPoint ile hit alanını doğrula.
+Tarayıcı touch fikstürü: build sonrası `node scripts/check-menu-touch.mjs`;
+gerçek Android testi yerine geçmez. Kullanıcı 1.13.1'de hareket/balta/kamera
+geçtiğini, X ve depo/menü UX sorunlarını bildirdi; plan bunları ayırır.
+
 Bu dosya depoda çalışan kod ajanları için mimari rehberdir. İlk kaynak incelemesi
 28 Ekim 2026 tarihinde `main` dalındaki `becf1b8` commit'i üzerinde yapıldı.
 İncelenen uygulama sürümü **1.11.5 — Hafif Kamera** idi. Buradaki sayılar ve

@@ -9,6 +9,23 @@ ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
 ## Vizyon ve karar ilkeleri
 
+### 1.13.2 acil Android geri bildirimi — güncel iş
+
+**Kullanıcı fiziksel Android testi / 1.13.1:** hareket, balta/saldırı ayrımı ve
+iki parmak kamera **GEÇTİ**. Çantanın X ile kapanması dikey/yatay **BAŞARISIZ**;
+depo testi menü kilidi/keşfedilebilirlik nedeniyle **YAPILAMADI**.
+**P0 / 1.13.2:** Şeffaf navigasyonun X hit alanını örtmesini gider; 44px+
+hedef, alt kapatma alternatifi ve Back/Escape/aç-kapat-yeniden aç regresyonu.
+Bu yama ayrı dalda; main/Cloudflare için yeni kullanıcı onayı gerekir.
+
+**P1 / açık UI–Inventory UX görevi:** Mobil envanterin büyük/web paneli hissini
+azalt; içerik yoğunluğu ve görev odaklı gezinti gerçek cihazda değerlendirilsin.
+Depo, mevcut kodda sandık kapasitesi >0 olunca çantada görünür; oyuncuya nerede
+olduğu/ön koşulu anlaşılmıyor. Gelecek pakette sandık gereksinimi, depo konumu,
+erişim/kapasite ve koy/geri al akışı açıkça anlatılmalı. Ekonomi veya hotbar bu
+acil yamaya eklenmez. Kabul: yeni oyuncu depoyu yardım almadan bulur ve miktar
+kaybı/çift aktarım olmadan işlemi gerçek telefonda tamamlar.
+
 Yaşayan, sıcak bir köyü; özgür keşif, kaynak toplama, üretim ve inşa ile
 birleştiren özgün bir tarayıcı oyunu. Stardew Valley ve Minecraft yalnızca
 oyuncu deneyimi referanslarıdır; karakter, arayüz, metin, model, müzik ve oyun
