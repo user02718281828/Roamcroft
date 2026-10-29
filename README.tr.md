@@ -1,5 +1,11 @@
 # Roamcroft
 
+Resmî adres: [roamcroft.com](https://roamcroft.com). Domain/SEO/marka paketi
+geliştirme adayıdır; [oynanış ve kayıt rehberi](https://roamcroft.com/how-to-play)
+yayından sonra kullanılabilir. Eski cihaz kaydı ve sunucu kimliği eski adreste
+kalır; [önceki adres](https://roamcroft.roamcroft.workers.dev) açık tutulur.
+JSON dışa/içe aktarma cihaz çiftliğini taşır; sunucu sahipliğini taşımaz.
+
 Yaşayan bir vadide kendi yuvanı kurduğun özgün izometrik tarayıcı oyunu:
 ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
@@ -8,7 +14,7 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 **Kaynak sürümü: 1.13.2 — mobil menü yaması (geliştirme dalı, yayımlanmadı).**
 Canlı 1.13.1 main `a182541` üzerinde kalır. Yama için ayrı yayın onayı ve
 fiziksel Android doğrulaması gerekir.
-[Canlı oyun](https://roamcroft.roamcroft.workers.dev) ayrı yayımlanır.
+[Canlı oyun](https://roamcroft.com) ayrı yayımlanır.
 Ana README'deki görseller üzerinde belirtilen sürümden yerel tarayıcıda alınır;
 eski 1.3 ekranları güncel sürüm olarak sunulmaz.
 

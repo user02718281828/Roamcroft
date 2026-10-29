@@ -8,7 +8,8 @@ self.addEventListener('fetch',event=>{
  const request=event.request,url=new URL(request.url);
  if(request.method!=='GET'||url.origin!==self.location.origin||url.pathname.startsWith('/api/')||url.searchParams.has('_rsc'))return;
  if(request.mode==='navigate'){
-   event.respondWith(fetch(request).then(response=>{if(response.ok){const copy=response.clone();event.waitUntil(caches.open(VERSION).then(cache=>cache.put('/',copy)));}return response;}).catch(()=>caches.match('/').then(response=>response||Response.error())));return;
+   // A guide visit must never replace the cached game launcher at '/'.
+   event.respondWith(fetch(request).then(response=>{if(response.ok){const copy=response.clone();event.waitUntil(caches.open(VERSION).then(cache=>cache.put(url.pathname,copy)));}return response;}).catch(()=>caches.match(url.pathname).then(response=>response||Response.error())));return;
  }
  if(!/\.(js|css|webp|png|svg|woff2)$/.test(url.pathname))return;
  event.respondWith(caches.open(VERSION).then(async cache=>{const cached=await cache.match(request);if(cached)return cached;const response=await fetch(request);if(response.ok)await cache.put(request,response.clone());return response;}));

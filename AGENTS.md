@@ -6,6 +6,15 @@ bak; aşağıdaki 1.11.5 sayıları tarihsel tabandır. Main push/deploy yetkisi
 her oturumun kullanıcı talimatından belirle; geliştirme dalı izni üretim yayını
 izni sayılmaz.
 
+29 Ekim devam güncellemesi: canlı main `a182541` / 1.13.1. Resmî domain
+`https://roamcroft.com`; www→root301 doğrulandı. Eski Worker domainini açık
+tut; otomatik yönlendirme, DNS/TXT veya kayıt/çerez göçü yapma. Search Console
+sahipliği/ilk indeks isteği kullanıcıca tamamlandı; indeks/sıralama bilinmiyor.
+Domain/SEO/marka adayı `docs/verification-domain-seo.md`; sonraki UI/oynanış
+paketleri ayrı checkpoint. Yeni rehber rotası SW'de `/` önbelleğini ezmemeli.
+Main/üretim yayını için bu oturumda yetki yok; güvenli geliştirme commit'leri
+yetkili. Kullanıcının marka kaynaklarını ve `tatus -sb` dosyasını koru.
+
 1.12.0 UI temelinin güncel doğrulaması: `docs/verification-ui-1.12.0.md`.
 İlk açılış İngilizcedir; yalnız açıkça saklanan dil tercihi korunur. Çanta
 yuvaları yalnız gösterimdir; gerçek eşya hotbar'ı veya yeni kayıt şeması yoktur.

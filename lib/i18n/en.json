@@ -1392,5 +1392,9 @@
   "storage.takeConfirm": "Move {count} {name} from storage to bag.",
   "storage.confirm": "Confirm transfer",
   "storage.cancel": "Cancel",
-  "storage.authority": "Stock and capacity are checked again on transfer. Online counts change after server approval."
+  "storage.authority": "Stock and capacity are checked again on transfer. Online counts change after server approval.",
+  "launch.about": "Grow a home in a living valley.",
+  "launch.features": "Farm, craft and explore in an original 3D browser world. Play a device farm or share a surface farm with up to four friends. English and Turkish.",
+  "launch.guide": "How to play & save safely",
+  "launch.origin": "Coming from our previous address? Your farm stays on the address where you saved it. Read the transfer guide before starting over."
 }

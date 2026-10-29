@@ -6,8 +6,7 @@ ilk açılış İngilizce olacaktır; yalnız açıkça saklanmış TR/EN tercih
 
 ## Mobile Recovery sonrası yayın kararları — güncel öncelik P3
 
-Durum **PLANLANDI**; SDK, başvuru, domain veya Android paketleme bu oturumda
-uygulanmaz. 1.13.0 yayımlandı; gerçek Android geri bildirimi mobil P0 kabulünü
+Durum **PLANLANDI**; SDK, başvuru ve Android paketleme henüz uygulanmadı. Domain/SEO paketi güncel master plan sırasındadır. 1.13.0 yayımlandı; gerçek Android geri bildirimi mobil P0 kabulünü
 yeniden açtı. Masaüstü viewport başarısı fiziksel cihaz kanıtı değildir.
 [Mobil doğrulama](verification-mobile-1.13.1.md) ve [sanat rehberi](ART_DIRECTION_2_0.md)
 sonraki paket kapılarıdır. Güvenlik güncel **25: 3 kritik/11 yüksek/10 orta/1 düşük**;
@@ -22,9 +21,7 @@ sonraki paket kapılarıdır. Güvenlik güncel **25: 3 kritik/11 yüksek/10 ort
   reklam yaşam döngüsü, tek sefer rewarded doğrulaması, platform hesabı/dil,
   kayıt bağlantısı, davet, dış bağlantı ve sohbet politikası. SDK yok/hata/iptal
   durumunda oyun ve kayıt korunur; online oda reklam nedeniyle durdurulmaz.
-- **Domain:** roamcroft.com kullanıcı bildirimine göre alınmadı; uygunluk/fiyat/
-  yenileme ve Cloudflare/Spaceship karşılaştırması satın alma aşamasında. IndexedDB ve __Host oturumu yeni
-  origin'e otomatik taşınmaz. Export/kurtarma ve sunucu sahipliği ayrı kabul.
+- **Domain:** Kullanıcı `roamcroft.com` alanını aldı; Cloudflare custom domain ve www→root 301 çalışıyor. Search Console sahipliği ve ilk indeks isteği tamamlandı (kullanıcı bildirimi); indeks/sıralama henüz doğrulanmadı. Eski Worker açık kalır. IndexedDB ve __Host oturumu originler arasında otomatik taşınmaz; export/kurtarma ve sunucu sahipliği ayrı kabul.
 - **Güvenlik:** iframe/CSP/CORS/WS Origin/üçüncü taraf çerez ve Cloud Save
   tasarımı hedef bazlıdır; mevcut korumalar önceden gevşetilmez. Çift ödül,
   ekonomik çoğaltma veya eski hesabın kaybı olmadan test ortamı kanıtı gerekir.

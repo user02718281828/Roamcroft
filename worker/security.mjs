@@ -43,6 +43,7 @@ export async function secureFetch(handler,request,env,ctx) {
   const headers=new Headers(response.headers);
   for(const [key,value] of Object.entries(BASE_HEADERS))headers.set(key,value);
   headers.set('Content-Security-Policy',csp);
+  if(new URL(request.url).pathname.startsWith('/api/'))headers.set('X-Robots-Tag','noindex, nofollow');
   // HTML ile nonce birlikte kalmalı; paylaşılan önbellekte başka yanıtla eşleşmemeli.
   if(headers.get('Content-Type')?.includes('text/html'))headers.set('Cache-Control','private, no-store');
   return new Response(response.body,{status:response.status,statusText:response.statusText,headers,...(response.webSocket?{webSocket:response.webSocket}:{})});

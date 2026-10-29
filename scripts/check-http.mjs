@@ -42,6 +42,22 @@ assert.match(html,/<option\b[^>]*value="en"[^>]*>English<\/option>/,'İngilizce 
 assert.ok(!/<(?:script|link)\b[^>]*(?:Game-|scene-|three-core|three-renderer)/i.test(html),'3D motor başlangıçta yükleniyor');
 assert.ok(scripts.length>0);
 for(const [,attributes] of scripts)assert.ok(attributes.includes(`nonce="${nonce}"`),'Script nonce başlıkla eşleşmiyor');
+const canonical=html.match(/<link[^>]*rel="canonical"[^>]*href="([^"]+)"/)?.[1];
+assert.ok(canonical,'Canonical absent');assert.equal(new URL(canonical).href,'https://roamcroft.com/','Canonical domain');
+const ld=html.match(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/)?.[1];
+assert.ok(ld,'JSON-LD absent from HTML');
+assert.equal(JSON.parse(ld)['@graph'][1]['@type'],'VideoGame');
+assert.ok(html.includes('/how-to-play'),'Visible guide link');
+const guide=await get('/how-to-play');assert.equal(guide.status,200);headers(guide);
+const guideHtml=await guide.text();
+assert.ok(guideHtml.includes('Your first day')&&guideHtml.includes('İlk günün'),'Guide must be real bilingual HTML');
+assert.ok(guideHtml.includes('https://roamcroft.roamcroft.workers.dev'),'Old save origin remains accessible');
+const robots=await get('/robots.txt');assert.equal(robots.status,200);assert.match(await robots.text(),/Sitemap: https:\/\/roamcroft.com\/sitemap.xml/);
+const sitemap=await get('/sitemap.xml');assert.equal(sitemap.status,200);assert.match(sitemap.headers.get('Content-Type')||'',/xml/);
+assert.equal([...((await sitemap.text()).matchAll(/<loc>/g))].length,2);
+for(const [path,mime]of [['/og-image.jpg','image/jpeg'],['/favicon.ico','image/'],['/brand/favicon-16.png','image/png'],['/brand/favicon-32.png','image/png'],['/brand/favicon-48.png','image/png'],['/brand/apple-touch-icon.png','image/png'],['/brand/roamcroft-logo.webp','image/webp'],['/icon-192.png?v=brand-20261029','image/png'],['/icon-512.png?v=brand-20261029','image/png'],['/icon-maskable.png?v=brand-20261029','image/png']]){
+  const asset=await get(path);assert.equal(asset.status,200,path);headers(asset);assert.ok(asset.headers.get('Content-Type')?.startsWith(mime),path);await asset.arrayBuffer();
+}
 const second=await get('/');assert.notEqual(second.headers.get('Content-Security-Policy'),policy);await second.body?.cancel();
 for(const path of ['/manifest.json','/manifest.tr.json','/sw.js','/art/farm-icons-1.webp','/olmayan-sayfa']){
   const response=await get(path);headers(response);

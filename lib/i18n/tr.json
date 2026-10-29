@@ -1392,5 +1392,9 @@
   "storage.takeConfirm": "{count} {name} depodan çantaya taşınacak.",
   "storage.confirm": "Aktarımı onayla",
   "storage.cancel": "Vazgeç",
-  "storage.authority": "Stok ve kapasite işlem sırasında yeniden kontrol edilir. Online miktarlar sunucu onayıyla değişir."
+  "storage.authority": "Stok ve kapasite işlem sırasında yeniden kontrol edilir. Online miktarlar sunucu onayıyla değişir.",
+  "launch.about": "Yaşayan bir vadide kendine yuva kur.",
+  "launch.features": "Özgün 3D tarayıcı dünyasında tarım yap, üret ve keşfet. Cihaz çiftliğinde veya en fazla dört kişiyle ortak yüzey çiftliğinde oyna. Türkçe ve İngilizce.",
+  "launch.guide": "Oynanış ve kayıt rehberi",
+  "launch.origin": "Eski adresimizden mi geldin? Çiftliğin kaydettiğin adreste durur. Yeniden başlamadan önce aktarım rehberini oku."
 }

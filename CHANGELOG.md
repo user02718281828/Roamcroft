@@ -1,5 +1,12 @@
 # Değişiklikler
 
+## Geliştirme adayı — resmî domain, SEO ve marka (yayımlanmadı)
+
+- Canonical roamcroft.com, robots/sitemap, nonce korumalı JSON-LD ve görünür TR/EN oyun/kayıt rehberi.
+- Kullanıcının marka dosyalarından launcher, favicon, sosyal kart ve PWA teslim görselleri; eski origin erişimi ve kayıt sınırları korunur.
+- Rehber ziyareti çevrimdışı oyun ana sayfasını ezmesin diye HTML yolları ayrı önbelleğe alınır; API/RSC hariç kalır.
+- Atlas teslim kopyaları değişmeyen 3MB bütçe içinde sıkıştırıldı. Kayıt, ekonomi, bağımlılık veya online protokol göçü yok.
+
 ## 1.13.2 — Mobil menü kapatma · geliştirme dalı, yayımlanmadı
 
 - Mobil navigasyonun şeffaf tam genişlik katmanının X dokunmasını yutması düzeltildi: boş katman hit testing'den çıkarıldı, etkileşimli çocuklar korundu, kapatma hedefi üst katmana alındı ve 48×48 yapıldı.

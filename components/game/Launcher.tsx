@@ -31,11 +31,14 @@ export default function Launcher(){
         <h1>Roamcroft</h1>
         <LanguageSettings />
         <p>{translate("m_f136549175")}</p>
+        <p className="launch-description">{translate('launch.features')}</p>
         <p className="launch-update"><b>{translate('release.title', {version: GAME_VERSION})}</b><br/>{translate('release.description')}</p>
         <button onClick={()=>void play()} disabled={loading} aria-busy={loading}>{localize(loading?sourceText("m_cf4aea5756"):sourceText("m_18bb868678"))}</button>
         <button className="launch-server" onClick={()=>void play(true)} disabled={loading}>{translate("m_4b3434427a")}</button>
         {localize(error&&<p role="alert">{localize(error)}</p>)}
         <p className="launch-help">{translate("m_9aa28e66ae")}<br/>{translate("m_c3d8677045")}</p>
+        <a className="launch-guide" href="/how-to-play">{translate('launch.guide')}</a>
+        <p className="launch-origin">{translate('launch.origin')}</p>
         <noscript>{translate("m_de3750e998")}</noscript>
       </div>
     </section>

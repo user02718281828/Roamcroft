@@ -9,6 +9,45 @@ ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
 ## Vizyon ve karar ilkeleri
 
+### 29 Ekim 2026 devam oturumu — güncel kaynak
+
+Canlı/main **1.13.1 / `a182541045dfab06cef39a42e20954c085cecd23`**;
+yeniden yayımlanmaz. Geliştirme `codex/mobile-menu-fix-1-13-2`; yeni main
+push/deploy yetkisi yok. Eski bölüm ve sayılar tarihsel tabandır.
+
+| Paket / sıra | Güncel durum, etki ve kabul |
+| --- | --- |
+| A / P0 | **DOĞRULAMA EKSİK:** 1.13.2 kodu `c1dec4f`; X'in şeffaf katman tarafından engellenmesi giderildi. Typecheck, 212 test, build, dört oyunculu runtime ve üç viewport ×7 menü döngüsü geçti. [Kanıt](verification-mobile-1.13.2.md). Fiziksel Android X/Back/yeniden açma eksik; canlıda değil. |
+| B / P0 | Domain/SEO/marka: canonical, robots/sitemap, görünür HTML rehberi, özgün marka teslim dosyaları, origin güvenliği. Yerel ve canlı doğrulama ayrılır; [paket kaydı](verification-domain-seo.md). Yayından sonra sitemap gönderimi; indeks/sıralama garantisi yok. |
+| C / P1 | **PLANLANDI:** Tek logolu oyun karşılama, kayıtlı/yeni oyuncu ayrımı, TR/EN, mobil çanta/navigasyon dönüşümü ve anlaşılır depo. Önce/sonra gerçek ekran, klavye, 320×568/390×844/844×390/masaüstü, eski kayıt ve runtime; fiziksel kabul ayrıca. |
+| D / P1 | **PLANLANDI:** Mevcut miktar modeliyle güvenli çalışan dilim → gerçek 9 yuva, araç/eşya/ekipman ayrımı, referanslı seçim/taşıma, masaüstü drag-drop, mobil seç/taşı, stack/kapasite, kullanım onayı. Slot çizimi mekanik sayılmaz. Şema göçü/ekonomi/protokol değişimi ayrı onay ve atomiklik/dupe testleri ister. |
+| E / P2 | **PLANLANDI / yalnız izole prototip:** Generation 3 doğal orman/çayır/göl/nehir/tepe/dağ/bataklık, biyom geçişi, farklı ağaç/kaynak/nadir cevher/harabe/mağara/gizem/ödül. Seed/sürüm/chunk sınırı/negatif koordinat/eski edits korunur; eski dünyalara uygulanmaz. Tavşan/sincap/tilki/geyik/kuş/kurbağa/kelebek/ateşböceği/balık/böcek, nadir bitki/mantar/olay: atmosferik ve ekonomik canlılar ayrı; ilk 1–2 örnekte kare süresi ölçülür. |
+| F / P2 | **PLANLANDI:** Çok kareli yerleştirme/çarpışma/dönüş/kapı, izometrik ev/ahır/kümes/atölye/dükkân/mağara/zindan içi, kesit çatı/kamera/kalıcı nesne. Aday ölçüler: ekin/sandık 1×1, atölye 3×3, kümes 4×3, ev 5×4, ahır 6×4, sera 6×5; henüz onaylı model değil. Bölgesel otorite/AOI, oyuncu başına bağımsız streaming, lazy simülasyon, ortak maden, dört uzak oyuncu yeniden buluşması, snapshot/maliyet/reconnect testi. 20 kare sınırı salt sabitle büyütülmez; üretim göçü onaysız yapılmaz. |
+
+**Domain / kullanıcı bildirimi:** Spaceship üzerinden `roamcroft.com` alındı,
+29 Ekim 2027 yenileme/otomatik yenileme açık; Cloudflare Free aktif zone ve
+mevcut Worker custom domain. DNS/Google doğrulama TXT'sine dokunulmaz.
+`www` 301 → root ve root HTTP200/1.13.1 bu oturumda doğrulandı; eski Worker
+HTTP200/1.13.1 açık tutulur. İlk yerel DNS hatası sonraki kontrolde düzeldi.
+GitHub About adresi kullanıcı tarafından güncellendi; tekrar değiştirilmez.
+
+**Search Console / kullanıcı bildirimi:** Domain mülk sahipliği doğrulandı;
+29 Ekim 15:35 canlı URL kullanılabilir/dizine eklenebilir, indeksleme isteği
+kabul edildi. Gerçek indeks/sıralama **DOĞRULAMA EKSİK**. Yeniden mülk/istek
+açılmaz; sitemap yayımlandıktan sonra gönderim gerekir.
+
+Sentry Allowed Domains `*` ve GitHub bağlantısı kullanıcıca doğrulandı; yeni
+proje/izin gerekmez. Olası paylaşılmış tokenın türü/yetkisi bu oturumda
+bilinmiyor; sır tekrar kaydedilmez, körlemesine rotasyon yapılmaz. BrowserStack
+fiziksel kabul erişimi henüz yok; CodeScene domainle değişmez. İkinci Sentry
+worktree'si korunur. Audit 25 tarihsel açık; bu paket bağımlılık düzeltmez.
+
+Performans kapısı: 60 FPS masaüstü / 30+ FPS Android hedeftir; ölçülmüş
+başarı değildir. LCP/INP/CLS/Lighthouse, fiziksel FPS/%1 low/p95–p99/draw call/
+triangle/bellek/chunk/CPU–GPU/ısı/pil ve ağ RTT/jitter/snapshot ayrı raporlanır.
+Ücretli işlem, DNS/eski-origin yönlendirmesi, riskli protokol/şema göçü,
+worktree silme, history rewrite ve üretim verisi değişikliği ayrıca onay ister.
+
 ### 1.13.2 acil Android geri bildirimi — güncel iş
 
 **Kullanıcı fiziksel Android testi / 1.13.1:** hareket, balta/saldırı ayrımı ve
@@ -52,7 +91,7 @@ Durum sözlüğü:
 Kullanıcının 30 Ekim çalışma listesi ve ana devam talimatı karşılaştırıldı.
 Gerçek Android 1.13.0 geri bildirimi, eski masaüstü viewport başarısından
 önceliklidir. Main `03d7d00`, GitHub CI 40793820458 başarılı; 1.13.0 yayımlandı.
-Bu oturum yalnız `codex/mobile-recovery-1-13-1` dalında; main/deploy izni yok.
+Bu paragraf 1.13.1 hazırlığının tarihsel kaydıdır; sonraki onaylı yayın main `a182541` ile tamamlandı. Yeni paketler için yayın yetkisi yok.
 
 | Öncelik | Durum / iş | Bağımlılık ve kabul |
 | --- | --- | --- |
@@ -68,7 +107,7 @@ Tamamlanmış sınırlı paket, tüm 2.0 alanlarının tamamlanması anlamına g
 Gerçek Android/iPhone/PWA, düşük FPS, ısınma/pil/bellek, OS geri hareketi,
 klavye, çentik ve gerçek WAN kanıtı ayrı kalır. Canlı veriye test yazılmaz.
 
-Güncel sıra: **1.13.1 Mobile Recovery** → ayrı karşılama/sanat örneği → mobil
+Güncel sıra: **1.13.2 hotfix** → domain/SEO/marka → karşılama/çanta sanatı → mobil
 kabul sonrası gerçek hotbar ve oyuncu/ekonomi deneyi. Önceki sürüm sırası:
 **1.13.0 Gameplay Foundation** (ilk 30 dakika, ekonomi
 karşılaştırması, araç hissi/yönlendirme) → **1.14.0 Inventory & Hotbar 2.0**
@@ -83,7 +122,7 @@ verdi; birleşim sonrası bütün kontroller başarılı olmadan push yapılmaz.
 | P0 / 0 | Güvenli GitHub yedeği | **TAMAMLANDI:** `codex/roamcroft-2-ui`, i18n checkpoint `38b4f9315c902ac2415d1aadbddb0e99fc95d3ac`. Typecheck, 193 test, build ve yerel runtime geçti. Main değişmedi. |
 | P0 / 1 | UI 2.0 temeli | **TAMAMLANDI (sınırlı paket):** Gruplu menüler, küçük ekran düzeni, sade HUD, ikon yuvalı çanta, seçili eşya ayrıntısı, seçim/kopyalama kuralları, İngilizce ilk açılış. [1.12.0 doğrulaması](verification-ui-1.12.0.md). Fiziksel cihaz ve aşağıdaki diğer 2.0 hedefleri ayrıca eksiktir. |
 | P0 / 2 | 1.13.0 Gameplay Foundation | **TAMAMLANDI (sınırlı paket):** İsteğe bağlı İlk Adımlar, araç/eylem geri bildirimi ve üç seed'de iki profil deneyi. 205 test/typecheck/build/runtime geçti; main `03d7d00`, yayın tamamlandı. Gerçek oyuncu ölçümü ve onaylı ekonomi değişikliği **EKSİK**. |
-| P0 / şimdi | 1.13.1 Mobile Recovery | **TAMAMLANDI (yerel sınırlı uygulama):** Özel bölüm menüsü, güvenli dokunma alanları/tercih, ikon kırpması ve seç/onayla depo. [Doğrulama](verification-mobile-1.13.1.md). Fiziksel cihaz kabulü **EKSİK**, main/yayın bu oturumda yetkisiz. |
+| P0 / şimdi | 1.13.1 Mobile Recovery | **TAMAMLANDI / YAYINLANDI:** main `a182541`; [doğrulama](verification-mobile-1.13.1.md). Fiziksel hareket/balta/pinch geçti; X başarısız ve depo denenmedi. Düzeltme ayrı 1.13.2 paketidir. |
 | P1 / 3 | 1.14.0 Gerçek envanter/hotbar | **PLANLANDI:** [Veri sözleşmesi/göç/test matrisi](inventory-hotbar-1.14-design.md) taslak; kabul sonrası uygulanır. Görsel çanta yuvaları bu mekanik sayılmaz. |
 | P1 / 4 | Üretim, köy, keşif ve savaş derinliği | **PLANLANDI:** Ekonomi baz çizgisi ve oyuncu denemeleriyle küçük dikey paketler; salt içerik kotası yok. |
 | P1 / 5 | Online erişim ve kurtarma | **PLANLANDI:** Davet UX'i → isteğe bağlı hesap/kurtarma → kalıcı ortak çiftlik UX'i. Otoriteyi koruyan protokol göçleri ayrı yapılır. |
@@ -387,10 +426,7 @@ olarak sunulmaz; dağıtım yapılırsa yayımlanan SHA ayrıca eşlenir.
 - **GÜNCEL DENETİM:** 29 Ekim `npm ci`/`npm audit --json`: **25 paket bulgusu**,
   3 kritik / 10 yüksek / 11 orta / 1 düşük. Tarihsel 23 sonuç korunur, giderilmiş
   sayılmaz. Toplu güncelleme yok; araç zinciri/canlı erişilebilirlik ayrı kontrollü iş.
-- Domain satın alınmadı (kullanıcı bildirimi). Güncel adres
-  `https://roamcroft.roamcroft.workers.dev/`. Domain/DNS/origin taşıma bu işin
-  kapsamında değil. Gelecek taşımada IndexedDB ve güvenli oturum otomatik
-  taşınmaz; yerel dışa aktarma ve hesap/kurtarma ayrı çıkış koşuludur.
+- Domain artık satın alındı: resmî `https://roamcroft.com`; eski Worker erişimi açık kalır. Güncel durum ve origin kuralları bu belgenin başındadır.
 
 Sonraki sıra: ilk 30 dakika/başlangıç ekonomisi → gerçek hotbar/araç → toplama,
 üretim ve darbe hissi → yaşayan köy → savaş/keşif → Online 2.0. Modülerleştirme,

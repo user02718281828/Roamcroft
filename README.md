@@ -11,8 +11,15 @@ design sources to copy.
 **Source version: 1.13.2 — mobile menu hotfix (development branch, not deployed).**
 Live 1.13.1 remains on main `a182541`. The hotfix requires separate approval
 and physical Android verification.
-[Live game](https://roamcroft.roamcroft.workers.dev) is deployed separately;
+[Live game](https://roamcroft.com) is deployed separately;
 the source branch and its screenshots do not prove that the live build has updated.
+
+The candidate also prepares the official domain, brand icons and a bilingual
+[field guide](https://roamcroft.com/how-to-play) (available after release).
+Your existing device save and server session stay on the address where you
+created them. The [previous address](https://roamcroft.roamcroft.workers.dev)
+remains available. Export a device save before importing it on the new address;
+server ownership is not transferred by a local JSON file.
 
 ![1.13.1 mobile pack, real local browser viewport capture; not a physical phone](docs/screenshots/mobile-1.13.1-pack.jpg)
 
