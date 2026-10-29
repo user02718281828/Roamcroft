@@ -7,6 +7,8 @@ import AudioSettings from './AudioSettings';
 import LanguageSettings from './LanguageSettings';
 import FirstSteps, { GuidanceSetting } from './FirstSteps';
 import CampNavigation from './CampNavigation';
+import TouchSettings from './TouchSettings';
+import {usePanelHistory} from '@/lib/ui/panel-history';
 import InventoryPanel from './InventoryPanel';
 import { GAME_VERSION } from '@/lib/version';
 import type { Panel } from '@/lib/ui/game-menu';
@@ -157,6 +159,7 @@ export default function Panels({
     [confirm, setConfirm] = useState<'reset' | 'demolish' | null>(null),
     [quantity, setQuantity] = useState(1),
     file = useRef<HTMLInputElement>(null);
+  usePanelHistory(!!panel, () => setPanel(null));
   const titles: Record<NonNullable<Panel>, [string, string]> = {
     online: [sourceText("m_d9c859e464"), sourceText("m_7ad162b3bb")],
     bundles: [
@@ -193,17 +196,11 @@ export default function Panels({
       >
         <SheetContent className="game-panel camp-panel" data-panel={panel} translate="no" showCloseButton>
           <SheetHeader className="panel-header">
-            <label className="mobile-panel-picker">
-              <span>{translate("m_43decee4ab")}</span>
-              <select aria-label={translate("m_fd6ed6ce71")} value={panel||'inventory'} onChange={event=>setPanel(event.target.value as Panel)}>
-                {Object.entries(titles).filter(([id])=>(id!=='online'||engine.network?.server)&&(id!=='building'||!!b)).map(([id,[title]])=><option key={id} value={id}>{localize(title)}</option>)}
-              </select>
-            </label>
             <span className="eyebrow">Roamcroft</span>
             <SheetTitle>{localize(panel ? titles[panel][0] : '')}</SheetTitle>
             <SheetDescription>{localize(panel ? titles[panel][1] : '')}</SheetDescription>
           </SheetHeader>
-          <CampNavigation panel={panel} server={!!engine.network?.server} titles={titles} onSelect={setPanel}/>
+          <CampNavigation panel={panel} server={!!engine.network?.server} building={!!b} titles={titles} onSelect={setPanel}/>
           <div className="panel-pause">
             <Clock size={13} /> {localize(engine.network?.shared?sourceText("m_d859c09bdd"):coop?.active ? sourceText("m_d90f1633ed") : sourceText("m_49730237c2"))} <span className="keyboard-hint">{translate("m_e6d1a69097")}</span>
           </div>
@@ -1170,6 +1167,7 @@ export default function Panels({
             {panel === 'settings' && (
               <>
                 <div className="settings-section"><LanguageSettings /></div>
+                <TouchSettings/>
                 <div className="settings-section"><GuidanceSetting/><button type="button" className="secondary-button" onClick={() => setPanel('guide')}>{translate('steps.title')}</button></div>
                 {engine.network?.server&&<button className="primary-button" onClick={()=>setPanel('online')}>{translate("m_77d4059a4f")}</button>}
                 <div className="settings-section">

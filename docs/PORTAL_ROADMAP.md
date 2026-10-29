@@ -4,6 +4,59 @@ Uzun vadeli ana iş sırası ve durumlar: [Roamcroft 2.0 Master Plan](ROAMCROFT_
 Bu belge portal yayın kapılarını ayrıntılandırır. Yeni kullanıcı talimatıyla
 ilk açılış İngilizce olacaktır; yalnız açıkça saklanmış TR/EN tercihi önceliklidir.
 
+## Mobile Recovery sonrası yayın kararları — güncel öncelik P3
+
+Durum **PLANLANDI**; SDK, başvuru, domain veya Android paketleme bu oturumda
+uygulanmaz. 1.13.0 yayımlandı; gerçek Android geri bildirimi mobil P0 kabulünü
+yeniden açtı. Masaüstü viewport başarısı fiziksel cihaz kanıtı değildir.
+[Mobil doğrulama](verification-mobile-1.13.1.md) ve [sanat rehberi](ART_DIRECTION_2_0.md)
+sonraki paket kapılarıdır. Güvenlik güncel **25: 3 kritik/11 yüksek/10 orta/1 düşük**;
+[yeniden denetim](security-mobile-recovery-audit.md). Aşağıdaki eski sayılar arşivdir.
+
+- **Tek çekirdek:** Three.js/React/oyun kuralları/TR-EN/kayıt/Cloudflare backend
+  ortak; platforma göre ayrı build ve adaptör olabilir, altı ayrı oyun yazılmaz.
+- **Münhasırlık istenmiyor:** sahiplik ve geliştirme kontrolü korunur. Hedefler
+  CrazyGames, itch.io, Playgama, GameDistribution, GamePix; Poki yalnız uygun
+  münhasır olmayan nihai anlaşmayla. Liste kabul/uygunluk iddiası değildir.
+- **Adaptör sözleşmesi:** initialize/loading/gameplay start-stop, ses/girdi ve
+  reklam yaşam döngüsü, tek sefer rewarded doğrulaması, platform hesabı/dil,
+  kayıt bağlantısı, davet, dış bağlantı ve sohbet politikası. SDK yok/hata/iptal
+  durumunda oyun ve kayıt korunur; online oda reklam nedeniyle durdurulmaz.
+- **Domain:** roamcroft.com kullanıcı bildirimine göre alınmadı; uygunluk/fiyat/
+  yenileme ve Cloudflare/Spaceship karşılaştırması satın alma aşamasında. IndexedDB ve __Host oturumu yeni
+  origin'e otomatik taşınmaz. Export/kurtarma ve sunucu sahipliği ayrı kabul.
+- **Güvenlik:** iframe/CSP/CORS/WS Origin/üçüncü taraf çerez ve Cloud Save
+  tasarımı hedef bazlıdır; mevcut korumalar önceden gevşetilmez. Çift ödül,
+  ekonomik çoğaltma veya eski hesabın kaybı olmadan test ortamı kanıtı gerekir.
+- **Sözleşme kapısı:** seçilen platformun güncel resmî teknik ve ticari metni,
+  lisans/alt lisans, münhasırlık, kaldırma, net gelir/ödeme eşiği, vergi ve
+  Türkiye'ye ödeme doğrulanır. Bu oturum hukuki uygunluk araştırması yapmadı.
+- **Android:** önce fiziksel Chrome/PWA oynanabilirlik; sonra TWA/Bubblewrap ve
+  gerekirse Capacitor karşılaştırması → imzalı test APK → AAB/Google Play.
+  Console test gereklilikleri, veri güvenliği/yaş/gizlilik/ödeme/hedef API resmî
+  politikaları o tarihte doğrulanır. Gelecek Steam/PC ayrı değerlendirmedir.
+- **Kazanım/gelir:** önce eğlence ve ilk 30 dakika, geri dönüş, çok platform;
+  sonra doğal aralarda midroll ve isteğe bağlı rewarded. Ham kayıt, kimlik,
+  çerez, davet ve oyuncu metni analitiğe gönderilmez. Güncel gerçek ekranlar,
+  TR/EN mağaza/sosyal görsel/fragman, topluluk ve ölçülü rollout ayrıca gerekir.
+
+Kabul: mobil P0 + güvenlik kapısı, eski kayıt/origin kurtarma, gerçek WAN/dört
+cihaz, hedef iframe/WebGL context recovery, SDK/reklam hata/çift ödül testi,
+nihai sözleşme ve kullanıcının yayın onayı. Başvuruların planlaması teknik
+işlerle paralel yürüyebilir; bugün portal/domain/mağaza dağıtımı yoktur.
+
+| Hedef | PLANLANDI / P3: uygulama öncesi özel kabul |
+| --- | --- |
+| CrazyGames | Münhasır olmayan Basic/Full seçenekleri ve güncel SDK; loading/gameplay/reklam durumu, iframe/WS izni, kayıt ve mobil test. |
+| itch.io | HTML5 ZIP istemcisi + aynı bağımsız Cloudflare backend; origin/CORS/WS/iframe/çerez ve sürüm uyumu; yayın paketinin içinde sır yok. |
+| Playgama | Bridge adaptörü ve partner kanal seçimi; diğer distribütörlerle kanal/gelir çakışmasını çöz; seçilen kanalda gerçek SDK hata testi. |
+| GameDistribution / GamePix | Her biri için SDK/sözleşme ve yeniden dağıtım kapsamı; aynı hedefe çift dağıtım, ödeme ve kaldırma koşullarını karşılaştır. |
+| Poki | Yalnız münhasır olmayan uygun nihai teklif; dış backend/sohbet/Sentry ve veri izinleri doğrulanır; uygun değilse entegrasyon yapılmaz. |
+| Android / gelecek PC | Önce PWA yaşam döngüsü; TWA/Bubblewrap/Capacitor kararı ve imzalı indirilebilir test APK/AAB; Google Play kuralları ayrı. Steam/PC için girdi, paketleme, lisans ve ödeme değerlendirmesi. |
+
+Bu tabloda ticari/teknik seçenekler araştırılacak hedeflerdir; platformların
+bugün bu koşulları kabul ettiği veya entegrasyonun onaylandığı iddia edilmez.
+
 Bu plan 28 Ekim 2026 tarihindeki 1.11.5 tabanını esas alır. Oyun kuralları,
 kayıt sürümü ve ortak oyun otoritesi korunur. Her aşamanın çıkış koşulu
 sağlanmadan ona bağlı yayın aşamasına geçilmez. Commit, push, canlı dağıtım ve

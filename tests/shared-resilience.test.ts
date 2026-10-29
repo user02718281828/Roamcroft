@@ -16,6 +16,7 @@ void test('four clients survive 300 ms RTT, deterministic 20% packet loss, mid-a
     loss = false,
     inflight = 0;
   const stats = { pulses: 0, lostBeforeCommit: 0, lostAfterCommit: 0 };
+  let pulseGate: Promise<void> | null = null, resumePulses = () => {};
   const row = () => {
     const r = sqlite
       .prepare('SELECT owner,world,revision FROM shared_farms')
@@ -38,6 +39,7 @@ void test('four clients survive 300 ms RTT, deterministic 20% packet loss, mid-a
       const path = input as string,
         body = JSON.parse(options!.body as string),
         isPulse = path === '/api/shared' && body.op === 'pulse';
+      if (isPulse && pulseGate) await pulseGate;
       const ordinal = isPulse && loss ? ++stats.pulses : 0;
       const drop =
         dropNext && isPulse
@@ -218,10 +220,19 @@ void test('four clients survive 300 ms RTT, deterministic 20% packet loss, mid-a
     assert.ok(host.client.send('trade', ['wood', 1, false]));
     await assert.rejects(host.client.flush(), /Packet lost/);
     host.client.dispose();
+    // Hold NEW mock requests so the existing guest requests can finish. Polling
+    // otherwise keeps restarting while idle() tries to observe a stable zero.
+    pulseGate = new Promise<void>(resolve => { resumePulses = resolve; });
     await host.idle();
+    // Guests keep polling. Drain requests begun before the host grace expires
+    // before taking the freeze baseline; otherwise a valid in-flight pulse can
+    // commit between this snapshot and the simulated clock jump below.
+    await idle();
     const crashSave = row();
     assert.equal(crashSave.record.world.state.gold, gold + 26 * price);
     offset += 16_000;
+    pulseGate = null;
+    resumePulses();
     await assert.rejects(guest.client.flush(), /Ev sahibinin bağlantısı/);
     assert.equal(
       row().world,
@@ -265,6 +276,9 @@ void test('four clients survive 300 ms RTT, deterministic 20% packet loss, mid-a
       'Guest teardown/reconnect and host crash without a leave request preserved committed inventory and currency; 15-second freeze and 5-minute close exercised using the server test clock.',
     );
   } finally {
+    pulseGate = null;
+    resumePulses();
+    await wait(0); // Let held fetchers enter the tracked in-flight section.
     for (const p of players) p.client.dispose();
     await idle();
     sqlite.close();

@@ -2275,6 +2275,9 @@ p {
   opacity: 0.7;
 }
 .game-icon {
+  flex-grow: 0;
+  flex-shrink: 0;
+  aspect-ratio: 1;
   width: 1.35em;
   height: 1.35em;
   display: inline-block;
@@ -2388,8 +2391,6 @@ p {
   flex: 0 0 auto;
   width: 1.7rem;
   height: 1.7rem;
-  background-size: 400% 400%;
-  background-repeat: no-repeat;
   filter: none;
   vertical-align: middle;
 }

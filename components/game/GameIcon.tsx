@@ -1,126 +1,15 @@
 import { CircleHelp } from 'lucide-react';
 import OrchardIcon from './OrchardIcon';
-import type { CSSProperties } from 'react';
-const sheets = [
-  [
-    'axe',
-    'pickaxe',
-    'hoe',
-    'water',
-    'sword',
-    'rod',
-    'wood',
-    'stone',
-    'copper',
-    'bar',
-    'crystal',
-    'coal',
-    'wheat',
-    'carrot',
-    'tomato',
-    'pumpkin',
-  ],
-  [
-    'chicken',
-    'cow',
-    'sheep',
-    'egg',
-    'milk',
-    'wool',
-    'cheese',
-    'honey',
-    'seed',
-    'feed',
-    'bread',
-    'soup',
-    'home',
-    'barn',
-    'mill',
-    'gold',
-  ],
-  [
-    'fiber',
-    'iron',
-    'plank',
-    'brick',
-    'copperbar',
-    'rope',
-    'corn',
-    'potato',
-    'berry',
-    'mushroom',
-    'fish',
-    'flour',
-    'grilledfish',
-    'jam',
-    'bandage',
-    'fertilizer',
-  ],
-  [
-    'workshop',
-    'furnace',
-    'campfire',
-    'well',
-    'coop',
-    'apiary',
-    'dairy',
-    'kitchen',
-    'greenhouse',
-    'beacon',
-    'tower',
-    'fence',
-    'armor',
-    'bag',
-    'hand',
-    'heart',
-  ],
-];
-const aliases: Record<string, string> = {
-  chest:'bag',wall:'brick',
-  sprinkler: 'water',
-  harvest: 'wheat',
-  forage: 'wood',
-  artisan: 'workshop',
-  build: 'workshop',
-  defender: 'armor',
-  vigor: 'heart',
-  angler: 'rod',
-  animal: 'chicken',
-  market: 'gold',
-  day: 'beacon',
-  feedmill: 'feed',
-  smokehouse: 'grilledfish',
-  loom: 'wool',
-};
-const art = new Map(
-  sheets.flatMap((ids, sheet) =>
-    ids.map((id, index) => [id, { sheet, index }] as const),
-  ),
-);
-export default function GameIcon({
-  id,
-  className = '',
-}: {
-  id: string;
-  className?: string;
-}) {
-  const base = id.replace(/[123]$/, '');
-  if(['apple','pear','applesapling','pearsapling','appletree','peartree','applejam','peartart'].includes(base))return <OrchardIcon id={base} className={className}/>;
-  const normalized = base.endsWith('seed') ? 'seed' : (aliases[base] ?? base);
-  const entry = art.get(normalized);
-  if (!entry)
-    return (
-      <CircleHelp className={`game-icon ${className}`} aria-hidden="true" />
-    );
-  const style: CSSProperties = {
-    backgroundImage: `url(/art/farm-icons-${entry.sheet + 1}.webp)`,
-    backgroundPosition: `${((entry.index % 4) * 100) / 3}% ${(Math.floor(entry.index / 4) * 100) / 3}%`,
-  };
-  return (
-    <span
-      className={`game-icon game-icon-art ${className}`}
-      style={style}
-      aria-hidden="true"
-    />
-  );
+import {itemArt, ORCHARD_ART} from '@/lib/ui/item-art';
+export default function GameIcon({id,className=''}:{id:string;className?:string}) {
+  const base=id.replace(/[123]$/, '');
+  if(ORCHARD_ART.includes(base))return <OrchardIcon id={base} className={className}/>;
+  const entry=itemArt(id);
+  if(!entry)return <CircleHelp className={`game-icon ${className}`} aria-hidden="true"/>;
+  return <svg className={`game-icon game-icon-art ${className}`} aria-hidden="true" focusable="false"
+    viewBox={`0 0 ${entry.width} ${entry.height}`} preserveAspectRatio="xMidYMid meet" overflow="hidden">
+    <svg width={entry.width} height={entry.height} viewBox={`${entry.x} ${entry.y} ${entry.width} ${entry.height}`} overflow="hidden">
+      <image href={`/art/farm-icons-${entry.sheet}.webp`} width="768" height="768"/>
+    </svg>
+  </svg>;
 }

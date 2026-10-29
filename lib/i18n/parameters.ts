@@ -108,4 +108,10 @@ export type Parameters = {
   "tools.tillEnergy": { energy: MessageValue };
   "tools.power": { power: MessageValue };
   "tools.damage": { damage: MessageValue };
+  "touch.useTool": { name: MessageValue };
+  "storage.counts": { bag: MessageValue; stored: MessageValue };
+  "storage.store": { count: MessageValue };
+  "storage.take": { count: MessageValue };
+  "storage.storeConfirm": { count: MessageValue; name: MessageValue };
+  "storage.takeConfirm": { count: MessageValue; name: MessageValue };
 };

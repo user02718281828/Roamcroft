@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { Backpack } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Backpack, ChevronDown } from 'lucide-react';
 import type { Engine } from '@/lib/game/model';
 import { ITEMS } from '@/lib/game/data';
 import { inventoryUsed, inventoryCapacity } from '@/lib/game/progression';
@@ -11,6 +11,7 @@ import GameIcon from './GameIcon';
 
 export default function InventoryPanel({engine, onSeed, onBuild}: {engine: Engine; onSeed: (id: string) => void; onBuild: (id: string) => void}) {
   const locale = useLocale();
+  const [detailsOpen,setDetailsOpen]=useState(false), detailToggle=useRef<HTMLButtonElement>(null);
   const [filter, setFilter] = useState<BagFilter>('all'), [sort, setSort] = useState<BagSort>('name'), [selected, setSelected] = useState<string | null>(null);
   const entries = inventoryView(engine.s.inventory, filter, sort, locale);
   const entry = entries.find(item => item.id === selected) || entries[0];
@@ -45,13 +46,17 @@ export default function InventoryPanel({engine, onSeed, onBuild}: {engine: Engin
         <ul className="pack-slots" aria-label={translate('bag.contents')}>
           {entries.map(value => <li key={value.id}><button type="button" className="pack-slot" aria-pressed={entry?.id === value.id}
             aria-label={translate('bag.slot', {name: value.name, count: number.format(value.count)})} title={value.name}
-            onClick={() => setSelected(value.id)}>
+            onClick={() => {setSelected(value.id);setDetailsOpen(true);if(window.matchMedia('(max-width:600px), (pointer:coarse), (max-height:500px) and (max-width:1100px)').matches)detailToggle.current?.focus();}}>
             <GameIcon id={value.id}/><span className="pack-count" aria-hidden="true">{number.format(value.count)}</span>
           </button></li>)}
           {Array.from({length: Math.max(0, 24 - entries.length)}, (_, index) => <li className="pack-slot pack-slot-empty" key={'empty-' + index} aria-hidden="true"/>)}
         </ul>
       </div>
-      <aside className="pack-details" aria-label={translate('bag.selected')}>
+      <aside className="pack-details" data-open={detailsOpen} aria-label={translate('bag.selected')}>
+        <button ref={detailToggle} type="button" className="pack-detail-toggle" aria-expanded={detailsOpen} aria-controls="pack-detail-body" onClick={()=>setDetailsOpen(!detailsOpen)}>
+          {entry&&<GameIcon id={entry.id}/>}<span>{entry?.name||translate('bag.pick')}<small>{translate('bag.selected')}</small></span><ChevronDown aria-hidden="true"/>
+        </button>
+        <div id="pack-detail-body" className="pack-detail-body">
         {entry ? <>
           <GameIcon id={entry.id}/><h3>{entry.name}</h3>
           <p>{translate('bag.count', {count: number.format(entry.count)})} · {item ? localize(item.category) : translate('bag.legacy')}</p>
@@ -65,6 +70,7 @@ export default function InventoryPanel({engine, onSeed, onBuild}: {engine: Engin
             {action.kind !== 'none' ? <button type="button" className="primary-button" onClick={runAction}>{translate(actionLabel)}</button> : <p>{translate('bag.noAction')}</p>}
           </> : <p>{translate('bag.legacyHelp')}</p>}
         </> : <><Backpack/><h3>{translate('bag.pick')}</h3><p>{translate('bag.pickHelp')}</p></>}
+        </div>
       </aside>
     </div>
   </section>;

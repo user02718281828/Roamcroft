@@ -8,11 +8,15 @@ design sources to copy.
 
 [Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Source version: 1.13.0 — Gameplay Foundation.** Release was approved on
-29 October 2026, subject to successful verification. This is a limited
-foundation package, not a completed Roamcroft 2.0 release.
+**Source version: 1.13.1 — Mobile Recovery (development branch, not deployed).**
+Live 1.13.0 was released from `03d7d00`. This mobile fix package still needs
+physical-device acceptance and separate production approval.
 [Live game](https://roamcroft.roamcroft.workers.dev) is deployed separately;
 the source branch and its screenshots do not prove that the live build has updated.
+
+![1.13.1 mobile pack, real local browser viewport capture; not a physical phone](docs/screenshots/mobile-1.13.1-pack.jpg)
+
+The following guide capture is from 1.13.0, before Mobile Recovery.
 
 ![Roamcroft 1.13.0 optional First steps guide, captured locally](docs/screenshots/gameplay-1.13.0-desktop.jpg)
 
@@ -53,10 +57,14 @@ These are real local browser captures of the labeled versions. Older files in
 - Surface raids, five enemy types and a five-floor mine with lift checkpoints and a boss.
 - A deterministic streaming world: 25 active chunks / 3,600 tiles, with saved edits.
 - Warm grouped camp navigation, icon slots and selected-item details in the pack,
-  a compact HUD and mobile section picker.
+  a compact HUD and accessible in-game mobile section navigation.
 - Optional First steps: seven earned-progress checkpoints, tool selection and
   menu shortcuts; no new rewards or unlock gates. Hide its HUD button and reopen
   the guide in Settings. Tool notes explain current energy and upgrade benefits.
+- Mobile Recovery: inset joystick with device-only side/size/sensitivity settings,
+  separate use/attack targets, input cancellation on menus/background, corrected
+  atlas icon clipping, expandable pack details and confirmed storage transfers.
+  See [verification and physical-device checklist](docs/verification-mobile-1.13.1.md).
 
 Starting stock, prices, quest rewards and old saves are unchanged in 1.13.0.
 `npm run audit:first-session` compares the current start with an experiment-only
@@ -138,7 +146,9 @@ does not restore a lost browser cookie or player save.
 · [Portal roadmap](docs/PORTAL_ROADMAP.md) · [Contributor rules](AGENTS.md)
 
 The historical audit had **23 open package findings**. The 29 October install
-and audit report **25** (3 critical, 10 high, 11 moderate, 1 low), tracked in
+and audit reported **25** (3 critical, 10 high, 11 moderate, 1 low). The fresh
+Mobile Recovery audit still reports **25**, now **3 critical, 11 high, 10 moderate,
+1 low**, tracked in [the updated audit](docs/security-mobile-recovery-audit.md),
 the master plan and portal roadmap. Toolchain
 exposure and live Worker exposure require different analysis. This UI package
 preserves the existing Sentry dependency and does not upgrade dependencies or

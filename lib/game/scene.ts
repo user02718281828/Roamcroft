@@ -47,6 +47,12 @@ export class ValleyScene {
   budget = new FrameBudget();
   drag = new PointerDrag();
   pinch = new PinchGesture();
+  inputEnabled = true;
+  cancelInput() {
+    const ids=[...this.pinch.points.keys(),...(this.drag.active?[this.drag.active.id]:[])];
+    this.drag.cancel();this.pinch.reset();
+    for(const id of ids)if(this.canvas.hasPointerCapture(id))this.canvas.releasePointerCapture(id);
+  }
   arrivalPending = false;
   placementRotation = 0;
   placementCorner = false;
@@ -259,12 +265,14 @@ export class ValleyScene {
     this.resizeObserver.observe(container);
     this.resize(container);
     const down = (e: PointerEvent) => {
+      if(!this.inputEnabled)return;
       if(e.pointerType==='touch'&&this.pinch.begin(e.pointerId,e.clientX,e.clientY,this.zoom)){this.drag.cancel();this.canvas.setPointerCapture(e.pointerId);return;}
       if (!this.drag.begin(e.pointerId,e.clientX,e.clientY,e.button)) return;
       this.canvas.focus({preventScroll:true});
       this.canvas.setPointerCapture(e.pointerId);
     };
     const move = (e: PointerEvent) => {
+      if(!this.inputEnabled)return;
       if(e.pointerType==='touch'){const zoom=this.pinch.move(e.pointerId,e.clientX,e.clientY);if(zoom!==null){this.zoom=zoom;this.resize(container);}if(this.pinch.suppress){e.preventDefault();return;}}
       const delta=this.drag.move(e.pointerId,e.clientX,e.clientY,e.buttons);
       if (delta) {
@@ -279,6 +287,7 @@ export class ValleyScene {
       if(p) {this.hoverTile=p;this.onHover(p.x,p.z);} else this.hoverTile=null;
     };
     const up=(e:PointerEvent)=>{
+      if(!this.inputEnabled){this.cancelInput();return;}
       const suppressed=e.pointerType==='touch'&&this.pinch.end(e.pointerId);
       if(!suppressed && this.drag.end(e.pointerId)) {
         const p=this.pick(e.clientX,e.clientY);
@@ -286,11 +295,16 @@ export class ValleyScene {
       }
       if(this.canvas.hasPointerCapture(e.pointerId)) this.canvas.releasePointerCapture(e.pointerId);
     };
-    const cancel=(event?:Event)=>{this.drag.cancel();if(!event||event.type==='blur')this.pinch.reset();else if(event.type==='pointercancel')this.pinch.end((event as PointerEvent).pointerId);};
+    const cancel=(event?:Event)=>{if(!event||['blur','visibilitychange','resize'].includes(event.type)){this.cancelInput();return;}this.drag.cancel();if(['pointercancel','lostpointercapture'].includes(event.type))this.pinch.end((event as PointerEvent).pointerId);};
     window.addEventListener('blur',cancel);
+    window.addEventListener('resize',cancel);
+    document.addEventListener('visibilitychange',cancel);
     this.disposeHandlers.push(()=>window.removeEventListener('blur',cancel));
+    this.disposeHandlers.push(()=>window.removeEventListener('resize',cancel));
+    this.disposeHandlers.push(()=>document.removeEventListener('visibilitychange',cancel));
     const wheel = (e: WheelEvent) => {
       e.preventDefault();
+      if(!this.inputEnabled)return;
       this.zoom = T.MathUtils.clamp(this.zoom + e.deltaY * 0.01, 7, 22);
       this.resize(container);
     };

@@ -18,6 +18,10 @@ import { useGuidance } from '@/lib/ui/guidance';
 import './foundation.css';
 import MainMenu from './MainMenu';
 import Joystick from './Joystick';
+import TouchAction from './TouchAction';
+import {useTouchPreferences} from '@/lib/ui/touch-preferences';
+import {nearbyToolTile} from '@/lib/ui/touch-target';
+import './mobile-recovery.css';
 import {ServerWorldClient} from '@/lib/server/client';
 import {preparePwa} from '@/lib/game/pwa';
 import {enterGameFullscreen,MOBILE_QUERY} from '@/lib/game/viewport';
@@ -97,6 +101,7 @@ import { registerGameTools } from '@/lib/game/webmcp';
 export default function Game({autoStart=false,serverMode=false,onExit}:{autoStart?:boolean;serverMode?:boolean;onExit?:()=>void}={}) {
   useLocale();
   const [guidanceEnabled] = useGuidance();
+  const touch=useTouchPreferences();
   const renderStarted=frameProfile.begin();
   useEffect(()=>{frameProfile.mount();return()=>frameProfile.dispose();},[]);
   const exitPending=useRef(false);
@@ -176,15 +181,22 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     panel,
     sound,
   };
+  const inputBlocked=control.current.paused||!!panel;
+  if(scene.current)scene.current.inputEnabled=!inputBlocked;
   if (engine.current) {engine.current.placementRotation = rotation; engine.current.placementCorner = corner;}
   if (scene.current) {scene.current.placementRotation = rotation; scene.current.placementCorner = corner;}
-  const interact=()=>{
-    const e=engine.current;if(!e||control.current.paused)return;
+  const interact=(useSelectedTool=false)=>{
+    const e=engine.current;if(!e||control.current.paused||control.current.panel)return;
     const p=e.s.player;
     if(['build','seed','hoe','water','fertilize'].includes(control.current.tool)){
       const x=Math.round(p.x+Math.sin(p.facing)),z=Math.round(p.z+Math.cos(p.facing));
       if(control.current.tool==='build')e.build(control.current.selection,x,z,e.placementRotation,e.placementCorner);
       else e.act(x,z,control.current.tool,control.current.selection);
+      return;
+    }
+    if(useSelectedTool&&['axe','pickaxe','fish'].includes(control.current.tool)){
+      const target=nearbyToolTile(e.s,control.current.tool);
+      if(target)e.act(target.x,target.z,control.current.tool);else e.emit(sourceText('m_6455e5a37b'));
       return;
     }
     const person=!e.s.mine&&NPCS.find(n=>{const position=e.npcMotion.get(n.id)||n;return Math.hypot(position.x-p.x,position.z-p.z)<2.2;});
@@ -584,8 +596,8 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     };
   }, [epoch, storageReady]);
   useEffect(() => {
-    if (panel || paused) keys.current.clear();
-  }, [panel, paused]);
+    if (inputBlocked) {keys.current.clear();joystick.current={x:0,y:0};scene.current?.cancelInput();}
+  }, [inputBlocked]);
   const s = engine.current?.s,
     t = hover && s ? tileAt(s, hover.x, hover.z) : undefined,
     b = hover && s ? buildingAt(s, hover.x, hover.z) : undefined;
@@ -650,7 +662,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
         : TOOLS.find((t) => t.id === tool)?.name;
   frameProfile.end('reactFunctionCpu',renderStarted);
   return (
-    <main translate="no" className={`game-shell ${compactHud ? 'hud-collapsed' : ''} ${panel ? 'has-panel' : ''}`}>
+    <main translate="no" data-touch-hand={touch.hand} data-touch-size={touch.size} className={`game-shell ${compactHud ? 'hud-collapsed' : ''} ${panel ? 'has-panel' : ''}`}>
       {serverMode&&<div className="server-status" role="status">{localize(authority.current?.status||sourceText("m_8ee7c652b8"))}{authority.current?.sleep&&<span> {translate("m_d6023f16fc")}{authority.current.sleep.ready.length}/{authority.current.sleep.ready.length+authority.current.sleep.waiting.length} {translate("m_5bfd1b5024")}</span>}</div>}
       <div ref={host} className="world" />
       <div className="world-vignette" />
@@ -1105,17 +1117,11 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
             </div>
           </footer>
           <div className="touch-controls">
-            <Joystick disabled={control.current.paused} onMove={vector=>{joystick.current=vector;}}/>
-            <button className="touch-interact" aria-label={localize(tool==='build'?sourceText("m_af7443454c"):sourceText("m_d55ed84703"))} disabled={control.current.paused} onClick={interact}><GameIcon id={tool==='build'?'build':'hand'}/></button>
-            <button
-              className="touch-attack"
-              aria-label={translate("m_ef89a5085b")}
-              onClick={() => {
-                if (!control.current.paused) engine.current?.attack();
-              }}
-            >
-              <Swords />
-            </button>
+            <Joystick disabled={inputBlocked} sensitivity={touch.sensitivity} onMove={vector=>{joystick.current=vector;}}/>
+            <div className="touch-actions">
+              <TouchAction className="touch-interact" label={tool==='build'?translate('m_af7443454c'):['hand','sword'].includes(tool)?translate('m_d55ed84703'):translate('touch.useTool',{name:localize(TOOLS.find(t=>t.id===tool)?.name||'')})} disabled={inputBlocked} onAction={()=>interact(true)}><GameIcon id={['hand','sword'].includes(tool)?'hand':tool==='fish'?'rod':tool}/></TouchAction>
+              <TouchAction className="touch-attack" label={translate('m_ef89a5085b')} disabled={inputBlocked} onAction={()=>{if(!control.current.paused&&!control.current.panel)engine.current?.attack();}}><Swords/></TouchAction>
+            </div>
           </div>
           {(engine.current?.resting || engine.current?.fishing) && (
             <div className="activity-banner glass">

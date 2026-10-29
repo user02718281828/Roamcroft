@@ -30,7 +30,30 @@ Durum sözlüğü:
 
 ## Öncelik sırası ve tamamlanma kapıları
 
-Güncel sürüm sırası: **1.13.0 Gameplay Foundation** (ilk 30 dakika, ekonomi
+### Mobile Recovery öncelik değişikliği — 29 Ekim 2026
+
+Kullanıcının 30 Ekim çalışma listesi ve ana devam talimatı karşılaştırıldı.
+Gerçek Android 1.13.0 geri bildirimi, eski masaüstü viewport başarısından
+önceliklidir. Main `03d7d00`, GitHub CI 40793820458 başarılı; 1.13.0 yayımlandı.
+Bu oturum yalnız `codex/mobile-recovery-1-13-1` dalında; main/deploy izni yok.
+
+| Öncelik | Durum / iş | Bağımlılık ve kabul |
+| --- | --- | --- |
+| P0 | **PLANLANDI:** Mobile Recovery 1.13.x; joystick/eylem ayrımı, oyun içi bölüm navigasyonu, ortak ikon kırpma/oran, yem miktarı araştırması, kompakt çanta/depo | Pointer iptal/çoklu dokunma, odak, TR/EN, eski kayıt/miktar/kapasite, dört oyunculu runtime ve fiziksel Android kontrol listesi. Fiziksel doğrulama yoksa ayrıca **EKSİK** kalır. |
+| P0 | **EKSİK:** erişilebilir kritik üretim açığı/veri kaybı; ayrı güvenlik grupları | Güncel audit ve gerçek Worker yolu ayrımı; her grup test/build/runtime. Kontrolsüz yükseltme yok. |
+| P1 | **PLANLANDI:** özgün sanat rehberi → tek karşılama/örnek envanter paketi → onay sonrası diğer menüler | [Sanat rehberi](ART_DIRECTION_2_0.md); özgün kaynak, okunabilirlik, mobil/masaüstü, tek logo ve devam/yeni/arkadaş/ayar akışı. |
+| P1 | **PLANLANDI:** mobil kararlılıktan sonra 1.14.0; gerçek oyuncuyla ilk 30 dakika/ödül/enerji/araç hissi | Mevcut hotbar sözleşmesi; güvenli göç, dört oyuncu ve sıfır kayıp/çoğaltma. Eski stoklar azaltılmaz. |
+| P2 | **PLANLANDI:** Living World & Online 2.0 | Aşağıdaki köy/keşif/savaş/hesap/ortak maden/bölgesel otorite kabul kapıları. |
+| P3 | **PLANLANDI:** uluslararası yayın, reklam, Android ve gelir | Tek çekirdek + platform adaptörleri; münhasırlık yok. Portal yol haritasındaki teknik/sözleşme kapıları. Planlama erken yapılabilir. |
+
+**BLOKE**: Gerekli dış erişim/onay/cihaz olmadan tamamlanamayan iş.
+Tamamlanmış sınırlı paket, tüm 2.0 alanlarının tamamlanması anlamına gelmez.
+Gerçek Android/iPhone/PWA, düşük FPS, ısınma/pil/bellek, OS geri hareketi,
+klavye, çentik ve gerçek WAN kanıtı ayrı kalır. Canlı veriye test yazılmaz.
+
+Güncel sıra: **1.13.1 Mobile Recovery** → ayrı karşılama/sanat örneği → mobil
+kabul sonrası gerçek hotbar ve oyuncu/ekonomi deneyi. Önceki sürüm sırası:
+**1.13.0 Gameplay Foundation** (ilk 30 dakika, ekonomi
 karşılaştırması, araç hissi/yönlendirme) → **1.14.0 Inventory & Hotbar 2.0**
 (gerçek eşya/ekipman/güvenli göç) → **Living World & Online 2.0** (köy,
 savaş/keşif, ortak maden, hesaplar, büyük ortak dünya). Son iki aşama uygulanmış
@@ -42,7 +65,8 @@ verdi; birleşim sonrası bütün kontroller başarılı olmadan push yapılmaz.
 | --- | --- | --- |
 | P0 / 0 | Güvenli GitHub yedeği | **TAMAMLANDI:** `codex/roamcroft-2-ui`, i18n checkpoint `38b4f9315c902ac2415d1aadbddb0e99fc95d3ac`. Typecheck, 193 test, build ve yerel runtime geçti. Main değişmedi. |
 | P0 / 1 | UI 2.0 temeli | **TAMAMLANDI (sınırlı paket):** Gruplu menüler, küçük ekran düzeni, sade HUD, ikon yuvalı çanta, seçili eşya ayrıntısı, seçim/kopyalama kuralları, İngilizce ilk açılış. [1.12.0 doğrulaması](verification-ui-1.12.0.md). Fiziksel cihaz ve aşağıdaki diğer 2.0 hedefleri ayrıca eksiktir. |
-| P0 / 2 | 1.13.0 Gameplay Foundation | **TAMAMLANDI (sınırlı paket):** İsteğe bağlı İlk Adımlar, araç/eylem geri bildirimi, ölçülebilir ilk oturum hedefleri ve üç seed'de iki profil deneyi. 205 test/typecheck/build/runtime geçti. Gerçek oyuncu ölçümü, onaylı ekonomi değişikliği ve yayın **EKSİK**. |
+| P0 / 2 | 1.13.0 Gameplay Foundation | **TAMAMLANDI (sınırlı paket):** İsteğe bağlı İlk Adımlar, araç/eylem geri bildirimi ve üç seed'de iki profil deneyi. 205 test/typecheck/build/runtime geçti; main `03d7d00`, yayın tamamlandı. Gerçek oyuncu ölçümü ve onaylı ekonomi değişikliği **EKSİK**. |
+| P0 / şimdi | 1.13.1 Mobile Recovery | **TAMAMLANDI (yerel sınırlı uygulama):** Özel bölüm menüsü, güvenli dokunma alanları/tercih, ikon kırpması ve seç/onayla depo. [Doğrulama](verification-mobile-1.13.1.md). Fiziksel cihaz kabulü **EKSİK**, main/yayın bu oturumda yetkisiz. |
 | P1 / 3 | 1.14.0 Gerçek envanter/hotbar | **PLANLANDI:** [Veri sözleşmesi/göç/test matrisi](inventory-hotbar-1.14-design.md) taslak; kabul sonrası uygulanır. Görsel çanta yuvaları bu mekanik sayılmaz. |
 | P1 / 4 | Üretim, köy, keşif ve savaş derinliği | **PLANLANDI:** Ekonomi baz çizgisi ve oyuncu denemeleriyle küçük dikey paketler; salt içerik kotası yok. |
 | P1 / 5 | Online erişim ve kurtarma | **PLANLANDI:** Davet UX'i → isteğe bağlı hesap/kurtarma → kalıcı ortak çiftlik UX'i. Otoriteyi koruyan protokol göçleri ayrı yapılır. |
@@ -114,6 +138,14 @@ eşzamanlı taşıma ve mobil iptal testlerinde sıfır kayıp/çoğaltma.
 ## 4. Arayüz 2.0
 
 **MEVCUT:** Merkezi modal, mobil bölüm seçicisi, ortak bileşenler, TR/EN metinler.
+
+**1.13.1 güncel durum:** Native bölüm select'i kaldırıldı; gruplu oyun içi
+düğmeler, mevcut bölüm, Escape/odak ve aynı URL history ile Back→panel kapatma.
+Çanta mobilde büyük yuvalar, isteğe bağlı ayrıntı; depo seç/yön/onay akışı.
+Joystick sağ/sol düzeni, boyut/hassasiyet tercihi oyun kaydından ayrıdır.
+Dokunma/OS kenar/PWA fiziksel kanıtı hâlâ eksiktir; aşağıdaki 1.12 native seçici
+anlatımı tarihsel temeldir. Sanat rehberi ve kaynak haritası:
+[ART_DIRECTION_2_0](ART_DIRECTION_2_0.md).
 **TAMAMLANDI / P0, ilk paket:** Tutarlı kamp grupları, seçili eşya ayrıntısı ve
 sakin varsayılan HUD; 1440×900, 390×844, 844×390, 320×568 yerel tarayıcı kontrolü.
 **EKSİK:** Fiziksel cihaz/ekran klavyesi/PWA ve oyuncu kullanılabilirlik kanıtı.
@@ -270,6 +302,11 @@ ve ortak çiftlik sahiplik kuralı olmadan kaydı sıfırlamaz; TR/EN içeriği 
 CSP, otoriter ekonomi ve çakışmada durma. **EKSİK:** Güncel audit **25 paket
 bulgusu: 3 kritik, 10 yüksek, 11 orta, 1 düşük**. Tarihsel 23 (9 orta) sonucu
 arşivdir. 1.13.0'da yeniden doğrulandı, bağımlılık yükseltilmedi; sıfır audit iddiası yok.
+
+**Güncel 1.13.1 denetim:** toplam 25, **3 kritik/11 yüksek/10 orta/1 düşük**;
+systeminformation önem sınıfı yükselmiş. [Paket tablosu, yollar ve üretim/araç
+ayrımı](security-mobile-recovery-audit.md). Bağımlılık değişmedi; erişilebilir
+kritik Worker istismarı bu sınırlı incelemede kanıtlanmadı. Güvenlik ayrı P0 iştir.
 **PLANLANDI / P0 yayın kapısı:** [Portal yol haritasındaki](PORTAL_ROADMAP.md)
 kontrollü gruplarla düzeltme. Bu UI paketi bağımlılık yükseltmez.
 
@@ -369,3 +406,30 @@ güncellenir. Yarım işler ve sıradaki kabul testi aşağıdaki teslim kaydın
 - En önemli sonraki görev: TR/EN ilk 30 dakika oyuncu gözlemi, başlangıç + erken
   ödül + seviye enerji döngüsünü birlikte değerlendirmek; sonra onaylı 1.14.0.
   Portal çıkışı öncesi güvenlik kapısı ayrıca zorunlu.
+
+## Mobile Recovery teslimi ve güncel devam noktası
+
+Önceki son görev sırası yeni gerçek Android geri bildirimiyle değişmiştir.
+Ana devam talimatının 0–19 başlıkları ve 30 Ekim çalışma listesi, mevcut 17
+alanla karşılaştırıldı; hiçbiri bu sınırlı teslimde tamamlanmış sayılmadı.
+
+- **TAMAMLANDI (sınırlı uygulama):** 1.13.1 mobil kontrol/navigasyon/ikon/depo
+  paketi; ayrıntı, gerçek test ve eksikler [doğrulama kaydında](verification-mobile-1.13.1.md).
+- **EKSİK / dış cihaz gerektiriyor:** Android/iOS/PWA, adres/OS çubuğu/çentik,
+  geri hareketi/ekran klavyesi, çoklu gerçek dokunma, düşük FPS/ısınma/pil/bellek.
+  Kullanıcının fiziksel cihaz kabulü olmadan mobil P0 tamamen kapatılmaz.
+- **PLANLANDI / P1:** Rehberdeki tek karşılama ve örnek envanter sanat paketi;
+  kabul sonrası tüm menülere yayma. Gerçek hotbar ondan ve mobil kararlılıktan
+  sonra; ilk oyuncu/ödül/enerji/araç deneyleri ayrıca yapılır.
+- **PLANLANDI / P2:** Kişilik/hikâye/rutin/ilişki/festival, dekor/ev/üretim,
+  AI/kaçınma/boss/ganimet/maden/balıkçılık; Online kod/link/misafir/hesap/
+  kurtarma/arkadaş/kalıcı çiftlik/ortak maden/asansör/boss/bölgesel simülasyon.
+  Önceki bölüm kabul kapıları ve CodeScene davranış testleri geçerlidir.
+- **PLANLANDI / P3:** [Portal yol haritasındaki](PORTAL_ROADMAP.md) münhasır
+  olmayan altı hedef, tek çekirdek/adaptör, domain-origin kurtarma, APK/AAB/
+  Play/gelecek Steam, mağaza/sosyal görseller, analitik/gelir ve kontrollü rollout.
+  Güncel sözleşme/ödeme/Türkiye şartları uygulama gününde araştırılır.
+- **EKSİK / P0 güvenlik:** Güncel 25 bulgu; ayrı küçük yamalar ve tam doğrulama.
+  Çalışan Sentry filtre/CSP/DO/D1/otorite/kayıt güvenliği gevşetilmez.
+- **Yayın sınırı:** Bu paket geliştirme dalında yedeklenebilir; main push ve
+  Cloudflare canlı yayını için yeni onay gerekir. 1.13.0 üretimi korunur.

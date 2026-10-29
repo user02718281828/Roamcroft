@@ -24,6 +24,15 @@ henüz mekanik veya onaylanmış şema değildir. Kullanıcı 29 Ekim 2026'da ya
 doğrulanmış 1.13.0 için normal main push/Cloudflare yayınına onay verdi.
 Sonraki sürümlerin yayın yetkisi kendi oturum talimatından belirlenir.
 
+1.13.1 Mobile Recovery geliştirme dalı: `docs/verification-mobile-1.13.1.md`.
+Bu oturumda main/deploy izni yok; fiziksel cihaz kabulü eksik kalır. Mobil
+kontrol tercihi `roamcroft.touch.v1` kayıt/ekonomiden ayrıdır; inputBlocked,
+online simülasyon duraklamasıyla aynı şey değildir. GameIcon atlasları iç SVG
+ile hücre sınırında kırpar; metin span flex kurallarına geri döndürme. Menü
+Back geçmiş girdisi aynı URL'dedir. Güncel audit 25: 3 kritik/11 yüksek/10 orta/
+1 düşük; güvenlik ayrı iş. Sanat yönü/kaynak haritası `docs/ART_DIRECTION_2_0.md`.
+1.14.0 mekanik veya şema hâlâ uygulanmadı; mobil kabulden önce başlanmaz.
+
 Bu dosya depoda çalışan kod ajanları için mimari rehberdir. İlk kaynak incelemesi
 28 Ekim 2026 tarihinde `main` dalındaki `becf1b8` commit'i üzerinde yapıldı.
 İncelenen uygulama sürümü **1.11.5 — Hafif Kamera** idi. Buradaki sayılar ve

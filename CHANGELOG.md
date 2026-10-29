@@ -1,5 +1,15 @@
 # Değişiklikler
 
+## 1.13.1 — Mobile Recovery · geliştirme dalı, 29 Ekim 2026
+
+- Gerçek Android kullanıcı geri bildirimi sonrası daha içeride ve safe-area uyumlu joystick; oyun kaydından ayrı sağ/sol düzeni, boyut ve hassasiyet tercihi.
+- Ayrı büyük kullanım ve saldırı düğmeleri, tek bırakma/iptal davranışı; mobil seçili araç için menzil içi uygun hedef. Menü/arka plan/resize sırasında takılı joystick/kamera girdisini bırakma.
+- Native Section yerine gruplu oyun içi bölüm düğmeleri; aktif bölüm, erişilebilir odak/Escape ve aynı URL'de Back ile menüyü kapatma.
+- Ortak ikon bileşeninde metin flex kurallarından ve kutu oranından bağımsız SVG kırpması; tohum/yem/ekmek/patates komşu atlas parçaları temizlendi. Kaynak görseller ve bağımlılıklar korunur.
+- Mobil çantada büyük yuva ve açılır ayrıntı; depo seç/yön/onay akışı, güncel miktar/kapasite kontrolü, çift onay koruması. Ekonomi/kayıt/online protokolleri değişmez.
+- Master plan, sanat rehberi/Three.js kaynak haritası, portal/domain/Android/münhasırlık kararları ve güncel 25 audit kaydı. Fiziksel Android/iOS/PWA kabulü ve yayın ayrı bekler.
+- [Doğrulama ve açık işler](docs/verification-mobile-1.13.1.md). Gerçek hotbar, ekonomi dengesi veya tüm sanat tasarımı bu paket değildir.
+
 ## 1.13.0 — Gameplay Foundation · 29 Ekim 2026
 
 - İsteğe bağlı TR/EN İlk Adımlar: mevcut sayaçlarla yedi temel hedef, araç seçimi ve ilgili menüye geçiş. Yeni ödül/görev kilidi veya otomatik ekonomik eylem yok.
