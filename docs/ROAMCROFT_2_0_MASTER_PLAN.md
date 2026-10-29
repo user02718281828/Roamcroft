@@ -433,3 +433,68 @@ alanla karşılaştırıldı; hiçbiri bu sınırlı teslimde tamamlanmış say�
   Çalışan Sentry filtre/CSP/DO/D1/otorite/kayıt güvenliği gevşetilmez.
 - **Yayın sınırı:** Bu paket geliştirme dalında yedeklenebilir; main push ve
   Cloudflare canlı yayını için yeni onay gerekir. 1.13.0 üretimi korunur.
+
+## 1.13.1 son kabul sırası ve eksik uzun vadeli başlıklar
+
+**29 Ekim 2026 / güncel öncelik:** Uygulama `35932d1` ve CI `40856024278`
+başarılıdır. Önce [Android son kabul yolu](acceptance-mobile-1.13.1.md),
+sonra kullanıcı sonucu, sonra ayrı main/Cloudflare onayı. Bu hazırlık yayın
+onayı değildir. Yeni büyük özellik veya aşağıdaki tasarımların uygulaması yok.
+
+Ana devam talimatının A–I alanları mevcut belgelerle eşlendi: A sanat rehberi ve
+bölüm 4–5; B hotbar sözleşmesi/bölüm 3; D bölüm 10 ve aşağıdaki bağımlılıklar;
+F bölüm 1–2/6–9/14; H bölüm 15–16/CodeScene planı; I bölüm 12–13/17 ve portal
+yol haritası. C/E/G'nin eksik ayrıntıları aşağıda korunur; önceki hedefler silinmez.
+
+### 18. World Generation 3.0 — PLANLANDI / P2
+
+**MEVCUT:** Seed/generation 2, deterministik yüzey, 25 etkin chunk ve değişiklik
+defteri. **EKSİK:** Daha geniş/kesintisiz dünya algısı, tekrar hissi azaltılmış
+nehir/arazi; orman/ova/göl/dağ/bataklık biyom çeşitliliği; kuş/tavşan/sincap/
+geyik/kurbağa yaban hayatı; özgün harabe/mağara/keşif noktaları. **PLANLANDI:**
+Yeni generation version ve oyuncu başına chunk yükleme; kalıcı bölgesel editler.
+Bağımlılık: Online 2.0 bölgesel otorite/interest management ve performans bütçesi.
+
+Kabul: Aynı seed/sürüm aynı coğrafya; eski generation çiftliğinin nehirleri,
+toprağı, yapıları/ürünleri değişmez. Chunk sınırı/negatif koordinat/kayıt-yükle
+ve çok oyuncunun ayrılıp yeniden buluşması test edilir. Yeni coğrafya eski
+kayda kendiliğinden uygulanmaz; görsel çeşitlilik gerçek keşifle değerlendirilir.
+
+### 19. World Scale & Building Interiors 2.0 — PLANLANDI / P2
+
+**MEVCUT:** Çoğunlukla tek karelik yerleşimle temsil edilen yapılar, yüzey ve
+maden. **EKSİK:** Çok kareli ev/ahır/kümes/sera/atölye, footprint tabanlı inşa ve
+çarpışma, kapıdan girilen çatısız izometrik iç mekân; mobilya/makine yerleşimi,
+mağara/maden iç alanları. Bağımlılık: sürümlü yapı/veri sözleşmesi, pathfinding,
+sunucu otoritesi, oyuncu/bölge snapshot'ları ve ayrı göç onayı.
+
+Kabul: Eski çiftlikte yan yana yapılar büyütülüp birbirinin üzerine yazılmaz;
+çakışma çözümü/yedek/oyuncu kararı olmadan yapılar taşınmaz veya silinmez.
+Kapı/alan kimliği, iç-dış geçiş, eşya/makine alıcısı, dolu alan, iki oyuncunun
+aynı kapıyı kullanması ve bağlantı kopması kayıt/ekonomi kaybettirmez.
+
+Online 2.0 için ek kabul: Dört oyuncu farklı yönlere uzaklaşır; host merkezli
+tek pencere yerine bölgesel snapshot/interest management ve kalıcı bölgesel
+kayıt tasarlanır. Aynı saat ve ekonomik otorite korunur; oyuncular yeniden
+buluşabilir; ortak maden ve bağımsız iç mekân örnekleri vardır. Kullanıcının
+20/22 diye tanımladığı mevcut yaklaşık 20 kare sınırı **sadece sabiti artırarak
+kaldırılmaz**. Sekiz karakterli davet, arkadaş/hesap bağlama-kurtarma hedefleri
+bölüm 10'da kalır. Önce tasarım, maliyet ve dört gerçek cihaz/WAN kanıtı.
+
+### 20. Performance Engineering — EKSİK ölçüm / PLANLANDI P0–P2
+
+**MEVCUT:** Instancing/batching/culling, CPU/GPU tanılaması, p95/p99 ve %1 low
+altyapısı, dengeli/ayrıntılı mod, ağ RTT/jitter/snapshot/enterpolasyon.
+**EKSİK:** Gerçek Android ve masaüstü baz çizgisi; chunk geçişi sıçramaları;
+NPC/hayvan/bina/efekt yoğunluğu, uzun oturum, bellek/ısınma/pil ölçümleri.
+**PLANLANDI:** Önce fiziksel ölçüm (P0 kabul); davranışı koruyan hedefli
+optimizasyon (P1), dünya/online ölçek bütçeleri (P2). Eaglercraft'tan
+uygulanabilir mimari ilkeler, kaynak/lisans ve mevcut motorla uyum açısından
+ayrı araştırılır; performans iddiası veya kod/varlık kopyalama kararı değildir.
+Gereksiz Three.js/WebAssembly motor değişimi yapılmaz.
+
+Kabul: Aynı kayıt/rota/kalite/cihazda önce-sonra FPS, %1 low, p95/p99 kare süresi,
+draw call, CPU/GPU ve bellek ayrı ölçülür. Ağ RTT/jitter ve interpolasyon
+render FPS yerine sunulmaz. Mobil çözünürlük/kalite bütçesi ve oyuncu tercihi
+korunur; chunk yükleme ve yoğun sahnede en kötü kare raporlanır. Kazanç,
+ekonomik sonuç/kayıt/animasyon/otorite eşitliğiyle birlikte doğrulanır.

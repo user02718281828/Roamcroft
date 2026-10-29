@@ -1,5 +1,9 @@
 # 1.13.1 — Mobile Recovery doğrulama kaydı
 
+Güncel yayın hazırlığı, izole yerel test komutu ve kullanıcının Android sonuç
+tablosu: [1.13.1 son kabul](acceptance-mobile-1.13.1.md). Fiziksel kabul ve
+main/Cloudflare onayı henüz alınmadı; aşağıdaki otomatik kanıtlar bunların yerini tutmaz.
+
 29 Ekim 2026; çalışma alanı `C:\Users\devbu\Roamcroft`.
 Kullanıcının ana devam talimatı bu oturumun kapsamıdır; Downloads altındaki
 30 Ekim yapılacaklar listesi karşılaştırma/plan kaynağıdır. Diğer Sentry
