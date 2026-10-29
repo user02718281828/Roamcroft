@@ -42,12 +42,12 @@ somut ve doğrulanmış paket sonrasında ayrıca kullanıcı onayı gerekir.
 | --- | --- | --- |
 | P0 / 0 | Güvenli GitHub yedeği | **TAMAMLANDI:** `codex/roamcroft-2-ui`, i18n checkpoint `38b4f9315c902ac2415d1aadbddb0e99fc95d3ac`. Typecheck, 193 test, build ve yerel runtime geçti. Main değişmedi. |
 | P0 / 1 | UI 2.0 temeli | **TAMAMLANDI (sınırlı paket):** Gruplu menüler, küçük ekran düzeni, sade HUD, ikon yuvalı çanta, seçili eşya ayrıntısı, seçim/kopyalama kuralları, İngilizce ilk açılış. [1.12.0 doğrulaması](verification-ui-1.12.0.md). Fiziksel cihaz ve aşağıdaki diğer 2.0 hedefleri ayrıca eksiktir. |
-| P0 / 2 | İlk 30 dakika ve araç hissi | **PLANLANDI:** Ölçülebilir ilk oturum hedefleri, isteğe bağlı onboarding, araç geri bildirimi, başlangıç ekonomisi deneyi. UI temeli ve kayıt karşılaştırmaları gerekir. |
-| P1 / 3 | Gerçek envanter/hotbar | **PLANLANDI:** Eşya/araç modeli, göç ve sunucu doğrulaması tasarlanıp kabul edildikten sonra uygulanır. Görsel çanta yuvaları bu mekanik sayılmaz. |
+| P0 / 2 | 1.13.0 Gameplay Foundation | **TAMAMLANDI (sınırlı paket):** İsteğe bağlı İlk Adımlar, araç/eylem geri bildirimi, ölçülebilir ilk oturum hedefleri ve üç seed'de iki profil deneyi. 205 test/typecheck/build/runtime geçti. Gerçek oyuncu ölçümü, onaylı ekonomi değişikliği ve yayın **EKSİK**. |
+| P1 / 3 | 1.14.0 Gerçek envanter/hotbar | **PLANLANDI:** [Veri sözleşmesi/göç/test matrisi](inventory-hotbar-1.14-design.md) taslak; kabul sonrası uygulanır. Görsel çanta yuvaları bu mekanik sayılmaz. |
 | P1 / 4 | Üretim, köy, keşif ve savaş derinliği | **PLANLANDI:** Ekonomi baz çizgisi ve oyuncu denemeleriyle küçük dikey paketler; salt içerik kotası yok. |
 | P1 / 5 | Online erişim ve kurtarma | **PLANLANDI:** Davet UX'i → isteğe bağlı hesap/kurtarma → kalıcı ortak çiftlik UX'i. Otoriteyi koruyan protokol göçleri ayrı yapılır. |
 | P1 / 6 | Ortak maden ve bağımsız bölgeler | **PLANLANDI:** Bölgesel ilgi/otorite tasarımı, çok oyunculu maden örnekleri, maliyet ve kurtarma testi gerekir. |
-| P0 yayın kapısı / 7 | Güvenlik ve portal uyarlaması | **EKSİK:** 23 bulgu açık; kontrollü düzeltme, iframe/kayıt/SDK uyumu ve fiziksel cihaz kanıtı olmadan portal çıkışı yok. Güvenlik işi diğer işlerden bağımsız öne alınabilir. |
+| P0 yayın kapısı / 7 | Güvenlik ve portal uyarlaması | **EKSİK:** Güncel 25 bulgu (tarihsel 23) açık; kontrollü düzeltme, iframe/kayıt/SDK uyumu ve fiziksel cihaz kanıtı olmadan portal çıkışı yok. Güvenlik işi diğer işlerden bağımsız öne alınabilir. |
 | P2 / 8 | Analitik, reklam ve ölçek | **PLANLANDI:** İzinler, ölçüm hedefleri, sağlam kayıt ve portal test ortamı sonrasında. Gelir için oynanışa zarar verilmez. |
 | P2 / 9 | Prestij ve uzun vadeli içerik | **PLANLANDI:** Gerçek oyuncu tutundurma ve ekonomi sonuçlarından sonra; kayıt sıfırlama kendiliğinden uygulanmaz. |
 
@@ -55,10 +55,14 @@ somut ve doğrulanmış paket sonrasında ayrıca kullanıcı onayı gerekir.
 
 **MEVCUT:** Tarım, toplama, el/makine üretimi, açık yüzey keşfi, görevler,
 köy dönüm noktaları ve oyun rehberi. **EKSİK:** İlk 30 dakikanın yeni oyuncularla
-kanıtı, sıfırdan kurma seçeneği, isteğe bağlı adım adım öğretici ve başlangıç
+kanıtı, sıfırdan kurma seçeneği, yönlendirilmiş oyuncu deneyi ve başlangıç
 kaynaklarının ölçülmüş dengesi. **PLANLANDI / P0:** İlk hasat → üretim → ilk
 yapı kararını anlaşılır hale getir; eski çiftliklerin malzemelerini azaltma.
 Bağımlılık: UI temeli ve ekonomi baz çizgisi.
+
+**TAMAMLANDI / 1.13.0:** İsteğe bağlı TR/EN İlk Adımlar, salt okunur sayaçlar,
+araç/menü seçimi ve ayrı kalıcı tercih. [İnceleme ve deney](gameplay-foundation-1.13.0.md).
+Gerçek oyuncu deneyi ve ekonomi uygulaması henüz tamamlanmadı.
 
 Kabul: TR/EN yeni oyuncu testi; hareket/hasat/üretim/yapı için süre ve terk
 noktaları kaydı; öğretici atlanıp yeniden açılabilir; eski kayıt aynı kalır;
@@ -263,8 +267,9 @@ ve ortak çiftlik sahiplik kuralı olmadan kaydı sıfırlamaz; TR/EN içeriği 
 ## 15. Güvenlik
 
 **MEVCUT:** Kaynak/üyelik/nonce/sequence/kota/boyut kontrolleri, güvenli çerez,
-CSP, otoriter ekonomi ve çakışmada durma. **EKSİK:** Önceki audit'teki **23 paket
-bulgusu: 3 kritik, 10 yüksek, 9 orta, 1 düşük**. Sıfır audit iddiası yok.
+CSP, otoriter ekonomi ve çakışmada durma. **EKSİK:** Güncel audit **25 paket
+bulgusu: 3 kritik, 10 yüksek, 11 orta, 1 düşük**. Tarihsel 23 (9 orta) sonucu
+arşivdir. 1.13.0'da yeniden doğrulandı, bağımlılık yükseltilmedi; sıfır audit iddiası yok.
 **PLANLANDI / P0 yayın kapısı:** [Portal yol haritasındaki](PORTAL_ROADMAP.md)
 kontrollü gruplarla düzeltme. Bu UI paketi bağımlılık yükseltmez.
 
@@ -299,8 +304,9 @@ Kabul: Her pakette typecheck/test/build/ilgili runtime ve yalnız kaynak dosyal�
 commit; `.env`, sırlar, `work`, `node_modules`, `dist` gönderilmez. `codex/`
 dalına push, CI ve remote SHA doğrulaması. Main/üretim yayını için kullanıcının
 o oturumdaki açık kapsamı esas alınır. 29 Ekim güncel devam talimatı, tamamlanmış
-paketin tüm kritik kontrolleri ve Sentry birleştirmesi sonrası normal main
-push/otomatik yayınına izin verir. Önceki main yasağı bu talimatla değiştirilmiştir.
+1.12.0 paketinin tüm kritik kontrolleri ve Sentry birleşimi sonrası normal main
+push/otomatik yayınına izin vermişti; bu teslim tamamlandı. 1.13.0 görevi için
+güncel talimat ayrı yayın onayı ister; önceki 1.12.0 izni yeni sürüme taşınmaz.
 Canlı açılış kontrolü tek başına bir dağıtım veya yeni sürüm kanıtı
 olarak sunulmaz; dağıtım yapılırsa yayımlanan SHA ayrıca eşlenir.
 
@@ -354,5 +360,12 @@ güncellenir. Yarım işler ve sıradaki kabul testi aşağıdaki teslim kaydın
   kontrolleri ve oturum teslim raporuyla eşlenir; plan bir canlı sürüm kanıtı değildir.
 - Hotbar/equip/drag-drop, ekonomi, düşman dengesi, kısa davet kodu, hesap,
   ortak maden, portal SDK/reklam/analitik/prestij: **EKSİK / PLANLANDI**.
-- En önemli sonraki görev: UI temelinin ardından ilk 30 dakikalık yeni oyuncu
-  testi ve araç/ekonomi baz çizgisi; portal çıkışı öncesi güvenlik kapısı ayrıca zorunlu.
+- 1.13.0 ilk oturum/ekonomi/araç incelemesi ve sınırlı rehber paketi:
+  [araştırma](gameplay-foundation-1.13.0.md),
+  [doğrulama](verification-gameplay-1.13.0.md). Ekonomi deneyi gerçek başlangıca
+  uygulanmadı; gerçek oyuncu ölçümü ve denge kararı eksik.
+- 1.14.0 [veri sözleşmesi ve göç/test matrisi](inventory-hotbar-1.14-design.md)
+  **PLANLANDI**. Gerçek hotbar/ekipman veya şema geçişi yapılmadı.
+- En önemli sonraki görev: TR/EN ilk 30 dakika oyuncu gözlemi, başlangıç + erken
+  ödül + seviye enerji döngüsünü birlikte değerlendirmek; sonra onaylı 1.14.0.
+  Portal çıkışı öncesi güvenlik kapısı ayrıca zorunlu.

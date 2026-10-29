@@ -5,10 +5,11 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
 [English](README.md) · [Değişiklikler](CHANGELOG.md) · [2.0 master planı](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Kaynak sürümü: 1.12.0 — Çantam ve Kampım.** Bu paket UI 2.0
-temelidir; bütün 2.0 hedeflerinin veya canlı yayının tamamlandığı anlamına gelmez.
+**Geliştirme sürümü: 1.13.0 — Gameplay Foundation, yayın onayı bekliyor.**
+29 Ekim 2026'da canlı sürüm **1.12.0** olarak doğrulandı. Bu sınırlı paket,
+bütün 2.0 hedeflerinin veya 1.13.0 canlı yayınının tamamlandığı anlamına gelmez.
 [Canlı oyun](https://roamcroft.roamcroft.workers.dev) ayrı yayımlanır.
-Ana README'deki yeni görseller bu kaynak sürümünden yerel tarayıcıda alınır;
+Ana README'deki görseller üzerinde belirtilen sürümden yerel tarayıcıda alınır;
 eski 1.3 ekranları güncel sürüm olarak sunulmaz.
 
 ## Güncel sistemler
@@ -23,6 +24,15 @@ eski 1.3 ekranları güncel sürüm olarak sunulmaz.
   dört koleksiyon ve beş köy dönüm noktası.
 - Gece akınları, beş düşman türü ve asansörlü beş katlı maden/boss.
 - Tohumdan üretilen kayan dünya; 25 etkin bölge / 3.600 kare ve saklanan arazi değişiklikleri.
+- İsteğe bağlı İlk Adımlar: yedi hedefin mevcut sayaçlarla takibi, araç seçimi
+  ve menü kısayolları. HUD düğmesi kapanabilir; rehber Ayarlar'dan yeniden açılır.
+  Yeni ödül/kilit yoktur. Araç notları enerji ve yükseltme faydalarını açıklar.
+
+1.13.0'da başlangıç stokları, fiyatlar, görev ödülleri ve eski kayıtlar değişmez.
+`npm run audit:first-session` gerçek başlangıçla yalnız deney amaçlı sade profili
+karşılaştırır; insan oyuncu süresi/tutundurma ölçmez.
+[İlk oturum incelemesi](docs/gameplay-foundation-1.13.0.md) ve
+[1.13.0 doğrulaması](docs/verification-gameplay-1.13.0.md) kapsamı açıklar.
 
 Yeni çanta yuvaları yalnız görünümdür. Çanta hâlâ toplam miktar tutar; normal
 kapasite 600, koleksiyon ödülüyle 900'dür. Eşya seçmek tüketmez; ayrı eylem

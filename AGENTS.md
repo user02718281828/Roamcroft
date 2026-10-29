@@ -14,6 +14,15 @@ Sentry main `1e302c3` ile eklenmiştir; SDK ve dar CSP izni korunmalı, mahremiy
 bulgu tarihsel sonuçtur. CodeScene bakım planı `docs/modularization-plan.md`;
 motor/çizici refactoring'i UI tesliminden ayrı yürütülür.
 
+1.13.0 Gameplay Foundation: `docs/gameplay-foundation-1.13.0.md` ve
+`docs/verification-gameplay-1.13.0.md`. İlk Adımlar UI'sı mevcut stats/claimed
+değerlerini okur, ödül/kilit vermez; tercih `roamcroft.guidance.v1` altında
+oyun kaydından ayrıdır. `scripts/first-session-audit.ts` içindeki sade profil
+yalnız deneydir; createState/yükleme/sunucu başlangıcına uygulanmaz.
+1.14.0 envanter/hotbar sözleşmesi `docs/inventory-hotbar-1.14-design.md`;
+henüz mekanik veya onaylanmış şema değildir. 1.13.0 main/Cloudflare yayını
+için bu görevin kullanıcı talimatı ayrıca onay gerektirir.
+
 Bu dosya depoda çalışan kod ajanları için mimari rehberdir. İlk kaynak incelemesi
 28 Ekim 2026 tarihinde `main` dalındaki `becf1b8` commit'i üzerinde yapıldı.
 İncelenen uygulama sürümü **1.11.5 — Hafif Kamera** idi. Buradaki sayılar ve

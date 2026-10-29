@@ -8,16 +8,21 @@ design sources to copy.
 
 [Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Source version: 1.12.0 — Pack and Camp.** This is the first
-UI foundation for the 2.0 plan, not a completed Roamcroft 2.0 release.
+**Development source: 1.13.0 — Gameplay Foundation, pending release approval.**
+The live version was verified as **1.12.0** on 29 October 2026. This is a limited
+foundation package, not a completed Roamcroft 2.0 release.
 [Live game](https://roamcroft.roamcroft.workers.dev) is deployed separately;
 the source branch and its screenshots do not prove that the live build has updated.
+
+![Roamcroft 1.13.0 optional First steps guide, captured locally](docs/screenshots/gameplay-1.13.0-desktop.jpg)
+
+The 1.12.0 UI foundation is shown below; these images are not labeled as 1.13.0 captures.
 
 ![Roamcroft 1.12.0 desktop gameplay, captured locally](docs/screenshots/ui-1.12.0-world.jpg)
 
 ![Roamcroft 1.12.0 pack and camp menu, captured locally](docs/screenshots/ui-1.12.0-pack.jpg)
 
-These are real local browser captures of this source version. Older files in
+These are real local browser captures of the labeled versions. Older files in
 `docs/screenshots` are historical references, not current release screenshots.
 
 ## Play
@@ -49,6 +54,14 @@ These are real local browser captures of this source version. Older files in
 - A deterministic streaming world: 25 active chunks / 3,600 tiles, with saved edits.
 - Warm grouped camp navigation, icon slots and selected-item details in the pack,
   a compact HUD and mobile section picker.
+- Optional First steps: seven earned-progress checkpoints, tool selection and
+  menu shortcuts; no new rewards or unlock gates. Hide its HUD button and reopen
+  the guide in Settings. Tool notes explain current energy and upgrade benefits.
+
+Starting stock, prices, quest rewards and old saves are unchanged in 1.13.0.
+`npm run audit:first-session` compares the current start with an experiment-only
+sparse profile. The scripted route is not a human playtest or a retention result.
+See the [first-session analysis](docs/gameplay-foundation-1.13.0.md).
 
 The pack remains the existing quantity-based inventory (600 units, or 900 with
 the collection reward). Its visual slots add no storage limit or capacity.
@@ -121,7 +134,7 @@ does not restore a lost browser cookie or player save.
 
 ## Status, security and publishing
 
-[UI verification](docs/verification-ui-1.12.0.md) · [i18n baseline](docs/verification-portal-i18n.md)
+[1.13.0 verification](docs/verification-gameplay-1.13.0.md) · [UI baseline](docs/verification-ui-1.12.0.md) · [i18n baseline](docs/verification-portal-i18n.md)
 · [Portal roadmap](docs/PORTAL_ROADMAP.md) · [Contributor rules](AGENTS.md)
 
 The historical audit had **23 open package findings**. The 29 October install

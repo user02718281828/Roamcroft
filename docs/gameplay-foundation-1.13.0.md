@@ -48,7 +48,7 @@ tarif/yapı/görev katalogları, quests.recommendedQuest, farming, Game/Panels.
 
 ## Seçilen tamamlanabilir paket
 
-**PLANLANDI:** Mevcut el kitabında isteğe bağlı İlk Adımlar; mevcut sayaçlardan
+**TAMAMLANDI (sınırlı paket):** Mevcut el kitabında isteğe bağlı İlk Adımlar; mevcut sayaçlardan
 gather/till/plant/harvest/craft/sell/build ilerlemesi, bir sonraki somut eylem,
 araç seçme veya ilgili menüyü açma. Yeni görev ödülü/gate veya otomatik ekonomik
 eylem yok. HUD ipucu kapatılıp yeniden açılabilir; tercih oyun kaydından ayrıdır.
@@ -81,5 +81,70 @@ araçların çalıştığına kanıt bulunmadı. Bu, tüm üretim risklerinin yo
 25 bulgunun kapanması değildir. Vite/dev sunucusu, CLI ve ağ araçları ayrı
 kontrollü güvenlik paketinde giderilir; bu görev sürüm yükseltmez/CSP gevşetmez.
 
-Ekonomi karşılaştırması, 1.14.0 veri sözleşmesi ve gerçek doğrulama sonuçları
-uygulama bitiminde bağlantılarıyla eklenecek.
+## Karşılaştırmalı ekonomi deneyi
+
+Tekrarlanabilir komut: `npm run audit:first-session` (JSON). Kaynak
+`scripts/first-session-audit.ts`; üç seed: 42, 84621, 20261029. Deney modülü
+oyun veya sunucu tarafından import edilmez. `sparse-proposal-v1` yalnız deney
+durumu oluşturur: 8 odun, 6 taş, 4 lif, 6 buğday tohumu, 4 havuç tohumu,
+4 meyve, 2 ekmek ve 60 altın; mevcut üç başlangıç ekini korunur.
+
+| Ölçüm | Gerçek mevcut profil | Deney profili, uygulanmadı |
+| --- | ---: | ---: |
+| Başlangıç altını | 180 | 60 |
+| Başlangıç eşya adedi | 94 | 34 |
+| Başlangıç eşyalarının taban satış değeri | 554 | 222 |
+| Hemen karşılanabilen seviye 1 yapı türleri | Atölye, kamp ateşi, kümes, depo, çit | Çit |
+| İlk atölyeye giden rotada kaynak vuruşu | 4 | 9 |
+| Rota bitiminde altın | 385 | 265 |
+| Rota bitiminde enerji | 100 | yaklaşık 94,06 |
+| Scriptin aktif simülasyon süresi | 17,7 sn | 21,0–22,6 sn |
+
+Politika: Gerçek Engine.go/act/tick ile yürü/topla → 4 çapa → 6 buğday ekimi ve
+sulama → başlangıçtaki olgun buğdayı hasat → bir tahta işi → bir tahta satışı →
+eksik malzemeyi topla → bir atölye yerleştir. Hazır görev ödülleri aynı noktalarda
+alınır. Kuyrukta gerçek 7 saniyelik üretim ilerler. Araziye ışınlanma veya RNG
+yeniden yazımı yoktur; inşa mevcut Engine'in yüklü kare yerleştirme kuralını
+kullanır. Menüde düşünme/okuma, yanlış giriş, animasyonu izleme, gerçek tıklama
+aralığı, tüm gün bakım döngüsü ve portal/online gecikmesi modellenmez.
+
+**Bu süreler insanın ilk oturum süresi veya başarı oranı değildir.** Script
+bilinen hedefleri gecikmesiz seçer, bazı tarım eylemlerinin cooldown'u yoktur ve
+ilk olgun ekini hazır alır. Hızlı rota mekanik alt sınırıdır; insanlarda 30
+dakikalık derinlik kanıtlamaz. Üç seed'deki benzer sonuç başlangıç köyünün
+korunan düzenindendir, bütün dünya/oyuncu yollarının örneklemi değildir.
+
+İlk üç görevin ödülü toplam 120 altın; 2. ve 3. seviyeler toplam 75 altın ve
+enerjiyi 100'e doldurur; satış 10 altındır. Böylece daha sade profil de aynı
+erken ödül/enerji ivmesini taşır. Yalnız malzeme azaltmak çoğunlukla beş ek
+vuruşa dönüşür; anlamlı karar derinliği veya tutundurma sağlamış sayılmaz.
+
+**Karar:** 1.13.0'da başlangıç kaynağı, ödül, büyüme, fiyat, cooldown ve seviye
+yenilenmesi değiştirilmedi. Önce TR/EN yeni oyuncu gözlemi, ardından görev/
+başlangıç/enerji döngüsünü birlikte ele alan onaylı denge deneyi gerekir.
+
+Gelecekte yeni profil kabul edilirse sürümlü kimlik yalnız **yeni dünya
+oluşturma** yolunda atanır (`legacy-1.12` / onaylı yeni profil). Yüklemede eksik
+kimlik eski profil kabul edilir; eldeki Bag/altın/upgrades/stats üzerine profil
+yazılmaz. Offline yeni dünya, soğuk kişisel sunucu dünyası ve yeni ortak dünya
+ilk kopyası ayrı test edilir; ortak konuk kişisel başlangıç paketi kazanamaz.
+Yeni alan/göç gerekiyorsa ayrı tasarım/onay, eski yedek ve atomik kayıt kapısı.
+
+## 1.13.0 somut kapsamı ve sonraki aşama
+
+Rehber mevcut earned stats/claimed değerlerini okur; ilk kaynak, toprak,
+ekim, ilk hasat, üretim, satış ve yapı hedefleri seçilebilir. Yanlış sırada
+ilerlemek engellenmez. Satış adımı tek satış ister; mevcut 300 altınlık görev
+değişmez. Tamamlanmış eski görevler kayıp sayaç yüzünden baştan istenmez.
+Klavye/dokunma ve kalıcı, kayıttan ayrı rehber tercihi vardır. Araç seçme
+düğmesi yalnız seçim yapar; rehber açılışı/ödül önizlemesi ekonomik komut değildir.
+
+Araçların yeni enerji/upgrade notları gerçek Engine maliyet/hasar/yield testleriyle
+karşılaştırılır. Mevcut ses ve parçacıklar korunur; kazanım mesajında ikon ve
+kısa vurgu yalnız kabul edilmiş mevcut Engine olayıyla oluşur. Yeni animasyon,
+ganimet düşürme mekaniği, yükseltme dengesi veya optimistik ödül eklenmez.
+
+[1.14.0 veri sözleşmesi](inventory-hotbar-1.14-design.md): dokuz referans,
+tek miktar otoritesi, araç sahipliği, göç, HTTP/DO doğrulaması, mobil/klavye
+etkileşimi ve kabul matrisi. Bu oturumda gerçek hotbar/ekipman/göç uygulanmaz.
+Gerçek sonuçlar: [1.13.0 doğrulama kaydı](verification-gameplay-1.13.0.md).
