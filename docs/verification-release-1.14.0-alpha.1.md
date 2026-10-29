@@ -42,3 +42,22 @@ Birleşmiş oyun kodu önceki doğrulanmış hotbar+güvenlik checkpoint'i a09f7
 ile aynıdır; yalnız sürüm/docs değişir, E/F kaynakları çıkarılmıştır. Son test
 turundan sonra uygulama kodu değiştirilmedi. Canlı kabul yayın sonrası ayrı
 checkpoint'te kaydedilecek; bu belgenin ön kabulü canlı başarı iddiası değildir.
+
+## Canlı kabul — 30 Ekim 2026
+
+**TAMAMLANDI:1.14.0-alpha.1, main3331e6af8aa67dac6432879fb1729d95dadd3510.**
+Normal fast-forward ve normal push yapıldı. GitHub verify40961321506 success;
+Cloudflare Workers Builds7de87ad6-8cb6-4858-9647-1c8e92eb80e9 success.
+Root ve eski workers.dev HTTP200/yeni sürüm, WWW301→root. Canonical kök URL
+normalize edildi; nonce'lar farklı, bütün script nonce'ları CSP ile eşleşiyor.
+Robots/sitemap/rehber/manifest/SW geçti; logo/favicon/OG SHA256 yerel teslimle
+aynı. Tarayıcıda gerçek Game9 yuva ve çanta Close ile açılış/kapanış görüldü.
+Kanıt: screenshots/alpha-live-launch.jpg ve alpha-live-game.jpg.
+
+Üretim veri yazmadan WS kabulü: iki originde oturumsuz doğru Origin/v1
+upgrade401 döndü. Bu başarılı yetkili4oyunculu canlı oturum testi değildir;
+yetkili4WS yerel runtime ve GitHub CI'da geçti. Yeni üretim hesabı/çiftliği
+oluşturulmadı. D1/DO veri/şema/sahiplik, DNS veya origin yönlendirmesi değişmedi.
+Fiziksel Android/iPhone/PWA/WAN ve Sentry olay alımı hâlâ DOĞRULAMA EKSİK.
+Kullanıcı Search Console'a https://roamcroft.com/sitemap.xml göndermeli.
+Sonraki Living Forest yerel dalı için yeni production onayı yok.

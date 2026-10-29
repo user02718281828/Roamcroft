@@ -629,3 +629,11 @@ ve açıkların sırası security-audit-2026-10-30.md. Kalan8 yüksek kapanmadı
 DOĞRULAMA EKSİK: fiziksel Android/iPhone/PWA/WAN, Sentry olay alımı ve uzak
 aday CI/Cloudflare. Yayın onayı yok; main/canlı1.13.1 a182541 korunur.
 Kesin yayın kapısı ve rollback RELEASE_CANDIDATE_1.13.2.md içindedir.
+
+## Canlı teslim — 30 Ekim
+
+TAMAMLANDI:1.14.0-alpha.1/main3331e6af8aa67dac6432879fb1729d95dadd3510,
+A–D+4 güvenlik patch'i+gerçek hotbar; GitHub verify ve Workers Builds success.
+İki originde yeni sürüm, WWW/asset/SEO/CSP ve oturumsuz WS güvenlik kapısı
+geçti. Fiziksel telefon/WAN/Sentry olay alımı DOĞRULAMA EKSİK.
+Yeni kod işi `codex/living-forest`, yerel ve sonraki production onayı yok.
