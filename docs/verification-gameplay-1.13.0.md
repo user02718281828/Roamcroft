@@ -1,7 +1,9 @@
 # 1.13.0 — Gameplay Foundation doğrulaması
 
 29 Ekim 2026, `C:\Users\devbu\Roamcroft`, dal `codex/gameplay-foundation-1-13`.
-Bu geliştirme paketi yayın onayı bekler; 1.13.0'ın canlı olduğu iddia edilmez.
+Kullanıcı 29 Ekim 2026'da 1.13.0 için başarılı birleşim sonrası kontroller
+koşuluyla normal main push ve Cloudflare yayınına açık onay verdi. Yayın
+sonucu GitHub Workers Builds ve canlı sürüm ile ayrıca eşlenir.
 
 ## Taban ve gerçek canlı sürüm
 
@@ -9,7 +11,7 @@ GitHub main ve UI dalı `6aa0e7407640e848a3e8c5b7b1e39515f938a669` olarak
 kontrol edildi. Aynı SHA için GitHub verify ve Cloudflare Workers Builds başarılı;
 Cloudflare sürümü `1fa63630-edbe-4220-9709-b9c124cc6af0`. Canlı ana sayfa HTTP
 200, 1.12.0 ve Sentry CSP izni yeniden doğrulandı. Yerel yeni dalda ilk araştırma
-checkpoint'i `9124e06`. 1.13.0 main push/deploy ayrı kullanıcı onayı ister.
+checkpoint'i `9124e06`. 1.13.0 için gereken ayrı yayın onayı artık alınmıştır.
 Uygulama/test checkpoint'i `a1f7c80`; belge/görüntü teslimi ayrı commit'tir.
 Geliştirme dalının son SHA'sı Git günlüğü/GitHub dalından okunur. Geliştirme
 dalına yedek push, main yayın izni sayılmaz; Cloudflare sürüm oluşturması da
@@ -106,5 +108,5 @@ Engine/save ve online kaynaklarında fark yoktur. Güvenlik düzeltmesi ayrı i�
 [1.14.0 sözleşmesi](inventory-hotbar-1.14-design.md) yalnız tasarımdır.
 Gerçek hotbar/ekipman/göç, başlangıç profili yayını, ekonomi yeniden dengesi,
 Living World/Online 2.0 uygulanmadı. Önce TR/EN yeni oyuncu ölçümü ve onaylı
-denge kararı, ardından güvenli 1.14.0 geliştirmesi. Main/Cloudflare yayını
-bu sürüm için ayrıca kullanıcı onayı gerektirir.
+denge kararı, ardından ayrı görevle güvenli 1.14.0 geliştirmesi. Bu yayın
+oturumunda yeni özellik veya 1.14.0 geliştirmesi yapılmaz.

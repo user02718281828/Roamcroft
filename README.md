@@ -8,8 +8,8 @@ design sources to copy.
 
 [Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Development source: 1.13.0 — Gameplay Foundation, pending release approval.**
-The live version was verified as **1.12.0** on 29 October 2026. This is a limited
+**Source version: 1.13.0 — Gameplay Foundation.** Release was approved on
+29 October 2026, subject to successful verification. This is a limited
 foundation package, not a completed Roamcroft 2.0 release.
 [Live game](https://roamcroft.roamcroft.workers.dev) is deployed separately;
 the source branch and its screenshots do not prove that the live build has updated.

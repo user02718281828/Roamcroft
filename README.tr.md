@@ -5,9 +5,9 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
 [English](README.md) · [Değişiklikler](CHANGELOG.md) · [2.0 master planı](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Geliştirme sürümü: 1.13.0 — Gameplay Foundation, yayın onayı bekliyor.**
-29 Ekim 2026'da canlı sürüm **1.12.0** olarak doğrulandı. Bu sınırlı paket,
-bütün 2.0 hedeflerinin veya 1.13.0 canlı yayınının tamamlandığı anlamına gelmez.
+**Kaynak sürümü: 1.13.0 — Gameplay Foundation.** 29 Ekim 2026'da başarılı
+doğrulama koşuluyla yayın onayı alındı. Bu sınırlı paket, bütün 2.0 hedeflerinin
+tamamlandığı anlamına gelmez; gerçek yayın commit kontrolleriyle doğrulanır.
 [Canlı oyun](https://roamcroft.roamcroft.workers.dev) ayrı yayımlanır.
 Ana README'deki görseller üzerinde belirtilen sürümden yerel tarayıcıda alınır;
 eski 1.3 ekranları güncel sürüm olarak sunulmaz.

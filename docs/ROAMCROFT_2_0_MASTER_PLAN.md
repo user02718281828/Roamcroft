@@ -35,8 +35,8 @@ karşılaştırması, araç hissi/yönlendirme) → **1.14.0 Inventory & Hotbar 
 (gerçek eşya/ekipman/güvenli göç) → **Living World & Online 2.0** (köy,
 savaş/keşif, ortak maden, hesaplar, büyük ortak dünya). Son iki aşama uygulanmış
 değildir. [1.13.0 araştırması](gameplay-foundation-1.13.0.md) bu sıranın ilk
-paketidir. Bu oturumda 1.13.0 için main/Cloudflare yayınına izin yoktur;
-somut ve doğrulanmış paket sonrasında ayrıca kullanıcı onayı gerekir.
+paketidir. Kullanıcı 29 Ekim 2026'da 1.13.0 main/Cloudflare yayınına açık onay
+verdi; birleşim sonrası bütün kontroller başarılı olmadan push yapılmaz.
 
 | Sıra | Paket | Durum / çıkış koşulu |
 | --- | --- | --- |
@@ -305,8 +305,8 @@ commit; `.env`, sırlar, `work`, `node_modules`, `dist` gönderilmez. `codex/`
 dalına push, CI ve remote SHA doğrulaması. Main/üretim yayını için kullanıcının
 o oturumdaki açık kapsamı esas alınır. 29 Ekim güncel devam talimatı, tamamlanmış
 1.12.0 paketinin tüm kritik kontrolleri ve Sentry birleşimi sonrası normal main
-push/otomatik yayınına izin vermişti; bu teslim tamamlandı. 1.13.0 görevi için
-güncel talimat ayrı yayın onayı ister; önceki 1.12.0 izni yeni sürüme taşınmaz.
+push/otomatik yayınına izin vermişti; bu teslim tamamlandı. 1.13.0 için de ayrıca
+açık yayın onayı alındı; bu izin 1.14.0 veya başka özellik geliştirmesine taşınmaz.
 Canlı açılış kontrolü tek başına bir dağıtım veya yeni sürüm kanıtı
 olarak sunulmaz; dağıtım yapılırsa yayımlanan SHA ayrıca eşlenir.
 

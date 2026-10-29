@@ -1,6 +1,6 @@
 # Değişiklikler
 
-## 1.13.0 — Gameplay Foundation · geliştirme paketi, yayın onayı bekliyor
+## 1.13.0 — Gameplay Foundation · 29 Ekim 2026
 
 - İsteğe bağlı TR/EN İlk Adımlar: mevcut sayaçlarla yedi temel hedef, araç seçimi ve ilgili menüye geçiş. Yeni ödül/görev kilidi veya otomatik ekonomik eylem yok.
 - Rehber HUD düğmesi kapatılıp yeniden açılabilir; tercih oyun kaydından ayrı saklanır. Ortak ilerleme ve çevrimdışı menüde zamanın durması açıklanır.
