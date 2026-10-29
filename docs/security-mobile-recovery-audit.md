@@ -1,5 +1,9 @@
 # Mobile Recovery — güncel bağımlılık güvenliği
 
+30 Ekim notu: aşağıdaki25 bulgu tarihsel tabandır. Yerel kontrollü yamalar
+sonrası20 (0 kritik/8 yüksek/11 orta/1 düşük); canlı henüz değişmedi.
+Güncel analiz: [security-audit-2026-10-30.md](security-audit-2026-10-30.md).
+
 29 Ekim 2026, Node 22.13.0/npm 10.9.2; npm registry audit API yeniden sorgulandı.
 Bu denetim bağımlılık yükseltmesi veya istismar testi değildir. Paket sürümleri,
 lock resolved/integrity ve override'lar değiştirilmedi. Ham JSON yerel ve Git dışı

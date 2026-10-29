@@ -79,7 +79,7 @@ Lock farkında bu dört paket ve Sharp platform/libvips ikilileri dışında
 paket sürümü değişmedi. Parent/API/React/oyun motoru değiştirilmedi.
 `npm audit fix --force` veya major upgrade yapılmadı.
 
-Bu dalın son doğrulaması: temiz `npm ci`584 paket/585 tarama; typecheck,
+Hotbar+güvenlik dalının (`a09f7eb`) doğrulaması: temiz `npm ci`584 paket/585 tarama; typecheck,
 234/234 test (16.05s), build ve yerel dört oyunculu runtime çıkış0.
 Statik2,956,261 bayt /tahmini1,560,921;3MB sınırı korunur.
 Formatter stdin parse ve Sharp SVG→64px PNG smoke geçti. API nonce/CSP,

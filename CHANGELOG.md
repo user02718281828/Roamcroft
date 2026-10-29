@@ -1,5 +1,11 @@
 # Değişiklikler
 
+## 1.13.2 yayın adayı — güvenlik patch paketi (yerel, yayımlanmadı)
+
+- Tinypool2.1.2, proxy-addr2.0.8, source-map-js1.2.2 ve Sharp0.35.5; kontrollü override/lockfile, major yükseltme yok.
+- Taze audit25→20:0 kritik/8 yüksek/11 orta/1 düşük; kalan riskler `docs/security-audit-2026-10-30.md` içinde. Canlı1.13.1 değişmedi.
+- A–D+güvenlik adayı222 test/typecheck/build/dört oyunculu runtime geçti. Hotbar ayrı dalda234 testle doğrulandı; bu yayına dahil değil.
+
 ## Geliştirme adayı — kesin depo miktarı (yayımlanmadı)
 
 - Depoya koyma/alma için 1/10/100/Tümü veya özel tam sayı; varsayılan1 ve aktarım öncesi yön/miktar onayı.

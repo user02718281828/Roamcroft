@@ -1,5 +1,10 @@
 # 1.14.0 — Inventory & Hotbar 2.0 veri sözleşmesi taslağı
 
+Güncelleme: [Şemasız ilk9-slot referans dilimi](verification-hotbar-nine-slice.md)
+ayrı geliştirme dalında mevcut Bag/Engine'e bağlandı. Cihaz UI tercihi, gerçek
+eşya seçimi/kullanımı ve mevcut intrinsic araç kimliklerini kapsar; aşağıdaki
+instance sahipliği/ekipman/stack/göç sözleşmesinin tamamı onaylanmış sayılmaz.
+
 **PLANLANDI; uygulanmış mekanik veya onaylanmış şema değildir.** 1.13.0 rehber
 tesliminden sonra ayrı tasarım kapısıdır. Yeni kayda alan eklenmedi, göç yapılmadı.
 Referans: master plan bölüm 3 ve mevcut Bag/State/save/HTTP2/WS1/recipient kuralları.

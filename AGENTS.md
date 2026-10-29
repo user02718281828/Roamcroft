@@ -6,6 +6,20 @@ bak; aşağıdaki 1.11.5 sayıları tarihsel tabandır. Main push/deploy yetkisi
 her oturumun kullanıcı talimatından belirle; geliştirme dalı izni üretim yayını
 izni sayılmaz.
 
+30 Ekim öncelikli devam: `docs/RELEASE_CANDIDATE_1.13.2.md` tek yayın onay
+kaydıdır; A–D + dar güvenlik kodu `449d3de`, eski A–D tabanı `19f9ba3`
+korunur. Fiziksel Android eksik ve main/deploy yetkisi yok. Güvenlik raporu
+`docs/security-audit-2026-10-30.md`: yerel yama25→20,0 kritik/8 yüksek/11 orta/
+1 düşük; canlı1.13.1 yamalanmış sayılmaz. Hotbar ve E/F bu adayın üretim kodunda
+yoktur. Ayrı `codex/hotbar-nine-slice` dalında kullanıcının açık talebiyle
+şemasız gerçek9-slot referans dilimi geliştirildi:
+`docs/verification-hotbar-nine-slice.md`. `roamcroft.hotbar.v1` yalnız UI
+bağlarını tutar; miktar/tier/ownedTools veya SAVE_VERSION eklenmez. Varsayılan
+ilk8 eski araçtır; boş9 atanabilir. Seçim/atama tüketmez; E/eylem/dünya
+tıklaması mevcut Engine/sunucu metoduna gider. Bu tam1.14/ekipman/stack/drag-drop
+değildir. E/F üretime bağlanmaz. Eski fiziksel-önce kapısı tam1.14 için kalır;
+bu dar dilim son kullanıcı talimatıyla ayrıca yetkilidir.
+
 29 Ekim devam güncellemesi: canlı main `a182541` / 1.13.1. Resmî domain
 `https://roamcroft.com`; www→root301 doğrulandı. Eski Worker domainini açık
 tut; otomatik yönlendirme, DNS/TXT veya kayıt/çerez göçü yapma. Search Console
@@ -26,6 +40,17 @@ Kesin depo miktarı dilimi `docs/verification-storage-quantity.md`: quote yalnı
 gösterim, pozitif güvenli tam sayı/kapasite/stock ve onayda güncel imza kontrolü;
 Engine/sunucu otoritesi değişmedi. Varsayılan1; 1/10/100/Tümü/özel seçim.
 Bu gerçek hotbar veya SAVE_VERSION değişikliği değildir.
+
+İzole World3 prototipi `docs/verification-world3-prototype.md`; `lib/experiments`
+ve localhost8948 aracı oyundan/DB'den ayrıdır. Generation3'ü mevcut State'e veya
+eski dünyalara otomatik uygulama; sample/draw CPU süresini oyun FPS'i sayma.
+29 Ekim kullanıcı yanıtında main dışı Cloudflare build/deploy kapalı olduğu
+doğrulanmadı. Bu koşul netleşene kadar geliştirme dalı push'u da yapılmaz;
+commit'ler yerelde ve taşınabilir Git yedeğinde korunur.
+
+İzole footprint prototipi `docs/verification-footprint-prototype.md`, aynı
+yerel araçta `--footprint`. Bütün hücreler ve dış giriş/önceki kapı kontrolü
+vardır; gerçek Engine yapısı, 3D iç mekân, AOI veya üretim şeması değildir.
 
 1.12.0 UI temelinin güncel doğrulaması: `docs/verification-ui-1.12.0.md`.
 İlk açılış İngilizcedir; yalnız açıkça saklanan dil tercihi korunur. Çanta
@@ -251,7 +276,8 @@ karşılaştırılıp güncellenmelidir.
   ayrımı, kare bütçesi, analog joystick, pinch, görünür viewport ve tam ekran.
   Bırakma/iptal/odak kaybında takılı girdi bırakma. Mobil kontrol hedefleri
   ve güvenli alanları korunmalı; dokunma hareketi yanlış tıklama üretmemeli.
-- Temel kısayollar: WASD/yön tuşları yürüyüş; 1–8 araç seçimi; Tab menü;
+- Temel kısayollar: WASD/yön tuşları yürüyüş; bu dalda 1–9 hotbar seçimi
+  (varsayılan ilk8 eski araç); Tab menü;
   E etkileşim; Shift koşu; Ctrl saldırı; Esc menü/inşadan çıkış veya duraklama.
   İnşa sırasında yön tuşları döndürme, menüde Q/E bölüm değişimi içindir.
 - `pwa.ts` service worker/kurulum/güncelleme kaydını oyun açılışından sonra

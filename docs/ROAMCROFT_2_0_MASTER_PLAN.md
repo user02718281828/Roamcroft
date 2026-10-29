@@ -9,11 +9,41 @@ ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
 ## Vizyon ve karar ilkeleri
 
+**30 Ekim güncel yayın önerisi:** A–D + dar güvenlik yamaları için tek onay kaydı
+[1.13.2 yayın adayı](RELEASE_CANDIDATE_1.13.2.md), kesin kod
+`449d3dec89f6640c23298ff57fb39f13ef7a41ee`. Eski `19f9ba3` A–D tabanı korunur.
+Hotbar ve E/F kaynakları bu adayda yok. Fiziksel kabul ve yayın onayı eksik;
+Cloudflare belirsizliği nedeniyle push yok. Audit25→20, kritik0/yüksek8;
+[ayrıntı](security-audit-2026-10-30.md). Güvenlik paketi `a09f7eb`, aynı
+yamanın A–D'ye cherry-pick'i `449d3de`; üretime yayımlanmadı.
+Sonraki ayrı dalda şema/ekonomi değiştirmeyen gerçek9-slot eşya referansları
+dilimi yetkilidir; E/F üretime bağlanmaz. Sonuç kendi doğrulamasında kaydedilir.
+
+**9-slot dikey dilim / yerel uygulama tamamlandı, fiziksel kabul eksik:**
+`codex/hotbar-nine-slice`; [doğrulama](verification-hotbar-nine-slice.md).
+Çantadan gerçek item/tool referansı atama/boşaltma,1–9/dokunma seçimi, tek
+canlı Bag stoğu, tükenme ve mevcut Engine üzerinden açık kullanım var.
+UI tercihi oyun kaydından ayrı; eski kayıt/upgrade/online protokol değişmedi.
+Typecheck/234 test/build/dört oyunculu runtime ve3 mobil boyutta33 menü
+döngüsü geçti. Gerçek Game'de3→2 tüketim/kayıtlı çıkış/yeniden yükleme
+doğrulandı. 1.13.2 A–D adayına otomatik dahil edilmez; ekipman/stack/drag-drop
+ve fiziksel cihaz/WAN hâlâ eksik. Yeni biyom/büyük bina entegrasyonu yapılmaz.
+
 ### 29 Ekim 2026 devam oturumu — güncel kaynak
 
 Canlı/main **1.13.1 / `a182541045dfab06cef39a42e20954c085cecd23`**;
 yeniden yayımlanmaz. Geliştirme `codex/mobile-menu-fix-1-13-2`; yeni main
 push/deploy yetkisi yok. Eski bölüm ve sayılar tarihsel tabandır.
+
+Yerel kod checkpoint'leri: **A `c1dec4f` → B `ff938c7` → C `f87fadd` →
+D `19f9ba3` → E `e0ef01c` → F `7374026`**. Son bütünleşik doğrulama:
+Node22.13.0/npm10.9.2, npm ci, typecheck, **229/229 test**, build ve dört
+oyunculu runtime başarılı;3MB bütçe2,947,206 bayt. Ayrıntı ve kalan kabul:
+[29 Ekim teslim kaydı](continuation-2026-10-29-delivery.md).
+AB yayın adayı `codex/release-candidate-1-13-2-domain` (`ff938c7`), ABCD
+adayı `codex/release-candidate-1-13-2-camp` (`19f9ba3`). Fiziksel kabul
+eksiktir; üretim yayını yapılmadı. Cloudflare main dışı akışının güvenliği
+doğrulanmadığından kullanıcı yanıtı sonrası geliştirme dalı push'u da yapılmadı.
 
 | Paket / sıra | Güncel durum, etki ve kabul |
 | --- | --- |
@@ -21,8 +51,8 @@ push/deploy yetkisi yok. Eski bölüm ve sayılar tarihsel tabandır.
 | B / P0 | **DOĞRULAMA EKSİK (canlı):** `ff938c7` canonical, robots/sitemap, görünür HTML rehberi, marka ve origin güvenliği kodlandı. Typecheck, 215 test, build ve dört oyunculu runtime geçti; [paket kaydı](verification-domain-seo.md). A+B adayı `codex/release-candidate-1-13-2-domain`. Main'de değil. Yayından sonra sitemap/ikon/metadata HTTP kabulü ve Search Console sitemap gönderimi; indeks/sıralama garantisi yok. |
 | C / P1 | **DOĞRULAMA EKSİK (fiziksel):** Tek logolu karşılama, salt okunur kayıt ipucu/güvenli Yeni oyun, TR/EN, kumaş bölmeli çanta ve açık Depo düğmesi kodlandı. [Camp Art kaydı](verification-camp-art.md); 218 test ve üç mobil boyutta33 kapanış döngüsü, kayıt payload eşitliği, önce/sonra gerçek yerel ekranlar. Diğer menüler/HUD ve fiziksel kabul tamamlanmadı; canlıda değil. |
 | D / P1 | **DOĞRULAMA EKSİK (fiziksel):** Mevcut miktar modeliyle 1/10/100/Tümü/özel miktar, yön/onay ve güncel teklif doğrulaması kodlandı; 222 test/build/runtime ve 390px tarayıcıda kesin aktarım/iptal/çift tık/0 reddi geçti. [Kayıt](verification-storage-quantity.md). Camp Art tabanı `f87fadd`; canlıda değil. Gerçek9 yuva, araç/eşya/ekipman, referanslı seçim/taşıma, drag-drop/mobil seç–taşı, stack/hotbar **PLANLANDI**; şema/ekonomi/protokol değişimi ayrı onay ister. |
-| E / P2 | **PLANLANDI / yalnız izole prototip:** Generation 3 doğal orman/çayır/göl/nehir/tepe/dağ/bataklık, biyom geçişi, farklı ağaç/kaynak/nadir cevher/harabe/mağara/gizem/ödül. Seed/sürüm/chunk sınırı/negatif koordinat/eski edits korunur; eski dünyalara uygulanmaz. Tavşan/sincap/tilki/geyik/kuş/kurbağa/kelebek/ateşböceği/balık/böcek, nadir bitki/mantar/olay: atmosferik ve ekonomik canlılar ayrı; ilk 1–2 örnekte kare süresi ölçülür. |
-| F / P2 | **PLANLANDI:** Çok kareli yerleştirme/çarpışma/dönüş/kapı, izometrik ev/ahır/kümes/atölye/dükkân/mağara/zindan içi, kesit çatı/kamera/kalıcı nesne. Aday ölçüler: ekin/sandık 1×1, atölye 3×3, kümes 4×3, ev 5×4, ahır 6×4, sera 6×5; henüz onaylı model değil. Bölgesel otorite/AOI, oyuncu başına bağımsız streaming, lazy simülasyon, ortak maden, dört uzak oyuncu yeniden buluşması, snapshot/maliyet/reconnect testi. 20 kare sınırı salt sabitle büyütülmez; üretim göçü onaysız yapılmaz. |
+| E / P2 | **PROTOTİP:** [İzole biyom örnekleyicisi](verification-world3-prototype.md), seed/negatif koordinat/chunk sürekliliği,6 biyom türü/ağaç yoğunluğu/harabe işareti ve yerel gezinti; 225 test/build. Taban `19f9ba3`. Üretim generation2/eski edits değişmedi, gerçek oyun özelliği veya FPS sonucu değildir. Gerçek3D/spawn/kaynak ekonomisi/opt-in sürüm yolu **PLANLANDI**; tepe/dağ/bataklık geçişi, farklı ağaç/kaynak/nadir cevher/mağara/gizem/ödül derinliği eksik. Tavşan/sincap/tilki/geyik/kuş/kurbağa/kelebek/ateşböceği/balık/böcek/nadir bitki-mantar/olay planı korunur; dekor/ekonomi ve performans ayrı kapıdır. |
+| F / P2 | **PROTOTİP:** [Çok kareli harita yerleşimi](verification-footprint-prototype.md), tüm hücrelerde engel/çakışma,4 rotasyon ve dış giriş/önceki kapıyı açık tutma; 229 test/build. Taban `e0ef01c`. Üretime bağlı değil. Gerçek izometrik ev/ahır/kümes/atölye/dükkân/mağara/zindan içi, çatı/kamera/kalıcılık **PLANLANDI**. Aday ölçüler ekin/sandık1×1, atölye3×3, kümes4×3, ev5×4, ahır6×4, sera6×5 henüz onaylı oyun modeli değil. Bölgesel otorite/AOI, bağımsız streaming/lazy simülasyon/ortak maden/dört uzak oyuncu/snapshot/maliyet/reconnect planı korunur. 20 kare sınırı ve üretim şeması onaysız değiştirilmez. |
 
 **Domain / kullanıcı bildirimi:** Spaceship üzerinden `roamcroft.com` alındı,
 29 Ekim 2027 yenileme/otomatik yenileme açık; Cloudflare Free aktif zone ve
@@ -560,3 +590,33 @@ erteledi; yalnız doğrulanmış 1.13.1 için normal main push/Cloudflare yayın
 açık onay verdi. Yukarıdaki kabul-önce sırası bu sürüm için kullanıcı kararıyla
 değişmiştir. Birleşim sonrası test/build/runtime/CI ve gerçek canlı sürüm kontrolü
 gerekir. Bu izin 1.14 veya başka özelliklere taşınmaz; üretim verisi korunur.
+
+## 30 Ekim kritik devam checkpoint
+
+Hotbar kodu TAMAMLANDI: `1ce53670958df914a6e27138eb91c3c0834c5a04`,
+`codex/hotbar-nine-slice`; 234 test/typecheck/build/dört oyunculu runtime,
+33 menü döngüsü ve son dikey/yatay seçili9 görünürlüğü doğrulandı.
+Fiziksel cihaz DOĞRULAMA EKSİK; yerel, main/canlıya eklenmedi.
+Güvenlik yamaları ayrı dal/commit olarak değerlendirilecek.
+
+Sonraki büyük paket PLANLANDI: Living World & Game Art 2.0. İlk dar dilim,
+mevcut gerçek 3D ormanda mobil bütçeli özgün ağaç/çalı/çiçek varyasyonları ve
+iki atmosferik canlı (tavşan kaçışı, kuş havalanması). Ekonomi/ödül üretmeyen
+istemci sunumu; deterministik dağılım, instancing, canlı/animasyon bütçesi ve
+masaüstü/fiziksel mobil önce/sonra kare zamanı kabulü. Dünya generation/save
+geçişi yok; E/F entegrasyonu değildir. Diğer hayvanlar, mevsim varyasyonları,
+dere bitkileri, mantar/kütük/kök/kaya ve biyoma özgü canlılar sonraki dilimlerdir.
+Bu oturumda uygulanmaz.
+
+## 30 Ekim — A–D + güvenlik adayı
+
+TAMAMLANDI (yerel): `codex/release-candidate-1-13-2-secure`, uygulama kodu
+`449d3dec89f6640c23298ff57fb39f13ef7a41ee`. A–D+4 patch; hotbar ve E/F
+kaynakları hariç. Typecheck222/222 test/build/4WS runtime,33 menü döngüsü,
+depo7 koy/3 al/iptal/0 ve eski yerel test kaydı180 altın/2 ekmek geçti.
+Statik2,947,276 bayt; Worker dry-run2450.95KiB/gzip765.05KiB.
+Güvenlik TAMAMLANDI (dar yama): audit25→20,0 kritik/8 yüksek; risk incelemesi
+ve açıkların sırası security-audit-2026-10-30.md. Kalan8 yüksek kapanmadı.
+DOĞRULAMA EKSİK: fiziksel Android/iPhone/PWA/WAN, Sentry olay alımı ve uzak
+aday CI/Cloudflare. Yayın onayı yok; main/canlı1.13.1 a182541 korunur.
+Kesin yayın kapısı ve rollback RELEASE_CANDIDATE_1.13.2.md içindedir.
