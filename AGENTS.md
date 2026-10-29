@@ -25,7 +25,9 @@ doğrulanmış 1.13.0 için normal main push/Cloudflare yayınına onay verdi.
 Sonraki sürümlerin yayın yetkisi kendi oturum talimatından belirlenir.
 
 1.13.1 Mobile Recovery geliştirme dalı: `docs/verification-mobile-1.13.1.md`.
-Bu oturumda main/deploy izni yok; fiziksel cihaz kabulü eksik kalır. Mobil
+Kullanıcı 29 Ekim 2026'da yalnız 1.13.1 için başarılı birleşim sonrası kontroller
+koşuluyla main push/Cloudflare yayınına açık onay verdi; fiziksel Android
+kabulünü yayın sonrasına bilinçli olarak erteledi. Fiziksel kabul hâlâ eksiktir. Mobil
 kontrol tercihi `roamcroft.touch.v1` kayıt/ekonomiden ayrıdır; inputBlocked,
 online simülasyon duraklamasıyla aynı şey değildir. GameIcon atlasları iç SVG
 ile hücre sınırında kırpar; metin span flex kurallarına geri döndürme. Menü

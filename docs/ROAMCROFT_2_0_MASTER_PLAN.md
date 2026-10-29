@@ -498,3 +498,12 @@ draw call, CPU/GPU ve bellek ayrı ölçülür. Ağ RTT/jitter ve interpolasyon
 render FPS yerine sunulmaz. Mobil çözünürlük/kalite bütçesi ve oyuncu tercihi
 korunur; chunk yükleme ve yoğun sahnede en kötü kare raporlanır. Kazanç,
 ekonomik sonuç/kayıt/animasyon/otorite eşitliğiyle birlikte doğrulanır.
+
+
+### 1.13.1 için son yayın yetkisi — 29 Ekim 2026
+
+Kullanıcı, fiziksel Android kabulünün eksik olduğunu bilerek bunu yayın sonrasına
+erteledi; yalnız doğrulanmış 1.13.1 için normal main push/Cloudflare yayınına
+açık onay verdi. Yukarıdaki kabul-önce sırası bu sürüm için kullanıcı kararıyla
+değişmiştir. Birleşim sonrası test/build/runtime/CI ve gerçek canlı sürüm kontrolü
+gerekir. Bu izin 1.14 veya başka özelliklere taşınmaz; üretim verisi korunur.

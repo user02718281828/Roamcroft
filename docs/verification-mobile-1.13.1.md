@@ -2,7 +2,8 @@
 
 Güncel yayın hazırlığı, izole yerel test komutu ve kullanıcının Android sonuç
 tablosu: [1.13.1 son kabul](acceptance-mobile-1.13.1.md). Fiziksel kabul ve
-main/Cloudflare onayı henüz alınmadı; aşağıdaki otomatik kanıtlar bunların yerini tutmaz.
+main/Cloudflare onayı daha sonra 29 Ekim 2026'da kullanıcı tarafından verildi;
+fiziksel Android kabulü yayın sonrasına ertelendi. Otomatik kanıt fiziksel test değildir.
 
 29 Ekim 2026; çalışma alanı `C:\Users\devbu\Roamcroft`.
 Kullanıcının ana devam talimatı bu oturumun kapsamıdır; Downloads altındaki
@@ -132,3 +133,26 @@ portal SDK/reklam/domain/APK bu pakette uygulanmadı.
 Yerel/CI başarısı yayın onayı değildir. Önce fiziksel mobil kabul ve gerekirse
 dar düzeltme; ardından ayrı karşılama/örnek envanter sanat paketi. Güvenlik
 yamaları bağımsız kontrollü P0 olarak sürer. Main/aktif canlı 1.13.0 korunur.
+
+
+## 1.13.1 yayın onayı ve geri dönüş tabanı — 29 Ekim 2026
+
+Kullanıcı fiziksel Android kabulünü bilerek yayın sonrasına erteledi ve yalnız
+1.13.1 için normal main push/Cloudflare yayınına onay verdi. 35932d1 oyun ve
+2e439ee belge checkpoint'leri doğrulandı; origin/main ile fast-forward birleşim
+kullanılır. Son birleşmiş ağaçta typecheck, tam test, build ve runtime/HTTP/dört
+oyuncu kontrolleri başarılı olmadan push yapılmaz. Fiziksel Android/iOS/PWA
+sonucu başarı olarak işaretlenmez; yeni özellik/bağımlılık/şema yoktur.
+
+Önceki çalışan üretim: 1.13.0, SHA
+`03d7d00095774134ee1f4c48452f434c13977672`, Cloudflare Worker sürümü
+`4d46d25c-63e5-4342-8d34-dd286b859647` (main Workers Builds kanıtı).
+Gerekirse yalnız uygulama Worker sürümü ayrı onayla geri alınır veya normal
+revert commit'i hazırlanır; force/reset ve D1/DO geri alma/sıfırlama yapılmaz.
+
+Birleşmiş ağaçta yayın oturumu doğrulaması: Node 22.13.0/npm 10.9.2;
+typecheck başarılı, tam test 212/212 (16,35s), build/finalize/bütçe başarılı
+(2.967.962 ham / 1.591.528 tahmini sıkıştırılmış bayt), check:runtime exit 0.
+Yerel HTTP/CSP ve dört WS, gecikme/ACK/reconnect/atomiklik/ortak uyku geçti.
+Loglar work/publish1131-*.log altında; test verisi canlı D1/DO'ya yazılmadı.
+Push sonrası CI/Workers Builds SHA ve canlı açılış sonucu teslim raporuyla eşlenir.

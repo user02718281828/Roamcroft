@@ -1,7 +1,7 @@
 # 1.13.1 — güvenli fiziksel Android kabulü
 
 29 Ekim 2026. Uygulama dalı `codex/mobile-recovery-1-13-1`, kaynak
-`35932d12aef7fab1e50b1a3a52bf34c36f465705`. **Fiziksel kabul EKSİK; yayın onayı yok.**
+`35932d12aef7fab1e50b1a3a52bf34c36f465705`. **Fiziksel kabul EKSİK; kullanıcı 29 Ekim 2026'da bunu bilerek yayın onayı verdi.**
 
 ## Tekrar kullanılan kanıt ve bu oturumun kontrolü
 
@@ -109,9 +109,8 @@ kanıtı bunların yerine geçmez. USB testi gerçek WAN/dört fiziksel cihaz ka
 
 ## Yayın kararı
 
-**Otomatik kanıt yeterli; fiziksel kabul ve yayın yetkisi bekliyor.** Kullanıcı
-sonucu alındıktan sonra engeller değerlendirilir ve main/Cloudflare için ayrı
-açık onay istenir. Sonrasında Git/merge, güncel typecheck/212 test/build/runtime/
+**Güncel karar: kullanıcı yayın onayı verdi; fiziksel kabul yayın sonrasında.**
+Bu açık onay yalnız 1.13.1 içindir. Git/merge, güncel typecheck/212 test/build/runtime/
 HTTP/dört oyuncu/CI, normal push, Workers Builds ve canlı sürüm/kayıt/Sentry/CSP
 kontrolü gerekir. Başarısızlıkta yayın durur; geri dönüş üretim verisini silerek
 yapılmaz. Sonraki geliştirme: kabul engeli varsa dar düzeltme; yoksa ayrı
