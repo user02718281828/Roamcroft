@@ -1,0 +1,18 @@
+.toolbar.item-hotbar{display:flex!important;flex-wrap:nowrap;gap:4px;padding:5px;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;touch-action:pan-x;scroll-snap-type:x proximity;scrollbar-width:thin;}
+.toolbar.item-hotbar>button{flex:0 0 48px;width:48px;min-width:48px;min-height:48px;height:48px;position:relative;padding:7px;border-radius:6px;scroll-snap-align:start;}
+.item-hotbar>button>.game-icon{width:30px;height:30px;display:block;margin:auto;}
+.item-hotbar kbd{position:absolute;left:3px;top:1px;font:10px/1.1 system-ui;color:#e6ce91;}
+.item-hotbar .hotbar-count{position:absolute;right:2px;bottom:1px;font:700 11px system-ui;color:#fff1ca;background:#162e23dd;border-radius:3px;padding:0 2px;}
+.item-hotbar [data-stock-empty='true'] .game-icon{opacity:.4;}
+.hotbar-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px;}
+.hotbar-actions button{min-height:44px;padding:5px 9px;border:1px solid #bda16c66;border-radius:5px;background:#294330;color:#efdfb5;font-size:11px;}
+.hotbar-actions button:disabled{opacity:.5;}
+.hotbar-editor{grid-column:1/-1;border-top:1px solid #c5af7244;margin-top:8px;min-width:0;}
+.hotbar-editor summary{min-height:44px;align-content:center;cursor:pointer;color:#efd49b;font-size:12px;}
+.hotbar-editor p,.hotbar-editor label,.hotbar-editor output{font-size:11px;line-height:1.5;}
+.hotbar-editor label{display:block;}.hotbar-editor select{display:block;width:100%;min-height:44px;background:#20392b;color:#efdfb5;border:1px solid #a58e5b;border-radius:5px;margin:5px 0;}
+.hotbar-bindings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;}
+.camp-panel .hotbar-bindings button{min-height:48px;margin:0;padding:5px;background:#203b2b;border:1px solid #a58e5b;border-radius:5px;min-width:0;}
+.hotbar-bindings small{display:block;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hotbar-editor output{display:block;margin-top:6px;}
+@media (pointer:coarse),(max-width:600px),(max-height:500px) and (max-width:1100px){.hotbar-actions .hotbar-use{display:none;}}

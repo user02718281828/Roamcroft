@@ -56,7 +56,9 @@ karşılaştırır; insan oyuncu süresi/tutundurma ölçmez.
 Yeni çanta yuvaları yalnız görünümdür. Çanta hâlâ toplam miktar tutar; normal
 kapasite 600, koleksiyon ödülüyle 900'dür. Eşya seçmek tüketmez; ayrı eylem
 düğmesi kullanılır. Görsel sıralama kayıt stoklarını değiştirmez. Araç çubuğu
-hâlâ sekiz sabit araçtır; gerçek eşya hotbar'ı/ekipman/sürükle-bırak henüz yoktur.
+bu geliştirme dalında dokuz atanabilir araç/eşya referansı ve canlı stok gösterir.
+Seçim tüketmez; açık kullanım mevcut oyun kurallarını izler. Ekipman ve
+sürükle-bırak henüz yoktur; bu çalışma canlıya yayımlanmadı.
 
 ## Üç ayrı oyun/kayıt alanı
 
@@ -75,7 +77,7 @@ vardır; ortak maden ve uzak bağımsız keşif kapalıdır.
 
 ## Kontroller ve geliştirme
 
-WASD/oklar yürüme; 1–8 araç; Tab menü; E yakındaki etkileşim; Shift koşu;
+WASD/oklar yürüme; 1–9 bağlı araç/eşya; Tab menü; E kullanım/etkileşim; Shift koşu;
 Ctrl saldırı; fare tekerleği/pinch yakınlaştırma; sürükleme kamera;
 Esc menü/inşadan çıkış veya duraklama. Menüde Q/E bölüm, Tab odak değiştirir.
 Dokunmada joystick ve ayrı saldırı/etkileşim düğmeleri vardır. Menü çevrimdışı

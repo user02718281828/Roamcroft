@@ -114,4 +114,9 @@ export type Parameters = {
   "storage.take": { count: MessageValue };
   "storage.storeConfirm": { count: MessageValue; name: MessageValue };
   "storage.takeConfirm": { count: MessageValue; name: MessageValue };
+  "hotbar.slot": { count: MessageValue; name: MessageValue; slot: MessageValue };
+  "hotbar.assignSlot": { name: MessageValue; slot: MessageValue };
+  "hotbar.bound": { slot: MessageValue };
+  "hotbar.use": { name: MessageValue };
+  "hotbar.unavailable": { name: MessageValue };
 };

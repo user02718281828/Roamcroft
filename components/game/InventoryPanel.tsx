@@ -9,6 +9,7 @@ import {localize,translate} from '@/lib/i18n/core';
 import {useLocale} from '@/lib/i18n/react';
 import GameIcon from './GameIcon';
 import StoragePanel from './StoragePanel';
+import HotbarEditor from './HotbarEditor';
 
 export default function InventoryPanel({engine,onSeed,onBuild}:{engine:Engine;onSeed:(id:string)=>void;onBuild:(id:string)=>void}){
   const locale=useLocale();
@@ -74,6 +75,7 @@ export default function InventoryPanel({engine,onSeed,onBuild}:{engine:Engine;on
           {action.kind==='none'&&<p>{translate('bag.noAction')}</p>}
         </>:<p>{translate('bag.legacyHelp')}</p>):<p>{translate('bag.pickHelp')}</p>}
       </div>
+      <HotbarEditor itemId={entry?.id}/>
     </aside></div>
     </>}
   </section>;

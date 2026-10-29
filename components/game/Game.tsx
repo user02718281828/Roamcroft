@@ -23,6 +23,11 @@ import {useTouchPreferences} from '@/lib/ui/touch-preferences';
 import {nearbyToolTile} from '@/lib/ui/touch-target';
 import './mobile-recovery.css';
 import './camp-art.css';
+import './hotbar.css';
+import Hotbar from './Hotbar';
+import {useHotbar} from '@/lib/ui/hotbar-preferences';
+import {hotbarIntent,eatHotbarItem} from '@/lib/ui/hotbar';
+import {inventoryAction} from '@/lib/ui/inventory';
 import {ServerWorldClient} from '@/lib/server/client';
 import {preparePwa} from '@/lib/game/pwa';
 import {enterGameFullscreen,MOBILE_QUERY} from '@/lib/game/viewport';
@@ -101,6 +106,7 @@ import { registerGameTools } from '@/lib/game/webmcp';
 
 export default function Game({autoStart=false,serverMode=false,entry='play',onExit}:{autoStart?:boolean;serverMode?:boolean;entry?:'play'|'new'|'menu'|'settings';onExit?:()=>void}={}) {
   useLocale();
+  const hotbar=useHotbar(),hotbarRef=useRef(hotbar);hotbarRef.current=hotbar;
   const [guidanceEnabled] = useGuidance();
   const touch=useTouchPreferences();
   const renderStarted=frameProfile.begin();
@@ -148,7 +154,9 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     [loadingProgress,setLoadingProgress]=useState(0),
     [error, setError] = useState(''),
     [loadError, setLoadError] = useState(''),
-    [tool, setTool] = useState('hand'),
+    [tool, setToolState] = useState('hand'),
+    [heldItem,setHeldItem] = useState<string|null>(null),
+    [selectedSlot,setSelectedSlot] = useState(0),
     [seed, setSeed] = useState('wheat'),
     [build, setBuild] = useState('workshop'),
     [rotation, setRotation] = useState(0),
@@ -168,6 +176,17 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
       (Event & { id: number; expires: number })[]
     >([]);
   useEffect(()=>{if(window.matchMedia(MOBILE_QUERY).matches)setCompactHud(true);},[]);
+  const setTool=(next:string)=>{setHeldItem(null);setSelectedSlot(-1);setToolState(next);};
+  const previousBindings=useRef(hotbar);
+  useEffect(()=>{
+    if(previousBindings.current!==hotbar){previousBindings.current=hotbar;setTool('hand');}
+  },[hotbar]);
+  const selectHotbar=(index:number)=>{
+    const e=engine.current;if(!e||control.current.paused||control.current.panel)return;
+    const intent=hotbarIntent(hotbarRef.current[index],e.s.inventory);if(!intent)return;
+    setSelectedSlot(index);setHeldItem(intent.item);setToolState(intent.tool);
+    if(intent.seed)setSeed(intent.seed);if(intent.build)setBuild(intent.build);
+  };
   useEffect(()=>{if(ready)preparePwa();},[ready]);
   const control = useRef({
     tool: 'hand',
@@ -175,6 +194,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     paused: false,
     panel: null as Panel,
     sound: false,
+    item:null as string|null,
   });
   control.current = {
     tool,
@@ -182,6 +202,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     paused: !ready || paused || mainMenu || (!!panel && !coop.current?.active) || (serverMode&&!authority.current?.connected),
     panel,
     sound,
+    item:heldItem,
   };
   const inputBlocked=control.current.paused||!!panel;
   if(scene.current)scene.current.inputEnabled=!inputBlocked;
@@ -189,6 +210,11 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
   if (scene.current) {scene.current.placementRotation = rotation; scene.current.placementCorner = corner;}
   const interact=(useSelectedTool=false)=>{
     const e=engine.current;if(!e||control.current.paused||control.current.panel)return;
+    if(control.current.item){
+      const id=control.current.item,intent=hotbarIntent({kind:'item',id},e.s.inventory);
+      if(!intent?.available)return;
+      if(inventoryAction(id).kind==='eat'){eatHotbarItem(e,id);return;}
+    }
     const p=e.s.player;
     if(['build','seed','hoe','water','fertilize'].includes(control.current.tool)){
       const x=Math.round(p.x+Math.sin(p.facing)),z=Math.round(p.z+Math.cos(p.facing));
@@ -271,6 +297,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     try {
       if (file.size > 32_000_000) throw new Error(sourceText("m_0806e1acd3"));
       const state = deserialize(await file.text());
+      setTool('hand');
       nextState.current = state;
       allowSave.current = true;
       saveLocal(state);
@@ -347,7 +374,12 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
             host.current,
             e,
             (x, z) => {
-              if (control.current.paused) return;
+              if (control.current.paused||control.current.panel) return;
+              if(control.current.item){
+                const id=control.current.item,intent=hotbarIntent({kind:'item',id},e.s.inventory);
+                if(!intent?.available)return;
+                if(inventoryAction(id).kind==='eat'){eatHotbarItem(e,id);return;}
+              }
               if (control.current.tool === 'hand') {
                 const animal = e.s.animals.find(
                   (a) => Math.hypot(a.x - x, a.z - z) < 0.8,
@@ -566,7 +598,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
       }
       if(['arrowup','arrowdown','arrowleft','arrowright','control'].includes(key))ev.preventDefault();
       keys.current.add(key);if(ev.repeat)return;
-      if(/^[1-8]$/.test(key)){setTool(TOOLS[Number(key)-1].id);return;}
+      if(/^[1-9]$/.test(key)){selectHotbar(Number(key)-1);return;}
       if(key==='control')e.attack();
       if(key==='e')interact();
 
@@ -656,7 +688,9 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     }
     setPanel(null);
   };
-  const toolLabel =
+  const itemIntent=heldItem&&s?hotbarIntent({kind:'item',id:heldItem},s.inventory):null;
+  const itemUseBlocked=!!heldItem&&!itemIntent?.available;
+  const toolLabel = heldItem ? ITEMS[heldItem]?.name :
     tool === 'build'
       ? BUILDINGS[build].name
       : tool === 'fertilize'
@@ -1060,7 +1094,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                   key={id}
                   disabled={s.level < c.level}
                   className={seed === id ? 'active' : ''}
-                  onClick={() => setSeed(id)}
+                  onClick={() => {setHeldItem(null);setSelectedSlot(-1);setSeed(id);}}
                   title={localize(sourceText("m_ae04d0e6f6", { p0: c.name, p1: c.seasons.map((n) => SEASONS[n]).join(', ') }))}
                 >
                   <span>
@@ -1098,30 +1132,21 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                 <kbd>R</kbd> {translate("m_b7f4ae32d1")}</span>
               <span>
                 <kbd>{translate("m_361fbf0539")}</kbd> {translate("m_36ad4dc2b4")}</span>
-              <span>{translate("m_579318f8e9")}</span>
+              <span>{translate('hotbar.controls')}</span>
             </div>
-            <div className="toolbar glass">
-              {TOOLS.map((t) => (
-                <button
-                  key={t.id}
-                  aria-pressed={tool === t.id}
-                  className={tool === t.id ? 'selected' : ''}
-                  onClick={() => setTool(t.id)}
-                  title={localize(t.name)}
-                >
-
-                  <span>
-                    <GameIcon id={t.id === 'fish' ? 'rod' : t.id} />
-                  </span>
-                  <small>{localize(t.name)}</small>
-                </button>
-              ))}
+            <Hotbar layout={hotbar} inventory={s.inventory} active={selectedSlot} onSelect={selectHotbar} disabled={inputBlocked}/>
+            <div className="hotbar-actions">
+              <button type="button" onClick={()=>setTool('hand')} disabled={inputBlocked}>{localize(TOOLS[0].name)}</button>
+              <button type="button" onClick={()=>setPanel('inventory')} disabled={inputBlocked}>{translate('hotbar.bind')}</button>
+              {heldItem&&<button type="button" className="hotbar-use" disabled={inputBlocked||itemUseBlocked} onClick={()=>interact(true)}>
+                {translate(itemUseBlocked?'hotbar.unavailable':'hotbar.use',{name:localize(ITEMS[heldItem]?.name||heldItem)})}
+              </button>}
             </div>
           </footer>
           <div className="touch-controls">
             <Joystick disabled={inputBlocked} sensitivity={touch.sensitivity} onMove={vector=>{joystick.current=vector;}}/>
             <div className="touch-actions">
-              <TouchAction className="touch-interact" label={tool==='build'?translate('m_af7443454c'):['hand','sword'].includes(tool)?translate('m_d55ed84703'):translate('touch.useTool',{name:localize(TOOLS.find(t=>t.id===tool)?.name||'')})} disabled={inputBlocked} onAction={()=>interact(true)}><GameIcon id={['hand','sword'].includes(tool)?'hand':tool==='fish'?'rod':tool}/></TouchAction>
+              <TouchAction className="touch-interact" shortLabel={heldItem?translate(itemUseBlocked?'hotbar.noUse':'hotbar.touchUse'):undefined} label={heldItem?translate(itemUseBlocked?'hotbar.unavailable':'hotbar.use',{name:localize(ITEMS[heldItem]?.name||heldItem)}):tool==='build'?translate('m_af7443454c'):['hand','sword'].includes(tool)?translate('m_d55ed84703'):translate('touch.useTool',{name:localize(TOOLS.find(t=>t.id===tool)?.name||'')})} disabled={inputBlocked||itemUseBlocked} onAction={()=>interact(true)}><GameIcon id={heldItem||(['hand','sword'].includes(tool)?'hand':tool==='fish'?'rod':tool)}/></TouchAction>
               <TouchAction className="touch-attack" label={translate('m_ef89a5085b')} disabled={inputBlocked} onAction={()=>{if(!control.current.paused&&!control.current.panel)engine.current?.attack();}}><Swords/></TouchAction>
             </div>
           </div>

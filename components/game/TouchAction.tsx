@@ -2,7 +2,7 @@
 import {useEffect, useRef, type ReactNode} from 'react';
 import {TouchPress} from '@/lib/ui/touch-controls';
 /** One release inside = one action. Holding never repeats; cancel never fires. */
-export default function TouchAction({disabled, label, className, onAction, children}: {disabled: boolean; label: string; className: string; onAction: () => void; children: ReactNode}) {
+export default function TouchAction({disabled, label, shortLabel, className, onAction, children}: {disabled: boolean; label: string; shortLabel?:string; className: string; onAction: () => void; children: ReactNode}) {
   const press = useRef(new TouchPress());
   useEffect(() => {if (disabled) press.current.cancel();}, [disabled]);
   useEffect(() => {
@@ -16,6 +16,6 @@ export default function TouchAction({disabled, label, className, onAction, child
     onPointerCancel={() => press.current.cancel()} onLostPointerCapture={() => press.current.cancel()}
     onContextMenu={e => e.preventDefault()}
     onClick={e => {e.stopPropagation();if(e.detail===0&&!disabled) onAction();}}>
-    {children}<small aria-hidden="true">{label}</small>
+    {children}<small aria-hidden="true">{shortLabel??label}</small>
   </button>;
 }

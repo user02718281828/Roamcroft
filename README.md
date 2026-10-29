@@ -87,8 +87,9 @@ See the [first-session analysis](docs/gameplay-foundation-1.13.0.md).
 
 The pack remains the existing quantity-based inventory (600 units, or 900 with
 the collection reward). Its visual slots add no storage limit or capacity.
-Sorting changes the view only. The tool bar still has eight fixed tools; an
-item-based customizable hotbar, equipment and drag-and-drop are planned.
+Sorting changes the view only. This development branch adds nine customizable
+hotbar references with live inventory counts; selection spends nothing and
+explicit use follows existing game rules. Equipment and drag-and-drop remain planned.
 
 ## Controls
 
@@ -96,7 +97,7 @@ item-based customizable hotbar, equipment and drag-and-drop are planned.
 | --- | --- |
 | WASD / arrow keys | Walk |
 | Click terrain | Walk / use selected tool |
-| 1–8 | Select tool |
+| 1–9 | Select bound tool or item |
 | Tab / Escape | Open camp menu / close menu; Tab moves focus inside it |
 | Q / E in menus | Previous / next section |
 | E in the world | Interact nearby |

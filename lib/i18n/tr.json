@@ -1413,5 +1413,20 @@
   "bag.details": "Eşya ayrıntıları",
   "storage.quantity": "Aktarım miktarı",
   "storage.customQuantity": "Özel miktar",
-  "storage.noTransfer": "Pozitif bir tam sayı gir veya kullanılabilir stok ile boş kapasiteyi kontrol et."
+  "storage.noTransfer": "Pozitif bir tam sayı gir veya kullanılabilir stok ile boş kapasiteyi kontrol et.",
+  "hotbar.title": "Hızlı çubuk — dokuz bağlı yuva",
+  "hotbar.empty": "Boş",
+  "hotbar.slot": "Yuva {slot}: {name} · {count}",
+  "hotbar.bind": "Hızlı çubuğa ata",
+  "hotbar.help": "Eşya veya mevcut aracı, ardından yuvayı seç. Atama ve seçim harcama yapmaz. Eşyalar güncel çanta stoğunu kullanır; tükenen eşyanın bağı korunur. Araçlara buradan da ulaşabilirsin.",
+  "hotbar.choice": "Yuvaya atanacak",
+  "hotbar.selectedItem": "Çantada seçili eşya",
+  "hotbar.clear": "Yuvayı boşalt",
+  "hotbar.assignSlot": "Yuva {slot} için ata · şu anda {name}",
+  "hotbar.bound": "Yuva {slot} güncellendi. Çanta değişmedi.",
+  "hotbar.controls": "1–9: seç · E: kullan / etkileş",
+  "hotbar.use": "{name} kullan",
+  "hotbar.unavailable": "{name}: doğrudan kullanılamaz veya stok yok",
+  "hotbar.touchUse": "Eşyayı kullan",
+  "hotbar.noUse": "Kullanılamaz"
 }
