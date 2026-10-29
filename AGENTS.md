@@ -15,6 +15,13 @@ paketleri ayrı checkpoint. Yeni rehber rotası SW'de `/` önbelleğini ezmemeli
 Main/üretim yayını için bu oturumda yetki yok; güvenli geliştirme commit'leri
 yetkili. Kullanıcının marka kaynaklarını ve `tatus -sb` dosyasını koru.
 
+Camp Art sınırlı paketinin kaydı `docs/verification-camp-art.md`: tek logolu
+Launcher, salt okunur kayıt varlığı ipucu (doğrulama değildir), başlangıç niyeti
+ile mevcut Yeni oyun onayı/Ayarlar/Kayıt dosyaları, çanta–depo görünür ayrımı.
+Kapanış history traversal'ı bitmeden yeni panel geçmişi push edilmez. Ortalı
+modalın bağımsız `translate` kaymasını geri getirme. Gerçek9-slot hotbar,
+kayıt göçü veya yeni ekonomi uygulanmış sayılmaz; fiziksel kabul eksiktir.
+
 1.12.0 UI temelinin güncel doğrulaması: `docs/verification-ui-1.12.0.md`.
 İlk açılış İngilizcedir; yalnız açıkça saklanan dil tercihi korunur. Çanta
 yuvaları yalnız gösterimdir; gerçek eşya hotbar'ı veya yeni kayıt şeması yoktur.

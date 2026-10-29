@@ -21,6 +21,13 @@ created them. The [previous address](https://roamcroft.roamcroft.workers.dev)
 remains available. Export a device save before importing it on the new address;
 server ownership is not transferred by a local JSON file.
 
+The development candidate includes a new camp welcome screen and a focused
+bag/storage layout. These local captures show the candidate, not the live build:
+
+![Camp Art candidate welcome screen, local desktop browser](docs/screenshots/camp-2-launch-desktop.jpg)
+
+![Camp Art candidate bag, local 320px browser viewport, not a physical phone](docs/screenshots/camp-2-bag-mobile.jpg)
+
 ![1.13.1 mobile pack, real local browser viewport capture; not a physical phone](docs/screenshots/mobile-1.13.1-pack.jpg)
 
 The following guide capture is from 1.13.0, before Mobile Recovery.

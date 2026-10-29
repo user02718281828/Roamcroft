@@ -977,7 +977,6 @@ export default function Panels({
                 </Tabs>
               </>
             )}
-            {panel==='inventory' && engine.storageCapacity()>0 && <StoragePanel engine={engine}/>}
             {panel === 'building' && b && d && (
               <>
                 <div className="building-detail">

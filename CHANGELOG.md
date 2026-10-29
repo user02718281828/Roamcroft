@@ -1,5 +1,12 @@
 # Değişiklikler
 
+## Geliştirme adayı — Camp Art 2.0 sınırlı paket (yayımlanmadı)
+
+- Tek logo ve özgün vadi illüstrasyonuyla yeni karşılama; kayıt varlığına göre devam etme, güvenli Yeni oyun onayı, Ayarlar ve Kayıt dosyaları erişimi.
+- Kumaş bölmeli çanta, seçili eşya/kullanım alanı ve her zaman görünen Depo düğmesi; sandık gereksinimi ve mevcut inşa/aktarım yolu açıkça gösterilir.
+- Merkez modalın yana kayması kaldırıldı; kapanışın asenkron Back geçişiyle hızlı yeniden açma sıralanır. Gerçek item hotbar'ı veya kayıt şeması eklenmedi.
+- TR/EN, üç mobil boyutta 33 aç/kapat döngüsü ve salt okunur kayıt ipucu regresyonları; fiziksel Android/iPhone kabulü ayrı eksiktir.
+
 ## Geliştirme adayı — resmî domain, SEO ve marka (yayımlanmadı)
 
 - Canonical roamcroft.com, robots/sitemap, nonce korumalı JSON-LD ve görünür TR/EN oyun/kayıt rehberi.

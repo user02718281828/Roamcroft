@@ -18,8 +18,8 @@ push/deploy yetkisi yok. Eski bölüm ve sayılar tarihsel tabandır.
 | Paket / sıra | Güncel durum, etki ve kabul |
 | --- | --- |
 | A / P0 | **DOĞRULAMA EKSİK:** 1.13.2 kodu `c1dec4f`; X'in şeffaf katman tarafından engellenmesi giderildi. Typecheck, 212 test, build, dört oyunculu runtime ve üç viewport ×7 menü döngüsü geçti. [Kanıt](verification-mobile-1.13.2.md). Fiziksel Android X/Back/yeniden açma eksik; canlıda değil. |
-| B / P0 | Domain/SEO/marka: canonical, robots/sitemap, görünür HTML rehberi, özgün marka teslim dosyaları, origin güvenliği. Yerel ve canlı doğrulama ayrılır; [paket kaydı](verification-domain-seo.md). Yayından sonra sitemap gönderimi; indeks/sıralama garantisi yok. |
-| C / P1 | **PLANLANDI:** Tek logolu oyun karşılama, kayıtlı/yeni oyuncu ayrımı, TR/EN, mobil çanta/navigasyon dönüşümü ve anlaşılır depo. Önce/sonra gerçek ekran, klavye, 320×568/390×844/844×390/masaüstü, eski kayıt ve runtime; fiziksel kabul ayrıca. |
+| B / P0 | **DOĞRULAMA EKSİK (canlı):** `ff938c7` canonical, robots/sitemap, görünür HTML rehberi, marka ve origin güvenliği kodlandı. Typecheck, 215 test, build ve dört oyunculu runtime geçti; [paket kaydı](verification-domain-seo.md). A+B adayı `codex/release-candidate-1-13-2-domain`. Main'de değil. Yayından sonra sitemap/ikon/metadata HTTP kabulü ve Search Console sitemap gönderimi; indeks/sıralama garantisi yok. |
+| C / P1 | **DOĞRULAMA EKSİK (fiziksel):** Tek logolu karşılama, salt okunur kayıt ipucu/güvenli Yeni oyun, TR/EN, kumaş bölmeli çanta ve açık Depo düğmesi kodlandı. [Camp Art kaydı](verification-camp-art.md); 218 test ve üç mobil boyutta33 kapanış döngüsü, kayıt payload eşitliği, önce/sonra gerçek yerel ekranlar. Diğer menüler/HUD ve fiziksel kabul tamamlanmadı; canlıda değil. |
 | D / P1 | **PLANLANDI:** Mevcut miktar modeliyle güvenli çalışan dilim → gerçek 9 yuva, araç/eşya/ekipman ayrımı, referanslı seçim/taşıma, masaüstü drag-drop, mobil seç/taşı, stack/kapasite, kullanım onayı. Slot çizimi mekanik sayılmaz. Şema göçü/ekonomi/protokol değişimi ayrı onay ve atomiklik/dupe testleri ister. |
 | E / P2 | **PLANLANDI / yalnız izole prototip:** Generation 3 doğal orman/çayır/göl/nehir/tepe/dağ/bataklık, biyom geçişi, farklı ağaç/kaynak/nadir cevher/harabe/mağara/gizem/ödül. Seed/sürüm/chunk sınırı/negatif koordinat/eski edits korunur; eski dünyalara uygulanmaz. Tavşan/sincap/tilki/geyik/kuş/kurbağa/kelebek/ateşböceği/balık/böcek, nadir bitki/mantar/olay: atmosferik ve ekonomik canlılar ayrı; ilk 1–2 örnekte kare süresi ölçülür. |
 | F / P2 | **PLANLANDI:** Çok kareli yerleştirme/çarpışma/dönüş/kapı, izometrik ev/ahır/kümes/atölye/dükkân/mağara/zindan içi, kesit çatı/kamera/kalıcı nesne. Aday ölçüler: ekin/sandık 1×1, atölye 3×3, kümes 4×3, ev 5×4, ahır 6×4, sera 6×5; henüz onaylı model değil. Bölgesel otorite/AOI, oyuncu başına bağımsız streaming, lazy simülasyon, ortak maden, dört uzak oyuncu yeniden buluşması, snapshot/maliyet/reconnect testi. 20 kare sınırı salt sabitle büyütülmez; üretim göçü onaysız yapılmaz. |
@@ -424,7 +424,7 @@ olarak sunulmaz; dağıtım yapılırsa yayımlanan SHA ayrıca eşlenir.
   createState, combat, systems, wanderAnimals, tick için önce davranış testleri.
   Büyük motor/çizici değişikliği bu pakete dahil değildir.
 - **GÜNCEL DENETİM:** 29 Ekim `npm ci`/`npm audit --json`: **25 paket bulgusu**,
-  3 kritik / 10 yüksek / 11 orta / 1 düşük. Tarihsel 23 sonuç korunur, giderilmiş
+  3 kritik / 11 yüksek / 10 orta / 1 düşük. Tarihsel 23 sonuç korunur, giderilmiş
   sayılmaz. Toplu güncelleme yok; araç zinciri/canlı erişilebilirlik ayrı kontrollü iş.
 - Domain artık satın alındı: resmî `https://roamcroft.com`; eski Worker erişimi açık kalır. Güncel durum ve origin kuralları bu belgenin başındadır.
 

@@ -1396,5 +1396,19 @@
   "launch.about": "Yaşayan bir vadide kendine yuva kur.",
   "launch.features": "Özgün 3D tarayıcı dünyasında tarım yap, üret ve keşfet. Cihaz çiftliğinde veya en fazla dört kişiyle ortak yüzey çiftliğinde oyna. Türkçe ve İngilizce.",
   "launch.guide": "Oynanış ve kayıt rehberi",
-  "launch.origin": "Eski adresimizden mi geldin? Çiftliğin kaydettiğin adreste durur. Yeniden başlamadan önce aktarım rehberini oku."
+  "launch.origin": "Eski adresimizden mi geldin? Çiftliğin kaydettiğin adreste durur. Yeniden başlamadan önce aktarım rehberini oku.",
+  "launch.chapter": "Yeni maceran",
+  "launch.saved": "Bu tarayıcıda bir cihaz kaydı var.",
+  "launch.device": "Cihaz çiftliğin · ilk yükleme sonrası çevrimdışı",
+  "launch.start": "Maceraya başla",
+  "launch.open": "Cihaz çiftliğini aç",
+  "launch.saves": "Kayıt dosyaları",
+  "launch.farmHelp": "Çiftlikler, kayıtlar ve adres değişimi",
+  "bag.locations": "Çanta ve depo",
+  "bag.satchel": "Çanta",
+  "bag.storageTab": "Depo",
+  "bag.storageLocked": "Malzemelerin için bir yer",
+  "bag.storageHelp": "Bu ortak alanı açmak için İnşa bölümünden depo sandığı kur. Eşya koymak veya almak için buraya dön. Çanta ve deponun kapasiteleri ayrıdır.",
+  "bag.buildChest": "Depo sandığı kur",
+  "bag.details": "Eşya ayrıntıları"
 }

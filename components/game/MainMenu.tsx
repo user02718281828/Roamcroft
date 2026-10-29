@@ -7,9 +7,9 @@ import {useRef,useState} from 'react';
 import {AlertDialog,AlertDialogContent,AlertDialogHeader,AlertDialogTitle,AlertDialogDescription,AlertDialogFooter,AlertDialogCancel,AlertDialogAction} from '@/components/ui/alert-dialog';
 import PwaControls from './PwaControls';
 import GameIcon from './GameIcon';
-export default function MainMenu({onContinue,onNew,onLoad,onSettings,onGuide,onSave,onExit,loadError,serverMode=false}:{onContinue:()=>void;onNew:()=>void;onLoad:(f:File)=>void;onSettings:()=>void;onGuide:()=>void;onSave:()=>Promise<void>;onExit:()=>Promise<void>;loadError?:string;serverMode?:boolean}) {
+export default function MainMenu({onContinue,onNew,onLoad,onSettings,onGuide,onSave,onExit,loadError,serverMode=false,initialConfirm=false,onPromptHandled}:{onContinue:()=>void;onNew:()=>void;onLoad:(f:File)=>void;onSettings:()=>void;onGuide:()=>void;onSave:()=>Promise<void>;onExit:()=>Promise<void>;loadError?:string;serverMode?:boolean;initialConfirm?:boolean;onPromptHandled?:()=>void}) {
   useLocale();
-  const file=useRef<HTMLInputElement>(null),pending=useRef(false),[confirm,setConfirm]=useState(false),[exiting,setExiting]=useState(false),[error,setError]=useState('');
+  const file=useRef<HTMLInputElement>(null),pending=useRef(false),[confirm,setConfirm]=useState(initialConfirm),[exiting,setExiting]=useState(false),[error,setError]=useState('');
   return <div className="main-menu-screen">
     <section className="main-menu-card" aria-label={translate("m_d05f43f2d9")}>
       <GameIcon id="home" className="main-menu-emblem"/>
@@ -31,6 +31,6 @@ export default function MainMenu({onContinue,onNew,onLoad,onSettings,onGuide,onS
       </fieldset>
       <small>{translate("m_b34867b8cb")}</small>
     </section>
-    <AlertDialog open={confirm} onOpenChange={setConfirm}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>{translate("m_1d747cd58e")}</AlertDialogTitle><AlertDialogDescription>{translate("m_31dd986672")}</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>{translate("m_b7e193af95")}</AlertDialogCancel><AlertDialogAction onClick={onNew}>{translate("m_f3af401917")}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+    <AlertDialog open={confirm} onOpenChange={open=>{setConfirm(open);if(!open)onPromptHandled?.();}}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>{translate("m_1d747cd58e")}</AlertDialogTitle><AlertDialogDescription>{translate("m_31dd986672")}</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>{translate("m_b7e193af95")}</AlertDialogCancel><AlertDialogAction onClick={()=>{onPromptHandled?.();onNew();}}>{translate("m_f3af401917")}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
   </div>;
 }

@@ -1,0 +1,50 @@
+/* Camp art slice: item amounts, capacity, transfers and tool mechanics are unchanged. */
+.game-panel.camp-panel{translate:none!important;transition-property:opacity,box-shadow;}
+.camp-panel[data-panel='inventory']{background:linear-gradient(135deg,#273d2b,#172c23)!important;border:4px solid #82683e!important;box-shadow:0 24px 75px #061912b0,inset 0 0 0 1px #dfc18455!important;}
+.camp-panel .camp-navigation{background:linear-gradient(90deg,#293f2b,#1d3327);}
+.camp-panel .camp-navigation h3{color:#bca97a;letter-spacing:.12em;font-size:10px;}
+.camp-panel .camp-navigation button{border-radius:5px;}
+.camp-panel .pack-summary{border:0;padding-bottom:6px;}
+.pack-destinations{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;margin:5px 0 10px;background:#11291e;border:1px solid #9b86544d;border-radius:8px;}
+.pack-destinations button{display:flex;gap:8px;align-items:center;justify-content:center;min-height:44px;background:transparent;border:1px solid transparent;border-radius:5px;color:#b9c7a8;font-size:13px;}
+.pack-destinations button[aria-pressed='true']{background:linear-gradient(#6a7048,#4d5c3a);border-color:#cbb67c80;color:#ffebbb;box-shadow:inset 0 1px #eacb7b33;}
+.pack-destinations svg{width:19px;height:19px;flex:none;}
+.pack-destinations small{font-size:10px;color:#ddd0a2;}
+.pack-pockets{padding:10px;border:2px solid #705938;border-radius:9px;background:repeating-linear-gradient(0deg,#544b30 0 2px,#4b452e 2px 5px);box-shadow:inset 0 2px 10px #15291dcc;}
+.camp-panel .pack-slots{grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:8px;max-height:360px;overflow:auto;overscroll-behavior:contain;}
+.camp-panel .pack-slot{height:76px;background:radial-gradient(ellipse at center,#384d32,#152b21);border:2px solid #847044;border-radius:6px;box-shadow:inset 0 2px 7px #0a211caa,0 1px #c3a56b44;}
+.camp-panel .pack-slot[aria-pressed='true']{border-color:#f5d98e;background:radial-gradient(ellipse at center,#6f7847,#314f31);box-shadow:0 0 0 1px #edcd7f,inset 0 2px 8px #162b2366;}
+.camp-panel .pack-slot .game-icon{width:50px;height:50px;}
+.camp-panel .pack-count{font-size:12px;bottom:3px;right:4px;background:#10291ee6;border:1px solid #bfa56840;border-radius:4px;padding:1px 4px;}
+.camp-panel .pack-details{background:linear-gradient(#46583a,#283f2c);border:1px solid #b99d6266;border-radius:8px;padding:12px;min-height:0;}
+.pack-selection{display:flex;align-items:center;gap:10px;min-width:0;}
+.pack-selection>.game-icon{width:52px;height:52px;flex:none;}
+.pack-selection>div{min-width:0;}
+.pack-selection h3{font-size:18px;margin:0;}
+.pack-selection p{margin:5px 0 0;font-size:11px;}
+.camp-panel .pack-details .pack-detail-toggle{background:transparent;margin:6px 0 0;min-height:44px;color:#ded2a5;}
+.pack-storage-locked{text-align:center;padding:24px 14px;max-width:420px;margin:auto;color:#d3dabb;}
+.pack-storage-locked>.game-icon{width:76px;height:76px;margin:0 auto 14px;display:block;}
+.pack-storage-locked h3{font:500 24px Georgia,serif;color:#edd4a0;}
+.pack-storage-locked p{font-size:14px;line-height:1.6;margin:14px 0;}
+.pack-storage-locked button{min-height:48px;}
+.main-menu-card button{min-height:44px!important;}
+@media(pointer:coarse),(max-width:600px),(max-height:500px) and (max-width:1100px){
+  .main-menu-screen{overflow:auto;align-items:safe center;padding:12px;}
+  .game-panel.camp-panel[data-panel='inventory'][data-slot='sheet-content']{height:min(620px,calc(var(--app-height,100dvh) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 12px))!important;}
+  .camp-panel .pack-layout{grid-template-columns:minmax(0,1fr);gap:9px;}
+  .camp-panel .pack-details{grid-column:auto;grid-row:auto;position:static;padding:8px 10px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:0 8px;}
+  .pack-selection{gap:8px;}.pack-selection>.game-icon{width:40px;height:40px;}.pack-selection h3{font-size:16px;}
+  .camp-panel .pack-details .pack-use{min-height:44px;min-width:64px;margin:0;padding:8px;width:auto;}
+  .camp-panel .pack-details .pack-detail-toggle{grid-column:1/-1;min-height:44px;height:44px;padding:0;margin:0;font-size:11px;}
+  .pack-detail-toggle>span{font-size:11px;}
+  .camp-panel .pack-detail-body{grid-column:1/-1;border-top:1px solid #c6ae7040;}
+  .camp-panel .pack-slots{grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:7px;max-height:clamp(140px,30vh,240px);}
+  .camp-panel .pack-slot{height:70px;min-width:44px;}.camp-panel .pack-slot .game-icon{width:46px;height:46px;}
+  .pack-pockets{padding:6px;}.pack-destinations{margin-bottom:4px;}.pack-destinations button{font-size:12px;}
+}
+@media(orientation:landscape) and (max-height:500px) and (min-width:640px) and (max-width:1100px){
+  .camp-panel .pack-layout{grid-template-columns:minmax(0,1fr) minmax(190px,.65fr);}
+  .camp-panel .pack-details{grid-column:2;grid-row:1;align-self:start;}
+  .camp-panel .pack-slots{max-height:200px;}
+}

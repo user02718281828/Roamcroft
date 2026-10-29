@@ -6,6 +6,12 @@ yayından sonra kullanılabilir. Eski cihaz kaydı ve sunucu kimliği eski adres
 kalır; [önceki adres](https://roamcroft.roamcroft.workers.dev) açık tutulur.
 JSON dışa/içe aktarma cihaz çiftliğini taşır; sunucu sahipliğini taşımaz.
 
+Geliştirme adayında tek logolu karşılama ve görünür çanta/depo ayrımı var.
+Aşağıdaki görüntü yerel tarayıcıdan alındı; canlı sürüm veya fiziksel telefon
+kanıtı değildir.
+
+![Camp Art adayı — yerel masaüstü](docs/screenshots/camp-2-launch-desktop.jpg)
+
 Yaşayan bir vadide kendi yuvanı kurduğun özgün izometrik tarayıcı oyunu:
 ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 

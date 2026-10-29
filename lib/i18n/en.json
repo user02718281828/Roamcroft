@@ -1394,7 +1394,21 @@
   "storage.cancel": "Cancel",
   "storage.authority": "Stock and capacity are checked again on transfer. Online counts change after server approval.",
   "launch.about": "Grow a home in a living valley.",
-  "launch.features": "Farm, craft and explore in an original 3D browser world. Play a device farm or share a surface farm with up to four friends. English and Turkish.",
+  "launch.features": "Farm, craft and explore in an original 3D browser world. Play a device farm or share a surface farm with up to four players. English and Turkish.",
   "launch.guide": "How to play & save safely",
-  "launch.origin": "Coming from our previous address? Your farm stays on the address where you saved it. Read the transfer guide before starting over."
+  "launch.origin": "Coming from our previous address? Your farm stays on the address where you saved it. Read the transfer guide before starting over.",
+  "launch.chapter": "Your next chapter",
+  "launch.saved": "A device save is available on this browser.",
+  "launch.device": "Your device farm · offline ready after the first load",
+  "launch.start": "Start an adventure",
+  "launch.open": "Open device farm",
+  "launch.saves": "Save files",
+  "launch.farmHelp": "Farms, saves & changing address",
+  "bag.locations": "Bag and storage",
+  "bag.satchel": "Satchel",
+  "bag.storageTab": "Storage",
+  "bag.storageLocked": "A place for your supplies",
+  "bag.storageHelp": "Build a storage chest from Build to unlock this shared space. Return here to store or take supplies. Your bag and storage have separate capacities.",
+  "bag.buildChest": "Build a storage chest",
+  "bag.details": "Item details"
 }

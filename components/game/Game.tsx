@@ -22,6 +22,7 @@ import TouchAction from './TouchAction';
 import {useTouchPreferences} from '@/lib/ui/touch-preferences';
 import {nearbyToolTile} from '@/lib/ui/touch-target';
 import './mobile-recovery.css';
+import './camp-art.css';
 import {ServerWorldClient} from '@/lib/server/client';
 import {preparePwa} from '@/lib/game/pwa';
 import {enterGameFullscreen,MOBILE_QUERY} from '@/lib/game/viewport';
@@ -98,7 +99,7 @@ import {
 } from '@/lib/game/expedition';
 import { registerGameTools } from '@/lib/game/webmcp';
 
-export default function Game({autoStart=false,serverMode=false,onExit}:{autoStart?:boolean;serverMode?:boolean;onExit?:()=>void}={}) {
+export default function Game({autoStart=false,serverMode=false,entry='play',onExit}:{autoStart?:boolean;serverMode?:boolean;entry?:'play'|'new'|'menu'|'settings';onExit?:()=>void}={}) {
   useLocale();
   const [guidanceEnabled] = useGuidance();
   const touch=useTouchPreferences();
@@ -154,7 +155,8 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
     [corner, setCorner] = useState(false),
     [paused, setPaused] = useState(false),
     [mainMenu,setMainMenu] = useState(!autoStart),
-    [panel, setPanel] = useState<Panel>(serverMode?'online':null),
+    [newPrompt,setNewPrompt] = useState(entry==='new'),
+    [panel, setPanel] = useState<Panel>(serverMode?'online':entry==='settings'?'settings':null),
     [selectedBuilding, setSelectedBuilding] = useState<number | null>(null),
     [selectedNPC, setSelectedNPC] = useState('narin'),
     [sound, setSoundState] = useState(false),
@@ -688,7 +690,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
       )}
       {s && (
         <>
-          {ready && mainMenu && !panel && <MainMenu serverMode={serverMode} loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onGuide={()=>setPanel('guide')} onSave={doSave} onExit={doExit}/>}
+          {ready && mainMenu && !panel && <MainMenu initialConfirm={newPrompt} onPromptHandled={()=>setNewPrompt(false)} serverMode={serverMode} loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onGuide={()=>setPanel('guide')} onSave={doSave} onExit={doExit}/>}
           <header className="game-header">
             <div className="brand">
               <div className="brand-icon">
