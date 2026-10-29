@@ -13,6 +13,9 @@ import './menu.css';
 import './mobile.css';
 import './ui-v2.css';
 import { nextPanel } from '@/lib/ui/game-menu';
+import { firstSteps } from '@/lib/ui/first-steps';
+import { useGuidance } from '@/lib/ui/guidance';
+import './foundation.css';
 import MainMenu from './MainMenu';
 import Joystick from './Joystick';
 import {ServerWorldClient} from '@/lib/server/client';
@@ -93,6 +96,7 @@ import { registerGameTools } from '@/lib/game/webmcp';
 
 export default function Game({autoStart=false,serverMode=false,onExit}:{autoStart?:boolean;serverMode?:boolean;onExit?:()=>void}={}) {
   useLocale();
+  const [guidanceEnabled] = useGuidance();
   const renderStarted=frameProfile.begin();
   useEffect(()=>{frameProfile.mount();return()=>frameProfile.dispose();},[]);
   const exitPending=useRef(false);
@@ -623,6 +627,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
                   ? sourceText("m_23b47d8342")
                   : sourceText("m_a751b91f52"));
   const quest = s ? recommendedQuest(s) : null;
+  const introStep = s ? firstSteps(s).find(step => !step.done) : undefined;
   const chooseBuild = (type: string) => {
     setBuild(type);
     setTool('build');
@@ -876,6 +881,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
           >
             <button onClick={()=>setPanel('inventory')} title={translate("m_45a70ad025")}><Backpack/><span>{translate("m_a314bd0b56")}</span></button>
             <button onClick={()=>{if(engine.current)engine.current.toggleRest();}} title={translate("m_d178441945")}><Pause/><span>{translate("m_9eb4ab0bb4")}</span></button>
+            {guidanceEnabled && introStep && !s.mine && <button className="guidance-launch" onClick={() => setPanel('guide')} title={translate('steps.next', {title: translate(introStep.title)})} aria-label={translate('steps.title')}><HelpCircle/><span>{translate('steps.title')}</span></button>}
           </nav>
           </div>
           <div className="calendar glass">
@@ -956,8 +962,8 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
           </div>
           <div className="messages" aria-live="polite">
             {messages.map((m) => (
-              <div className={m.kind} key={m.id}>
-                {m.kind === 'good' && <Check size={13} />} {localizeText(m.text, getLocale(), 0, [s.settlement.name, ...s.animals.map(animal => animal.name || ''), ...(coop.current?.peers.map(peer => peer.name) || [])])}
+              <div className={`${m.kind} ${m.kind === 'good' && m.sound ? 'action-result' : ''}`} key={m.id}>
+                {m.kind === 'good' && (m.sound ? <GameIcon id={m.sound === 'harvest' ? 'wheat' : m.sound === 'fish' ? 'rod' : m.sound}/> : <Check size={13} />)} {localizeText(m.text, getLocale(), 0, [s.settlement.name, ...s.animals.map(animal => animal.name || ''), ...(coop.current?.peers.map(peer => peer.name) || [])])}
               </div>
             ))}
           </div>
@@ -1187,6 +1193,7 @@ export default function Game({autoStart=false,serverMode=false,onExit}:{autoStar
             setPanel={setPanel}
             onBuild={chooseBuild}
             onSeed={chooseSeed}
+            onEquip={tool => {if(tool === 'seed') chooseSeed('wheat'); else {setTool(tool);setPanel(null);}}}
             onImport={doImport}
             onExport={doExport}
             onSave={()=>void doSave().catch(()=>{})}

@@ -5,6 +5,7 @@ import { useLocale } from '@/lib/i18n/react';
 
 import AudioSettings from './AudioSettings';
 import LanguageSettings from './LanguageSettings';
+import FirstSteps, { GuidanceSetting } from './FirstSteps';
 import CampNavigation from './CampNavigation';
 import InventoryPanel from './InventoryPanel';
 import { GAME_VERSION } from '@/lib/version';
@@ -116,6 +117,7 @@ export default function Panels({
   setPanel,
   onBuild,
   onSeed,
+  onEquip,
   onImport,
   onExport,
   onSave,
@@ -139,6 +141,7 @@ export default function Panels({
   setPanel: (p: Panel) => void;
   onBuild: (type: string) => void;
   onSeed: (type: string) => void;
+  onEquip: (tool: string) => void;
   onImport: (f: File) => void;
   onExport: () => void;
   onSave: () => void;
@@ -1167,6 +1170,7 @@ export default function Panels({
             {panel === 'settings' && (
               <>
                 <div className="settings-section"><LanguageSettings /></div>
+                <div className="settings-section"><GuidanceSetting/><button type="button" className="secondary-button" onClick={() => setPanel('guide')}>{translate('steps.title')}</button></div>
                 {engine.network?.server&&<button className="primary-button" onClick={()=>setPanel('online')}>{translate("m_77d4059a4f")}</button>}
                 <div className="settings-section">
                   <SettlementName engine={engine} />
@@ -1267,6 +1271,8 @@ export default function Panels({
             )}
             {panel === 'guide' && (
               <div className="guide-content">
+                <FirstSteps state={s} shared={!!engine.network?.shared} onEquip={onEquip} onOpen={setPanel}/>
+                <details className="valley-handbook"><summary>{translate('m_6cb0038efb')}</summary>
                 {[
                   [
                     '01',
@@ -1332,7 +1338,7 @@ export default function Panels({
                     </div>
                   </section>
                 ))}
-                <div className="season-card">
+                </details><div className="season-card">
                   <b>{translate("m_1b4347b42b")}{localize(SEASONS[season(s)])}</b>
                   <p>
                     {localize(Object.values(CROPS)

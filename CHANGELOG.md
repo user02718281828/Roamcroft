@@ -1,5 +1,14 @@
 # Değişiklikler
 
+## 1.13.0 — Gameplay Foundation · geliştirme paketi, yayın onayı bekliyor
+
+- İsteğe bağlı TR/EN İlk Adımlar: mevcut sayaçlarla yedi temel hedef, araç seçimi ve ilgili menüye geçiş. Yeni ödül/görev kilidi veya otomatik ekonomik eylem yok.
+- Rehber HUD düğmesi kapatılıp yeniden açılabilir; tercih oyun kaydından ayrı saklanır. Ortak ilerleme ve çevrimdışı menüde zamanın durması açıklanır.
+- Altı araç için mevcut enerji, yükseltme ve kullanım notları; kazanım mesajları yalnız gerçek Engine/sunucu olayında ikonla vurgulanır.
+- Başlangıç ekonomisi için üç tohumda karşılaştırmalı senaryo ve `audit:first-session`. Sade profil yalnız deneydir; yeni/eski gerçek dünyaların başlangıcı ve ekonomisi değişmez.
+- 1.14.0 gerçek envanter/hotbar veri sözleşmesi ve göç/test matrisi tasarımı. Bu sürüme hotbar veya kayıt şeması değişikliği eklenmedi.
+- Doğrulama: `docs/verification-gameplay-1.13.0.md`; ilk oturum incelemesi: `docs/gameplay-foundation-1.13.0.md`.
+
 ## 1.12.0 — Çantam ve Kampım · 29 Ekim 2026
 
 - Türkçe/İngilizce altyapısı; yeni ilk açılış İngilizce, açıkça saklanan dil tercihi korunur.

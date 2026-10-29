@@ -100,4 +100,12 @@ export type Parameters = {
   "bag.baseValue": { value: MessageValue };
   "bag.slot": { count: MessageValue; name: MessageValue };
   "release.title": { version: MessageValue };
+  "steps.progress": { done: MessageValue; total: MessageValue };
+  "steps.equip": { tool: MessageValue };
+  "steps.open": { section: MessageValue };
+  "steps.next": { title: MessageValue };
+  "tools.energy": { energy: MessageValue };
+  "tools.tillEnergy": { energy: MessageValue };
+  "tools.power": { power: MessageValue };
+  "tools.damage": { damage: MessageValue };
 };

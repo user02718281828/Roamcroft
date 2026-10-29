@@ -1,0 +1,39 @@
+.game-panel.camp-panel[data-slot='sheet-content']{transition-property:opacity!important;}
+.camp-panel .first-steps{display:block;padding:0;border:0;margin:0 0 20px;min-width:0;}
+.first-steps>header{display:flex;gap:10px;align-items:flex-start;}
+.first-steps>header>svg{width:26px;height:26px;color:#e2c57d;flex:none;}
+.camp-panel .first-steps h3{font:500 23px/1.2 Georgia,serif;color:#f3dca5;margin:0 0 7px;}
+.first-steps p{font-size:12px;line-height:1.6;color:#c6d3b8;margin:8px 0;overflow-wrap:anywhere;}
+.guidance-setting{display:flex;align-items:center;gap:10px;min-height:44px;font-size:12px;color:#e1ddba;cursor:pointer;}
+.guidance-setting input{width:18px;height:18px;margin:0;flex:none;accent-color:#c8b16d;}
+.steps-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:12px;margin:12px 0;align-items:start;}
+.steps-list{list-style:none;padding:0;margin:0;display:grid;gap:4px;}
+.steps-list button{display:flex;align-items:center;gap:7px;width:100%;min-height:44px;text-align:left;padding:8px;border:1px solid #b4a16a40;border-radius:7px;color:#d8dfc2;background:#1a3026;}
+.steps-list button[aria-current='step']{border-color:#e1c47f;background:#465c37;}
+.steps-list button>span:first-child{display:grid;place-items:center;width:20px;flex:none;color:#e6cb88;}
+.steps-list button svg{width:16px;height:16px;}
+.steps-list button>span:nth-child(2){flex:1;min-width:0;font-size:12px;overflow-wrap:anywhere;}
+.steps-list small{font-size:10px;flex:none;}
+.step-details{padding:15px;border:1px solid #d4b67466;border-radius:10px;background:linear-gradient(150deg,#3f5538,#263f2e);min-width:0;}
+.step-details h4,.tool-notes h4{font:500 19px/1.25 Georgia,serif;color:#f3dba4;margin:0 0 8px;}
+.step-details button{width:100%;min-height:44px;white-space:normal;margin:6px 0;}
+.step-details>small,.tool-notes small{display:block;font-size:11px;line-height:1.5;color:#becbaa;margin:7px 0;}
+.tool-notes,.valley-handbook{border-top:1px solid #c8b47a40;padding-top:10px;margin-top:15px;}
+.valley-handbook>section{display:flex;gap:14px;margin:16px 0;}
+.valley-handbook>section>span{font:500 25px Georgia,serif;color:#b7a672;}
+.tool-notes summary,.valley-handbook summary{min-height:44px;display:list-item;align-content:center;cursor:pointer;color:#e8d39a;font-size:14px;}
+.tool-notes article{display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid #a8b28025;padding:12px 0;}
+.tool-notes article>.game-icon{width:40px;height:40px;flex:none;}
+.tool-notes article>div{min-width:0;}
+.game-shell .main-actions .guidance-launch{grid-column:1/-1;min-height:44px;}
+.game-shell .main-actions .guidance-launch span{display:inline;font-size:11px;}
+.game-shell .messages .action-result{display:flex;align-items:center;gap:7px;border-color:#d5c28399;color:#f5e3aa;animation:action-confirm .16s ease-out;}
+.game-shell .messages .action-result>.game-icon{width:25px;height:25px;flex:none;}
+@keyframes action-confirm{from{opacity:.5;transform:translateY(3px);}to{opacity:1;transform:none;}}
+@media (pointer:coarse),(max-width:600px),(max-height:500px) and (max-width:1100px){
+  .game-shell .main-actions .guidance-launch span{display:none;}
+  .steps-layout{grid-template-columns:minmax(0,1fr);}
+  .step-details{grid-row:1;padding:12px;}
+  .camp-panel .first-steps h3{font-size:21px;}
+}
+@media (prefers-reduced-motion:reduce){.game-shell .messages .action-result{animation:none;}}
