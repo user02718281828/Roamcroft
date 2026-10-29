@@ -1,5 +1,13 @@
 # Roamcroft — proje hafızası ve çalışma kuralları
 
+Güncel canlı30 Ekim:1.14.0-alpha.1/main3331e6af8aa67dac6432879fb1729d95dadd3510,
+GitHub verify ve Workers Builds success, iki origin/WWW/SEO/asset/CSP ve
+oturumsuz WS kapısı doğrulandı. Fiziksel kabul eksik; yetkili4WS yerel+CI,
+gerçek WAN yapılmadı. Yayın kaydı docs/verification-release-1.14.0-alpha.1.md.
+Sonraki `codex/living-forest`/alpha.2 yalnız yerel: forest-layout/art/life
+ValleyScene sunum katmanıdır; State/generation/kayıt/ekonomi değişmez. Bu
+sonraki paketin main push/deploy onayı yok; non-main politika hâlâ belirsiz.
+
 30 Ekim yeni kullanıcı talimatı: A–D+dört güvenlik yaması+gerçek9-slot hotbar
 içeren 1.14.0-alpha.1 için bir defalık normal main birleşimi/push ve bağlı
 Cloudflare yayını açıkça yetkilidir; fiziksel Android kabulü kullanıcıca yayın

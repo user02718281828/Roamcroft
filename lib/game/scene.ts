@@ -7,6 +7,9 @@ import {AnimalBatches} from './actor-batches.ts';
 import {AnimalPresentation} from './animal-presentation.ts';
 import { RemoteMotion } from '../coop/motion.ts';
 import { cottage, fruitTree } from './art-direction.ts';
+import {forestTree,forestPlant} from './forest-art.ts';
+import {forestReserved,forestDecoration} from './forest-layout.ts';
+import {ForestLife} from './forest-life.ts';
 import { orchardStatus } from './orchard.ts';
 import {CloudField} from './clouds.ts';
 import {natureAnchors,naturePosition,weatherDrop,type NatureAnchor} from './ambience.ts';
@@ -35,13 +38,15 @@ import {
   WINDOW,
 } from './world.ts';
 import type { Engine, Tile, Building, Animal, Enemy } from './model.ts';
-type TileVisual={key:string;group:T.Group;pending?:Tile;stamp?:[Tile['resource'],boolean,boolean,Tile['crop'],number,number,boolean]};
+type TileVisual={key:string;group:T.Group;pending?:Tile;stamp?:[Tile['resource'],boolean,boolean,Tile['crop'],number,number,boolean,boolean]};
 const terrainSlot=(s:Engine['s'],x:number,z:number)=>{const n=worldSize(s);return ((z%n+n)%n)*n+(x%n+n)%n;};
 
-// All world objects are interactive, procedural meshes. No remote assets are required.
+// Procedural world meshes; atmospheric forest actors are outside gameplay picking.
 export class ValleyScene {
   gpuTimer?:GpuTimer;
   animalBatches?:AnimalBatches;
+  forestLife?:ForestLife;
+  forestReserved=new Set<string>();
   highQuality = false;
   get detailTier(){return this.highQuality?0:this.budget.tier;}
   budget = new FrameBudget();
@@ -357,6 +362,12 @@ export class ValleyScene {
     if (!this.geometries.has(kind)) {
       let g: T.BufferGeometry;
       switch (kind) {
+        case 'canopy':
+          g = new T.IcosahedronGeometry(1, 0);
+          break;
+        case 'twig':
+          g = new T.CylinderGeometry(1, 1, 1, 4);
+          break;
         case 'sphere':
           g = new T.IcosahedronGeometry(1, 1);
           break;
@@ -723,7 +734,9 @@ export class ValleyScene {
       for(let i=0;i<3;i++)this.mesh(g,'rock',0xaaa087,(n-.5)*.7+i*.09,.12,(i-1)*.25,.045,.025,.035);
       for(const x of [-.27,.27])this.box(g,0x9a8a64,x,.101,0,.025,.006,.78);
     }
-    if(t.terrain==='grass'&&!t.resource&&!t.crop&&!t.tilled&&!buildingAt(this.engine.s,t.x,t.z)){
+    if(t.terrain==='grass'&&!t.resource&&!t.crop&&!t.tilled&&!buildingAt(this.engine.s,t.x,t.z)&&!this.forestReserved.has(tileKey(t.x,t.z))){
+      const decoration=forestDecoration(this.engine.s,t,this.forestReserved);
+      if(decoration){forestPlant(this,g,decoration,this.engine.s.seed,t.x,t.z,season(this.engine.s));return;}
       if(t.source==='tree')this.mesh(g,'cylinder',0x94623d,0,.18,0,.18,.28,.18);
       else if(n<.035)this.mesh(g,'rock',0xaba98a,.15,.12,.1,.14,.06,.11);
       else if(n>.96){this.mesh(g,'sphere',0x789454,0,.17,0,.3,.2,.24);this.mesh(g,'sphere',0xedd4a9,.13,.33,0,.045,.04,.045);}
@@ -846,38 +859,7 @@ export class ValleyScene {
   resource(t: Tile, g: T.Group) {
     const n = noise(t.x + 31, t.z + 17, this.engine.s.seed);
     if (t.resource === 'tree') {
-      const pine = n < 0.48,
-        height = 1.8 + n * 1.1;
-      this.mesh(g, 'cylinder', 0x75543b, 0, 0.65, 0, 0.13, 1.3, 0.13);
-      if (pine) {
-        for (let i = 0; i < 3; i++)
-          this.mesh(
-            g,
-            'cone',
-            (n<.24?[0x3d7355,0x4c895c,0x619661]:[0x477d74,0x58968a,0x77a799])[i],
-            0,
-            0.85 + i * 0.49,
-            0,
-            0.85 - i * 0.16,
-            height * 0.65,
-            0.85 - i * 0.16,
-          );
-      } else {
-        for (let i = 0; i < 4; i++) {
-          const a = i * 2.1;
-          this.mesh(
-            g,
-            'sphere',
-            (n<.75?[0x79a666,0x93b16a,0x6b9858,0x83a558]:[0xd8ac61,0xe5bd73,0xbca35e,0xd1b46c])[i],
-            Math.sin(a) * 0.3,
-            1.3 + i * 0.23,
-            Math.cos(a) * 0.27,
-            0.7,
-            0.65,
-            0.7,
-          );
-        }
-      }
+      forestTree(this,g,this.engine.s.seed,t.x,t.z,season(this.engine.s));
     } else if (
       ['stone', 'copper', 'iron', 'crystal'].includes(t.resource || '')
     ) {
@@ -1735,6 +1717,7 @@ export class ValleyScene {
   }
   sync() {
     const s = this.engine.s;
+    this.forestReserved=forestReserved(s);
     if (this.bridge) this.bridge.visible = !s.mine && !!tileAt(s, 26, 19);
     if (this.lastSeason !== season(s)) this.updateTerrain();
     const shifted = this.terrainTiles !== s.tiles;
@@ -1763,14 +1746,15 @@ export class ValleyScene {
     for (let index=0;index<s.tiles.length;index++) {
       const t=s.tiles[index],old=this.tileEntries[index],stamp=old?.stamp;
       const watered=t.water>0,stage=t.crop?Math.floor((t.growth/CROPS[t.crop].grow)*5):0,hasBuilding=occupiedIndices.has(index);
-      if(stamp&&stamp[0]===t.resource&&stamp[1]===t.tilled&&stamp[2]===watered&&stamp[3]===t.crop&&stamp[4]===stage&&stamp[5]===currentSeason&&stamp[6]===hasBuilding)continue;
-      const id=tileKey(t.x,t.z),key=`${t.resource}-${t.tilled}-${watered}-${t.crop}-${stage}-${currentSeason}-${hasBuilding}`;
+      const id=tileKey(t.x,t.z),reserved=this.forestReserved.has(id);
+      if(stamp&&stamp[0]===t.resource&&stamp[1]===t.tilled&&stamp[2]===watered&&stamp[3]===t.crop&&stamp[4]===stage&&stamp[5]===currentSeason&&stamp[6]===hasBuilding&&stamp[7]===reserved)continue;
+      const key=`${t.resource}-${t.tilled}-${watered}-${t.crop}-${stage}-${currentSeason}-${hasBuilding}-${reserved}`;
       if (old) this.root.remove(old.group);
       const g = new T.Group();
       g.position.set(t.x, t.height, t.z);
       g.userData.tile = { x: t.x, z: t.z };
       g.updateMatrixWorld(true);
-      const entry:TileVisual={key,group:g,pending:t,stamp:[t.resource,t.tilled,watered,t.crop,stage,currentSeason,hasBuilding]};
+      const entry:TileVisual={key,group:g,pending:t,stamp:[t.resource,t.tilled,watered,t.crop,stage,currentSeason,hasBuilding,reserved]};
       this.tiles.set(id,entry);this.tileEntries[index]=entry;
       this.updateTurf(t, terrainSlot(s, t.x, t.z));
       this.dirtyChunks.add(chunkKey(t.x, t.z));
@@ -2489,6 +2473,10 @@ export class ValleyScene {
       this.animalBatches.update(s.animals.flatMap(a=>{const group=this.creatures.get(`a${a.id}`);return group?[{type:a.type,group}]:[];}),this.viewFrustum);
       frameProfile.end('animalBatch',started);
     }
+    const forestStarted=frameProfile.begin();
+    this.forestLife??=new ForestLife(this,this.root);
+    this.forestLife.update(s,this.forestReserved,dt,this.time,this.viewFrustum,[s.player,...[...this.remotePlayers.values()].map(g=>g.position)]);
+    frameProfile.end('forestLife',forestStarted);
     this.hover.visible = !!this.hoverTile;
     if (this.hoverTile)
       this.hover.position.set(
@@ -2639,7 +2627,7 @@ export class ValleyScene {
         const faces=(mesh.geometry.index?.count||mesh.geometry.attributes.position.count)/3;
         worldTriangles+=faces*mesh.count;unculledWorldTriangles+=faces*slots.length;
       }
-      this.canvas.dataset.renderStats=JSON.stringify({...this.metrics,pixels:this.canvas.width*this.canvas.height,tier:this.detailTier,visibleInstances,totalInstances,worldTriangles,unculledWorldTriangles});
+      this.canvas.dataset.renderStats=JSON.stringify({...this.metrics,pixels:this.canvas.width*this.canvas.height,tier:this.detailTier,visibleInstances,totalInstances,worldTriangles,unculledWorldTriangles,forestActors:this.forestLife?.count||0});
       this.diagnosticsClock=0;
     }
     if (this.budget.sample(frameDuration*1000,sampleBudget)) {
@@ -2698,6 +2686,7 @@ export class ValleyScene {
   dispose() {
     this.gpuTimer?.dispose();
     this.animalBatches?.dispose();
+    this.forestLife?.dispose();
     this.resizeObserver.disconnect();
     this.disposeHandlers.forEach((fn) => fn());
     for (const g of this.geometries.values()) g.dispose();

@@ -17,7 +17,11 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
 [English](README.md) · [Değişiklikler](CHANGELOG.md) · [2.0 master planı](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Kaynak sürümü: 1.14.0-alpha.1 — mobil kurtarma ve dokuz yuvalı hotbar.**
+**Geliştirme kaynağı: 1.14.0-alpha.2 — Living Forest (yalnız yerel dal).**
+Canlı **1.14.0-alpha.1 / main `3331e6a`**, mobil kurtarma ve gerçek hotbar içerir.
+Yeni orman dilimi gerçek Three.js sahnesine üç ağaç silueti, altı yer örtüsü,
+tavşan ve kuş ekler. Görseller, ölçümler ve eksikler
+[orman doğrulamasında](docs/verification-living-forest.md) tutulur.
 Mobil kapatma, marka/rehber, kamp/çanta/depo ve güvenlik yamaları birleştirildi.
 Tam ekipman/stack/sürükle-bırak henüz yoktur. Fiziksel Android kabulü eksiktir;
 yayın kanıtı [sürüm doğrulamasında](docs/verification-release-1.14.0-alpha.1.md) tutulur.

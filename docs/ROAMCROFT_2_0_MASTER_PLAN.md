@@ -9,6 +9,11 @@ ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
 ## Vizyon ve karar ilkeleri
 
+**Güncel canlı:**1.14.0-alpha.1/main3331e6af8aa67dac6432879fb1729d95dadd3510,
+GitHub verify+Workers Builds başarılı, hotbar dahil. Yayın sonrası kanıt
+verification-release-1.14.0-alpha.1.md içinde. Bir defalık yayın izni kullanıldı;
+Living Forest/alpha.2 ayrı yerel paket, yeni production izni yok.
+
 **30 Ekim son kullanıcı kararı:** A–D+dört güvenlik patch'i+gerçek9-slot
 hotbar tek1.14.0-alpha.1 adayında birleştirilecek ve başarılı son kontrollerle
 bir defalık main/Cloudflare yayını yapılacak. Fiziksel telefon kabulü açıkça
@@ -637,3 +642,22 @@ A–D+4 güvenlik patch'i+gerçek hotbar; GitHub verify ve Workers Builds succes
 İki originde yeni sürüm, WWW/asset/SEO/CSP ve oturumsuz WS güvenlik kapısı
 geçti. Fiziksel telefon/WAN/Sentry olay alımı DOĞRULAMA EKSİK.
 Yeni kod işi `codex/living-forest`, yerel ve sonraki production onayı yok.
+
+## Living Forest ilk gerçek3D dilim — 30 Ekim
+
+TAMAMLANDI (yalnız yerel kod): `codex/living-forest` /1.14.0-alpha.2,
+ValleyScene'de3 ağaç silueti+yükseklik/renk,6 yer örtüsü,2 yeni görsel canlı
+(tavşan dolaşma/kaçış/sekme/kulak; kuş dolaşma/havalanma/kanat/iniş).
+En fazla8 aktör; mevcut world/actor batching ve frustum kullanılır. State,
+generation,kayıt,çarpışma,ekonomi,D1/DO/protokol değişmedi. E/F entegre değil.
+232 test/typecheck/build/4WS runtime ve eski yerel180 altın/1 ekmek kaydı
+geçti. Aynı masaüstü fixture/camera anlık örnek61→68 draw,325992→334464 üçgen;
+fiziksel FPS başarısı iddiası yok. Ayrıntı verification-living-forest.md.
+DOĞRULAMA EKSİK: fiziksel mobil,PWA,WAN,uzun oturum ve kullanıcı sanat kabulü.
+Canlı hotbar dahil alpha.1/main3331e6a korunur; orman dalı push/deploy edilmez.
+
+PLANLANDI: Worldgen3/versioned biyomlar/nehir/göl/harabe/mağara, gerçek büyük
+bina footprint/giriş/rotation, iç mekânlar, uzak bağımsız co-op AOI/streaming,
+stack/ekipman/drag-drop ve NPC/ilişki/görev/ticaret/üretim derinliği ana backlog'da
+kalır. Bu alt sistemler bu oturumda başlatılmadı. Önce orman diliminin cihaz ve
+sanat kabulü, ardından aynı sistemle sincap/çevre olayları için dar paket seçimi.

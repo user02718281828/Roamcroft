@@ -1,5 +1,12 @@
 # Değişiklikler
 
+## 1.14.0-alpha.2 — Living Forest · yalnız yerel geliştirme
+
+- Gerçek ValleyScene üzerinde çam/meşe/huş siluetleri; tohuma bağlı yükseklik, gövde, kök, dal ve mevsim rengi. Dünya üretimi ve kaynak konumları değişmez.
+- Orman kenarında eğrelti, çiçek, mantar, çalı, yosunlu kütük ve ot kümeleri; tarla, yol, su, hasat edilmiş gövde ve bina girişleri korunur.
+- En fazla8 görsel aktör: dolaşan/kaçan tavşanlar, yaklaşınca yumuşak havalanan/kanat çırpan/inen kuşlar. Ekonomi, eşya ve kayıt alanı üretmezler.
+- Ortak geometriler, mevcut world/actor instancing, frustum eleme ve kaynak temizliği kullanılır. Fiziksel mobil ve gerçek WAN kabulü eksiktir; bu paket yayımlanmadı.
+
 ## 1.14.0-alpha.1 — bütünleşik mobil/marka/depo/hotbar adayı
 
 - A–D mobil kapatma, marka/SEO/rehber, karşılama/çanta ve miktarlı depo aktarımı ile dört güvenlik yaması birleştirildi.
