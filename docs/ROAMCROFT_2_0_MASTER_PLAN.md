@@ -661,3 +661,9 @@ bina footprint/giriş/rotation, iç mekânlar, uzak bağımsız co-op AOI/stream
 stack/ekipman/drag-drop ve NPC/ilişki/görev/ticaret/üretim derinliği ana backlog'da
 kalır. Bu alt sistemler bu oturumda başlatılmadı. Önce orman diliminin cihaz ve
 sanat kabulü, ardından aynı sistemle sincap/çevre olayları için dar paket seçimi.
+
+Living Forest kod checkpoint'i: **f014c79566b5a39e2a691c739caa30cc6bf71d76**.
+Durum: yerel ilk dilim kodu TAMAMLANDI; fiziksel mobil/sanat/WAN/uzun oturum
+DOĞRULAMA EKSİK; production PLANLANDI ve yeni onaya bağlı.232 test ve runtime
+bu kod üzerinde geçti. İzole World3/footprint PROTOTİP olarak ayrı dallarda
+korunur. Sonraki büyük backlog'a başlanmadı.

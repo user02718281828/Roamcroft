@@ -106,3 +106,7 @@ ve altın180→162 oldu; bu simülasyon ilerlemesidir, orman helper'larının ek
 mutasyonu veya kayıt yükleme kaybı değildir. Testi durdurup kapattık; üretim
 çiftliklerine/DB'ye erişilmedi. Yardımcı fonksiyonlar için State eşitliği testi
 oyun zamanı ilerletilmeden ayrıca geçti.
+
+Kod checkpoint'i **f014c79566b5a39e2a691c739caa30cc6bf71d76**,
+`codex/living-forest`. Gerçek sahne/bitki/fauna232 test/build/runtime geçti;
+yalnız yerel. Canlı yayın checkpoint'i3331e6a; bu iki paket birbirinden ayrıdır.
