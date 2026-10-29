@@ -9,16 +9,18 @@ import GameIcon from './GameIcon';
 export default function StoragePanel({engine}:{engine:Engine}) {
   const locale=useLocale(), number=new Intl.NumberFormat(locale);
   const [selected,setSelected]=useState<string|null>(null), [confirm,setConfirm]=useState<ReturnType<typeof storageQuote>|null>(null);
+  const [quantity,setQuantity]=useState('1');
   const intent=useRef<typeof confirm>(null), sent=useRef('');
   const s=engine.s,capacity=engine.storageCapacity(),used=Object.values(s.storage).reduce((n,v)=>n+v,0);
   const items=Object.keys(ITEMS).filter(k=>(s.storage[k]||0)+(s.inventory[k]||0)>0);
   const id=selected&&items.includes(selected)?selected:items[0];
-  const deposit=id?storageQuote(engine,id,true):null, withdraw=id?storageQuote(engine,id,false):null;
+  const requested=quantity==='all'?undefined:quantity.trim()?Number(quantity):NaN;
+  const deposit=id?storageQuote(engine,id,true,requested):null, withdraw=id?storageQuote(engine,id,false,requested):null;
   const propose=(quote:NonNullable<typeof confirm>)=>{intent.current=quote;setConfirm(quote);};
   const cancel=()=>{intent.current=null;setConfirm(null);};
   const transfer=()=>{
     const quote=intent.current;cancel();if(!quote)return;
-    const fresh=storageQuote(engine,quote.id,quote.deposit);
+    const fresh=storageQuote(engine,quote.id,quote.deposit,requested);
     if(!fresh.amount||fresh.signature!==quote.signature||sent.current===fresh.signature)return;
     if(engine.transferStorage(fresh.id,fresh.amount,fresh.deposit)&&engine.network?.guest)sent.current=fresh.signature;
   };
@@ -32,6 +34,14 @@ export default function StoragePanel({engine}:{engine:Engine}) {
     {id&&deposit&&withdraw&&<div className="storage-transfer">
       <b>{localize(ITEMS[id].name)}</b>
       <p>{translate('storage.counts',{bag:number.format(s.inventory[id]||0),stored:number.format(s.storage[id]||0)})}</p>
+      <fieldset className="storage-quantity"><legend>{translate('storage.quantity')}</legend>
+        <div className="storage-presets">{(['1','10','100','all'] as const).map(value=><button key={value} type="button" aria-pressed={quantity===value}
+          onClick={()=>{setQuantity(value);cancel();}}>{value==='all'?translate('m_f43a65ad82'):value}</button>)}</div>
+        <label>{translate('storage.customQuantity')}<input type="number" inputMode="numeric" min={1} max={Math.max(capacity,900)} step={1}
+          value={quantity==='all'?'':quantity} placeholder={quantity==='all'?translate('m_f43a65ad82'):undefined}
+          onChange={event=>{setQuantity(event.target.value);cancel();}}/></label>
+        {!deposit.amount&&!withdraw.amount&&<p role="status">{translate('storage.noTransfer')}</p>}
+      </fieldset>
       <div className="storage-directions">
         <button type="button" className="secondary-button" disabled={!deposit.amount||sent.current===deposit.signature} onClick={()=>propose(deposit)}>{translate('storage.store',{count:number.format(deposit.amount)})}</button>
         <button type="button" className="secondary-button" disabled={!withdraw.amount||sent.current===withdraw.signature} onClick={()=>propose(withdraw)}>{translate('storage.take',{count:number.format(withdraw.amount)})}</button>

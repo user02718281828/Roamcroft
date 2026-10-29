@@ -1410,5 +1410,8 @@
   "bag.storageLocked": "A place for your supplies",
   "bag.storageHelp": "Build a storage chest from Build to unlock this shared space. Return here to store or take supplies. Your bag and storage have separate capacities.",
   "bag.buildChest": "Build a storage chest",
-  "bag.details": "Item details"
+  "bag.details": "Item details",
+  "storage.quantity": "Transfer amount",
+  "storage.customQuantity": "Custom amount",
+  "storage.noTransfer": "Enter a positive whole number, or check the available stock and free space."
 }

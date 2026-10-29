@@ -28,6 +28,13 @@
 .pack-storage-locked h3{font:500 24px Georgia,serif;color:#edd4a0;}
 .pack-storage-locked p{font-size:14px;line-height:1.6;margin:14px 0;}
 .pack-storage-locked button{min-height:48px;}
+.storage-quantity{margin:12px 0;border:1px solid #bda16c55;border-radius:8px;padding:10px;min-width:0;}
+.storage-quantity legend{font-size:12px;color:#ead29a;}
+.storage-presets{display:flex;gap:7px;margin-bottom:8px;}
+.storage-presets button{flex:1;min-width:44px;min-height:44px;background:#344d36;border:1px solid #bda16c66;border-radius:6px;}
+.storage-presets button[aria-pressed='true']{background:#7b794a;color:#fff0bb;outline:1px solid #e0c27b;}
+.storage-quantity label{display:flex;align-items:center;gap:10px;justify-content:space-between;font-size:12px;}
+.storage-quantity input{width:100px;min-height:44px;background:#193125;border:1px solid #bda16c88;border-radius:5px;padding:8px;color:#f3dfb3;}
 .main-menu-card button{min-height:44px!important;}
 @media(pointer:coarse),(max-width:600px),(max-height:500px) and (max-width:1100px){
   .main-menu-screen{overflow:auto;align-items:safe center;padding:12px;}

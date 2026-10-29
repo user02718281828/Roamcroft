@@ -1,5 +1,11 @@
 # Değişiklikler
 
+## Geliştirme adayı — kesin depo miktarı (yayımlanmadı)
+
+- Depoya koyma/alma için 1/10/100/Tümü veya özel tam sayı; varsayılan1 ve aktarım öncesi yön/miktar onayı.
+- Miktar değişince bekleyen onay iptal olur; stok/kapasite/teklif onay sırasında yeniden kontrol edilir. Sunucu komutları, kapasite ve kayıt modeli korunur.
+- 222 test ve dört oyunculu runtime; yerel mobil tarayıcıda kesin miktar, iptal, çift tık ve geçersiz0 kontrolü. Tam Inventory/Hotbar2.0 değildir.
+
 ## Geliştirme adayı — Camp Art 2.0 sınırlı paket (yayımlanmadı)
 
 - Tek logo ve özgün vadi illüstrasyonuyla yeni karşılama; kayıt varlığına göre devam etme, güvenli Yeni oyun onayı, Ayarlar ve Kayıt dosyaları erişimi.

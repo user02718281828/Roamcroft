@@ -22,6 +22,11 @@ Kapanış history traversal'ı bitmeden yeni panel geçmişi push edilmez. Ortal
 modalın bağımsız `translate` kaymasını geri getirme. Gerçek9-slot hotbar,
 kayıt göçü veya yeni ekonomi uygulanmış sayılmaz; fiziksel kabul eksiktir.
 
+Kesin depo miktarı dilimi `docs/verification-storage-quantity.md`: quote yalnız
+gösterim, pozitif güvenli tam sayı/kapasite/stock ve onayda güncel imza kontrolü;
+Engine/sunucu otoritesi değişmedi. Varsayılan1; 1/10/100/Tümü/özel seçim.
+Bu gerçek hotbar veya SAVE_VERSION değişikliği değildir.
+
 1.12.0 UI temelinin güncel doğrulaması: `docs/verification-ui-1.12.0.md`.
 İlk açılış İngilizcedir; yalnız açıkça saklanan dil tercihi korunur. Çanta
 yuvaları yalnız gösterimdir; gerçek eşya hotbar'ı veya yeni kayıt şeması yoktur.

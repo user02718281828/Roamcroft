@@ -1410,5 +1410,8 @@
   "bag.storageLocked": "Malzemelerin için bir yer",
   "bag.storageHelp": "Bu ortak alanı açmak için İnşa bölümünden depo sandığı kur. Eşya koymak veya almak için buraya dön. Çanta ve deponun kapasiteleri ayrıdır.",
   "bag.buildChest": "Depo sandığı kur",
-  "bag.details": "Eşya ayrıntıları"
+  "bag.details": "Eşya ayrıntıları",
+  "storage.quantity": "Aktarım miktarı",
+  "storage.customQuantity": "Özel miktar",
+  "storage.noTransfer": "Pozitif bir tam sayı gir veya kullanılabilir stok ile boş kapasiteyi kontrol et."
 }
