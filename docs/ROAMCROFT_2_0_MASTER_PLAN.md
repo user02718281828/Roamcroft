@@ -9,6 +9,15 @@ ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
 ## Vizyon ve karar ilkeleri
 
+**30 Ekim son kullanıcı kararı:** A–D+dört güvenlik patch'i+gerçek9-slot
+hotbar tek1.14.0-alpha.1 adayında birleştirilecek ve başarılı son kontrollerle
+bir defalık main/Cloudflare yayını yapılacak. Fiziksel telefon kabulü açıkça
+yayın sonrasına ertelendi. Güncel kayıt
+[1.14 alpha doğrulaması](verification-release-1.14.0-alpha.1.md); aşağıdaki
+1.13.2 ayrı aday/yetki metinleri tarihsel karardır. Tam ekipman/stack/drag-drop
+tamamlandı sayılmaz. Sonrasında Living Forest gerçek3D sahnede ayrı yerel dal;
+bu sonraki paketin production yayını yetkili değil. E/F üretim kodu hariçtir.
+
 **30 Ekim güncel yayın önerisi:** A–D + dar güvenlik yamaları için tek onay kaydı
 [1.13.2 yayın adayı](RELEASE_CANDIDATE_1.13.2.md), kesin kod
 `449d3dec89f6640c23298ff57fb39f13ef7a41ee`. Eski `19f9ba3` A–D tabanı korunur.

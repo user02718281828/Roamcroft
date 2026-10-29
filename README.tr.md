@@ -1,8 +1,8 @@
 # Roamcroft
 
 Resmî adres: [roamcroft.com](https://roamcroft.com). Domain/SEO/marka paketi
-geliştirme adayıdır; [oynanış ve kayıt rehberi](https://roamcroft.com/how-to-play)
-yayından sonra kullanılabilir. Eski cihaz kaydı ve sunucu kimliği eski adreste
+bu sürüme dahildir; [oynanış ve kayıt rehberi](https://roamcroft.com/how-to-play)
+bulunur. Eski cihaz kaydı ve sunucu kimliği eski adreste
 kalır; [önceki adres](https://roamcroft.roamcroft.workers.dev) açık tutulur.
 JSON dışa/içe aktarma cihaz çiftliğini taşır; sunucu sahipliğini taşımaz.
 
@@ -17,9 +17,10 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
 [English](README.md) · [Değişiklikler](CHANGELOG.md) · [2.0 master planı](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Kaynak sürümü: 1.13.2 — mobil menü yaması (geliştirme dalı, yayımlanmadı).**
-Canlı 1.13.1 main `a182541` üzerinde kalır. Yama için ayrı yayın onayı ve
-fiziksel Android doğrulaması gerekir.
+**Kaynak sürümü: 1.14.0-alpha.1 — mobil kurtarma ve dokuz yuvalı hotbar.**
+Mobil kapatma, marka/rehber, kamp/çanta/depo ve güvenlik yamaları birleştirildi.
+Tam ekipman/stack/sürükle-bırak henüz yoktur. Fiziksel Android kabulü eksiktir;
+yayın kanıtı [sürüm doğrulamasında](docs/verification-release-1.14.0-alpha.1.md) tutulur.
 [Canlı oyun](https://roamcroft.com) ayrı yayımlanır.
 Ana README'deki görseller üzerinde belirtilen sürümden yerel tarayıcıda alınır;
 eski 1.3 ekranları güncel sürüm olarak sunulmaz.

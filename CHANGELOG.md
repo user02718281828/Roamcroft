@@ -1,5 +1,11 @@
 # Değişiklikler
 
+## 1.14.0-alpha.1 — bütünleşik mobil/marka/depo/hotbar adayı
+
+- A–D mobil kapatma, marka/SEO/rehber, karşılama/çanta ve miktarlı depo aktarımı ile dört güvenlik yaması birleştirildi.
+- Gerçek9-slot araç/eşya referansı, canlı stok,1–9/dokunma seçimi, açık kullanım ve cihazda kalıcı bağlar. Kayıt şeması, ekonomi ve araç yükseltmeleri korunur.
+- Tam ekipman/stack/drag-drop paketi değildir. E/F deney kaynakları hariçtir. Fiziksel Android kabulü kullanıcı onayıyla yayın sonrasına ertelendi; son yayın sonucu doğrulama belgesinde tutulur.
+
 ## 1.13.2 yayın adayı — güvenlik patch paketi (yerel, yayımlanmadı)
 
 - Tinypool2.1.2, proxy-addr2.0.8, source-map-js1.2.2 ve Sharp0.35.5; kontrollü override/lockfile, major yükseltme yok.

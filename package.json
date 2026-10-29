@@ -1,6 +1,6 @@
 {
   "name": "roamcroft",
-  "version": "1.13.2",
+  "version": "1.14.0-alpha.1",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -73,7 +73,9 @@
   "description": "An original isometric browser game about farming, exploration and cooperative village life.",
   "overrides": {
     "sharp": "0.35.5",
-    "oxfmt": { "tinypool": "2.1.2" },
+    "oxfmt": {
+      "tinypool": "2.1.2"
+    },
     "proxy-addr": "2.0.8",
     "source-map-js": "1.2.2",
     "@esbuild-kit/core-utils": {

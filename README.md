@@ -8,14 +8,16 @@ design sources to copy.
 
 [Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Source version: 1.13.2 — mobile menu hotfix (development branch, not deployed).**
-Live 1.13.1 remains on main `a182541`. The hotfix requires separate approval
-and physical Android verification.
+**Source version: 1.14.0-alpha.1 — mobile recovery and nine-slot hotbar.**
+This combines the mobile close fix, brand/guide, camp and storage UI, audited
+dependency patches and customizable item references. Full equipment, stack
+management and drag-and-drop remain planned. Physical Android acceptance is
+pending; deployment evidence is recorded in the [release verification](docs/verification-release-1.14.0-alpha.1.md).
 [Live game](https://roamcroft.com) is deployed separately;
 the source branch and its screenshots do not prove that the live build has updated.
 
-The candidate also prepares the official domain, brand icons and a bilingual
-[field guide](https://roamcroft.com/how-to-play) (available after release).
+The release includes the official domain, brand icons and a bilingual
+[field guide](https://roamcroft.com/how-to-play).
 Your existing device save and server session stay on the address where you
 created them. The [previous address](https://roamcroft.roamcroft.workers.dev)
 remains available. Export a device save before importing it on the new address;
@@ -87,7 +89,7 @@ See the [first-session analysis](docs/gameplay-foundation-1.13.0.md).
 
 The pack remains the existing quantity-based inventory (600 units, or 900 with
 the collection reward). Its visual slots add no storage limit or capacity.
-Sorting changes the view only. This development branch adds nine customizable
+Sorting changes the view only. The hotbar adds nine customizable
 hotbar references with live inventory counts; selection spends nothing and
 explicit use follows existing game rules. Equipment and drag-and-drop remain planned.
 

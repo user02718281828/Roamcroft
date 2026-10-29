@@ -1,5 +1,13 @@
 # Roamcroft — proje hafızası ve çalışma kuralları
 
+30 Ekim yeni kullanıcı talimatı: A–D+dört güvenlik yaması+gerçek9-slot hotbar
+içeren 1.14.0-alpha.1 için bir defalık normal main birleşimi/push ve bağlı
+Cloudflare yayını açıkça yetkilidir; fiziksel Android kabulü kullanıcıca yayın
+sonrasına ertelendi. Yayın kontrolleri başarısızsa yayın yok. Bu onay sonraki
+Living Forest geliştirme paketini yayımlama izni değildir. Non-main deploy
+politikası belirsiz kaldığından sonraki geliştirme push'u yapılmaz. Eski
+belgelerdeki 'onay yok/hotbar hariç' ifadeleri önceki adayın tarihsel sınırıdır.
+
 Güncel uzun vadeli iş sırası ve durum kaynağı:
 `docs/ROAMCROFT_2_0_MASTER_PLAN.md`. Paket teslimlerinde son doğrulama belgesine
 bak; aşağıdaki 1.11.5 sayıları tarihsel tabandır. Main push/deploy yetkisini

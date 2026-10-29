@@ -1,5 +1,9 @@
 # Gerçek9-slot hotbar — şemasız ilk dikey dilim
 
+30 Ekim güncellemesi: bu kod1.14.0-alpha.1 bütünleşik adaya899b9fe ile alındı.
+Önceki 'ayrı/yayımlanmadı' ifadeleri aşağıdaki ilk geliştirme kabulüne aittir;
+son canlı durum [bütünleşik yayın kaydındadır](verification-release-1.14.0-alpha.1.md).
+
 Dal `codex/hotbar-nine-slice`; ayrı geliştirme işi. A–D1.13.2 yayın adayı
 `19f9ba3` bu kodu içermez. Üretime gönderilmedi; tam Inventory/Hotbar2.0 değildir.
 

@@ -1,5 +1,10 @@
 # Roamcroft 1.13.2 — tek yayın adayı kaydı
 
+30 Ekim son karar: bu belge hotbar hariç fallback adayının tarihsel kaydıdır.
+Kullanıcı A–D+güvenlik+hotbar1.14.0-alpha.1 yayınına bir defalık açık onay
+verdi; güncel [bütünleşik yayın kaydı](verification-release-1.14.0-alpha.1.md).
+Aşağıdaki eski 'onay yok/hotbar hariç' sınırları önceki aday içindir.
+
 30 Ekim 2026. **YEREL ADAY / ÜRETİME YAYIMLANMADI. Fiziksel Android kabulü eksik.**
 
 Önerilen kapsam **A–D + dört kontrollü güvenlik yaması**.
