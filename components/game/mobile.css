@@ -1,55 +1,13 @@
 /* Telefon görünümü: dünya kenardan kenara, yalnızca kontroller güvenli alanda. */
-.mobile-vitals,.mobile-fullscreen {display:none;}
 @media (pointer:coarse),(max-width:600px),(max-height:500px) and (max-width:1100px) {
   .game-shell {--safe-t:env(safe-area-inset-top,0px);--safe-r:env(safe-area-inset-right,0px);--safe-b:env(safe-area-inset-bottom,0px);--safe-l:env(safe-area-inset-left,0px);min-height:0!important;height:var(--app-height,100dvh);}
-  .game-shell .game-header {display:flex;gap:4px;height:calc(52px + var(--safe-t));padding:calc(4px + var(--safe-t)) calc(8px + var(--safe-r)) 4px calc(8px + var(--safe-l));}
-  .game-shell .brand {display:none;}
-  .game-shell .resource-bar {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));flex:1;max-width:284px;min-width:0;padding:5px 2px;margin:0;height:36px;border-radius:8px;}
-  .game-shell .resource {display:flex;justify-content:center;gap:3px;min-width:0;padding:0 4px;}
-  .game-shell .resource b {font-size:11px;overflow:hidden;text-overflow:ellipsis;}
-  .game-shell .resource small {display:none;}
-  .game-shell .resource>span {font-size:18px;}
-  .game-shell .resource .game-icon {width:20px;height:20px;}
-  .game-shell .header-actions {display:flex;gap:2px;margin-left:auto;}
-  .game-shell .header-actions .icon-button {display:grid;width:44px;height:44px;min-width:44px;min-height:44px;border-radius:8px;}
-  .game-shell .header-actions .sound-button,.game-shell .header-actions .pause-button {display:none;}
-  .game-shell .header-actions svg {width:19px;height:19px;}
-  .game-shell .mobile-vitals {display:flex;position:absolute;top:calc(55px + var(--safe-t));left:calc(8px + var(--safe-l));gap:10px;padding:5px 8px;background:#17372dd9;border-radius:7px;font-size:11px;color:#f1e7c9;}
-  .mobile-vitals span {display:flex;gap:4px;align-items:center;font-variant-numeric:tabular-nums;}
-  .mobile-vitals svg {width:13px;height:13px;}
-  .mobile-vitals .low {color:#ffb6a4;}
-  .game-shell .calendar {display:flex;top:calc(55px + var(--safe-t));right:calc(8px + var(--safe-r));width:auto;min-width:0;max-width:min(165px,calc(100% - 180px));padding:4px 7px;gap:5px;border-radius:7px;}
-  .game-shell .calendar .weather {display:none;}
-  .game-shell .calendar b,.game-shell .calendar span {font-size:10px;line-height:1.2;}
-  .game-shell .calendar span {margin-top:1px;}
-  .game-shell .hud-left {left:calc(8px + var(--safe-l));top:calc(96px + var(--safe-t));width:44px;bottom:auto;gap:0;}
-  .game-shell .hud-left .status-card,.game-shell .hud-left .quest-peek,.game-shell .hud-toggle {display:none;}
-  .game-shell .hud-left .main-actions {width:44px;display:flex;flex-direction:column;padding:0;gap:4px;border:0;background:none;box-shadow:none;overflow:visible;}
-  .game-shell .hud-left .main-actions button {width:44px;height:44px;min-width:44px;min-height:44px;padding:0;display:grid;place-items:center;background:#203e32d9;border:1px solid #cabb7e40;border-radius:8px;}
-  .game-shell .hud-left .main-actions span {display:none;}
-  .game-shell .world-actions {display:flex;flex-direction:column;top:calc(96px + var(--safe-t));right:calc(8px + var(--safe-r));width:44px;gap:4px;}
-  .game-shell .world-actions button {width:44px;height:44px;min-width:44px;min-height:44px;border-radius:8px;}
-  .game-shell .world-actions button[aria-label='Yakınlaştır'],.game-shell .world-actions button[aria-label='Uzaklaştır'],.game-shell .world-actions button[aria-label='Gezginin el kitabı'] {display:none;}
-  .game-shell .minimap,.game-shell .tool-info,.game-shell .performance-readout {display:none;}
-  .game-shell .touch-controls {display:block;position:absolute;inset:auto auto calc(12px + var(--safe-b)) calc(12px + var(--safe-l));z-index:20;pointer-events:none;}
   .game-shell .joystick {width:104px;height:104px;}
   .game-shell .joystick-knob {width:44px;height:44px;}
   .game-shell .joystick-axis,.game-shell .joystick-label {display:none;}
-  .game-shell .touch-attack,.game-shell .touch-interact {position:fixed;left:auto;right:calc(12px + var(--safe-r));bottom:calc(12px + var(--safe-b));width:48px;height:48px;display:grid;place-items:center;border:1px solid #d8c48870;border-radius:12px;background:#243f31ed;pointer-events:auto;touch-action:manipulation;}
-  .game-shell .touch-interact {bottom:calc(66px + var(--safe-b));background:#b99e62;color:#183628;}
-  .game-shell .bottom-hud {left:50%;bottom:calc(132px + var(--safe-b));width:calc(100% - 24px - var(--safe-l) - var(--safe-r));max-width:424px;}
   .game-shell .toolbar {padding:3px;gap:2px;border-radius:10px;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;touch-action:pan-x;}
   .game-shell .toolbar button {flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:3px;border-radius:7px;}
   .game-shell .toolbar .game-icon {width:30px;height:30px;}
   .game-shell .toolbar small {display:none;}
-  .game-shell .placement-banner,.game-shell .seed-picker {bottom:calc(187px + var(--safe-b));padding:5px;gap:4px;font-size:11px;max-width:calc(100% - 20px - var(--safe-l) - var(--safe-r));}
-  .game-shell .placement-banner p {display:none;}
-  .game-shell .placement-banner button,.game-shell .seed-picker button {min-height:44px;min-width:44px;}
-  .game-shell .messages {top:calc(96px + var(--safe-t));bottom:auto;left:calc(60px + var(--safe-l));right:calc(60px + var(--safe-r));max-width:none;width:auto;}
-  .game-shell .messages>div {font-size:11px;padding:6px;border-radius:7px;}
-  .game-shell .messages>div:nth-child(n+2) {display:none;}
-  .game-shell .activity-banner,.game-shell .raid-banner {top:auto;bottom:calc(188px + var(--safe-b));max-width:calc(100% - 24px - var(--safe-l) - var(--safe-r));min-width:0;font-size:11px;padding:5px 8px;}
-  .game-shell .has-panel .touch-controls,.game-shell.has-panel .touch-controls {visibility:hidden;}
   .game-shell .server-status {top:auto;bottom:calc(2px + var(--safe-b));font-size:9px;max-width:calc(100% - 150px);padding:1px 6px;}
 
   .game-panel[data-slot='sheet-content'] {inset:calc(var(--app-top,0px) + env(safe-area-inset-top,0px) + 6px) auto auto calc(env(safe-area-inset-left,0px) + 6px)!important;transform:none!important;width:calc(var(--app-width,100vw) - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px) - 12px)!important;max-width:none!important;height:calc(var(--app-height,100dvh) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 12px)!important;max-height:none!important;border-radius:12px;}
@@ -119,12 +77,6 @@
   .game-confirm {max-height:calc(var(--app-height,100dvh) - 24px);overflow:auto;}
 }
 @media (orientation:landscape) and (max-height:600px) and (max-width:1200px),(pointer:coarse) and (orientation:landscape) {
-  .game-shell .resource-bar {max-width:min(284px,calc(50% - 70px));}
-  .game-shell .calendar {top:calc(10px + var(--safe-t,0px));left:50%;right:auto;transform:translateX(-50%);max-width:180px;}
-  .game-shell .hud-left,.game-shell .world-actions {top:calc(92px + var(--safe-t,0px));}
-  .game-shell .bottom-hud {bottom:calc(14px + var(--safe-b,0px));width:calc(100% - 280px - var(--safe-l,0px) - var(--safe-r,0px));max-width:390px;}
-  .game-shell .placement-banner,.game-shell .seed-picker,.game-shell .activity-banner,.game-shell .raid-banner {bottom:calc(72px + var(--safe-b,0px));max-width:calc(100% - 260px - var(--safe-l,0px) - var(--safe-r,0px));}
-  .game-shell .messages {top:calc(58px + var(--safe-t,0px));left:calc(190px + var(--safe-l,0px));right:calc(65px + var(--safe-r,0px));max-width:340px;}
   .game-panel[data-slot='sheet-content'] {display:grid;grid-template-columns:86px minmax(0,1fr);grid-template-rows:44px 27px minmax(0,1fr);}
   .game-panel .panel-header {grid-column:2;grid-row:1;}
   .game-panel .panel-pause {grid-column:2;grid-row:2;}

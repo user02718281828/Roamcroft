@@ -119,4 +119,5 @@ export type Parameters = {
   "hotbar.bound": { slot: MessageValue };
   "hotbar.use": { name: MessageValue };
   "hotbar.unavailable": { name: MessageValue };
+  "hud.threats": { count: MessageValue };
 };

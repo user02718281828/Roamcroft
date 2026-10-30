@@ -130,91 +130,6 @@ p {
   backdrop-filter: none;
   border-radius: 12px;
 }
-.game-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 20px 26px;
-  background: linear-gradient(#173029db, #17302955, transparent);
-  height: 98px;
-}
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.brand-icon {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 48px;
-  color: #e4c48b;
-  border: 1px solid #e1c58a66;
-  border-radius: 14px 14px 20px 20px;
-  background: #314432;
-}
-.brand-icon svg {
-  width: 27px;
-  height: 27px;
-}
-.brand h1 {
-  font-family: Georgia, serif;
-  font-weight: 600;
-  font-size: 24px;
-  letter-spacing: 3px;
-  color: #f5e9c7;
-}
-.brand span {
-  display: block;
-  font-size: 10px;
-  letter-spacing: 2.4px;
-  color: #c8cbb1;
-  margin-top: 5px;
-}
-.resource-bar {
-  display: flex;
-  gap: 0;
-  margin: auto;
-  overflow: hidden;
-  background: #203b2ee8;
-  border: 1px solid #ebd6a738;
-  box-shadow: 0 4px 20px #1428222b;
-  border-radius: 12px;
-  padding: 10px 6px;
-}
-.resource {
-  padding: 0 19px;
-  display: grid;
-  grid-template-columns: 25px auto;
-  column-gap: 8px;
-  border-right: 1px solid #dfd3a926;
-  align-items: center;
-}
-.resource:last-child {
-  border: 0;
-}
-.resource > span {
-  font-size: 24px;
-  grid-row: span 2;
-}
-.resource b {
-  font-size: 17px;
-  font-variant-numeric: tabular-nums;
-}
-.resource small {
-  font-size: 11px;
-  color: #b6c6ab;
-}
-.resource.gold {
-  color: #eed197;
-}
-.resource.gold > span {
-  font-size: 30px;
-}
 .icon-button {
   display: grid;
   place-items: center;
@@ -223,43 +138,6 @@ p {
   border-radius: 10px;
   width: 43px;
   height: 43px;
-}
-.status-card {
-  position: absolute;
-  left: 26px;
-  top: 114px;
-  display: flex;
-  padding: 12px;
-  gap: 12px;
-  width: 238px;
-}
-.portrait {
-  width: 52px;
-  height: 58px;
-  display: grid;
-  place-items: center;
-  font-size: 32px;
-  border-radius: 8px;
-  background: linear-gradient(145deg, #6a855a, #465e46);
-  border: 1px solid #e1cd9366;
-}
-.status-main {
-  flex: 1;
-}
-.player-name {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: Georgia, serif;
-  font-size: 17px;
-}
-.player-name > span {
-  font: 600 11px var(--font-sans);
-  color: #e0c481;
-  background: #ddc3851c;
-  border: 1px solid #ddc38538;
-  border-radius: 4px;
-  padding: 3px 5px;
 }
 .xp-track,
 .quest-progress {
@@ -276,113 +154,14 @@ p {
   background: #dcbf7e;
   transition: width 0.2s;
 }
-.vitals {
-  display: flex;
-  gap: 11px;
-  font-size: 11px;
-}
-.vitals span {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-.vitals svg {
-  width: 12px;
-  height: 12px;
-}
-.vitals span:first-child {
-  color: #e6a096;
-}
-.vitals span:nth-child(2) {
-  color: #e8d385;
-}
-.vitals span:nth-child(3) {
-  color: #b7ca8b;
-}
-.calendar {
-  position: absolute;
-  right: 26px;
-  top: 114px;
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  padding: 15px 18px;
-  min-width: 228px;
-}
-.weather {
-  color: #edd593;
-}
-.weather svg {
-  width: 31px;
-  height: 31px;
-}
-.calendar b {
-  font-size: 14px;
-  font-weight: 500;
-}
-.calendar span {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  font-size: 12px;
-  color: #b1c2a9;
-  margin-top: 5px;
-}
-.calendar i {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #b1c2a9;
-}
-.quest-peek {
-  position: absolute;
-  left: 26px;
-  top: 220px;
-  padding: 18px;
-  width: 238px;
-}
 .eyebrow {
   color: #c5b682;
   font-size: 10px;
   letter-spacing: 1.7px;
   font-weight: 600;
 }
-.quest-peek h2 {
-  font-family: Georgia, serif;
-  font-size: 20px;
-  font-weight: 500;
-  margin: 10px 0;
-}
-.quest-peek p {
-  font-size: 13px;
-  color: #bcc8af;
-  line-height: 1.7;
-}
 .quest-progress {
   margin-top: 16px;
-}
-.quest-peek small {
-  display: block;
-  text-align: right;
-  font-size: 11px;
-  color: #bdc8ad;
-}
-.world-actions {
-  position: absolute;
-  right: 26px;
-  top: 210px;
-  display: grid;
-  gap: 8px;
-}
-.world-actions button {
-  display: grid;
-  place-items: center;
-  background: #263e33e8;
-  border: 1px solid #dac89538;
-  border-radius: 10px;
-  width: 38px;
-  height: 38px;
-  color: #d9d7b9;
 }
 .location-label {
   position: absolute;
@@ -398,12 +177,6 @@ p {
 .location-label span {
   padding: 0 13px;
   color: #e9cf9a;
-}
-.bottom-hud {
-  position: absolute;
-  bottom: 22px;
-  left: 50%;
-  transform: translateX(-50%);
 }
 .toolbar {
   display: flex;
@@ -446,100 +219,6 @@ p {
 .toolbar small {
   font-size: 10px;
   color: #d4dbc1;
-}
-.control-hints {
-  display: flex;
-  justify-content: center;
-  gap: 18px;
-  margin-bottom: 10px;
-  color: #ecebd0cc;
-  font-size: 11px;
-  text-shadow: 0 1px 4px #102e27;
-}
-.control-hints kbd {
-  border: 1px solid #dfe1b638;
-  background: #223e3270;
-  border-radius: 3px;
-  padding: 2px 4px;
-  font-size: 10px;
-  margin-right: 5px;
-}
-.tool-info {
-  position: absolute;
-  left: 26px;
-  bottom: 28px;
-  padding: 13px 15px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  min-width: 180px;
-}
-.tool-info > span {
-  font-size: 26px;
-}
-.tool-info b {
-  font-size: 14px;
-}
-.tool-info p {
-  font-size: 11px;
-  color: #b3c2a8;
-  margin-top: 5px;
-}
-.minimap {
-  position: absolute;
-  right: 26px;
-  bottom: 25px;
-  padding: 10px;
-  width: 166px;
-  overflow: hidden;
-}
-.minimap > div {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0 0 8px;
-  color: #d5ccaa;
-}
-.minimap b {
-  font-size: 9px;
-  letter-spacing: 1px;
-  font-weight: 500;
-}
-.minimap > div > span {
-  margin-left: auto;
-  font-size: 10px;
-}
-.minimap canvas {
-  display: block;
-  width: 144px;
-  height: 144px;
-  border-radius: 4px;
-}
-.minimap small {
-  display: block;
-  font-size: 10px;
-  color: #b3c1a5;
-  text-align: center;
-  margin-top: 7px;
-}
-.messages {
-  position: absolute;
-  left: 50%;
-  bottom: 148px;
-  transform: translateX(-50%);
-  display: grid;
-  gap: 5px;
-  pointer-events: none;
-  text-align: center;
-}
-.messages > div {
-  background: #1e392bdc;
-  border: 1px solid #ccbd8238;
-  padding: 7px 17px;
-  border-radius: 7px;
-  color: #eddfb6;
-  font-size: 13px;
-  animation: message-in 0.2s ease-out;
 }
 .loading-screen {
   position: absolute;
@@ -588,145 +267,14 @@ p {
   }
 }
 @media (max-width: 1100px) {
-  .resource {
-    padding: 0 12px;
-  }
-  .brand h1 {
-    font-size: 19px;
-    letter-spacing: 2px;
-  }
-  .brand span {
-    font-size: 8px;
-  }
-  .status-card,
-  .quest-peek {
-    width: 205px;
-  }
-  .quest-peek {
-    padding: 14px;
-  }
   .toolbar button {
     width: 55px;
   }
-  .tool-info {
-    display: none;
-  }
-  .minimap {
-    width: 139px;
-  }
-  .minimap canvas {
-    width: 117px;
-    height: 117px;
-  }
-  .resource small {
-    display: none;
-  }
-  .resource > span {
-    grid-row: span 1;
-  }
-  .calendar {
-    min-width: 200px;
-  }
-  .game-header {
-    gap: 12px;
-  }
 }
 @media (max-width: 760px) {
-  .game-header {
-    height: 75px;
-    padding: 12px;
-    gap: 8px;
-  }
-  .brand-icon {
-    width: 32px;
-    height: 36px;
-  }
-  .brand-icon svg {
-    width: 22px;
-  }
-  .brand {
-    gap: 7px;
-  }
-  .brand h1 {
-    font-size: 14px;
-    letter-spacing: 1px;
-  }
-  .brand span {
-    display: none;
-  }
-  .resource-bar {
-    padding: 9px 2px;
-    gap: 0;
-  }
-  .resource {
-    padding: 0 7px;
-    grid-template-columns: 18px auto;
-    gap: 4px;
-  }
-  .resource b {
-    font-size: 13px;
-  }
-  .resource > span {
-    font-size: 18px;
-  }
-  .resource.gold > span {
-    font-size: 22px;
-  }
-  .resource:nth-child(3) {
-    display: none;
-  }
   .icon-button {
     width: 34px;
     height: 34px;
-  }
-  .status-card {
-    top: 85px;
-    left: 12px;
-    width: 182px;
-    padding: 8px;
-    gap: 8px;
-  }
-  .portrait {
-    width: 40px;
-    height: 49px;
-    font-size: 25px;
-  }
-  .player-name {
-    font-size: 15px;
-  }
-  .vitals {
-    gap: 7px;
-  }
-  .calendar {
-    right: 12px;
-    top: 85px;
-    min-width: 0;
-    padding: 10px;
-    gap: 7px;
-  }
-  .weather svg {
-    width: 23px;
-  }
-  .calendar b {
-    font-size: 12px;
-  }
-  .calendar span {
-    font-size: 10px;
-  }
-  .quest-peek {
-    top: 164px;
-    left: 12px;
-    width: 180px;
-    padding: 12px;
-  }
-  .quest-peek h2 {
-    font-size: 17px;
-  }
-  .quest-peek p {
-    font-size: 12px;
-  }
-  .quest-peek .eyebrow {
-    font-size: 9px;
   }
   .location-label {
     top: 166px;
@@ -738,34 +286,6 @@ p {
   }
   .location-label span {
     padding: 0 3px;
-  }
-  .world-actions {
-    right: 12px;
-    top: 203px;
-  }
-  .world-actions button {
-    width: 34px;
-    height: 34px;
-  }
-  .minimap {
-    bottom: 139px;
-    right: 12px;
-    width: 111px;
-    padding: 7px;
-  }
-  .minimap canvas {
-    width: 95px;
-    height: 95px;
-  }
-  .minimap b {
-    font-size: 7px;
-  }
-  .minimap small {
-    font-size: 9px;
-  }
-  .bottom-hud {
-    bottom: 12px;
-    width: calc(100% - 24px);
   }
   .toolbar {
     gap: 3px;
@@ -784,21 +304,6 @@ p {
   .toolbar small {
     font-size: 8px;
   }
-  .control-hints {
-    gap: 10px;
-    font-size: 9px;
-  }
-  .control-hints span:last-child {
-    display: none;
-  }
-  .messages {
-    bottom: 113px;
-    min-width: 240px;
-  }
-  .messages > div {
-    font-size: 12px;
-    padding: 6px 10px;
-  }
   .pause-banner {
     width: 280px;
     font-size: 14px;
@@ -812,20 +317,6 @@ p {
   }
 }
 @media (max-height: 650px) and (min-width: 761px) {
-  .quest-peek {
-    top: 205px;
-  }
-  .minimap canvas {
-    height: 96px;
-    width: 96px;
-  }
-  .minimap {
-    width: 118px;
-  }
-  .status-card,
-  .calendar {
-    top: 95px;
-  }
   .location-label {
     top: 99px;
   }
@@ -837,209 +328,6 @@ p {
   }
 }
 /* Interactive game menus */
-.header-actions {
-  display: flex;
-  gap: 8px;
-}
-.status-main > [data-slot='progress'] {
-  margin: 8px 0;
-}
-.quest-peek > [data-slot='progress'] {
-  margin-top: 14px;
-}
-.quest-peek-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 9px;
-}
-.quest-peek-footer button {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: none;
-  border: 0;
-  padding: 0;
-  color: #ead098;
-  font-size: 11px;
-}
-.quest-peek-footer small {
-  text-align: left;
-}
-.main-actions {
-  position: absolute;
-  left: 26px;
-  top: 420px;
-  display: flex;
-  gap: 2px;
-  padding: 6px;
-  width: 238px;
-}
-.main-actions button {
-  position: relative;
-  display: flex;
-  flex: 1;
-  min-width: 0;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 3px;
-  background: transparent;
-  border: 0;
-  border-radius: 7px;
-  color: #e2d9b8;
-}
-.main-actions button:hover {
-  background: #f0d49b1a;
-}
-.main-actions button svg {
-  width: 21px;
-  height: 21px;
-}
-.main-actions span {
-  font-size: 10px;
-}
-.main-actions kbd {
-  font-size: 8px;
-  color: #a3b399;
-}
-.main-actions i {
-  position: absolute;
-  right: 4px;
-  top: 0;
-  font: 9px var(--font-sans);
-  border-radius: 4px;
-  background: #d9bc76;
-  color: #22372b;
-  padding: 1px 3px;
-}
-.messages {
-  z-index: 70;
-  max-width: min(540px, 90vw);
-}
-.messages > div {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  justify-content: center;
-  line-height: 1.5;
-}
-.messages .bad {
-  color: #f2beb3;
-  border-color: #d0856955;
-}
-.messages svg {
-  flex: none;
-}
-.minimap canvas {
-  cursor: crosshair;
-}
-.seed-picker {
-  position: absolute;
-  left: 50%;
-  bottom: 132px;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-  padding: 8px;
-}
-.seed-picker button {
-  border: 1px solid #dac99533;
-  background: #2d4534;
-  border-radius: 6px;
-  padding: 5px 12px;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-.seed-picker .active {
-  border-color: #e3ca89;
-  background: #56613d;
-}
-.seed-picker span {
-  font-size: 20px;
-}
-.seed-picker small {
-  font-size: 11px;
-}
-.placement-banner {
-  position: absolute;
-  left: 50%;
-  bottom: 134px;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-}
-.placement-banner > span {
-  font-size: 27px;
-}
-.placement-banner b {
-  font-size: 14px;
-}
-.placement-banner small {
-  display: block;
-  font-size: 11px;
-  color: #becbad;
-  margin-top: 3px;
-}
-.placement-banner button {
-  border: 0;
-  background: none;
-  padding: 5px;
-}
-.activity-banner {
-  position: absolute;
-  left: 50%;
-  top: 150px;
-  transform: translateX(-50%);
-  padding: 9px 15px;
-  font-size: 12px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  white-space: nowrap;
-}
-.activity-banner button {
-  background: #b8a777;
-  color: #263a2c;
-  border: 0;
-  border-radius: 4px;
-  padding: 4px 9px;
-  font-size: 11px;
-}
-.raid-banner {
-  position: absolute;
-  top: 150px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #6c3e35ee;
-  border: 1px solid #dfa98e88;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  box-shadow: 0 5px 25px #34272055;
-}
-.raid-banner b {
-  font-size: 14px;
-}
-.raid-banner span {
-  display: block;
-  font-size: 11px;
-  color: #e5bca4;
-  margin-top: 4px;
-}
-.raid-banner button {
-  background: #d2a27d;
-  color: #452a22;
-  border: 0;
-  border-radius: 5px;
-  padding: 6px 10px;
-  font-size: 12px;
-}
 .production-peek {
   position: absolute;
   left: 26px;
@@ -1066,9 +354,6 @@ p {
 .production-peek small {
   font-size: 11px;
   color: #c8c5a3;
-}
-.touch-controls {
-  display: none;
 }
 .game-panel {
   width: min(460px, 100vw) !important;
@@ -1826,60 +1111,12 @@ p {
   padding: 0 20px;
 }
 @media (max-width: 1100px) {
-  .main-actions {
-    width: 205px;
-    top: 410px;
-  }
-  .main-actions span {
-    font-size: 9px;
-  }
   .production-peek {
     width: 205px;
     top: 510px;
   }
-  .brand h1 {
-    font-size: 17px;
-  }
-  .header-actions {
-    gap: 5px;
-  }
-  .game-header {
-    gap: 9px;
-  }
-  .resource {
-    padding: 0 10px;
-  }
 }
 @media (max-width: 760px) {
-  .header-actions .icon-button:first-child {
-    display: none;
-  }
-  .header-actions .icon-button {
-    width: 30px;
-    height: 30px;
-  }
-  .header-actions .icon-button svg {
-    width: 16px;
-  }
-  .main-actions {
-    left: 12px;
-    top: 350px;
-    width: 180px;
-    padding: 4px;
-  }
-  .main-actions button {
-    padding: 7px 2px;
-  }
-  .main-actions button svg {
-    width: 18px;
-    height: 18px;
-  }
-  .main-actions span {
-    font-size: 9px;
-  }
-  .main-actions kbd {
-    display: none;
-  }
   .production-peek {
     left: 12px;
     top: 425px;
@@ -1887,40 +1124,6 @@ p {
     padding: 8px;
   }
   .production-peek b {
-    font-size: 10px;
-  }
-  .seed-picker,
-  .placement-banner {
-    bottom: 111px;
-    z-index: 3;
-  }
-  .seed-picker button {
-    padding: 5px 9px;
-  }
-  .seed-picker span {
-    font-size: 17px;
-  }
-  .calendar {
-    right: 12px;
-  }
-  .activity-banner {
-    top: 193px;
-    max-width: 85vw;
-    font-size: 10px;
-  }
-  .raid-banner {
-    top: 190px;
-    min-width: 270px;
-    gap: 7px;
-    padding: 9px 12px;
-  }
-  .raid-banner b {
-    font-size: 12px;
-  }
-  .raid-banner span {
-    font-size: 10px;
-  }
-  .raid-banner button {
     font-size: 10px;
   }
   .panel-header {
@@ -1943,25 +1146,8 @@ p {
   .catalog-card h3 {
     font-size: 18px;
   }
-  .messages {
-    bottom: 195px;
-    max-width: 90vw;
-  }
-  .messages > div {
-    font-size: 11px;
-  }
-  .main-actions + nav {
-    top: 218px;
-  }
 }
 @media (pointer: coarse) {
-  .touch-controls {
-    display: block;
-    position: absolute;
-    bottom: 140px;
-    left: 22px;
-    pointer-events: none;
-  }
   .dpad {
     display: grid;
     grid-template-columns: repeat(3, 34px);
@@ -1969,8 +1155,7 @@ p {
     gap: 3px;
     pointer-events: auto;
   }
-  .dpad button,
-  .touch-attack {
+  .dpad button {
     border: 1px solid #e2ca8d55;
     background: #244331b8;
     border-radius: 7px;
@@ -1998,45 +1183,10 @@ p {
     grid-column: 3;
     grid-row: 2;
   }
-  .touch-attack {
-    position: absolute;
-    left: 130px;
-    bottom: 0;
-    width: 44px;
-    height: 44px;
-    pointer-events: auto;
-  }
-  .touch-attack svg {
-    width: 22px;
-  }
 }
 @media (max-height: 780px) {
   .production-peek {
     display: none;
-  }
-  .main-actions {
-    top: auto;
-    bottom: 145px;
-  }
-  .quest-peek {
-    max-height: 175px;
-  }
-}
-@media (max-height: 640px) and (min-width: 761px) {
-  .quest-peek {
-    padding: 11px;
-    max-height: 145px;
-  }
-  .quest-peek h2 {
-    font-size: 17px;
-    margin: 7px 0;
-  }
-  .main-actions {
-    bottom: 125px;
-  }
-  .activity-banner,
-  .raid-banner {
-    top: 130px;
   }
 }
 .talent-points {
@@ -2196,83 +1346,14 @@ p {
   padding: 10px 0;
   color: #d9d7b9;
 }
-@media (pointer: coarse) {
-  .main-actions {
-    top: auto;
-    bottom: 232px;
-  }
-}
 @media (max-height: 500px) {
   .game-shell {
     min-height: 100dvh;
   }
-  .status-card,
-  .calendar,
-  .quest-peek,
   .production-peek,
-  .location-label,
-  .minimap {
+  .location-label {
     display: none;
   }
-  .main-actions {
-    left: 12px;
-    top: 80px;
-    bottom: auto;
-    width: 180px;
-  }
-  .world-actions {
-    top: 80px;
-    right: 12px;
-    display: flex;
-    gap: 5px;
-  }
-  .touch-controls {
-    bottom: 110px;
-    left: 12px;
-  }
-  .messages {
-    bottom: 107px;
-  }
-  .game-header {
-    height: 68px;
-    padding-top: 10px;
-  }
-  .activity-banner,
-  .raid-banner {
-    top: 77px;
-  }
-  .control-hints {
-    display: none;
-  }
-}
-.mine-objectives {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin: 0.7rem 0;
-  color: #e2c68f;
-  font-size: 0.875rem;
-}
-.mine-buttons {
-  display: grid;
-  gap: 0.5rem;
-}
-.mine-entry {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 0.5rem;
-  margin-top: 0.85rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid #ffffff20;
-  color: #e2c68f;
-  font-size: 0.875rem;
-  text-align: left;
-}
-.mine-entry span {
-  margin-left: auto;
-  font-size: 0.75rem;
-  opacity: 0.7;
 }
 .game-icon {
   flex-grow: 0;
@@ -2291,8 +1372,7 @@ p {
   width: 2.1rem;
   height: 2.1rem;
 }
-.toolbelt button > span .game-icon,
-.tool-info > span .game-icon {
+.toolbelt button > span .game-icon {
   width: 1.7rem;
   height: 1.7rem;
 }
@@ -2365,19 +1445,6 @@ p {
   font-size: 13px;
   margin: 7px auto 0;
 }
-.performance-readout {
-  color: #9dad9c !important;
-  font-variant-numeric: tabular-nums;
-}
-.main-actions {
-  width: min(310px, calc(100vw - 24px));
-}
-.main-actions span {
-  font-size: 12px;
-}
-.main-actions kbd {
-  font-size: 11px;
-}
 .ranch-content {
   padding: 0 0 12px;
 }
@@ -2412,34 +1479,9 @@ p {
   background: radial-gradient(circle at 40% 25%, #446447, #203b30 76%);
   border-color: #bda06d55;
 }
-.toolbelt button > span .game-icon-art,
-.tool-info > span .game-icon-art {
+.toolbelt button > span .game-icon-art {
   width: 2.15rem;
   height: 2.15rem;
-}
-
-.hud-toggle {
-  position: absolute;
-  z-index: 20;
-  left: 22px;
-  top: 168px;
-  padding: 6px 12px;
-  color: #ebd8a2;
-  font-size: 12px;
-}
-.hud-collapsed .quest-peek {
-  display: none;
-}
-.hud-collapsed .main-actions button span,
-.hud-collapsed .main-actions button kbd {
-  display: none;
-}
-.hud-collapsed .main-actions {
-  width: 52px;
-}
-.hud-collapsed .main-actions button {
-  justify-content: center;
-  padding: 10px;
 }
 .toolbar .selected {
   border-color: #f7d889;
@@ -2451,22 +1493,6 @@ p {
 }
 .toolbar .selected .game-icon-art {
   filter: drop-shadow(0 0 5px #ffd78888);
-}
-.inventory-warning {
-  color: #ffe9df;
-  background: #8d332ce8;
-  border: 1px solid #f2a094;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-weight: 650;
-}
-.hud-warning {
-  position: absolute;
-  top: 110px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 21;
-  font-size: 13px;
 }
 .bundle-item {
   display: flex;
@@ -2486,34 +1512,9 @@ p {
   border-top: 1px solid #acb48633;
   padding-top: 12px;
 }
-@media (max-width: 760px) {
-  .hud-toggle {
-    top: 145px;
-    left: 12px;
-  }
-  .hud-warning {
-    top: 106px;
-    max-width: 70%;
-  }
-}
-
-.hud-toggle {
-  top: 204px;
-}
-.quest-peek {
-  top: 242px;
-}
 .npc-profile > span .game-icon-art {
   width: 3.4rem;
   height: 3.4rem;
-}
-.hud-collapsed .main-actions {
-  flex-direction: column;
-  width: 52px;
-  top: 240px;
-  bottom: auto;
-  max-height: calc(100dvh - 380px);
-  overflow-y: auto;
 }
 .settlement-brand {
   display: block;
@@ -2521,15 +1522,6 @@ p {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.horizon-link {
-  display: block;
-  background: transparent;
-  color: #d3bd84;
-  text-align: left;
-  font-size: 11px;
-  margin: 5px 0;
-  cursor: pointer;
 }
 .settlement-board {
   margin-bottom: 24px;
@@ -2558,114 +1550,23 @@ p {
   letter-spacing: 0.1em;
   font-size: 10px;
 }
-@media (max-height: 780px) {
-  .hud-toggle {
-    top: 187px;
-  }
-  .quest-peek {
-    top: 222px;
-  }
-  .hud-collapsed .main-actions {
-    top: 225px;
-    max-height: calc(100dvh - 350px);
-  }
-}
 @media (max-width: 760px) {
-  .hud-toggle {
-    top: 187px;
-  }
   .settlement-brand {
     max-width: 190px;
-  }
-}
-@media (max-height: 500px) {
-  .hud-toggle {
-    top: 55px;
-    left: 12px;
-  }
-  .hud-collapsed .main-actions {
-    top: 87px;
-    max-height: calc(100dvh - 200px);
   }
 }
 
 /* Each HUD region owns its space; notifications never occupy the tool shelf. */
 .game-shell { --left-hud: 212px; --right-hud: 176px; }
-.hud-left { position: absolute; left: 12px; top: 84px; bottom: 118px; width: var(--left-hud); display: flex; flex-direction: column; gap: 8px; pointer-events: none; min-height: 0; }
-.hud-left > * { pointer-events: auto; flex-shrink: 0; }
-.hud-left .status-card { position: static; width: 100%; padding: 8px; gap: 8px; }
-.hud-left .portrait { width: 40px; height: 48px; }
-.hud-left .hud-toggle { position: static; padding: 5px 8px; width: 100%; font-size: 12px; }
-.hud-left .quest-peek { position: static; width: 100%; padding: 11px; overflow-y: auto; flex: 1 1 auto; min-height: 0; max-height: 270px; }
-.hud-left .quest-peek h2 { font-size: 17px; }
-.hud-left .quest-peek p { font-size: 12px; }
-.hud-left .main-actions { position: static; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); width: 100%; padding: 4px; max-height: none; overflow: visible; gap: 2px; }
-.hud-left .main-actions button { min-width: 0; padding: 6px 2px; gap: 3px; font-size: 12px; flex-direction: column; }
-.hud-left .main-actions kbd { display: none; }
-.hud-left .main-actions svg { width: 19px; height: 19px; }
-.hud-left .main-actions span { font-size: 12px; }
-.hud-collapsed { --left-hud: 56px; }
-.hud-collapsed .hud-left .status-card, .hud-collapsed .hud-left .quest-peek { display: none; }
-.hud-collapsed .hud-left .main-actions { grid-template-columns: 1fr; overflow-y: auto; min-height: 0; flex-shrink: 1; }
-.hud-collapsed .hud-left .main-actions button span { display: none; }
-.hud-collapsed .hud-left .hud-toggle { font-size: 11px; overflow-wrap: anywhere; }
-.calendar { top: 84px; right: 12px; width: var(--right-hud); padding: 8px; }
-.world-actions { top: 146px; right: 12px; left: auto; bottom: auto; display: flex; flex-direction: row; gap: 3px; }
-.world-actions button { width: 27px; height: 30px; }
-.minimap { right: 12px; bottom: 112px; width: var(--right-hud); padding: 7px; }
-.minimap canvas { width: 100%; height: auto; aspect-ratio: 1; }
-.messages { left: calc(var(--left-hud) + 26px); right: calc(var(--right-hud) + 26px); top: 88px; bottom: auto; transform: none; width: auto; max-width: 340px; text-align: left; z-index: 16; }
-.messages > div { padding: 6px 9px; font-size: 12px; }
-.has-panel .messages { visibility: hidden; }
-.hud-left .hud-warning { position: static; transform: none; width: 100%; max-width: none; }
-.inventory-warning { font-size: 12px; padding: 7px; }
-.bottom-hud { bottom: 10px; left: 50%; width: min(510px,calc(100vw - 24px)); transform: translateX(-50%); }
 .toolbar { width: 100%; justify-content: center; gap: 3px; padding: 5px; }
 .toolbar button { width: 55px; min-width: 0; height: 62px; padding: 4px; }
 .toolbar button small { font-size: 12px; }
-.control-hints { display: none; }
-.tool-info { left: 50%; transform: translateX(-50%); bottom: 90px; width: min(340px,calc(100vw - 32px)); padding: 7px 10px; }
-.seed-picker, .placement-banner { bottom: 146px; left: 50%; transform: translateX(-50%); max-width: calc(100vw - 30px); }
-.placement-banner { flex-wrap: wrap; padding: 8px; gap: 6px; }
-.placement-banner button { font-size: 12px; padding: 6px; width: auto; }
 .location-label { display: none; }
-.activity-banner, .raid-banner { top: auto; bottom: 210px; max-width: min(360px,calc(100vw - 32px)); }
 @media (max-width: 900px) {
   .game-shell { --left-hud: 172px; --right-hud: 136px; }
-  .hud-collapsed { --left-hud: 56px; }
-  .hud-left .portrait { display: none; }
-  .hud-left .main-actions { grid-template-columns: repeat(3,minmax(0,1fr)); }
-  .world-actions { flex-wrap: wrap; width: 136px; }
-  .minimap { bottom: 156px; }
-  .hud-left .quest-peek .horizon-link { display: none; }
 }
 @media (max-width: 760px) {
   .game-shell { --left-hud: 108px; --right-hud: 150px; }
-  .hud-collapsed { --left-hud: 56px; }
-  .hud-left { top: 74px; bottom: 204px; }
-  .hud-left .status-card { padding: 5px; }
-  .hud-left .vitals { flex-wrap: wrap; gap: 4px; }
-  .hud-left .player-name { font-size: 13px; }
-  .hud-left .quest-peek { display: none; }
-  .hud-left .main-actions { grid-template-columns: repeat(2,minmax(0,1fr)); overflow-y: auto; flex-shrink: 1; }
-  .calendar { top: 74px; }
-  .world-actions { top: 139px; width: 150px; }
-  .messages { top: 210px; left: calc(var(--left-hud) + 24px); right: 12px; max-width: none; }
-  .messages > div:nth-child(n+3) { display: none; }
-  .minimap { width: 100px; bottom: 198px; }
-  .minimap small, .performance-readout { display: none; }
-  .bottom-hud { bottom: 8px; }
   .toolbar button { height: 52px; }
   .toolbar button small { display: none; }
-  .tool-info { bottom: 73px; max-width: calc(100vw - 190px); }
-  .tool-info > span, .tool-info p { display: none; }
-  .seed-picker, .placement-banner { bottom: 113px; }
-  .touch-controls { bottom: 75px; }
-}
-@media (max-height: 600px) {
-  .hud-left .quest-peek, .minimap { display: none; }
-  .hud-left { bottom: 85px; }
-  .hud-left .status-card { display: none; }
-  .messages { top: 185px; }
-  .messages > div:nth-child(n+2) { display: none; }
 }

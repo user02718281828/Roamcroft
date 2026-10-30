@@ -13,8 +13,6 @@ import './menu.css';
 import './mobile.css';
 import './ui-v2.css';
 import { nextPanel } from '@/lib/ui/game-menu';
-import { firstSteps } from '@/lib/ui/first-steps';
-import { useGuidance } from '@/lib/ui/guidance';
 import './foundation.css';
 import MainMenu from './MainMenu';
 import Joystick from './Joystick';
@@ -25,6 +23,7 @@ import './mobile-recovery.css';
 import './camp-art.css';
 import './hotbar.css';
 import './hud-recovery.css';
+import './hud.css';
 import HudNotices from './HudNotices';
 import {advanceNotices,type HudNotice} from '@/lib/ui/notices';
 import Hotbar from './Hotbar';
@@ -33,7 +32,7 @@ import {hotbarIntent,eatHotbarItem} from '@/lib/ui/hotbar';
 import {inventoryAction} from '@/lib/ui/inventory';
 import {ServerWorldClient} from '@/lib/server/client';
 import {preparePwa} from '@/lib/game/pwa';
-import {enterGameFullscreen,MOBILE_QUERY} from '@/lib/game/viewport';
+import {MOBILE_QUERY} from '@/lib/game/viewport';
 import type { CoopClient } from '@/lib/coop/client';
 import { nextMilestone, settlementRank } from '@/lib/game/settlement';
 import { recommendedQuest } from '@/lib/game/quests';
@@ -69,9 +68,10 @@ import {
   Moon,
   X,
   ChevronDown,
+  RotateCw,
+  CornerDownRight,
   Bird,
   Users,
-  Maximize,
 } from 'lucide-react';
 import {
   Engine,
@@ -110,7 +110,6 @@ import { registerGameTools } from '@/lib/game/webmcp';
 export default function Game({autoStart=false,serverMode=false,entry='play',onExit}:{autoStart?:boolean;serverMode?:boolean;entry?:'play'|'new'|'menu'|'settings';onExit?:()=>void}={}) {
   useLocale();
   const hotbar=useHotbar(),hotbarRef=useRef(hotbar);hotbarRef.current=hotbar;
-  const [guidanceEnabled] = useGuidance();
   const touch=useTouchPreferences();
   const renderStarted=frameProfile.begin();
   useEffect(()=>{frameProfile.mount();return()=>frameProfile.dispose();},[]);
@@ -198,6 +197,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     panel: null as Panel,
     sound: false,
     item:null as string|null,
+    compactHud:true,
   });
   control.current = {
     tool,
@@ -206,6 +206,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     panel,
     sound,
     item:heldItem,
+    compactHud,
   };
   const inputBlocked=control.current.paused||!!panel;
   if(scene.current)scene.current.inputEnabled=!inputBlocked;
@@ -511,7 +512,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                 setQuality(view.highQuality);
               }
               if(!control.current.paused||e.events.length)refresh((n) => n + 1);
-              if (mini.current&&!control.current.paused) {const started=frameProfile.begin();view.drawMinimap(mini.current);frameProfile.end('minimap',started);}
+              if (mini.current&&!control.current.paused&&!control.current.compactHud) {const started=frameProfile.begin();view.drawMinimap(mini.current);frameProfile.end('minimap',started);}
               const nowMs = Date.now();
               if (e.events.length) {
                 const events = e.events.splice(0);
@@ -662,7 +663,6 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                   ? sourceText("m_23b47d8342")
                   : sourceText("m_a751b91f52"));
   const quest = s ? recommendedQuest(s) : null;
-  const introStep = s ? firstSteps(s).find(step => !step.done) : undefined;
   const chooseBuild = (type: string) => {
     setBuild(type);
     setTool('build');
@@ -680,7 +680,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
   const itemIntent=heldItem&&s?hotbarIntent({kind:'item',id:heldItem},s.inventory):null;
   const itemUseBlocked=!!heldItem&&!itemIntent?.available;
   const toolLabel = heldItem ? ITEMS[heldItem]?.name :
-    tool === 'build'
+    tool === 'hand' ? translate('hotbar.hand') : tool === 'build'
       ? BUILDINGS[build].name
       : tool === 'fertilize'
         ? sourceText("m_08026178a9")
@@ -727,21 +727,13 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
               </div>
             </div>
             <div className="resource-bar">
-              {['wood', 'stone', 'fiber'].map((id) => (
-                <div className="resource" key={id}>
-                  <span>
-                    <GameIcon id={id} />
-                  </span>
-                  <b>{s.inventory[id] || 0}</b>
-                  <small>{localize(ITEMS[id].name)}</small>
-                </div>
-              ))}
               <div className="resource gold">
                 <span>◈</span>
                 <b>{localize(s.gold.toLocaleString(intlLocale()))}</b>
                 <small>{translate("m_6ee0381c24")}</small>
               </div>
             </div>
+            {s.enemies.length>0&&<button type="button" className="raid-signal" aria-label={translate('hud.threats',{count:s.enemies.length})} title={translate('hud.threats',{count:s.enemies.length})} onClick={()=>{setTool('sword');scene.current?.recenter();}}><Swords aria-hidden="true"/><b>{s.enemies.length}</b></button>}
             <div className="header-actions">
               <button
                 className="icon-button sound-button"
@@ -758,7 +750,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
               >
                 {paused ? <Play /> : <Pause />}
               </button>
-              <button className="icon-button mobile-fullscreen" aria-label={translate("m_ec2f69611c")} onClick={()=>void enterGameFullscreen().then(ok=>{if(!ok)engine.current?.emit(sourceText("m_fbf300983c"));})}><Maximize/></button>
+
               <button
                 className="icon-button"
                 aria-label={translate("m_489a38bb4a")}
@@ -802,15 +794,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
               </div>
             </div>
           </section>
-          <button
-            className="hud-toggle glass"
-            aria-label={localize(compactHud ? sourceText("m_c7781fb6e8") : sourceText("m_02bd45b132"))}
-            aria-expanded={!compactHud}
-            aria-controls="left-quest left-actions"
-            onClick={() => setCompactHud((v) => !v)}
-          >
-            <BookOpen aria-hidden="true"/><span>{localize(compactHud ? (s.mine ? FLOOR_NAMES[s.mine.floor - 1] : quest?.name || sourceText("m_69510f5f16")) : sourceText("m_b59056b4d7"))}</span><ChevronDown className="hud-toggle-state" aria-hidden="true"/>
-          </button>
+
           {inventoryUsed(s) >= inventoryCapacity(s) && (
             <div className="hud-warning" role="alert">
               <button
@@ -917,8 +901,16 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
             aria-label={translate("m_1720f0820e")}
           >
             <button onClick={()=>setPanel('inventory')} title={translate("m_45a70ad025")}><Backpack/><span>{translate("m_a314bd0b56")}</span></button>
-            <button onClick={()=>{if(engine.current)engine.current.toggleRest();}} title={translate("m_d178441945")}><Pause/><span>{translate("m_9eb4ab0bb4")}</span></button>
-            {guidanceEnabled && introStep && !s.mine && <button className="guidance-launch" onClick={() => setPanel('guide')} title={translate('steps.next', {title: translate(introStep.title)})} aria-label={translate('steps.title')}><HelpCircle/><span>{translate('steps.title')}</span></button>}
+            <button onClick={()=>engine.current?.toggleRest()} title={translate(engine.current?.resting?'hud.resume':'hud.rest')} aria-label={translate(engine.current?.resting?'hud.resume':'hud.rest')} aria-pressed={!!engine.current?.resting}><Moon/></button>
+          <button
+            className="hud-toggle glass"
+            aria-label={localize(compactHud ? sourceText("m_c7781fb6e8") : sourceText("m_02bd45b132"))}
+            aria-expanded={!compactHud}
+            aria-controls="left-quest left-actions"
+            onClick={() => setCompactHud((v) => !v)}
+          >
+            <BookOpen aria-hidden="true"/><span>{localize(compactHud ? (s.mine ? FLOOR_NAMES[s.mine.floor - 1] : quest?.name || sourceText("m_69510f5f16")) : sourceText("m_b59056b4d7"))}</span><ChevronDown className="hud-toggle-state" aria-hidden="true"/>
+          </button>
           </nav>
           </div>
           <div className="calendar glass">
@@ -1047,7 +1039,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
               )}{' '}
               {translate("m_1de4961c8e")}{localize((scene.current?.metrics.frameMs||16.7).toFixed(1))} {translate("m_9dc43f788c")}{scene.current?.metrics.chunks || 0} {translate("m_daf138c7f4")}</small>)}
           </section>
-          <div className="tool-info glass">
+          {hover&&<div className="tool-info glass">
             <span>
               <GameIcon
                 id={
@@ -1069,13 +1061,15 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                   sourceText("m_3b4a32bf1b", { p0: Math.floor((t.growth / CROPS[t.crop].grow) * 100) }))}
               </p>
             </div>
-          </div>
+          </div>}
           {tool === 'seed' && (
             <div className="seed-picker glass">
               {Object.entries(CROPS).map(([id, c]) => (
                 <button
                   key={id}
                   disabled={s.level < c.level}
+                  aria-label={localize(c.name)}
+                  aria-pressed={seed === id}
                   className={seed === id ? 'active' : ''}
                   onClick={() => {setHeldItem(null);setSelectedSlot(-1);setSeed(id);}}
                   title={localize(sourceText("m_ae04d0e6f6", { p0: c.name, p1: c.seasons.map((n) => SEASONS[n]).join(', ') }))}
@@ -1097,8 +1091,8 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                 <b>{localize(BUILDINGS[build].name)}</b>
                 <small>{translate("m_765cdcc523")}{rotation * 90}°</small>
               </div>
-              <button onClick={() => setRotation(r => (r + 1) % 4)} title={translate("m_bc383dfb63")}>{translate("m_b7b08d2989")}</button>
-              {['fence','wall'].includes(build) && <button onClick={() => setCorner(v=>!v)}>{localize(corner ? sourceText("m_3f379f7557") : sourceText("m_fd48f38b96"))}</button>}
+              <button onClick={() => setRotation(r => (r + 1) % 4)} aria-label={translate("m_bc383dfb63")} title={translate("m_bc383dfb63")}><RotateCw aria-hidden="true"/></button>
+              {['fence','wall'].includes(build) && <button onClick={() => setCorner(v=>!v)} aria-pressed={corner} aria-label={localize(corner ? sourceText("m_3f379f7557") : sourceText("m_fd48f38b96"))}>{corner?<CornerDownRight aria-hidden="true"/>:<Minus aria-hidden="true"/>}</button>}
               <button
                 onClick={() => setTool('hand')}
                 aria-label={translate("m_3760dabe7d")}
@@ -1108,21 +1102,12 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
             </div>
           )}
           <footer className="bottom-hud">
-            <div className="control-hints">
-              <span>
-                <kbd>W A S D</kbd> {translate("m_864e75d241")}</span>
-              <span>
-                <kbd>R</kbd> {translate("m_b7f4ae32d1")}</span>
-              <span>
-                <kbd>{translate("m_361fbf0539")}</kbd> {translate("m_36ad4dc2b4")}</span>
-              <span>{translate('hotbar.controls')}</span>
-            </div>
             <div className="hotbar-shelf">
-              <Hotbar layout={hotbar} inventory={s.inventory} active={selectedSlot} onSelect={selectHotbar} disabled={inputBlocked}/>
-              <button type="button" className="hotbar-explore glass" aria-label={localize(TOOLS[0].name)} title={localize(TOOLS[0].name)} aria-pressed={tool==='hand'&&!heldItem} onClick={()=>setTool('hand')} disabled={inputBlocked}><GameIcon id="hand"/></button>
+              <Hotbar layout={hotbar} inventory={s.inventory} active={selectedSlot<0&&!heldItem?hotbar.findIndex(slot=>slot?.kind==='tool'&&slot.id===tool):selectedSlot} onSelect={selectHotbar} disabled={inputBlocked} fallback={{name:tool==='hand'?translate('hotbar.hand'):localize(toolLabel)||translate('hotbar.hand'),icon:tool==='build'?build:tool==='fish'?'rod':tool}}/>
+              {!hotbar.some(slot=>slot?.kind==='tool'&&slot.id==='hand')&&<><button type="button" className="hotbar-explore glass" aria-label={translate('hotbar.hand')} title={translate('hotbar.hand')} aria-pressed={tool==='hand'&&!heldItem} onClick={()=>setTool('hand')} disabled={inputBlocked}><GameIcon id="hand"/></button></>}
             </div>
             <div className="hotbar-actions">
-              <button type="button" className="hotbar-bind-link" onClick={()=>setPanel('inventory')} disabled={inputBlocked}>{translate('hotbar.bind')}</button>
+
               {heldItem&&<button type="button" className="hotbar-use" disabled={inputBlocked||itemUseBlocked} onClick={()=>interact(true)}>
                 {translate(itemUseBlocked?'hotbar.unavailable':'hotbar.use',{name:localize(ITEMS[heldItem]?.name||heldItem)})}
               </button>}
@@ -1135,7 +1120,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
               <TouchAction className="touch-attack" label={translate('m_ef89a5085b')} disabled={inputBlocked} onAction={()=>{if(!control.current.paused&&!control.current.panel)engine.current?.attack();}}><Swords/></TouchAction>
             </div>
           </div>
-          {(engine.current?.resting || engine.current?.fishing) && (
+          {(engine.current?.resting || engine.current?.fishing) && !['build','seed'].includes(tool) && (
             <div className="activity-banner glass">
               {engine.current.resting ? (
                 <>
@@ -1152,31 +1137,6 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                   {translate("m_76457e7ce5")}{' '}
                   {Math.ceil(engine.current.fishing!.timer)} {translate("m_1928e61fec")}</>
               )}
-            </div>
-          )}
-          {s.enemies.length > 0 && (
-            <div className="raid-banner">
-              <Swords size={17} />
-              <div>
-                <b>
-                  {localize(s.mine
-                    ? s.enemies.some((e) => e.kind === 'guardian')
-                      ? sourceText("m_b618bf4107")
-                      : sourceText("m_c65df465f1")
-                    : sourceText("m_42a349bbf9"))}
-                </b>
-                <span>
-                  {s.enemies.length} {translate("m_e4529116b7")}{' '}
-                  {localize(s.mine ? sourceText("m_1f2bd35a81") : sourceText("m_f2710a7b36"))}
-                </span>
-              </div>
-              <button
-                onClick={() => {
-                  setTool('sword');
-                  scene.current?.recenter();
-                }}
-              >
-                {translate("m_e7c0f3d384")}</button>
             </div>
           )}
           {s.jobs.length > 0 && !panel && (

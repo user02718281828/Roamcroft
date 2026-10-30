@@ -1417,8 +1417,8 @@
   "hotbar.title": "Hızlı çubuk — dokuz bağlı yuva",
   "hotbar.empty": "Boş",
   "hotbar.slot": "Yuva {slot}: {name} · {count}",
-  "hotbar.bind": "Hızlı çubuğa ata",
-  "hotbar.help": "Eşya veya mevcut aracı, ardından yuvayı seç. Atama ve seçim harcama yapmaz. Eşyalar güncel çanta stoğunu kullanır; tükenen eşyanın bağı korunur. Araçlara buradan da ulaşabilirsin.",
+  "hotbar.bind": "Hızlı yuvalar",
+  "hotbar.help": "Elinin altında tutmak istediğin araç veya eşyayı seç, sonra bir yuvaya dokun. Eşyalar çantandan kullanılır.",
   "hotbar.choice": "Yuvaya atanacak",
   "hotbar.selectedItem": "Çantada seçili eşya",
   "hotbar.clear": "Yuvayı boşalt",
@@ -1428,5 +1428,11 @@
   "hotbar.use": "{name} kullan",
   "hotbar.unavailable": "{name}: doğrudan kullanılamaz veya stok yok",
   "hotbar.touchUse": "Eşyayı kullan",
-  "hotbar.noUse": "Kullanılamaz"
+  "hotbar.noUse": "Kullanılamaz",
+  "hotbar.hand": "El",
+  "hotbar.choose": "Araç veya eşya seç",
+  "hotbar.close": "Hızlı yuvaları kapat",
+  "hud.rest": "Dinlen",
+  "hud.resume": "Ayağa kalk",
+  "hud.threats": "{count} tehdit — kılıcı kuşan ve odaklan"
 }

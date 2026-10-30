@@ -1417,8 +1417,8 @@
   "hotbar.title": "Hotbar — nine bound slots",
   "hotbar.empty": "Empty",
   "hotbar.slot": "Slot {slot}: {name} · {count}",
-  "hotbar.bind": "Hotbar bindings",
-  "hotbar.help": "Choose an item or an existing tool, then a slot. Binding or selecting spends nothing. Items use the current bag stock; empty references stay bound. Tools remain available here.",
+  "hotbar.bind": "Quick slots",
+  "hotbar.help": "Choose what to keep at hand, then tap a numbered slot. Items come from your bag.",
   "hotbar.choice": "Bind to slot",
   "hotbar.selectedItem": "Selected bag item",
   "hotbar.clear": "Clear slot",
@@ -1428,5 +1428,11 @@
   "hotbar.use": "Use {name}",
   "hotbar.unavailable": "{name}: no direct use or no stock",
   "hotbar.touchUse": "Use item",
-  "hotbar.noUse": "Unavailable"
+  "hotbar.noUse": "Unavailable",
+  "hotbar.hand": "Hand",
+  "hotbar.choose": "Choose tool or item",
+  "hotbar.close": "Close quick slots",
+  "hud.rest": "Rest",
+  "hud.resume": "Stand up",
+  "hud.threats": "{count} threats — equip sword and focus"
 }

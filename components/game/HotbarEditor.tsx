@@ -11,7 +11,7 @@ export default function HotbarEditor({itemId}:{itemId?:string}){
     <p>{translate('hotbar.help')}</p>
     <label>{translate('hotbar.choice')}<select value={choice} onChange={e=>{setChoice(e.target.value);setMessage('');}}>
       <option value="item" disabled={!itemId}>{translate('hotbar.selectedItem')}</option>
-      {TOOLS.map(t=><option key={t.id} value={t.id}>{localize(t.name)}</option>)}
+      {TOOLS.map(t=><option key={t.id} value={t.id}>{bindingName({kind:'tool',id:t.id})}</option>)}
       <option value="empty">{translate('hotbar.clear')}</option>
     </select></label>
     <div className="hotbar-bindings" role="group" aria-label={translate('hotbar.bind')}>

@@ -41,10 +41,9 @@ export default function InventoryPanel({engine,onSeed,onBuild}:{engine:Engine;on
     </div>):<>
     {used>=capacity&&<p className="inventory-warning" role="alert">{translate('m_6839d924fc')}</p>}
     <div className="pack-controls">
-      <div className="pack-filters" role="group" aria-label={translate('bag.contents')}>
-        {([['all','m_f43a65ad82'],['food','m_6f185074f6'],['seeds','m_eaf3725fa6'],['resources','m_2f0db590c3']] as const).map(([id,key])=>
-          <button type="button" key={id} aria-pressed={filter===id} onClick={()=>{setFilter(id);setSelected(null);}}>{translate(key)}</button>)}
-      </div>
+      <label className="pack-filter"><span>{translate('bag.contents')}</span><select value={filter} onChange={event=>{setFilter(event.target.value as BagFilter);setSelected(null);}}>
+        {([['all','m_f43a65ad82'],['food','m_6f185074f6'],['seeds','m_eaf3725fa6'],['resources','m_2f0db590c3']] as const).map(([id,key])=><option key={id} value={id}>{translate(key)}</option>)}
+      </select></label>
       <label className="pack-sort"><span>{translate('bag.sort')}</span><select value={sort} onChange={event=>setSort(event.target.value as BagSort)}>
         <option value="name">{translate('bag.byName')}</option><option value="quantity">{translate('bag.byQuantity')}</option>
       </select></label>
