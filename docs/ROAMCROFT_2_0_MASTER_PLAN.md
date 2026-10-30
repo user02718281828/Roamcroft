@@ -7,6 +7,19 @@ Bir plan maddesi çalışan özellik değildir. 2.0 tamamlanmış veya yayımlan
 sayılmaz. Başlangıç tabanı: 1.11.5 + doğrulanmış TR/EN çalışması. Güncel main'e
 ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
+## Güncel yerel paket — Mobile HUD / alpha.3
+
+**TAMAMLANDI (yerel):** tek/birleşen kısa bildirim sırası, küçük Keşfet44px,
+çanta içinden gerçek hotbar bağlama,44px ikon HUD aç/kapat, kompakt mobil
+çanta/depo.236 test/typecheck/build/dört WS runtime ve üç boyutta33 menü
+döngüsü başarılı. [Kanıt](verification-mobile-hud-alpha.3.md).
+**DOĞRULAMA EKSİK:** yeni HUD fiziksel Android/iOS/PWA/safe-area ve gerçek WAN.
+**PLANLANDI:** How-to-play kök scroll kilidi düzeltmesi sonraki ayrı commit;
+sonrasında kalan güvenli kapasiteye göre yeni fauna/çevre. Bu pakette yeni
+vahşi yaşam türü, ekipman/stack/drag-drop, Engine/save/economy/online şeması yok.
+Dal codex/mobile-hud-recovery yalnız yerel; alpha.3 için yeni main/production
+onayı gerekir. Canlı ürün aşağıdaki alpha.2 checkpoint'idir.
+
 ## Vizyon ve karar ilkeleri
 
 **30 Ekim son talimat:** tamamlanmış Living Forest/alpha.2 için bir defalık

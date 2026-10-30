@@ -1,8 +1,8 @@
 'use client';
 import { sourceText } from '@/lib/i18n/source';
-import { localize, localizeText, translate } from '@/lib/i18n/core';
+import { localize, translate } from '@/lib/i18n/core';
 import { useLocale } from '@/lib/i18n/react';
-import { getLocale, intlLocale } from '@/lib/i18n/locale';
+import { intlLocale } from '@/lib/i18n/locale';
 
 import GameIcon from './GameIcon';
 import {frameProfile} from '@/lib/game/profile';
@@ -24,6 +24,9 @@ import {nearbyToolTile} from '@/lib/ui/touch-target';
 import './mobile-recovery.css';
 import './camp-art.css';
 import './hotbar.css';
+import './hud-recovery.css';
+import HudNotices from './HudNotices';
+import {advanceNotices,type HudNotice} from '@/lib/ui/notices';
 import Hotbar from './Hotbar';
 import {useHotbar} from '@/lib/ui/hotbar-preferences';
 import {hotbarIntent,eatHotbarItem} from '@/lib/ui/hotbar';
@@ -65,7 +68,7 @@ import {
   Swords,
   Moon,
   X,
-  Check,
+  ChevronDown,
   Bird,
   Users,
   Maximize,
@@ -78,7 +81,7 @@ import {
   xpNext,
   createState,
 } from '@/lib/game/model';
-import type { State, Event } from '@/lib/game/model';
+import type { State } from '@/lib/game/model';
 import {
   ITEMS,
   TOOLS,
@@ -173,7 +176,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     [saveStatus, setSaveStatus] = useState(''),
     [hover, setHover] = useState<{ x: number; z: number } | null>(null),
     [messages, setMessages] = useState<
-      (Event & { id: number; expires: number })[]
+      HudNotice[]
     >([]);
   useEffect(()=>{if(window.matchMedia(MOBILE_QUERY).matches)setCompactHud(true);},[]);
   const setTool=(next:string)=>{setHeldItem(null);setSelectedSlot(-1);setToolState(next);};
@@ -512,16 +515,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
               const nowMs = Date.now();
               if (e.events.length) {
                 const events = e.events.splice(0);
-                setMessages((old) =>
-                  [
-                    ...old.filter((m) => m.expires > nowMs),
-                    ...events.map((m) => ({
-                      ...m,
-                      id: ++eventId,
-                      expires: nowMs + 4500,
-                    })),
-                  ].slice(-3),
-                );
+                setMessages(old=>advanceNotices(old,events,nowMs,()=>++eventId));
                 events.forEach((m) => {
                   if(m.sound) music.action(m.sound); else music.effect(m.kind);
                   if (m.celebration)
@@ -534,12 +528,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                       m.sound,
                     );
                 });
-              } else
-                setMessages((old) =>
-                  old.some((m) => m.expires <= nowMs)
-                    ? old.filter((m) => m.expires > nowMs)
-                    : old,
-                );
+              } else setMessages(old=>advanceNotices(old,[],nowMs,()=>++eventId));
               ui = 0;
             }
             if (saveClock >= 15 && allowSave.current && !coop.current?.active) {
@@ -820,7 +809,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
             aria-controls="left-quest left-actions"
             onClick={() => setCompactHud((v) => !v)}
           >
-            <BookOpen aria-hidden="true"/><span>{localize(compactHud ? (s.mine ? FLOOR_NAMES[s.mine.floor - 1] : quest?.name || sourceText("m_69510f5f16")) : sourceText("m_b59056b4d7"))}</span>
+            <BookOpen aria-hidden="true"/><span>{localize(compactHud ? (s.mine ? FLOOR_NAMES[s.mine.floor - 1] : quest?.name || sourceText("m_69510f5f16")) : sourceText("m_b59056b4d7"))}</span><ChevronDown className="hud-toggle-state" aria-hidden="true"/>
           </button>
           {inventoryUsed(s) >= inventoryCapacity(s) && (
             <div className="hud-warning" role="alert">
@@ -1008,13 +997,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                   : sourceText("m_586b0c7c7f"))}{' '}
             <span>✧</span>
           </div>
-          <div className="messages" aria-live="polite">
-            {messages.map((m) => (
-              <div className={`${m.kind} ${m.kind === 'good' && m.sound ? 'action-result' : ''}`} key={m.id}>
-                {m.kind === 'good' && (m.sound ? <GameIcon id={m.sound === 'harvest' ? 'wheat' : m.sound === 'fish' ? 'rod' : m.sound}/> : <Check size={13} />)} {localizeText(m.text, getLocale(), 0, [s.settlement.name, ...s.animals.map(animal => animal.name || ''), ...(coop.current?.peers.map(peer => peer.name) || [])])}
-              </div>
-            ))}
-          </div>
+          <HudNotices notices={messages} names={[s.settlement.name,...s.animals.map(animal=>animal.name||''),...(coop.current?.peers.map(peer=>peer.name)||[])]}/>
           <section className="minimap glass">
             <div>
               <Compass size={14} />
@@ -1134,10 +1117,12 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                 <kbd>{translate("m_361fbf0539")}</kbd> {translate("m_36ad4dc2b4")}</span>
               <span>{translate('hotbar.controls')}</span>
             </div>
-            <Hotbar layout={hotbar} inventory={s.inventory} active={selectedSlot} onSelect={selectHotbar} disabled={inputBlocked}/>
+            <div className="hotbar-shelf">
+              <Hotbar layout={hotbar} inventory={s.inventory} active={selectedSlot} onSelect={selectHotbar} disabled={inputBlocked}/>
+              <button type="button" className="hotbar-explore glass" aria-label={localize(TOOLS[0].name)} title={localize(TOOLS[0].name)} aria-pressed={tool==='hand'&&!heldItem} onClick={()=>setTool('hand')} disabled={inputBlocked}><GameIcon id="hand"/></button>
+            </div>
             <div className="hotbar-actions">
-              <button type="button" onClick={()=>setTool('hand')} disabled={inputBlocked}>{localize(TOOLS[0].name)}</button>
-              <button type="button" onClick={()=>setPanel('inventory')} disabled={inputBlocked}>{translate('hotbar.bind')}</button>
+              <button type="button" className="hotbar-bind-link" onClick={()=>setPanel('inventory')} disabled={inputBlocked}>{translate('hotbar.bind')}</button>
               {heldItem&&<button type="button" className="hotbar-use" disabled={inputBlocked||itemUseBlocked} onClick={()=>interact(true)}>
                 {translate(itemUseBlocked?'hotbar.unavailable':'hotbar.use',{name:localize(ITEMS[heldItem]?.name||heldItem)})}
               </button>}

@@ -1,3 +1,10 @@
+## 1.14.0-alpha.3 — Unreleased / local HUD candidate
+
+- Compact, bounded and deduplicated HUD notices; event sounds and effects remain unchanged.
+- Mobile icon controls, 44px hotbar targets, a persistent compact Explore hand,
+  and item bindings through the bag. More compact mobile bag/storage layout.
+- No save, economy, backend protocol or dependency migration. Physical acceptance pending.
+
 # Değişiklikler
 
 ## 1.14.0-alpha.2 — Living Forest · yalnız yerel geliştirme
