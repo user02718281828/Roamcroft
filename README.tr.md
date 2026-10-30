@@ -17,8 +17,9 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
 [English](README.md) · [Değişiklikler](CHANGELOG.md) · [2.0 master planı](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Geliştirme kaynağı: 1.14.0-alpha.2 — Living Forest (yalnız yerel dal).**
-Canlı **1.14.0-alpha.1 / main `3331e6a`**, mobil kurtarma ve gerçek hotbar içerir.
+**Kaynak: 1.14.0-alpha.2 — Living Forest.**
+Mobil kurtarma ve gerçek hotbar üzerine ilerler. Yayın durumu
+[sürüm kaydında](docs/verification-release-1.14.0-alpha.2.md) ayrıca doğrulanır.
 Yeni orman dilimi gerçek Three.js sahnesine üç ağaç silueti, altı yer örtüsü,
 tavşan ve kuş ekler. Görseller, ölçümler ve eksikler
 [orman doğrulamasında](docs/verification-living-forest.md) tutulur.

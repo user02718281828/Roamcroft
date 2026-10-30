@@ -8,12 +8,12 @@ design sources to copy.
 
 [Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Development source: 1.14.0-alpha.2 — Living Forest (local branch).**
-Live remains **1.14.0-alpha.1**, main `3331e6a`, with mobile recovery and the
-nine-slot hotbar. The local forest slice adds three tree silhouettes, six
+**Source: 1.14.0-alpha.2 — Living Forest.**
+This builds on mobile recovery and the nine-slot hotbar. The forest slice adds three tree silhouettes, six
 woodland ground models, rabbits and birds to the real Three.js scene.
 See [forest verification](docs/verification-living-forest.md) for captures,
-render measurements and remaining physical-device acceptance.
+render measurements and remaining physical-device acceptance. Deployment is
+verified separately in the [release record](docs/verification-release-1.14.0-alpha.2.md).
 This combines the mobile close fix, brand/guide, camp and storage UI, audited
 dependency patches and customizable item references. Full equipment, stack
 management and drag-and-drop remain planned. Physical Android acceptance is

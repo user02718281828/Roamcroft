@@ -1,6 +1,16 @@
 # Roamcroft — proje hafızası ve çalışma kuralları
 
-Güncel canlı30 Ekim:1.14.0-alpha.1/main3331e6af8aa67dac6432879fb1729d95dadd3510,
+30 Ekim son kullanıcı kararı: Living Forest1.14.0-alpha.2/f014c79 (dal ucu
+c7bc91d) için başarılı kontrollerle bir defalık normal main push/Cloudflare
+production yayını açıkça yetkilidir; fiziksel orman performansı yayın sonrasına
+ertelendi. Kullanıcı alpha.1 Android X/Close/hotbar/depo/joystick/balta/saldırı/
+pinch/kayıt erişimini geçtiğini bildirdi; eski X hatasını yeniden açık sayma.
+Sonraki Mobile HUD ve rehber scroll düzeltmeleri yeni main tabanında ayrı kısa
+ömürlü yerel dalda, ayrı commit; bu paketlerin production onayı yok. Non-main
+Cloudflare davranışı doğrulanmadıkça bu dallar push edilmez. Önceki 'orman
+yayını yetkisiz' kayıtları geçmiş oturum sınırıdır.
+
+Önceki doğrulanmış canlı checkpoint:1.14.0-alpha.1/main3331e6af8aa67dac6432879fb1729d95dadd3510,
 GitHub verify ve Workers Builds success, iki origin/WWW/SEO/asset/CSP ve
 oturumsuz WS kapısı doğrulandı. Fiziksel kabul eksik; yetkili4WS yerel+CI,
 gerçek WAN yapılmadı. Yayın kaydı docs/verification-release-1.14.0-alpha.1.md.

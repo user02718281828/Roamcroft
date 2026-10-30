@@ -9,6 +9,14 @@ ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
 ## Vizyon ve karar ilkeleri
 
+**30 Ekim son talimat:** tamamlanmış Living Forest/alpha.2 için bir defalık
+normal main/Workers Builds yayını onaylı. Bu yayın öncesi alpha.1 fiziksel
+Android X/Close/hotbar/depo/joystick/balta/saldırı/pinch/kayıt erişimi kullanıcıca
+geçti; yeni ormanın cihaz performansı yayın sonrasına ertelendi. Son yayın
+kanıtı verification-release-1.14.0-alpha.2.md. Sonraki Mobile HUD ve rehber
+scroll ayrı kısa ömürlü yerel dalda; yeni production onayı yok. Aşağıdaki eski
+canlı/yetki satırları tarihsel checkpoint'tir.
+
 **Güncel canlı:**1.14.0-alpha.1/main3331e6af8aa67dac6432879fb1729d95dadd3510,
 GitHub verify+Workers Builds başarılı, hotbar dahil. Yayın sonrası kanıt
 verification-release-1.14.0-alpha.1.md içinde. Bir defalık yayın izni kullanıldı;
