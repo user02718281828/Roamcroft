@@ -8,26 +8,27 @@ design sources to copy.
 
 [Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Live: 1.14.0-alpha.2 — Living Forest**, main `914bde9`.
-GitHub CI and Cloudflare Workers Builds succeeded; both the official and previous
-origins were verified. [Release evidence](docs/verification-release-1.14.0-alpha.2.md).
+**1.14.0-alpha.3 — Quality Recovery**.
+Release source and acceptance limits: [alpha.3 release record](docs/verification-release-1.14.0-alpha.3.md).
+The previous confirmed production checkpoint is alpha.2/main `914bde9`;
+its successful CI, Cloudflare and origin checks are [recorded separately](docs/verification-release-1.14.0-alpha.2.md).
 The real Three.js scene includes three tree silhouettes, six woodland ground
 models, rabbits and birds. [Forest verification](docs/verification-living-forest.md).
 The user passed the alpha.1 Android menu/input/hotbar/storage checks; physical
 forest performance remains pending. Full equipment, stacks and drag-and-drop
 remain planned.
 
-**Local development candidate: 1.14.0-alpha.3**, branch `codex/quality-recovery`
-(continuing the existing HUD/guide work, with its Git history preserved).
+Quality Recovery continues the `codex/quality-recovery` checkpoint `413d0a4`
+and existing HUD/guide work, with their Git history preserved.
 Shared forest models, hierarchical culling and live-only grass instances reduce
 rendering work. A compact HUD, nine-slot mobile palette, smaller landscape bag
-and responsive construction/seed controls are implemented locally. This candidate
-has **not** been published; physical acceptance and separate release approval are required.
+and responsive construction/seed controls are included. The user approved the
+controlled alpha.3 production release; physical Android acceptance remains pending.
 [Quality recovery evidence and measurements](docs/verification-quality-recovery-alpha.3.md) ·
 [HUD verification](docs/verification-mobile-hud-alpha.3.md) ·
 [Guide verification](docs/verification-guide-scroll-alpha.3.md).
 
-Current local candidate, captured in a **568×320 browser viewport**, not on a phone:
+Quality Recovery source captured locally in a **568×320 browser viewport**, not on a phone:
 
 ![Local alpha.3 construction controls; physical Android acceptance pending](docs/screenshots/quality-recovery-568-build.jpg)
 

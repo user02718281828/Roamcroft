@@ -9,6 +9,14 @@ ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
 ## Güncel yerel paket — Quality Recovery / alpha.3
 
+**Son kullanıcı kararı / kontrollü yayın onayı:** `413d0a4` alpha.3 için
+başarılı son testlerle normal main push ve bağlı Cloudflare yayını yetkilidir.
+Önceki fiziksel kabul kapısı bu yayın onayını engellemez; gerçek Android FPS'i
+ve yeni HUD cihaz kabulü hâlâ eksiktir, yayın sonrası takip edilir.
+[Bu yayın turu](verification-release-1.14.0-alpha.3.md). Aşağıdaki adaya ait
+'push/onay yok' satırları önceki oturumun tarihsel sınırıdır; sonraki
+özelliklerin veya sonraki yayının yetkisi değildir.
+
 **TAMAMLANDI (yerel):** önceki alpha.3 HUD/rehber geçmişi üzerinde
 `codex/quality-recovery` tek ilerleyen adaydır. Orman model paylaşımı, bölge
 bazlı eleme, habitat tarama bütçesi ve görünmeyen otların GPU'ya gönderilmemesi;

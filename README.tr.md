@@ -17,19 +17,21 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
 [English](README.md) · [Değişiklikler](CHANGELOG.md) · [2.0 master planı](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Canlı:1.14.0-alpha.2 — Living Forest**, main `914bde9`.
-GitHub CI ve Workers Builds başarılı; iki origin doğrulandı.
-[Yayın kaydı](docs/verification-release-1.14.0-alpha.2.md).
+**1.14.0-alpha.3 — Quality Recovery**.
+Kaynak/kabul sınırları: [alpha.3 yayın kaydı](docs/verification-release-1.14.0-alpha.3.md).
+Önceki doğrulanmış canlı checkpoint alpha.2/main `914bde9`;
+CI/Workers Builds/iki origin kanıtı [ayrı kayıttadır](docs/verification-release-1.14.0-alpha.2.md).
 Gerçek Three.js sahnesinde üç ağaç silueti, altı yer örtüsü, tavşan ve kuş var.
 [Orman kanıtı](docs/verification-living-forest.md). Kullanıcı alpha.1 Android
 menü/girdi/hotbar/depo kabulünü geçti; ormanın fiziksel performansı hâlâ bekliyor.
 Tam ekipman/stack/sürükle-bırak henüz yoktur.
 
-**Yerel aday:1.14.0-alpha.3**, `codex/quality-recovery`.
+Kalite kurtarma kaynağı: `codex/quality-recovery` / `413d0a4`.
 Önceki HUD/rehber dalının geçmişi korunarak devam edildi. Ortak orman modelleri,
 bölge bazlı eleme ve yalnız görünür ot örnekleri çizim yükünü azaltır. Sade HUD,
 dar ekranda dokuz yuvalı palet, yatay kompakt çanta ve karakteri açık bırakan
-inşa/ekim kontrolleri yereldir; yayımlanmadı. Fiziksel kabul ve ayrıca yayın onayı gerekir.
+inşa/ekim kontrolleri dahildir. Kontrollü alpha.3 üretim yayını kullanıcıca
+onaylandı; fiziksel Android kabulü hâlâ bekliyor.
 [Kalite kurtarma ve ölçümler](docs/verification-quality-recovery-alpha.3.md) ·
 [HUD kanıtı](docs/verification-mobile-hud-alpha.3.md) ·
 [Rehber kanıtı](docs/verification-guide-scroll-alpha.3.md).

@@ -1,4 +1,4 @@
-## 1.14.0-alpha.3 — Unreleased / local HUD candidate
+## 1.14.0-alpha.3 — Quality Recovery
 
 - Quality recovery: shared seasonal tree models, hierarchical chunk culling,
   throttled habitat scans and live-only grass instances. Preserve leaf wind,

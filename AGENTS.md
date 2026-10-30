@@ -1,5 +1,15 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+Son kullanıcı kararı: `codex/quality-recovery` / `413d0a4` alpha.3 kalite
+kurtarma paketinin başarılı son kontrollerle normal main push ve bağlı
+Cloudflare production yayını açıkça onaylıdır. Önceki HUD f3da7f6, rehber
+scroll07760aa ve performans3130162/0eeb521/HUD81b79f4 Git ataları doğrulandı;
+main fast-forward ile bütünleştirildi. Yayın kaydı
+`docs/verification-release-1.14.0-alpha.3.md`. Fiziksel Android kabulü ve
+telefon FPS'i hâlâ ölçülmedi; yayın onayı bunların geçmiş olduğu anlamına gelmez.
+Bu yetki yalnız alpha.3 içindir; sonraki özellik veya yayın için yeni talimat
+gerekir. Aşağıdaki 'alpha.3 onayı yok' satırları tarihsel oturum sınırıdır.
+
 Yerel kalite kurtarma adayı alpha.3: dal `codex/quality-recovery`, önceki HUD
 dalı/geçmişi korunarak devam. CPU/orman3130162, GPU/rüzgâr0eeb521,
 HUD/320px ve küçük yatay inşa/ekim81b79f4. Final239 test/typecheck/build,
