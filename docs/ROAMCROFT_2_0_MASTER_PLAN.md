@@ -14,8 +14,13 @@ ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 çanta/depo.236 test/typecheck/build/dört WS runtime ve üç boyutta33 menü
 döngüsü başarılı. [Kanıt](verification-mobile-hud-alpha.3.md).
 **DOĞRULAMA EKSİK:** yeni HUD fiziksel Android/iOS/PWA/safe-area ve gerçek WAN.
-**PLANLANDI:** How-to-play kök scroll kilidi düzeltmesi sonraki ayrı commit;
-sonrasında kalan güvenli kapasiteye göre yeni fauna/çevre. Bu pakette yeni
+**TAMAMLANDI (yerel):** How-to-play kök scroll kilidi route koşullu düzeltildi;
+masaüstü ve3 mobil boyutta son içerik/oyuna dönüş doğrulandı.
+[Rehber doğrulaması](verification-guide-scroll-alpha.3.md).
+**PLANLANDI:** sonraki öncelik alpha.2 forest ve alpha.3 HUD/rehber fiziksel
+Android portre/yatay kabulü ve ayrıca alpha.3 yayın onayı. Yeni fauna/çevre
+içeriği bundan sonra performans/kalite sınırıyla ayrı paket. Bu oturumda ek
+yeni tür veya yeni büyük içerik geliştirilmedi. Bu pakette yeni
 vahşi yaşam türü, ekipman/stack/drag-drop, Engine/save/economy/online şeması yok.
 Dal codex/mobile-hud-recovery yalnız yerel; alpha.3 için yeni main/production
 onayı gerekir. Canlı ürün aşağıdaki alpha.2 checkpoint'idir.

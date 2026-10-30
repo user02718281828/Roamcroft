@@ -3,6 +3,7 @@
 - Compact, bounded and deduplicated HUD notices; event sounds and effects remain unchanged.
 - Mobile icon controls, 44px hotbar targets, a persistent compact Explore hand,
   and item bindings through the bag. More compact mobile bag/storage layout.
+- Restore native scrolling on the How to Play document without unlocking the game viewport.
 - No save, economy, backend protocol or dependency migration. Physical acceptance pending.
 
 # Değişiklikler
