@@ -31,3 +31,23 @@ D1 çakışması ve ortak uyku geçti. Loglar work/alpha2-release-*.log.
 Son test turundan sonra yalnız release belgesi/README/AGENTS değişti;
 uygulama kodu f014c79 ile aynıdır. Önceki eski kayıt ve gerçek sahne kabulü
 aynı kod için verification-living-forest.md içinde korunur.
+
+## Canlı sonuç — 30 Ekim
+
+Normal fast-forward main push: `914bde9360078576eee0a51bf70295e4de3f45b7`.
+GitHub verify [41029611889](https://github.com/user02718281828/Roamcroft/actions/runs/41029611889)
+ve Workers Builds `72555405-f22f-4580-889e-80f1f168f927` success.
+`https://roamcroft.com` ve eski Worker origin HTTP200/1.14.0-alpha.2;
+WWW301/root, SEO/robots/sitemap/rehber/manifest/SW/marka hash'leri, güvenlik
+başlıkları ve her istekte yeni script nonce doğrulandı. Her iki originde
+çerezsiz WS401; yetkili dört oyuncu kanıtı yerel+CI, gerçek WAN değildir.
+Canlı scene-C7JWq3yO.js içinde forestActors/rabbit/bird/canopy bulundu.
+Gerçek sahne 390×844 açıldı, sekiz forest actor ve 3.600 tile çizildi;
+menü açma/kapatma görüldü. Fiziksel forest performansı hâlâ bekliyor.
+
+Yerel varsayılan DNS EAI_AGAIN verdi; salt okunur kabul, açık DNS cevabıyla
+sadece doğrulama sürecinde host lookup kullanılarak tekrarlandı. HTTPS host,
+SNI ve sertifika doğrulaması korundu; sistem DNS/TLS ayarı değiştirilmedi.
+Log `work/alpha2-live-acceptance-dns.log`. Oturum/üretim test çiftliği açılmadı.
+
+Sonraki HUD/rehber dalı bu main'den başlar ve ayrıca yayın onayı gerektirir.

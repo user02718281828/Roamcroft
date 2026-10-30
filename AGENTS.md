@@ -1,3 +1,12 @@
+# Güncel checkpoint — 30 Ekim 2026
+
+Canlı alpha.2/main914bde9360078576eee0a51bf70295e4de3f45b7 yayımlandı;
+GitHub verify+Workers Builds success. Son kayıt docs/verification-release-1.14.0-alpha.2.md.
+Kullanıcı alpha.1 Android X/Close/hotbar/depo/girdi/kayıt erişimini geçtiğini
+bildirdi; forest cihaz performansı bekliyor. Sonraki codex/mobile-hud-recovery
+yalnız yerel; bu sonraki paket için main/deploy onayı yok. Non-main otomatik
+deploy politikası bilinmediğinden push yok. Aşağıdaki eski checkpoint'ler tarihseldir.
+
 # Roamcroft — proje hafızası ve çalışma kuralları
 
 30 Ekim son kullanıcı kararı: Living Forest1.14.0-alpha.2/f014c79 (dal ucu

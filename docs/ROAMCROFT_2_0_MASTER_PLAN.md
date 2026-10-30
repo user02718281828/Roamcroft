@@ -17,10 +17,13 @@ kanıtı verification-release-1.14.0-alpha.2.md. Sonraki Mobile HUD ve rehber
 scroll ayrı kısa ömürlü yerel dalda; yeni production onayı yok. Aşağıdaki eski
 canlı/yetki satırları tarihsel checkpoint'tir.
 
-**Güncel canlı:**1.14.0-alpha.1/main3331e6af8aa67dac6432879fb1729d95dadd3510,
-GitHub verify+Workers Builds başarılı, hotbar dahil. Yayın sonrası kanıt
-verification-release-1.14.0-alpha.1.md içinde. Bir defalık yayın izni kullanıldı;
-Living Forest/alpha.2 ayrı yerel paket, yeni production izni yok.
+**Güncel canlı:** 1.14.0-alpha.2/main
+`914bde9360078576eee0a51bf70295e4de3f45b7`; GitHub verify ve Workers Builds
+başarılı. İki origin, WWW/SEO/asset/CSP/nonce ve oturumsuz WS kapısı geçti.
+Gerçek sahnede sekiz forest actor görüldü. Fiziksel forest performansı bekliyor.
+[Son yayın kaydı](verification-release-1.14.0-alpha.2.md).
+Sonraki `codex/mobile-hud-recovery` bu main'den türedi; yalnız yerel çalışma,
+main veya belirsiz non-main otomatik deploy için yeni onay yok.
 
 **30 Ekim son kullanıcı kararı:** A–D+dört güvenlik patch'i+gerçek9-slot
 hotbar tek1.14.0-alpha.1 adayında birleştirilecek ve başarılı son kontrollerle
