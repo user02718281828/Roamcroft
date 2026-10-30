@@ -1,5 +1,21 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+Son domain kararı: tek herkese açık adres `https://roamcroft.com`.
+Kullanıcı Dashboard'da eski workers.dev Production/Preview uçlarını kapattığını
+bildirdi; ancak30 Ekim15:16UTC iki no-cache canlı isteği Production için
+HTTP200/alpha.3/private,no-store/farklı nonce verdi. Canlı kapanış doğrulanmış
+sayılmaz; Dashboard çelişkisi açık. Bu kaynak hazırlığı canlı ayarı değiştirmez.
+Eski origin'i açık tutma talimatı geçersizdir; yeniden açma/yönlendirme/DNS veya
+otomatik kayıt/çerez taşıma yapma. `deployment.config.json` içinde iki bayrak
+false; Vite girdisi ve finalize-build gerçek `dist/server/wrangler.json`'a
+taşır, üretilmiş env blokları da kapalı tutulur. Yeni env/alternatif deploy
+yolu bu politikayla ayrıca doğrulanmalı. Ayrıntı `docs/DOMAIN_POLICY.md`.
+Bu görev yerel hazırlıktır: push/deploy yok, ürün sürümü hâlâ alpha.3.
+Eski IndexedDB/localStorage ve D1/DO silinmez; kayıtlar otomatik taşınmış
+sayılmaz. Kurtarma için eski tarayıcı profilini/site verisini koru; güvenli
+JSON veya ayrıca yetkili sahiplik doğrulaması gerekir. Historical iki-origin
+yayın testleri artık workers.dev'in açık kalması gerekliliği değildir.
+
 Canlı alpha.3/main `f1fb42520b0d955e3fd12341b675bc9e43d49b03` yayımlandı:
 GitHub verify41076380875 ve Workers Builds288f597f-0bac-4e00-ae63-333fc9179b9a
 success. Temiz npm ci/typecheck/239 test/build/i18n/dört WS runtime geçti.
@@ -93,8 +109,9 @@ değildir. E/F üretime bağlanmaz. Eski fiziksel-önce kapısı tam1.14 için k
 bu dar dilim son kullanıcı talimatıyla ayrıca yetkilidir.
 
 29 Ekim devam güncellemesi: canlı main `a182541` / 1.13.1. Resmî domain
-`https://roamcroft.com`; www→root301 doğrulandı. Eski Worker domainini açık
-tut; otomatik yönlendirme, DNS/TXT veya kayıt/çerez göçü yapma. Search Console
+`https://roamcroft.com`; www→root301 doğrulandı. O tarihte açık olan eski Worker
+domaini son kullanıcı kararıyla kapatıldı; yeniden açma. DNS/TXT veya otomatik
+kayıt/çerez göçü yapma. Search Console
 sahipliği/ilk indeks isteği kullanıcıca tamamlandı; indeks/sıralama bilinmiyor.
 Domain/SEO/marka adayı `docs/verification-domain-seo.md`; sonraki UI/oynanış
 paketleri ayrı checkpoint. Yeni rehber rotası SW'de `/` önbelleğini ezmemeli.

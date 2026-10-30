@@ -34,10 +34,14 @@ Quality Recovery source captured locally in a **568×320 browser viewport**, not
 
 The release includes the official domain, brand icons and a bilingual
 [field guide](https://roamcroft.com/how-to-play).
-Your existing device save and server session stay on the address where you
-created them. The [previous address](https://roamcroft.roamcroft.workers.dev)
-remains available. Export a device save before importing it on the new address;
-server ownership is not transferred by a local JSON file.
+**The only public game address is [roamcroft.com](https://roamcroft.com).**
+The workers.dev Production and Preview URLs must remain disabled. This local
+hardening has not been deployed; the 30 October read-only check still received
+HTTP200 from the old Production endpoint, so Dashboard closure needs verification. Old
+IndexedDB/localStorage saves are origin-bound and do not move automatically.
+Keep the old browser profile/site data; use an existing JSON backup or follow
+the [safe recovery procedure](docs/DOMAIN_POLICY.md). JSON cannot transfer
+server ownership. Closing an endpoint does not delete player data.
 
 Camp welcome and the bag/storage distinction are included in the current live
 release. The following are historical local Camp Art captures; they do not show
@@ -193,6 +197,12 @@ Cloudflare Workers Builds has run for `main`. Pushing a development branch is
 not production deployment approval. CI verifies `main`, `feature/**`, `codex/**`
 and pull requests; production pushes/deploys need the user's explicit scope.
 GitHub Pages has not been verified as a hosting source (the Pages API returned 404).
+
+`deployment.config.json` explicitly disables `workers_dev` and `preview_urls`.
+Vite and the build finalizer carry this policy into the actual deploy target,
+`dist/server/wrangler.json`; `npm run deploy` uses that generated file.
+Dashboard-managed custom domains and the www redirect are left unchanged.
+See [deployment policy and recovery](docs/DOMAIN_POLICY.md) before changing environments.
 
 Portal SDKs, ads, analytics, prestige, accounts/recovery, shared mines and
 independent distant co-op exploration remain planned. Physical mobile, real WAN,

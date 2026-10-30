@@ -1,5 +1,6 @@
 // Public identity only. Game API, WebSocket and saves remain relative to the current origin.
 export const SITE_URL = 'https://roamcroft.com';
+// Historical storage/session origin for recovery documentation, not a public endpoint.
 export const LEGACY_URL = 'https://roamcroft.roamcroft.workers.dev';
 export const SITE_DESCRIPTION = 'A free isometric browser farming game. Grow crops, craft, explore a valley and share a surface farm with up to four players. Play in English or Turkish.';
 export const structuredData = {

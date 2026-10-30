@@ -7,6 +7,22 @@ Bir plan maddesi çalışan özellik değildir. 2.0 tamamlanmış veya yayımlan
 sayılmaz. Başlangıç tabanı: 1.11.5 + doğrulanmış TR/EN çalışması. Güncel main'e
 ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
+## Güncel domain kararı — tek herkese açık origin
+
+**KARAR / kullanıcı Dashboard bildirimi:** workers.dev Production ve Preview
+kapatılacak, tek oyun adresi `https://roamcroft.com`, www→root korunur.
+**DOĞRULAMA ÇELİŞKİSİ:**30 Ekim15:16UTC iki no-cache Production isteği hâlâ
+HTTP200/alpha.3 döndü; canlı kapanış tamamlandı sayılmaz. Preview ayarı
+bağımsız doğrulanamadı; Dashboard kontrolü ayrıca beklenir.
+**YEREL HAZIRLIK:** canonical deployment config/Vite/finalizer iki bayrağı
+false üretir; şema/DB/online/sürüm değişmez. Push veya yeniden deploy bu görevde
+yetkili değildir. [Dağıtım/kurtarma ilkesi](DOMAIN_POLICY.md).
+Eski origin'i açık tutma önerileri geçersizdir. IndexedDB/çerezler otomatik
+taşınmaz; profil/site verisi ve D1/DO korunur. Kurtarma, veriler taşınmış veya
+hesap kurtarma uygulanmış sayılmaz. Sonraki onaylı yayına bu commit dahil edilmeli.
+Bu dar işten sonra öncelik yeni özellik değil, alpha.3 fiziksel Android
+portre/yatay HUD/ekim/inşa/kayıt kabulü ve orman performansı/uzun oturumdur.
+
 ## Güncel yerel paket — Quality Recovery / alpha.3
 
 **TAMAMLANDI / CANLI:** alpha.3/main
@@ -131,7 +147,8 @@ doğrulanmadığından kullanıcı yanıtı sonrası geliştirme dalı push'u da
 29 Ekim 2027 yenileme/otomatik yenileme açık; Cloudflare Free aktif zone ve
 mevcut Worker custom domain. DNS/Google doğrulama TXT'sine dokunulmaz.
 `www` 301 → root ve root HTTP200/1.13.1 bu oturumda doğrulandı; eski Worker
-HTTP200/1.13.1 açık tutulur. İlk yerel DNS hatası sonraki kontrolde düzeldi.
+HTTP200/1.13.1 o tarihte açıktı; son domain kararıyla kapatıldı, yeniden açılmaz.
+İlk yerel DNS hatası sonraki kontrolde düzeldi.
 GitHub About adresi kullanıcı tarafından güncellendi; tekrar değiştirilmez.
 
 **Search Console / kullanıcı bildirimi:** Domain mülk sahipliği doğrulandı;
@@ -529,7 +546,7 @@ olarak sunulmaz; dağıtım yapılırsa yayımlanan SHA ayrıca eşlenir.
 - **GÜNCEL DENETİM:** 29 Ekim `npm ci`/`npm audit --json`: **25 paket bulgusu**,
   3 kritik / 11 yüksek / 10 orta / 1 düşük. Tarihsel 23 sonuç korunur, giderilmiş
   sayılmaz. Toplu güncelleme yok; araç zinciri/canlı erişilebilirlik ayrı kontrollü iş.
-- Domain artık satın alındı: resmî `https://roamcroft.com`; eski Worker erişimi açık kalır. Güncel durum ve origin kuralları bu belgenin başındadır.
+- Domain artık satın alındı: tek resmî `https://roamcroft.com`; eski workers.dev Production/Preview kapalı kalır. Güncel durum ve kurtarma kuralları bu belgenin başındadır.
 
 Sonraki sıra: ilk 30 dakika/başlangıç ekonomisi → gerçek hotbar/araç → toplama,
 üretim ve darbe hissi → yaşayan köy → savaş/keşif → Online 2.0. Modülerleştirme,

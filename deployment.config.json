@@ -1,5 +1,7 @@
 {
   "name":"roamcroft",
+  "workers_dev":false,
+  "preview_urls":false,
   "database_name":"site-creator-d1",
   "database_id":"e0c45167-60ae-4980-9a74-3a717a2a9954",
   "binding":"DB"

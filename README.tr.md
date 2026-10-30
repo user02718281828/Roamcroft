@@ -2,9 +2,13 @@
 
 Resmî adres: [roamcroft.com](https://roamcroft.com). Domain/SEO/marka paketi
 bu sürüme dahildir; [oynanış ve kayıt rehberi](https://roamcroft.com/how-to-play)
-bulunur. Eski cihaz kaydı ve sunucu kimliği eski adreste
-kalır; [önceki adres](https://roamcroft.roamcroft.workers.dev) açık tutulur.
-JSON dışa/içe aktarma cihaz çiftliğini taşır; sunucu sahipliğini taşımaz.
+bulunur. Tek herkese açık oyun adresi roamcroft.com'dur; eski workers.dev
+Production ve Preview adresleri kapalı kalmalıdır. Bu yerel koruma yayımlanmadı;
+30 Ekim salt okunur kontrolde eski Production hâlâ HTTP200 verdiğinden
+Dashboard kapanışı ayrıca doğrulanmalıdır. Eski IndexedDB/localStorage kayıtları
+origin'e bağlıdır ve otomatik taşınmaz. Tarayıcı profilini/site verilerini koru;
+var olan JSON yedeğini veya [güvenli kurtarma prosedürünü](docs/DOMAIN_POLICY.md)
+kullan. JSON sunucu sahipliğini taşımaz; adresin kapanması oyuncu verisini silmez.
 
 Tek logolu karşılama ve çanta/depo ayrımı canlı sürüme dahildir.
 Aşağıdaki tarihsel Camp Art görüntüsü yerel tarayıcıdan alındı; yeni alpha.3
@@ -132,4 +136,8 @@ Main üzerindeki Cloudflare Workers Builds bağlantısı doğrulandı. Bu görev
 yayın için önce geliştirme dalı, tüm kontroller ve güncel main birleşimi gerekir.
 Geliştirme dalı push'u üretim yayını değildir; oturumun açık izni esas alınır. GitHub Pages
 API sorgusu 404 döndü; Pages'in gerçek yayın kaynağı olduğu varsayılmaz.
+`deployment.config.json` içindeki `workers_dev:false`/`preview_urls:false`
+Vite ve build finalizer üzerinden gerçek hedef `dist/server/wrangler.json`'a
+uygulanır. Custom domain/www yönlendirmesi Dashboard'da korunur.
+[Dağıtım ve kurtarma ilkesi](docs/DOMAIN_POLICY.md).
 [Doğrulama](docs/verification-ui-1.12.0.md) ve [AGENTS](AGENTS.md) ayrıntıları içerir.

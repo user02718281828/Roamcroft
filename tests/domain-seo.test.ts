@@ -18,7 +18,7 @@ test('public discovery uses canonical pages while manifest identity stays origin
   assert.equal('aggregateRating' in structuredData['@graph'][1],false);
 });
 
-test('both site origins retain independent same-origin routing and private APIs are not indexed',async()=>{
+test('app-level requests retain historical origin isolation; private APIs remain unindexed independently of edge routing',async()=>{
   for(const origin of [SITE_URL,LEGACY_URL]){
     let seen='';
     const handler={async fetch(request:Request){seen=new URL(request.url).origin;return new Response('private',{status:401});}};
