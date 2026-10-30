@@ -1,5 +1,15 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+Canlı alpha.3/main `f1fb42520b0d955e3fd12341b675bc9e43d49b03` yayımlandı:
+GitHub verify41076380875 ve Workers Builds288f597f-0bac-4e00-ae63-333fc9179b9a
+success. Temiz npm ci/typecheck/239 test/build/i18n/dört WS runtime geçti.
+İki origin HTTP200/alpha.3, nonce/CSP/SEO/asset/WS401 ve gerçek 3D açılış,
+çanta X ve cihaz kaydıyla çıkış doğrulandı. Fiziksel Android/WAN hâlâ eksik.
+Son kanıt `docs/verification-release-1.14.0-alpha.3.md`. Yerel sonuç belgesi
+`codex/quality-recovery` dalında main'den ilerleyen ayrı checkpoint;
+bu belge commit'i push edilmez, main/origin/main canlı f1fb425'te kalır.
+Sonraki yayın veya özellik için yeni kullanıcı talimatı gerekir.
+
 Son kullanıcı kararı: `codex/quality-recovery` / `413d0a4` alpha.3 kalite
 kurtarma paketinin başarılı son kontrollerle normal main push ve bağlı
 Cloudflare production yayını açıkça onaylıdır. Önceki HUD f3da7f6, rehber

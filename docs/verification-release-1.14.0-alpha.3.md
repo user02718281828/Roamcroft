@@ -41,3 +41,28 @@ Son turdan sonra yalnız yayın belgeleri değişti; oyun kodu413d0a4 ile aynıd
 Push sonrası esas kanıt ilgili main SHA'nın GitHub verify/Workers Builds
 check'leri ve canlı HTTP/tarayıcı kabulüdür. CI veya canlı başarı bu push
 öncesi belgeyle varsayılmaz. Yeni özellik/üretim test çiftliği yoktur.
+
+## Canlı sonuç — başarılı
+
+Normal main push: `f1fb42520b0d955e3fd12341b675bc9e43d49b03`.
+[GitHub verify 41076380875](https://github.com/user02718281828/Roamcroft/actions/runs/41076380875)
+ve Workers Builds `288f597f-0bac-4e00-ae63-333fc9179b9a` success;
+ikisi de aynı main SHA'ya bağlıdır. CI temiz kurulum/typecheck/test/build ve
+yerel dört WS/runtime adımlarının tümünü geçti.
+
+`https://roamcroft.com` ve eski Worker origin HTTP200/1.14.0-alpha.3;
+WWW301/root, canonical/robots/sitemap/rehber/manifest/SW, marka hash'leri,
+güvenlik başlıkları ve istek başına yeni script nonce doğrulandı.
+İki originde çerezsiz WS401; üretim oturumu/oda/veritabanı testi oluşturulmadı.
+Canlı scene-_SX1lMoM.js HTTP200, forestActors/rabbit/bird/canopy içeriyor.
+Salt okunur log `work/alpha3-live-acceptance.log`; sistem DNS/TLS değiştirilmedi.
+
+Gerçek tarayıcıda launcher alpha.3 gösterdi; var olan cihaz kaydıyla 3D
+sahne844×390 açıldı, yeni sade HUD/dokuz yuva görüldü. Çanta açılışı/X
+kapanışı ve gerçek kayıt ACK'siyle başlangıca dönüş başarılı. Görseller
+`screenshots/release-alpha3-live-{game,start}.jpg`. Bu kontrol fiziksel
+Android veya yetkili WAN dört oyuncu testi değildir; bunların açık durumu sürer.
+
+Bu sonuç belgesi, yayımlanmış main'den ilerleyen `codex/quality-recovery`
+dalında yalnız yerel belge checkpoint'idir. Yeni push/deploy yapılmaz;
+main/origin/main ve canlı uygulama yukarıdaki f1fb425'te korunur.

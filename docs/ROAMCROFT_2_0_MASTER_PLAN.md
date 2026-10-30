@@ -9,6 +9,13 @@ ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
 ## Güncel yerel paket — Quality Recovery / alpha.3
 
+**TAMAMLANDI / CANLI:** alpha.3/main
+`f1fb42520b0d955e3fd12341b675bc9e43d49b03`; GitHub verify ve Workers Builds
+success, iki origin HTTP200/alpha.3 ve gerçek 3D/çanta X/kayıt çıkışı geçti.
+[Yayın kanıtı](verification-release-1.14.0-alpha.3.md). Fiziksel Android
+performansı/yeni HUD kabulü, uzun oturum ve gerçek WAN sonraki önceliktir.
+Aşağıdaki yerel aday/onay bekleme satırları tarihsel checkpoint'tir.
+
 **Son kullanıcı kararı / kontrollü yayın onayı:** `413d0a4` alpha.3 için
 başarılı son testlerle normal main push ve bağlı Cloudflare yayını yetkilidir.
 Önceki fiziksel kabul kapısı bu yayın onayını engellemez; gerçek Android FPS'i
