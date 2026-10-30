@@ -40,14 +40,19 @@ function model(a:ForestArtist,kind:ForestActor['kind']){
 export class ForestLife{
   private actors=new Map<string,{actor:ForestActor;group:T.Group}>();
   private batches:AnimalBatches;
-  private clock=1;
+  private clock=2;
+  private tiles?:State['tiles'];
+  private cellX=Infinity;
+  private cellZ=Infinity;
   private visible:{type:string;group:T.Group}[]=[];
   private artist:ForestArtist;
   constructor(artist:ForestArtist,root:T.Group){this.artist=artist;this.batches=new AnimalBatches(root);}
   get count(){return this.actors.size;}
   update(s:State,reserved:Set<string>,dt:number,time:number,view:T.Frustum,players:readonly{x:number;z:number}[]){
     this.clock+=dt;
-    if(this.clock>=.5){
+    const cellX=Math.floor(s.player.x/4),cellZ=Math.floor(s.player.z/4);
+    if(this.clock>=2||this.tiles!==s.tiles||cellX!==this.cellX||cellZ!==this.cellZ){
+      this.tiles=s.tiles;this.cellX=cellX;this.cellZ=cellZ;
       this.clock=0;const spots=forestSpots(s,reserved),ids=new Set(spots.map(p=>p.id));
       for(const [id,entry]of this.actors)if(!ids.has(id)){releaseModel(entry.group);this.actors.delete(id);}
       for(const spot of spots)if(!this.actors.has(spot.id))this.actors.set(spot.id,{actor:forestActor(spot),group:model(this.artist,spot.kind)});

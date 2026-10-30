@@ -7,8 +7,8 @@ import {AnimalBatches} from './actor-batches.ts';
 import {AnimalPresentation} from './animal-presentation.ts';
 import { RemoteMotion } from '../coop/motion.ts';
 import { cottage, fruitTree } from './art-direction.ts';
-import {forestTree,forestPlant} from './forest-art.ts';
-import {forestReserved,forestDecoration} from './forest-layout.ts';
+import {ForestTrees,forestPlant} from './forest-art.ts';
+import {forestReserved,forestDecoration,nearForest} from './forest-layout.ts';
 import {ForestLife} from './forest-life.ts';
 import { orchardStatus } from './orchard.ts';
 import {CloudField} from './clouds.ts';
@@ -46,6 +46,7 @@ export class ValleyScene {
   gpuTimer?:GpuTimer;
   animalBatches?:AnimalBatches;
   forestLife?:ForestLife;
+  forestTrees?:ForestTrees;
   forestReserved=new Set<string>();
   highQuality = false;
   get detailTier(){return this.highQuality?0:this.budget.tier;}
@@ -735,10 +736,12 @@ export class ValleyScene {
       for(const x of [-.27,.27])this.box(g,0x9a8a64,x,.101,0,.025,.006,.78);
     }
     if(t.terrain==='grass'&&!t.resource&&!t.crop&&!t.tilled&&!buildingAt(this.engine.s,t.x,t.z)&&!this.forestReserved.has(tileKey(t.x,t.z))){
+      if(t.source==='tree'){this.mesh(g,'cylinder',0x94623d,0,.18,0,.18,.28,.18);return;}
       const decoration=forestDecoration(this.engine.s,t,this.forestReserved);
       if(decoration){forestPlant(this,g,decoration,this.engine.s.seed,t.x,t.z,season(this.engine.s));return;}
-      if(t.source==='tree')this.mesh(g,'cylinder',0x94623d,0,.18,0,.18,.28,.18);
-      else if(n<.035)this.mesh(g,'rock',0xaba98a,.15,.12,.1,.14,.06,.11);
+      // Empty spaces in the forest plan must stay empty, not refill with legacy flowers.
+      if(nearForest(this.engine.s,t))return;
+      if(n<.035)this.mesh(g,'rock',0xaba98a,.15,.12,.1,.14,.06,.11);
       else if(n>.96){this.mesh(g,'sphere',0x789454,0,.17,0,.3,.2,.24);this.mesh(g,'sphere',0xedd4a9,.13,.33,0,.045,.04,.045);}
       if(n>.84&&n<.96&&season(this.engine.s)!==3){
         const patch=Math.sin(t.x*.38+t.z*.19);
@@ -859,7 +862,8 @@ export class ValleyScene {
   resource(t: Tile, g: T.Group) {
     const n = noise(t.x + 31, t.z + 17, this.engine.s.seed);
     if (t.resource === 'tree') {
-      forestTree(this,g,this.engine.s.seed,t.x,t.z,season(this.engine.s));
+      this.forestTrees??=new ForestTrees(this);
+      this.forestTrees.add(g,this.engine.s.seed,t.x,t.z,season(this.engine.s));
     } else if (
       ['stone', 'copper', 'iron', 'crystal'].includes(t.resource || '')
     ) {
@@ -2687,6 +2691,7 @@ export class ValleyScene {
     this.gpuTimer?.dispose();
     this.animalBatches?.dispose();
     this.forestLife?.dispose();
+    this.forestTrees?.dispose();
     this.resizeObserver.disconnect();
     this.disposeHandlers.forEach((fn) => fn());
     for (const g of this.geometries.values()) g.dispose();

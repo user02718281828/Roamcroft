@@ -29,13 +29,19 @@ export function nearForest(s:State,t:Tile){return neighbours.some(([dx,dz])=>til
 export type ForestDecoration='fern'|'flowers'|'mushrooms'|'shrub'|'log'|'grass';
 export function forestDecoration(s:State,t:Tile,reserved:Set<string>):ForestDecoration|null{
   if(s.mine||!forestWalkable(s,t.x,t.z,reserved)||!nearForest(s,t))return null;
-  const n=forestSample(t.x,t.z,s.seed+857);if(n>.48)return null;
-  return (['fern','flowers','mushrooms','shrub','log','grass'] as const)[Math.min(5,Math.floor(n/.08))];
+  // Small woodland patches separated by readable ground, not a uniform carpet.
+  if(forestSample(Math.floor(t.x/3),Math.floor(t.z/3),s.seed+617)>.55)return null;
+  const n=forestSample(t.x,t.z,s.seed+857);if(n>.36)return null;
+  return (['fern','flowers','mushrooms','shrub','log','grass'] as const)[Math.min(5,Math.floor(n/.06))];
 }
 export type ForestSpot={id:string;kind:'rabbit'|'bird';x:number;z:number;phase:number};
 export function forestSpots(s:State,reserved=forestReserved(s)){
   if(s.mine)return [];
-  const candidates=s.tiles.filter(t=>Math.hypot(t.x-s.player.x,t.z-s.player.z)<16&&forestWalkable(s,t.x,t.z,reserved)&&nearForest(s,t))
+  const local:Tile[]=[];
+  for(let z=Math.floor(s.player.z)-15;z<=Math.ceil(s.player.z)+15;z++)for(let x=Math.floor(s.player.x)-15;x<=Math.ceil(s.player.x)+15;x++){
+    const t=tileAt(s,x,z);if(t&&(x-s.player.x)**2+(z-s.player.z)**2<256)local.push(t);
+  }
+  const candidates=local.filter(t=>forestWalkable(s,t.x,t.z,reserved)&&nearForest(s,t))
     .map(t=>({t,score:forestSample(t.x,t.z,s.seed+197)})).sort((a,b)=>a.score-b.score);
   const spots:ForestSpot[]=[],chunks=new Map<string,number>();
   for(const {t,score}of candidates){

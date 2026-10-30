@@ -25,6 +25,8 @@ const color = new T.Color();
 export class WorldBatches {
   buckets = new Map<string, Bucket>();
   chunks = new Map<string, Slot[]>();
+  private chunkBounds=new Map<string,T.Box3>();
+  private chunkVisibility=new Map<string,number>();
   root: T.Group;
   visibleChunks: Set<string> | null = null;
   view: T.Frustum | null = null;
@@ -32,7 +34,7 @@ export class WorldBatches {
   setView(view: T.Frustum, key: string) {
     if (key === this.viewKey) return false;
     this.viewKey = key;
-    this.view = view.clone();
+    this.view = this.view?this.view.copy(view):view.clone();
     return this.refresh();
   }
   setVisibleChunks(keys: Set<string>) {
@@ -69,18 +71,35 @@ export class WorldBatches {
   }
   private refresh() {
     let changed = false;
-    for (const b of this.buckets.values()) {
-      for (const slot of b.slots) {
-        const visible =
-          (!this.visibleChunks || this.visibleChunks.has(slot.chunk)) &&
-          (!this.view || this.view.intersectsBox(slot.bounds));
+    // Reject/accept whole chunks first. Fully inside/outside chunks need no
+    // per-instance work until their classification or membership changes.
+    for(const [key,slots]of this.chunks){
+      let classification=1;
+      if(this.visibleChunks&&!this.visibleChunks.has(key))classification=-1;
+      else if(this.view){
+        const box=this.chunkBounds.get(key)!;
+        for(const plane of this.view.planes){
+          const n=plane.normal,min=box.min,max=box.max;
+          const far=n.x*(n.x>=0?max.x:min.x)+n.y*(n.y>=0?max.y:min.y)+n.z*(n.z>=0?max.z:min.z)+plane.constant;
+          if(far<0){classification=-1;break;}
+          const near=n.x*(n.x>=0?min.x:max.x)+n.y*(n.y>=0?min.y:max.y)+n.z*(n.z>=0?min.z:max.z)+plane.constant;
+          if(near<0)classification=0;
+        }
+      }
+      if(classification!==0&&this.chunkVisibility.get(key)===classification)continue;
+      this.chunkVisibility.set(key,classification);
+      for(const slot of slots){
+        const visible=classification===1||(classification===0&&this.view!.intersectsBox(slot.bounds));
         if (!visible) this.hide(slot);
         else if (slot.drawIndex < 0) {
+          const b=slot.bucket;
           const index = b.visible.length;
           b.visible.push(slot);
           this.write(slot, index);
         }
       }
+    }
+    for (const b of this.buckets.values()) {
       if (!b.dirty) continue;
       changed = true;
       const mesh = b.mesh;
@@ -120,6 +139,7 @@ export class WorldBatches {
       }
     }
     this.chunks.delete(key);
+    this.chunkBounds.delete(key);this.chunkVisibility.delete(key);
     if (refresh) this.refresh();
   }
   replace(key: string, objects: T.Mesh[]) {
@@ -187,6 +207,8 @@ export class WorldBatches {
       slots.push(slot);
     }
     this.chunks.set(key, slots);
+    const bounds=new T.Box3();for(const slot of slots)bounds.union(slot.bounds);
+    this.chunkBounds.set(key,bounds);
     this.refresh();
   }
   dispose() {
@@ -197,6 +219,7 @@ export class WorldBatches {
     }
     this.buckets.clear();
     this.chunks.clear();
+    this.chunkBounds.clear();this.chunkVisibility.clear();
   }
 }
 

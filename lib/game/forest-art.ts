@@ -1,6 +1,28 @@
 import * as T from 'three';
+import {compactModel,releaseModel} from './batches.ts';
 import {forestSample,forestTreeStyle,type ForestDecoration} from './forest-layout.ts';
 export type ForestArtist={mesh(p:T.Object3D,k:string,c:number,x:number,y:number,z:number,sx?:number,sy?:number,sz?:number):T.Mesh};
+
+/** Three reusable colored silhouettes per season, rather than 12–18 instances
+ * for every tree. Source groups keep their tile identity for interaction. */
+export class ForestTrees{
+  private models=new Map<string,{group:T.Group;mesh:T.Mesh;height:number}>();
+  constructor(privateArtist:ForestArtist){this.artist=privateArtist;}
+  private artist:ForestArtist;
+  add(parent:T.Group,seed:number,x:number,z:number,season:number){
+    const style=forestTreeStyle(seed,x,z,season),key=`${style.kind}:${season}`;
+    let model=this.models.get(key);
+    if(!model){
+      const group=new T.Group();forestTree(this.artist,group,seed,x,z,season);compactModel(group);
+      model={group,mesh:group.children[0] as T.Mesh,height:style.height};this.models.set(key,model);
+    }
+    const mesh=new T.Mesh(model.mesh.geometry,model.mesh.material);
+    mesh.scale.y=style.height/model.height;
+    mesh.rotation.set(0,style.variant*2.094+style.lean,style.lean*.25);
+    mesh.castShadow=mesh.receiveShadow=true;parent.add(mesh);
+  }
+  dispose(){for(const {group}of this.models.values())releaseModel(group);this.models.clear();}
+}
 
 export function forestTree(a:ForestArtist,g:T.Group,seed:number,x:number,z:number,season:number){
   const style=forestTreeStyle(seed,x,z,season),{kind,height:h,palette:c,lean}=style;

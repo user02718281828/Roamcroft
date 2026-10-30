@@ -5,7 +5,7 @@ import {Engine,createState,tileAt} from '../lib/game/model.ts';
 import {serialize,deserialize} from '../lib/game/save.ts';
 import {shiftWindow,tileKey} from '../lib/game/world.ts';
 import {forestReserved,forestWalkable,forestDecoration,forestSpots,forestActor,stepForestActor,forestTreeStyle} from '../lib/game/forest-layout.ts';
-import {forestTree,forestPlant,type ForestArtist} from '../lib/game/forest-art.ts';
+import {ForestTrees,forestTree,forestPlant,type ForestArtist} from '../lib/game/forest-art.ts';
 import {ForestLife} from '../lib/game/forest-life.ts';
 
 test('forest presentation preserves old saves, resources and deterministic negative streamed cells',()=>{
@@ -86,4 +86,27 @@ test('actual forest actor batches are bounded, rebuild safely and release all re
   shiftWindow(s,-120,-120);Object.assign(s.player,{x:-120,z:-120});
   life.update(s,forestReserved(s),.6,2,view,[s.player]);assert.ok(life.count<=8);
   life.dispose();assert.equal(root.children.length,0);
+});
+
+test('rendered trees share three colored models while keeping tile transforms and releasing prototypes once',()=>{
+  const s=new Engine(createState()).s,before=structuredClone(s),cache=new ForestTrees(artist()),geometries=new Set<T.BufferGeometry>();
+  for(const t of s.tiles.filter(t=>t.resource==='tree')){
+    const g=new T.Group();g.position.set(t.x,t.height,t.z);cache.add(g,s.seed,t.x,t.z,0);
+    assert.equal(g.children.length,1);const mesh=g.children[0] as T.Mesh;
+    assert.ok((mesh.material as T.MeshStandardMaterial).vertexColors);
+    geometries.add(mesh.geometry);g.updateMatrixWorld(true);
+    const b=new T.Box3().setFromObject(g);assert.ok(b.max.y-t.height<4.1);
+    assert.equal(g.position.x,t.x);assert.equal(g.position.z,t.z);
+  }
+  assert.equal(geometries.size,3);let disposed=0;
+  for(const geometry of geometries)geometry.addEventListener('dispose',()=>disposed++);
+  cache.dispose();cache.dispose();assert.equal(disposed,3);assert.deepEqual(s,before);
+});
+
+test('forest composition leaves clear ground between patches without removing any gameplay resource',()=>{
+  const s=new Engine(createState()).s,before=structuredClone(s),reserved=forestReserved(s),kinds=new Set<string>();
+  let decorated=0,clear=0;
+  for(const t of s.tiles){const value=forestDecoration(s,t,reserved);if(value){decorated++;kinds.add(value);}else if(forestWalkable(s,t.x,t.z,reserved))clear++;}
+  assert.equal(kinds.size,6);assert.ok(decorated>30&&clear>decorated*2);
+  assert.deepEqual(s,before);
 });

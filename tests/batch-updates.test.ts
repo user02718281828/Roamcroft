@@ -3,6 +3,23 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { WorldBatches } from '../lib/game/batches.ts';
 
+test('chunk broad phase matches individual bounds through rotated views, replacements and explicit visibility',()=>{
+  const pool=new WorldBatches(new T.Group()),geo=new T.BoxGeometry(),mat=new T.MeshStandardMaterial();
+  for(let c=-3;c<4;c++){
+    const objects=[];for(let i=0;i<60;i++){const m=new T.Mesh(geo,mat);m.position.set(c*12+i%10,Math.floor(i/10)*.2,Math.floor(i/10));m.updateMatrixWorld(true);objects.push(m);}
+    pool.replace(String(c),objects);
+  }
+  const camera=new T.OrthographicCamera(-15,15,10,-10,.1,100),frustum=new T.Frustum(),matrix=new T.Matrix4();
+  for(let i=0;i<40;i++){
+    camera.position.set(Math.sin(i*.2)*30,20,Math.cos(i*.2)*30);camera.lookAt(i%4,0,0);camera.updateMatrixWorld();
+    frustum.setFromProjectionMatrix(matrix.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
+    pool.setVisibleChunks(new Set([...pool.chunks.keys()].filter(k=>i%3!==0||k!=='0')));pool.setView(frustum,String(i));
+    for(const b of pool.buckets.values())assert.equal(b.mesh.count,b.slots.filter(s=>pool.visibleChunks!.has(s.chunk)&&frustum.intersectsBox(s.bounds)).length);
+    if(i%7===0){pool.remove('0');const m=new T.Mesh(geo,mat);m.updateMatrixWorld();pool.replace('0',[m]);}
+  }
+  pool.dispose();geo.dispose();mat.dispose();
+});
+
 test('unchanged visibility does not upload matrices or invalidate shadows', () => {
   const pool = new WorldBatches(new T.Group()),
     geometry = new T.BoxGeometry(),
