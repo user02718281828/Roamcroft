@@ -9,6 +9,7 @@ export const structuredData = {
     {'@type':'WebSite','@id':`${SITE_URL}/#website`,name:'Roamcroft',url:SITE_URL+'/',inLanguage:['en','tr']},
     {'@type':['VideoGame','WebApplication'],'@id':`${SITE_URL}/#game`,name:'Roamcroft',url:SITE_URL+'/',description:SITE_DESCRIPTION,
       image:SITE_URL+'/og-image.jpg',genre:['Farming','Crafting','Exploration'],gamePlatform:'Web browser',
+      applicationCategory:'GameApplication',operatingSystem:'Any',browserRequirements:'WebGL 2 compatible browser',
       inLanguage:['en','tr'],playMode:['SinglePlayer','MultiPlayer'],
       offers:{'@type':'Offer',price:'0',priceCurrency:'USD'}},
   ],

@@ -16,6 +16,13 @@ test('public discovery uses canonical pages while manifest identity stays origin
   }
   assert.equal(structuredData['@graph'][1].url,SITE_URL+'/');
   assert.equal('aggregateRating' in structuredData['@graph'][1],false);
+  const game=structuredData['@graph'][1];
+  assert.deepEqual(game['@type'],['VideoGame','WebApplication']);
+  assert.equal(game['@id'],SITE_URL+'/#game');
+  assert.deepEqual(game.offers,{'@type':'Offer',price:'0',priceCurrency:'USD'});
+  assert.equal(game.applicationCategory,'GameApplication');
+  assert.equal(game.operatingSystem,'Any');
+  assert.equal(game.browserRequirements,'WebGL 2 compatible browser');
 });
 
 test('app-level requests retain historical origin isolation; private APIs remain unindexed independently of edge routing',async()=>{
