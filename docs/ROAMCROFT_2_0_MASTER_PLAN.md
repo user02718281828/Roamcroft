@@ -9,12 +9,12 @@ ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
 ## Güncel yerel paket — Mobile HUD / alpha.3
 
-**TAMAMLANDI (yerel):** tek/birleşen kısa bildirim sırası, küçük Keşfet44px,
+**TAMAMLANDI (yerel, f3da7f6):** tek/birleşen kısa bildirim sırası, küçük Keşfet44px,
 çanta içinden gerçek hotbar bağlama,44px ikon HUD aç/kapat, kompakt mobil
 çanta/depo.236 test/typecheck/build/dört WS runtime ve üç boyutta33 menü
 döngüsü başarılı. [Kanıt](verification-mobile-hud-alpha.3.md).
 **DOĞRULAMA EKSİK:** yeni HUD fiziksel Android/iOS/PWA/safe-area ve gerçek WAN.
-**TAMAMLANDI (yerel):** How-to-play kök scroll kilidi route koşullu düzeltildi;
+**TAMAMLANDI (yerel,07760aa):** How-to-play kök scroll kilidi route koşullu düzeltildi;
 masaüstü ve3 mobil boyutta son içerik/oyuna dönüş doğrulandı.
 [Rehber doğrulaması](verification-guide-scroll-alpha.3.md).
 **PLANLANDI:** sonraki öncelik alpha.2 forest ve alpha.3 HUD/rehber fiziksel

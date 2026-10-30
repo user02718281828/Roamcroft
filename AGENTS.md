@@ -1,5 +1,10 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+Yerel alpha.3: HUD f3da7f6, rehber scroll07760aa; dal codex/mobile-hud-recovery.
+236 test/typecheck/build ve4WS runtime geçti. Doğrulama docs/verification-mobile-hud-alpha.3.md
+ve docs/verification-guide-scroll-alpha.3.md. Ana referans master plan güncellendi.
+Fiziksel yeni HUD/rehber kabulü ve yeni main/production onayı bekler; push yok.
+
 Canlı alpha.2/main914bde9360078576eee0a51bf70295e4de3f45b7 yayımlandı;
 GitHub verify+Workers Builds success. Son kayıt docs/verification-release-1.14.0-alpha.2.md.
 Kullanıcı alpha.1 Android X/Close/hotbar/depo/girdi/kayıt erişimini geçtiğini

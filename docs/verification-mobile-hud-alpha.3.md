@@ -44,7 +44,7 @@ Sentetik dokunma fiziksel Android kabulü değildir. Kullanıcının alpha.1 fiz
 X/girdi/depo kabulü geçerlidir; bu yeni HUD için telefon kabulü bekliyor.
 
 Görseller `docs/screenshots/hud-recovery-*`: before-mobile canlı alpha.2;
-after/notice/bag/320/landscape/desktop yerel alpha.3 gerçek oyun görüntüleridir.
+after/mobile-en/bag/320/landscape/desktop yerel alpha.3 gerçek oyun görüntüleridir.
 Yerel test sahnesinin saati/hareketli NPC konumu farklıdır; mockup değildir.
 
 ## Otomatik doğrulama
@@ -62,3 +62,8 @@ Bağımlılık sürümleri değişmedi; package/lock yalnız uygulama alpha.3 s�
 Açık: fiziksel Android portre/yatay, iOS/PWA/dinamik adres çubuğu/safe area,
 uzun oturum ve gerçek WAN. Inventory2.0 stack/drag-drop/equipment yapılmadı;
 yeni büyük UI sanat paketi veya vahşi yaşam genişlemesi bu yamaya dahil değil.
+
+HUD kod checkpoint'i `f3da7f6`. Son görsel turunda profil katmanı olmayan
+Türkçe390×844 ve tüm dokuz yuvanın kaydırmasız göründüğü515px masaüstü barı
+ayrıca kaydedildi. İngilizce/Türkçe kısa yaklaşma bildiriminin visible DOM
+metni doğrulandı; çok kısa bildirimin her ekran görüntüsünde bulunması beklenmez.

@@ -6,9 +6,9 @@ bulunur. Eski cihaz kaydı ve sunucu kimliği eski adreste
 kalır; [önceki adres](https://roamcroft.roamcroft.workers.dev) açık tutulur.
 JSON dışa/içe aktarma cihaz çiftliğini taşır; sunucu sahipliğini taşımaz.
 
-Geliştirme adayında tek logolu karşılama ve görünür çanta/depo ayrımı var.
-Aşağıdaki görüntü yerel tarayıcıdan alındı; canlı sürüm veya fiziksel telefon
-kanıtı değildir.
+Tek logolu karşılama ve çanta/depo ayrımı canlı sürüme dahildir.
+Aşağıdaki tarihsel Camp Art görüntüsü yerel tarayıcıdan alındı; yeni alpha.3
+HUD'ını veya fiziksel telefon kabulünü göstermez.
 
 ![Camp Art adayı — yerel masaüstü](docs/screenshots/camp-2-launch-desktop.jpg)
 
@@ -17,25 +17,28 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
 [English](README.md) · [Değişiklikler](CHANGELOG.md) · [2.0 master planı](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Kaynak: 1.14.0-alpha.2 — Living Forest.**
-Mobil kurtarma ve gerçek hotbar üzerine ilerler. Yayın durumu
-[sürüm kaydında](docs/verification-release-1.14.0-alpha.2.md) ayrıca doğrulanır.
-Yeni orman dilimi gerçek Three.js sahnesine üç ağaç silueti, altı yer örtüsü,
-tavşan ve kuş ekler. Görseller, ölçümler ve eksikler
-[orman doğrulamasında](docs/verification-living-forest.md) tutulur.
-Mobil kapatma, marka/rehber, kamp/çanta/depo ve güvenlik yamaları birleştirildi.
-Tam ekipman/stack/sürükle-bırak henüz yoktur. Fiziksel Android kabulü eksiktir;
-yayın kanıtı [sürüm doğrulamasında](docs/verification-release-1.14.0-alpha.1.md) tutulur.
-[Canlı oyun](https://roamcroft.com) ayrı yayımlanır.
-Ana README'deki görseller üzerinde belirtilen sürümden yerel tarayıcıda alınır;
-eski 1.3 ekranları güncel sürüm olarak sunulmaz.
+**Canlı:1.14.0-alpha.2 — Living Forest**, main `914bde9`.
+GitHub CI ve Workers Builds başarılı; iki origin doğrulandı.
+[Yayın kaydı](docs/verification-release-1.14.0-alpha.2.md).
+Gerçek Three.js sahnesinde üç ağaç silueti, altı yer örtüsü, tavşan ve kuş var.
+[Orman kanıtı](docs/verification-living-forest.md). Kullanıcı alpha.1 Android
+menü/girdi/hotbar/depo kabulünü geçti; ormanın fiziksel performansı hâlâ bekliyor.
+Tam ekipman/stack/sürükle-bırak henüz yoktur.
+
+**Yerel aday:1.14.0-alpha.3**, `codex/mobile-hud-recovery`.
+Kompakt bildirim/HUD/hotbar/çanta ve rehber kaydırma düzeltmeleri yereldir;
+yayımlanmadı. Fiziksel kabul ve ayrıca yayın onayı gerekir.
+[HUD kanıtı](docs/verification-mobile-hud-alpha.3.md) ·
+[Rehber kanıtı](docs/verification-guide-scroll-alpha.3.md).
 
 1.13.1: safe-area uyumlu joystick, kalıcı sağ/sol/boyut/hassasiyet tercihi,
 ayrı kullanım/saldırı alanları, iptal edilen girdi temizliği, oyun içi bölüm
 menüsü, oranı korunan atlas ikonları, açılır çanta ayrıntıları ve onaylı depo
 aktarımı. [Doğrulama ve cihaz kontrol listesi](docs/verification-mobile-1.13.1.md).
-Güncel audit hâlâ 25: **3 kritik/11 yüksek/10 orta/1 düşük**; bağımlılıklar
-değiştirilmedi. [Güvenlik incelemesi](docs/security-mobile-recovery-audit.md).
+30 Ekim kontrollü yama sonrası kaydedilen audit **20:0 kritik/8 yüksek/
+11 orta/1 düşük**; yama alpha.1'de yayımlandı, alpha.2'de korunur.
+[Risk incelemesi](docs/security-audit-2026-10-30.md). Bu HUD/rehber işinde
+bağımlılık yükseltilmedi; açık paket sayısı canlı istismar sayısı değildir.
 
 ## Güncel sistemler
 
@@ -111,8 +114,8 @@ iki yedekli atomik rotasyon, localStorage geri dönüşü ve JSON içe/dışa ak
 vardır. Depoyu geri yüklemek tarayıcı kaydını/çerezini geri getirmez.
 
 Tarihsel audit 23 bulguydu. 1.13.0'ın 29 Ekim kurulum/audit sonucu 25'ti (3 kritik,
-10 yüksek, 11 orta, 1 düşük); güncel dağılım yukarıdadır, giderilmiş sayılmaz. Mevcut Sentry bağımlılığı
-korunur; bağımlılık yükseltmesi yapılmaz. Hata gönderiminde yalnız tür/sürüm/kod
+10 yüksek,11 orta,1 düşük). Kontrollü yama sonrası20 bulgu yukarıda ayrılmıştır;
+kalanlar giderilmiş sayılmaz. Mevcut Sentry bağımlılığı korunur. Hata gönderiminde yalnız tür/sürüm/kod
 konumu tutulur; oyuncu/kayıt/istek verisi ve serbest mesajlar filtrelenir.
 Portal SDK/reklam/oynanış analitiği, prestij,
 hesap/kurtarma ve diğer 2.0 hedefleri [master planda](docs/ROAMCROFT_2_0_MASTER_PLAN.md)

@@ -8,18 +8,21 @@ design sources to copy.
 
 [Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**Source: 1.14.0-alpha.2 — Living Forest.**
-This builds on mobile recovery and the nine-slot hotbar. The forest slice adds three tree silhouettes, six
-woodland ground models, rabbits and birds to the real Three.js scene.
-See [forest verification](docs/verification-living-forest.md) for captures,
-render measurements and remaining physical-device acceptance. Deployment is
-verified separately in the [release record](docs/verification-release-1.14.0-alpha.2.md).
-This combines the mobile close fix, brand/guide, camp and storage UI, audited
-dependency patches and customizable item references. Full equipment, stack
-management and drag-and-drop remain planned. Physical Android acceptance is
-pending; deployment evidence is recorded in the [release verification](docs/verification-release-1.14.0-alpha.1.md).
-[Live game](https://roamcroft.com) is deployed separately;
-the source branch and its screenshots do not prove that the live build has updated.
+**Live: 1.14.0-alpha.2 — Living Forest**, main `914bde9`.
+GitHub CI and Cloudflare Workers Builds succeeded; both the official and previous
+origins were verified. [Release evidence](docs/verification-release-1.14.0-alpha.2.md).
+The real Three.js scene includes three tree silhouettes, six woodland ground
+models, rabbits and birds. [Forest verification](docs/verification-living-forest.md).
+The user passed the alpha.1 Android menu/input/hotbar/storage checks; physical
+forest performance remains pending. Full equipment, stacks and drag-and-drop
+remain planned.
+
+**Local development candidate: 1.14.0-alpha.3**, branch `codex/mobile-hud-recovery`.
+Compact notices, icon HUD controls, mobile hotbar/bag ergonomics and native
+field-guide scrolling are implemented locally. This candidate has **not** been
+published; physical acceptance and separate release approval are required.
+[HUD verification](docs/verification-mobile-hud-alpha.3.md) ·
+[Guide verification](docs/verification-guide-scroll-alpha.3.md).
 
 The release includes the official domain, brand icons and a bilingual
 [field guide](https://roamcroft.com/how-to-play).
@@ -28,8 +31,9 @@ created them. The [previous address](https://roamcroft.roamcroft.workers.dev)
 remains available. Export a device save before importing it on the new address;
 server ownership is not transferred by a local JSON file.
 
-The development candidate includes a new camp welcome screen and a focused
-bag/storage layout. These local captures show the candidate, not the live build:
+Camp welcome and the bag/storage distinction are included in the current live
+release. The following are historical local Camp Art captures; they do not show
+the newer alpha.3 HUD or prove physical-device acceptance:
 
 ![Camp Art candidate welcome screen, local desktop browser](docs/screenshots/camp-2-launch-desktop.jpg)
 
@@ -167,14 +171,13 @@ does not restore a lost browser cookie or player save.
 [1.13.0 verification](docs/verification-gameplay-1.13.0.md) · [UI baseline](docs/verification-ui-1.12.0.md) · [i18n baseline](docs/verification-portal-i18n.md)
 · [Portal roadmap](docs/PORTAL_ROADMAP.md) · [Contributor rules](AGENTS.md)
 
-The historical audit had **23 open package findings**. The 29 October install
-and audit reported **25** (3 critical, 10 high, 11 moderate, 1 low). The fresh
-Mobile Recovery audit still reports **25**, now **3 critical, 11 high, 10 moderate,
-1 low**, tracked in [the updated audit](docs/security-mobile-recovery-audit.md),
-the master plan and portal roadmap. Toolchain
-exposure and live Worker exposure require different analysis. This UI package
-preserves the existing Sentry dependency and does not upgrade dependencies or
-claim to resolve those findings. Browser error monitoring keeps only error type,
+The historical audit had **23 findings**, later **25**. The 30 October controlled security
+patch reduced the recorded audit to **20 package findings: 0 critical, 8 high,
+11 moderate, 1 low**. That patch shipped in alpha.1 and is retained in alpha.2.
+[Scoped risk analysis](docs/security-audit-2026-10-30.md). Remaining package
+findings are not a proof of live exploitability or of zero risk. The alpha.3
+HUD/guide work introduces no dependency upgrade and preserves Sentry/CSP.
+Browser error monitoring keeps only error type,
 release and code locations; free-form messages, player data, requests, breadcrumbs
 and attachments are removed before sending. Replay and tracing are disabled.
 

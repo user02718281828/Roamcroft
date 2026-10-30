@@ -44,3 +44,5 @@ HUD commit'inde geçti; bu sonraki fark yalnız route CSS'i ve belgelerdir.
 Bağımlılık/şema/ekonomi/üretim verisi değişmedi. Fiziksel Android/iOS parmakla
 kaydırma ve PWA dinamik viewport kabulü henüz yapılmadı; masaüstü viewport
 kanıtı fiziksel cihaz testi sayılmaz.
+
+Kod checkpoint'i `07760aa67e437bf2af8c0902e18f48e0fcdc1e39`.

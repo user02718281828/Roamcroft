@@ -1,5 +1,10 @@
 # 30 Ekim 2026 — yayın öncesi bağımlılık güvenliği
 
+**Sonraki yayın checkpoint'i:** burada incelenen dar yama alpha.1/3331e6a ile
+üretime çıktı ve alpha.2/914bde9 içinde korunur. Aşağıdaki üretime yayımlanmadı
+ifadesi ilk yerel denetim anını anlatır. Son kanıt verification-release-1.14.0-alpha.2.md.
+Alpha.3 HUD/rehber işi yeni audit veya bağımlılık güncellemesi yapmadı.
+
 **Yerel güvenlik yaması; üretime yayımlanmadı.** İlk taze audit **25 paket:
 3 kritik /11 yüksek /10 orta /1 düşük**. Kontrollü yama sonrası **20 paket:
 0 kritik /8 yüksek /11 orta /1 düşük**. Sayım paket/metavulnerability
