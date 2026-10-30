@@ -7,7 +7,22 @@ Bir plan maddesi çalışan özellik değildir. 2.0 tamamlanmış veya yayımlan
 sayılmaz. Başlangıç tabanı: 1.11.5 + doğrulanmış TR/EN çalışması. Güncel main'e
 ayrıca `1e302c3` Sentry entegrasyonu eklenmiştir; UI tesliminde korunur.
 
-## Güncel yerel paket — Mobile HUD / alpha.3
+## Güncel yerel paket — Quality Recovery / alpha.3
+
+**TAMAMLANDI (yerel):** önceki alpha.3 HUD/rehber geçmişi üzerinde
+`codex/quality-recovery` tek ilerleyen adaydır. Orman model paylaşımı, bölge
+bazlı eleme, habitat tarama bütçesi ve görünmeyen otların GPU'ya gönderilmemesi;
+tek HUD yerleşim kaynağı, küçük ekranda gerçek dokuz yuva paleti, yatay kompakt
+çanta ve 320px/inşa/ekim kontrolleri. Yeni biyom/hayvan/mekanik eklenmedi.
+[Son doğrulama ve karşılaştırılabilir ölçümler](verification-quality-recovery-alpha.3.md).
+Eski HUD belgesindeki kaydırmalı çubuk yerleşimi artık tarihsel checkpoint'tir.
+**ÖNCELİK 0 / EKSİK:** fiziksel Android'de portre/yatay inşa/ekim/palet,
+X/Back/joystick/kamera, kayıt dönüşü ve orman performansı/ısı/uzun oturum kabulü.
+Kabulden sonra ayrı main/production onayı; belirsiz non-main deploy nedeniyle
+push yok. Bu kabul kapısından önce yeni içerik veya büyük özellik başlatma.
+Sunucu otoritesi, SAVE_VERSION=1, ekonomi ve Sentry/CSP korunur.
+
+### Önceki alpha.3 checkpoint'leri (tarihsel)
 
 **TAMAMLANDI (yerel, f3da7f6):** tek/birleşen kısa bildirim sırası, küçük Keşfet44px,
 çanta içinden gerçek hotbar bağlama,44px ikon HUD aç/kapat, kompakt mobil

@@ -1,5 +1,17 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+Yerel kalite kurtarma adayı alpha.3: dal `codex/quality-recovery`, önceki HUD
+dalı/geçmişi korunarak devam. CPU/orman3130162, GPU/rüzgâr0eeb521,
+HUD/320px ve küçük yatay inşa/ekim81b79f4. Final239 test/typecheck/build,
+i18n ve dört WS/Worker/D1/DO runtime geçti. Tek güncel kabul kaydı
+`docs/verification-quality-recovery-alpha.3.md`; ölçümler
+`docs/quality-recovery-measurements.json`. CPU p952,70→1,00ms,
+GPU p953,46→2,21ms masaüstü kayıtlarıdır; fiziksel telefon FPS'i değildir.
+Sonraki iş fiziksel Android portre/yatay kabulü ve ayrı yayın onayıdır.
+Yeni özellik başlatma. Main hâlâ914bde9/alpha.2; bu aday için push/deploy yok.
+Non-main otomatik deploy bilinmediğinden yalnız yerel commit/bundle yedeği.
+Aşağıdaki alpha.3 HUD geometrisi ve236 test bilgileri tarihsel checkpoint'tir.
+
 Yerel alpha.3: HUD f3da7f6, rehber scroll07760aa; dal codex/mobile-hud-recovery.
 236 test/typecheck/build ve4WS runtime geçti. Doğrulama docs/verification-mobile-hud-alpha.3.md
 ve docs/verification-guide-scroll-alpha.3.md. Ana referans master plan güncellendi.

@@ -17,12 +17,19 @@ The user passed the alpha.1 Android menu/input/hotbar/storage checks; physical
 forest performance remains pending. Full equipment, stacks and drag-and-drop
 remain planned.
 
-**Local development candidate: 1.14.0-alpha.3**, branch `codex/mobile-hud-recovery`.
-Compact notices, icon HUD controls, mobile hotbar/bag ergonomics and native
-field-guide scrolling are implemented locally. This candidate has **not** been
-published; physical acceptance and separate release approval are required.
+**Local development candidate: 1.14.0-alpha.3**, branch `codex/quality-recovery`
+(continuing the existing HUD/guide work, with its Git history preserved).
+Shared forest models, hierarchical culling and live-only grass instances reduce
+rendering work. A compact HUD, nine-slot mobile palette, smaller landscape bag
+and responsive construction/seed controls are implemented locally. This candidate
+has **not** been published; physical acceptance and separate release approval are required.
+[Quality recovery evidence and measurements](docs/verification-quality-recovery-alpha.3.md) ·
 [HUD verification](docs/verification-mobile-hud-alpha.3.md) ·
 [Guide verification](docs/verification-guide-scroll-alpha.3.md).
+
+Current local candidate, captured in a **568×320 browser viewport**, not on a phone:
+
+![Local alpha.3 construction controls; physical Android acceptance pending](docs/screenshots/quality-recovery-568-build.jpg)
 
 The release includes the official domain, brand icons and a bilingual
 [field guide](https://roamcroft.com/how-to-play).

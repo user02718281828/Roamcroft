@@ -25,9 +25,12 @@ Gerçek Three.js sahnesinde üç ağaç silueti, altı yer örtüsü, tavşan ve
 menü/girdi/hotbar/depo kabulünü geçti; ormanın fiziksel performansı hâlâ bekliyor.
 Tam ekipman/stack/sürükle-bırak henüz yoktur.
 
-**Yerel aday:1.14.0-alpha.3**, `codex/mobile-hud-recovery`.
-Kompakt bildirim/HUD/hotbar/çanta ve rehber kaydırma düzeltmeleri yereldir;
-yayımlanmadı. Fiziksel kabul ve ayrıca yayın onayı gerekir.
+**Yerel aday:1.14.0-alpha.3**, `codex/quality-recovery`.
+Önceki HUD/rehber dalının geçmişi korunarak devam edildi. Ortak orman modelleri,
+bölge bazlı eleme ve yalnız görünür ot örnekleri çizim yükünü azaltır. Sade HUD,
+dar ekranda dokuz yuvalı palet, yatay kompakt çanta ve karakteri açık bırakan
+inşa/ekim kontrolleri yereldir; yayımlanmadı. Fiziksel kabul ve ayrıca yayın onayı gerekir.
+[Kalite kurtarma ve ölçümler](docs/verification-quality-recovery-alpha.3.md) ·
 [HUD kanıtı](docs/verification-mobile-hud-alpha.3.md) ·
 [Rehber kanıtı](docs/verification-guide-scroll-alpha.3.md).
 

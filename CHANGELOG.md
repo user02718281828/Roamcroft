@@ -1,19 +1,27 @@
 ## 1.14.0-alpha.3 — Unreleased / local HUD candidate
 
+- Quality recovery: shared seasonal tree models, hierarchical chunk culling,
+  throttled habitat scans and live-only grass instances. Preserve leaf wind,
+  tile picking, streaming and resource coordinates. No new forest content.
+- Consolidate gameplay HUD layout; compact nine-slot palette on narrow screens,
+  all nine slots on wider landscape, clearer bag filter/sort and storage access.
+- Keep construction/seed controls away from the player in 320px portrait and
+  small landscape, with 44px controls and named/selected seed buttons.
+- Final validation and physical-device limitations: `docs/verification-quality-recovery-alpha.3.md`.
 - Compact, bounded and deduplicated HUD notices; event sounds and effects remain unchanged.
-- Mobile icon controls, 44px hotbar targets, a persistent compact Explore hand,
+- Mobile icon controls, 44px hotbar targets, a compact Hand shortcut when unbound,
   and item bindings through the bag. More compact mobile bag/storage layout.
 - Restore native scrolling on the How to Play document without unlocking the game viewport.
 - No save, economy, backend protocol or dependency migration. Physical acceptance pending.
 
 # Değişiklikler
 
-## 1.14.0-alpha.2 — Living Forest · yalnız yerel geliştirme
+## 1.14.0-alpha.2 — Living Forest · yayımlandı
 
 - Gerçek ValleyScene üzerinde çam/meşe/huş siluetleri; tohuma bağlı yükseklik, gövde, kök, dal ve mevsim rengi. Dünya üretimi ve kaynak konumları değişmez.
 - Orman kenarında eğrelti, çiçek, mantar, çalı, yosunlu kütük ve ot kümeleri; tarla, yol, su, hasat edilmiş gövde ve bina girişleri korunur.
 - En fazla8 görsel aktör: dolaşan/kaçan tavşanlar, yaklaşınca yumuşak havalanan/kanat çırpan/inen kuşlar. Ekonomi, eşya ve kayıt alanı üretmezler.
-- Ortak geometriler, mevcut world/actor instancing, frustum eleme ve kaynak temizliği kullanılır. Fiziksel mobil ve gerçek WAN kabulü eksiktir; bu paket yayımlanmadı.
+- Ortak geometriler, mevcut world/actor instancing, frustum eleme ve kaynak temizliği kullanılır. Main `914bde9` ile yayımlandı; fiziksel forest performansı ve gerçek WAN kabulü eksiktir. Yayın kanıtı `docs/verification-release-1.14.0-alpha.2.md`.
 
 ## 1.14.0-alpha.1 — bütünleşik mobil/marka/depo/hotbar adayı
 
