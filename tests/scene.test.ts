@@ -103,6 +103,13 @@ test('a crop change rebuilds one chunk; crossing regions keeps geometry bounded'
       assert.ok(view.ground.boundingSphere!.containsPoint(new T.Vector3(tile.x,tile.height,tile.z)));
     }
     assert.equal(view.chunkMeshes.size, 25);
+    assert.ok(view.flowers.count<3600,'hidden zero-height tufts must not be submitted');
+    for(let slot=0;slot<view.flowers.count;slot++){
+      view.flowers.getMatrixAt(slot,matrix);
+      const tuft=tileAt(e.s,matrix.elements[12],matrix.elements[14]-.2);
+      assert.ok(tuft&&tuft.terrain==='grass'&&!tuft.resource&&!tuft.tilled);
+      assert.ok(matrix.elements[5]>0);
+    }
     assert.ok(
       view.worldBatches!.buckets.size < 18,
       `Static world draw calls ${view.worldBatches!.buckets.size}`,

@@ -16,4 +16,4 @@ const sample=(run,count)=>{const a=[];for(let i=0;i<count+30;i++){const t=perfor
 const sync=sample(()=>view.sync(),200),culling=sample(i=>frame(i),240);
 frame(0);let triangles=0,instances=0,total=0;for(const {mesh,slots}of view.worldBatches.buckets.values()){triangles+=mesh.count*(mesh.geometry.index?.count||mesh.geometry.attributes.position.count)/3;instances+=mesh.count;total+=slots.length;}
 console.log(JSON.stringify({scope:'CPU scene preparation/sync/culling, not browser FPS',root,seed:s.seed,tiles:s.tiles.length,quality:'balanced',resolution:[1280,720],zoom:17,angle:.65,chunks, sync,culling,worldTriangles:triangles,visibleInstances:instances,totalInstances:total},null,2));
-view.worldBatches.dispose();for(const g of view.geometries.values())g.dispose();for(const m of view.materials.values())m.dispose();
+view.forestTrees?.dispose();view.worldBatches.dispose();for(const g of view.geometries.values())g.dispose();for(const m of view.materials.values())m.dispose();

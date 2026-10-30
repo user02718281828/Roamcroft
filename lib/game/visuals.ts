@@ -8,9 +8,13 @@ export function addWind(material:T.MeshStandardMaterial,time:{value:number}){
   shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
   #ifdef USE_INSTANCING_COLOR
     vec3 worldPositionWind=(instanceMatrix*vec4(position,1.0)).xyz;
-    float leaf=step(instanceColor.r*1.03,instanceColor.g)*step(instanceColor.b*1.05,instanceColor.g);
+    vec3 windColor=instanceColor;
+    #ifdef USE_COLOR
+      windColor*=color;
+    #endif
+    float leaf=step(windColor.r*1.03,windColor.g)*step(windColor.b*1.05,windColor.g);
     transformed.x+=sin(windTime*1.4+worldPositionWind.x*.7+worldPositionWind.z*.6)*leaf*min(0.035,max(0.0,worldPositionWind.y)*0.012);
   #endif`);
  };
- material.customProgramCacheKey=()=> 'roamcroft-wind-v1';
+ material.customProgramCacheKey=()=> 'roamcroft-wind-v2';
 }

@@ -160,6 +160,7 @@ export class ValleyScene {
   onHover: (x: number, z: number) => void;
   disposeHandlers: (() => void)[] = [];
   flowers!: T.InstancedMesh;
+  private turfFlowers?:Map<number,T.Matrix4>;
   clouds = new CloudField();
   wheels: T.Object3D[] = [];
   effects: { mesh: T.Mesh; life: number; velocity: T.Vector3 }[] = [];
@@ -656,7 +657,9 @@ export class ValleyScene {
       !buildingAt(this.engine.s, t.x, t.z);
     dummy.scale.set(0.035, visible ? 0.2 : 0, 0.035);
     dummy.updateMatrix();
-    this.flowers.setMatrixAt(index, dummy.matrix);
+    this.turfFlowers??=new Map();
+    if(visible)this.turfFlowers.set(index,dummy.matrix.clone());
+    else this.turfFlowers.delete(index);
   }
   flushChunk() {
     const player = this.engine.s.player;
@@ -1859,6 +1862,10 @@ export class ValleyScene {
     }
     if (changed) {
       this.grassSurface.instanceMatrix.needsUpdate = true;
+      // A zero-height instance still runs the vertex shader. Submit only the
+      // live tufts; modulo tile slots remain the source identity across streaming.
+      this.flowers.count=0;
+      for(const matrix of this.turfFlowers?.values()||[])this.flowers.setMatrixAt(this.flowers.count++,matrix);
       this.flowers.instanceMatrix.needsUpdate = true;
       this.renderer.shadowMap.needsUpdate = true;
       this.pickables = [...this.tiles.values()]
@@ -2613,11 +2620,11 @@ export class ValleyScene {
     this.sun.position.set(p.x+light.x,light.y,p.z-8);
     this.sun.target.position.set(p.x, 0, p.z);
     if(frameProfile.enabled){this.gpuTimer??=new GpuTimer(this.renderer.getContext() as WebGL2RenderingContext);this.gpuTimer.begin();}
-    const renderStarted=frameProfile.begin(),shadowUpdated=this.renderer.shadowMap.needsUpdate;
+    const renderStarted=frameProfile.begin(),shadowUpdated=this.renderer.shadowMap.enabled&&this.renderer.shadowMap.needsUpdate;
     this.renderer.render(this.scene, this.camera);
     frameProfile.end(shadowUpdated?'renderSubmitShadow':'renderSubmit',renderStarted);
     this.gpuTimer?.end();
-    if(frameProfile.enabled)Object.assign(frameProfile.metadata,{resolution:[this.canvas.width,this.canvas.height],dpr:this.renderer.getPixelRatio(),drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,activeTiles:s.tiles.length,animals:s.animals.length});
+    if(frameProfile.enabled)Object.assign(frameProfile.metadata,{resolution:[this.canvas.width,this.canvas.height],dpr:this.renderer.getPixelRatio(),quality:this.highQuality?'detailed':'balanced',drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,geometryCount:this.renderer.info.memory.geometries,textureCount:this.renderer.info.memory.textures,programCount:this.renderer.info.programs?.length,activeTiles:s.tiles.length,animals:s.animals.length});
     this.metrics.activeTiles = s.tiles.length;
     this.metrics.drawCalls = this.renderer.info.render.calls;
     this.metrics.triangles = this.renderer.info.render.triangles;
@@ -2692,6 +2699,7 @@ export class ValleyScene {
     this.animalBatches?.dispose();
     this.forestLife?.dispose();
     this.forestTrees?.dispose();
+    this.turfFlowers?.clear();
     this.resizeObserver.disconnect();
     this.disposeHandlers.forEach((fn) => fn());
     for (const g of this.geometries.values()) g.dispose();
