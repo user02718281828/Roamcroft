@@ -7,7 +7,9 @@ export const metadata:Metadata={title:'How to play Roamcroft — Farming, saves 
   alternates:{canonical:'/how-to-play'},openGraph:{url:'/how-to-play',title:'How to play Roamcroft'}};
 
 export default function HowToPlay(){
-  return <main className="field-guide">
+  return <main className="field-guide"><div style={{textAlign:"center",padding:"14px 16px"}}>
+  <a href="/game">See real Roamcroft PC gameplay screenshots</a>
+</div>
     <a className="guide-back" href="/">← Play Roamcroft / Oyuna dön</a>
     <h1>Roamcroft field guide</h1>
     <p>A home to grow. A valley to explore.</p>
