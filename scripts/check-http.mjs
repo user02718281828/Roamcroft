@@ -64,7 +64,8 @@ assert.ok(!/<a\b[^>]*href=["'][^"']*workers\.dev/i.test(guideHtml),'Closed origi
 assert.ok(guideHtml.includes('not moved automatically')&&guideHtml.includes('otomatik taşınmaz'),'Origin-bound recovery warning missing');
 const robots=await get('/robots.txt');assert.equal(robots.status,200);assert.match(await robots.text(),/Sitemap: https:\/\/roamcroft.com\/sitemap.xml/);
 const sitemap=await get('/sitemap.xml');assert.equal(sitemap.status,200);assert.match(sitemap.headers.get('Content-Type')||'',/xml/);
-assert.equal([...((await sitemap.text()).matchAll(/<loc>/g))].length,2);
+const sitemapUrls=[...((await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g))].map(match=>match[1]);
+assert.deepEqual(sitemapUrls,['https://roamcroft.com/','https://roamcroft.com/how-to-play','https://roamcroft.com/game','https://roamcroft.com/game/tr']);
 for(const [path,mime]of [['/og-image.jpg','image/jpeg'],['/favicon.ico','image/'],['/brand/favicon-16.png','image/png'],['/brand/favicon-32.png','image/png'],['/brand/favicon-48.png','image/png'],['/brand/apple-touch-icon.png','image/png'],['/brand/roamcroft-logo.webp','image/webp'],['/icon-192.png?v=brand-20261029','image/png'],['/icon-512.png?v=brand-20261029','image/png'],['/icon-maskable.png?v=brand-20261029','image/png']]){
   const asset=await get(path);assert.equal(asset.status,200,path);headers(asset);assert.ok(asset.headers.get('Content-Type')?.startsWith(mime),path);await asset.arrayBuffer();
 }
