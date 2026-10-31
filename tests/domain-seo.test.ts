@@ -7,7 +7,7 @@ import {secureFetch} from '../worker/security.mjs';
 test('public discovery uses canonical pages while manifest identity stays origin relative',()=>{
   const sitemap=readFileSync('public/sitemap.xml','utf8');
   const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  assert.deepEqual(urls,[SITE_URL+'/',SITE_URL+'/how-to-play']);
+  assert.deepEqual(urls,[SITE_URL+'/',SITE_URL+'/how-to-play',SITE_URL+'/game',SITE_URL+'/game/tr']);
   assert.ok(readFileSync('public/robots.txt','utf8').includes('Disallow: /api/'));
   for(const name of ['manifest.json','manifest.tr.json']){
     const manifest=JSON.parse(readFileSync('public/'+name,'utf8'));
