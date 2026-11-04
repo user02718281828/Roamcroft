@@ -1,5 +1,13 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+4 Kasım CrazyGames Aşama1: `docs/CRAZYGAMES_HTML5_STAGE1.md` son kayıt.
+Bağımsız Vite build aynı Game/Engine'i tek oyunculu kullanır; v3 SDK lifecycle/
+mute, no-SDK fallback; portalda PWA/online/reklam yok. 7 hedefli test/typecheck,
+normal site+portal build ve gerçek yerel 3D/ekim/sulama/TR/kayıt dönüşü geçti.
+dist/crazygames ve yerel ZIP hazır; gerçek portal/fiziksel mobil kabulü yok.
+Push/main/deploy/submission yok. Önceki hazır-değil ifadeleri tarihsel;
+multiplayer auth engeli devam eder. Paket resmî siteden kayıt taşımaz.
+
 4 Kasım yerel devam: `codex/crazygames-readiness`. Kullanıcı bağımsız Launcher
 Ayarlar, ölçümlü performans ve gerçek CrazyGames CDN/SDK hazırlığını yetkilendirdi;
 push/main/deploy/portal başvurusu yetkili değil. LauncherSettings motor/sahne

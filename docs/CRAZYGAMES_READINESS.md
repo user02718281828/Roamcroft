@@ -1,5 +1,10 @@
 # CrazyGames hazırlığı — 4 Kasım 2026
 
+Sonraki Aşama1: [gerçek statik tek oyunculu paket hazır](CRAZYGAMES_HTML5_STAGE1.md).
+Aşağıdaki ZIP/SDK henüz yok ifadeleri ilk checkpoint'in tarihsel durumudur;
+multiplayer kimlik kapısı sürer. SDK v3 temel yaşam döngüsü/ses adaptörü ve
+yerel oyun/ekim/sulama/kayıt yeniden açılışı son belgede doğrulanır.
+
 ## A / uygulandı, yerel kabul sınırlı
 
 Launcher Ayarlar artık Game importunu çağırmaz; bağımsız LauncherSettings açar.

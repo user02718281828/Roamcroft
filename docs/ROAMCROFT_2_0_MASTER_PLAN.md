@@ -1,5 +1,12 @@
 # Roamcroft 2.0 — ana geliştirme planı
 
+4 Kasım Aşama1: [CrazyGames gerçek HTML5 tek oyunculu paket](CRAZYGAMES_HTML5_STAGE1.md)
+yerelde üretildi. SDK v3 temel init/lifecycle/mute ve fallback mevcut; 14 dosya,
+2,35MB; ZIP1,19MB. Portal preview/fiziksel mobil henüz doğrulanmadı. Online,
+hesap/cloud save ve reklamlar portal paketinde açık değildir; sonraki kapı
+gerçek private preview kabulü ve ayrı sunucuda doğrulanan portal kimliğidir.
+Main/push/deploy/nihai başvuru onayı yoktur.
+
 4 Kasım yerel çalışma: [CrazyGames + bağımsız Ayarlar durumu](CRAZYGAMES_READINESS.md).
 Ayarlar motor bağımlılığı kaldırıldı; render/module graph ve tercih testi mevcut.
 Ölçümlü %10 performans, gerçek tarayıcı akışı ve portal preview hâlâ eksik.
