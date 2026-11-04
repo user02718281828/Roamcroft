@@ -28,6 +28,7 @@ type Packet = {
   events?: Event[];
   error?: string;
 };
+export type OnlineTransport={fetcher:typeof fetch;socket:(url:URL)=>WebSocket;inviteLink?:()=>Promise<string>;initialShared?:boolean};
 const SHARED_FLAG = 'roamcroft-shared-active';
 export class ServerWorldClient {
   connected = false;
@@ -55,6 +56,7 @@ export class ServerWorldClient {
   private selfId = '';
   private state: State | null = null;
   private fetcher: typeof fetch;
+  private transport?:OnlineTransport;
   private engine: () => Engine | null;
   private paused: () => boolean;
   private changed: () => void;
@@ -63,11 +65,12 @@ export class ServerWorldClient {
     paused: () => boolean,
     changed: () => void,
     fetcher: typeof fetch = (input, init) => fetch(input, init),
+    transport?:OnlineTransport,
   ) {
     this.engine = engine;
     this.paused = paused;
     this.changed = changed;
-    this.fetcher = fetcher;
+    this.fetcher = fetcher;this.transport=transport;
   }
   private accept(packet: Packet) {
     this.sleep=packet.sleep||null;
@@ -186,6 +189,7 @@ export class ServerWorldClient {
     try {
       resume = localStorage.getItem(SHARED_FLAG) === '1';
     } catch {}
+    if (this.transport?.initialShared)resume=true;
     if (resume) {
       try {
         packet = await this.request(
@@ -195,6 +199,7 @@ export class ServerWorldClient {
         );
         this.shared = true;
       } catch (error) {
+        if(this.transport?.initialShared)throw error;
         if ([401, 410, 423].includes((error as { status: number }).status))
           this.flag(false);
         else throw error;
@@ -208,6 +213,7 @@ export class ServerWorldClient {
   }
   bind(engine: Engine) {
     engine.network = {
+      lobbyFetch:this.transport?.fetcher,inviteLink:this.transport?.inviteLink,
       guest: true,
       server: true,
       shared: this.shared,
@@ -221,7 +227,7 @@ export class ServerWorldClient {
     if(this.shared&&this.realtimeAvailable&&!this.realtime&&typeof window!=='undefined'){
       this.realtime=new RealtimeClient(this.engine,peers=>{
         this.peers=peers;const e=this.engine();if(e?.network)e.network.peers=peers;
-      },()=>{this.label();this.changed();});
+      },()=>{this.label();this.changed();},this.transport?.socket);
       engine.network.motion=this.realtime;this.realtime.start();
     }
   }

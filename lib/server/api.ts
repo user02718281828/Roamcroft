@@ -41,7 +41,7 @@ export async function worldIdentity(request:Request,db:D1Database,now:number){
 }
 function packet(row:Row){return {state:(JSON.parse(row.world) as WorldRecord).state,nonce:row.nonce,seq:row.seq,commandSeq:row.command_seq};}
 
-export async function handleWorld(request:Request,db:D1Database,now=Date.now()){
+export async function handleWorld(request:Request,db:D1Database,now=Date.now(),verifiedPortalSecret?:string){
   const url=new URL(request.url),origin=request.headers.get('Origin');
   if(request.method!=='POST')return json({error:sourceText("m_50deaca17d")},405,{Allow:'POST'});
   if(origin!==url.origin||request.headers.get('Sec-Fetch-Site')==='cross-site')return json({error:sourceText("m_f516389793")},403);
@@ -66,7 +66,9 @@ export async function handleWorld(request:Request,db:D1Database,now=Date.now()){
       return json(packet(row),200,{'Set-Cookie':sessionCookie(rawCookie)});
     }
     if(!await allowed(db,'create:'+ipKey,now,5,3600000)||!await allowed(db,'create:global',now,1000,86400000))return json({error:sourceText("m_ca7fc95a6e")},429,{'Retry-After':'3600'});
-    const secret=token(),newId=await hash(secret),nonce=token();
+    const secret=verifiedPortalSecret??token();
+    if(!/^[a-f0-9]{64}$/.test(secret))throw Error('Invalid internal identity');
+    const newId=await hash(secret),nonce=token();
     const world=JSON.stringify(freshWorld());
     const created=await db.batch([db.prepare('DELETE FROM authoritative_worlds WHERE expires<=?').bind(now),db.prepare('DELETE FROM authoritative_limits WHERE expires<=?').bind(now),
       db.prepare('INSERT INTO authoritative_worlds(id,nonce,world,updated,expires) SELECT ?,?,?,?,? WHERE (SELECT COUNT(*) FROM authoritative_worlds)<200').bind(newId,nonce,world,now,now+TTL*1000)]);

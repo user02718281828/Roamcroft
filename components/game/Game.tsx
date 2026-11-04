@@ -108,7 +108,7 @@ import {
 } from '@/lib/game/expedition';
 import { registerGameTools } from '@/lib/game/webmcp';
 
-export default function Game({autoStart=false,serverMode=false,entry='play',onExit,platform}:{autoStart?:boolean;serverMode?:boolean;entry?:'play'|'new'|'menu'|'settings';onExit?:()=>void;platform?:{loading:(value:boolean)=>void;playing:(value:boolean)=>void;muted:boolean}}={}) {
+export default function Game({autoStart=false,serverMode=false,entry='play',onExit,platform}:{autoStart?:boolean;serverMode?:boolean;entry?:'play'|'new'|'menu'|'settings';onExit?:()=>void;platform?:{loading:(value:boolean)=>void;playing:(value:boolean)=>void;muted:boolean;online?:import('@/lib/server/client').OnlineTransport;exitRequest?:number}}={}) {
   const [presentation]=useState(readPresentation);
   useLocale();
   const hotbar=useHotbar(),hotbarRef=useRef(hotbar);hotbarRef.current=hotbar;
@@ -133,7 +133,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
   useEffect(() => {
     let canceled = false;
     if(serverMode){
-      const client=new ServerWorldClient(()=>engine.current,()=>control.current.paused||document.hidden,()=>refresh(n=>n+1));authority.current=client;
+      const client=new ServerWorldClient(()=>engine.current,()=>control.current.paused||document.hidden,()=>refresh(n=>n+1),platform?.online?.fetcher,platform?.online);authority.current=client;
       void client.start().then(state=>{if(canceled)return;nextState.current=state;initialMessage.current=sourceText("m_7619685fa5");setStorageReady(true);}).catch(error=>{if(!canceled)setError(error instanceof Error?error.message:sourceText("m_7d7982e90d"));});
       return()=>{canceled=true;client.dispose();};
     }
@@ -168,7 +168,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     [paused, setPaused] = useState(false),
     [mainMenu,setMainMenu] = useState(!autoStart),
     [newPrompt,setNewPrompt] = useState(entry==='new'),
-    [panel, setPanel] = useState<Panel>(serverMode?'online':entry==='settings'?'settings':null),
+    [panel, setPanel] = useState<Panel>(serverMode&&!platform?.online?.initialShared?'online':entry==='settings'?'settings':null),
     [selectedBuilding, setSelectedBuilding] = useState<number | null>(null),
     [selectedNPC, setSelectedNPC] = useState('narin'),
     [sound, setSoundState] = useState(presentation.sound),
@@ -293,6 +293,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
       if(onExit)onExit();else window.location.reload();
     } catch(error){exitPending.current=false;throw error;}
   };
+  useEffect(()=>{if(ready&&platform?.exitRequest)void doExit().catch(error=>setLoadError(error instanceof Error?error.message:'Save failed'));},[ready,platform?.exitRequest]);
   const doExport = () => {
     if (!engine.current) return;
     const blob = new Blob([serialize(engine.current.s)], {

@@ -1,3 +1,4 @@
+import {handleCrazyGames,type PortalEnv} from '../lib/server/crazygames-api.ts';
 import { sourceText } from '../lib/i18n/source.ts';
 import { DurableObject } from 'cloudflare:workers';
 import { worldIdentity, allowed, readBody } from '../lib/server/api.ts';
@@ -12,7 +13,7 @@ import {
 } from '../lib/coop/realtime-protocol.ts';
 import { SHARED_PROTOCOL } from '../lib/server/shared-protocol.ts';
 
-type Env = { DB: D1Database; ROOMS: DurableObjectNamespace<RealtimeRoom> };
+type Env = PortalEnv & { DB: D1Database; ROOMS: DurableObjectNamespace<RealtimeRoom> };
 type Member = { owner: string; code: string; name: string };
 type Saved = {
   owner: string;
@@ -22,11 +23,13 @@ type Saved = {
   attempt?: { revision: number; hash: string };
   blocked?: boolean;
 };
-type Connection = { user: string; epoch: string };
+type Connection = { user: string; epoch: string; expires?:number };
 const json = (data: unknown, status = 200) =>
   Response.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
 
-export async function routeRealtime(request: Request, env: Env) {
+export async function routePortal(request:Request,env:Env){return handleCrazyGames(request,env,(internal,expires)=>routeRealtime(internal,env,expires));}
+
+export async function routeRealtime(request: Request, env: Env, portalExpires?:number) {
   const url = new URL(request.url),
     socket = url.pathname === '/api/realtime',
     now = Date.now();
@@ -80,6 +83,8 @@ export async function routeRealtime(request: Request, env: Env) {
   if (!member)
     return json({ error: sourceText("m_111e55970e") }, 410);
   const headers = new Headers(request.headers);
+  headers.delete('X-Portal-Expiry');
+  if(portalExpires)headers.set('X-Portal-Expiry',String(portalExpires));
   headers.set('X-Room-User', identity.id);
   headers.set('X-Room-Owner', member.owner);
   headers.set('X-Room-Code', member.code);
@@ -293,6 +298,7 @@ export class RealtimeRoom extends DurableObject<Env> {
         this.accumulator -= TICK_MS;
         if (c.tick % SNAPSHOT_TICKS === 0)
           for (const [ws, connection] of this.sockets) {
+            if(connection.expires&&connection.expires<=now){ws.close(4001,'Portal token expired');this.sockets.delete(ws);c.disconnect(connection.user,connection.epoch);continue;}
             try {
               ws.send(JSON.stringify(c.snapshot(connection.user, now)));
             } catch {
@@ -393,11 +399,13 @@ export class RealtimeRoom extends DurableObject<Env> {
         const pair = new WebSocketPair(),
           [client, server] = Object.values(pair);
         server.accept();
-        this.sockets.set(server, { user, epoch: hello.epoch });
+        const expires=Number(request.headers.get('X-Portal-Expiry'))||undefined;
+        this.sockets.set(server, { user, epoch: hello.epoch,expires });
         let messages = 0,
           window = Date.now();
         server.addEventListener('message', (event) => {
           if (this.sockets.get(server)?.epoch !== hello.epoch) return;
+          if(expires&&Date.now()>=expires){server.close(4001,'Portal token expired');return;}
           try {
             if (Date.now() - window >= 1000) {
               messages = 0;

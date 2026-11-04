@@ -398,7 +398,7 @@ export function createState(seed = 84621): State {
 }
 export class Engine {
   sharedAnchors?: {x:number;z:number}[];
-  network: {motion?:MotionControl;sleep?:SleepStatus|null;guest:boolean;server?:boolean;shared?:boolean;enterShared?:()=>Promise<void>;leaveShared?:()=>Promise<void>;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
+  network: {lobbyFetch?:typeof fetch;inviteLink?:()=>Promise<string>;motion?:MotionControl;sleep?:SleepStatus|null;guest:boolean;server?:boolean;shared?:boolean;enterShared?:()=>Promise<void>;leaveShared?:()=>Promise<void>;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
   networkActor = false;
   productionRecipient?: string;
   productionInventory?: (recipient: string | undefined) => Pick<State,'inventory'|'overflow'> | undefined;

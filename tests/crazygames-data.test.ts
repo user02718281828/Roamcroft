@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {CrazyGamesDataStore,createCrazyGamesDataSession,DATA_KEY,DATA_LIMIT} from '../lib/platform/crazygames-data.ts';
 import {createState} from '../lib/game/model.ts';
 import {Buffer} from 'node:buffer';
+import {configureData,saveStored,loadStored} from '../portal/crazygames/storage.ts';
 function fixture(){
  const values=new Map<string,string>(),errors:string[]=[],listeners=new Set<()=>void>();
  const auth={addAuthListener:(fn:()=>void)=>{listeners.add(fn);},removeAuthListener:(fn:()=>void)=>{listeners.delete(fn);}};
@@ -72,4 +73,15 @@ test('auth event during load or compression blocks stale reads/writes',async()=>
  const saving=second.store.save(state);notify();
  assert.equal(await saving,false);assert.equal(f.values.get(DATA_KEY),before);
  assert.equal(changes,2);assert.equal(await second.store.save(state),false);
+});
+
+
+test('solo resume after a mode switch uses the latest accepted root state; failed cloud save never replaces it',async()=>{
+ const f=fixture(),store=f.store(),first=await store.load();configureData(store,first);
+ const replacement=createState(777);replacement.gold=987;
+ assert.equal(await saveStored(replacement),true);
+ assert.equal((await loadStored()).state.seed,777);assert.equal((await loadStored()).state.gold,987);
+ const external=f.values.get(DATA_KEY)!+' ';f.values.set(DATA_KEY,external);
+ assert.equal(await saveStored(createState(888)),false);
+ assert.equal((await loadStored()).state.seed,777);assert.equal(f.values.get(DATA_KEY),external);
 });

@@ -23,6 +23,7 @@ export class RealtimeClient implements MotionControl {
   epoch = '';
   metrics = new LinkMetrics();
   private socket: WebSocket | null = null;
+  private openSocket:(url:URL)=>WebSocket;
   private stopped = false;
   private reconnectTimer: ReturnType<typeof setTimeout> | undefined;
   private pingTimer: ReturnType<typeof setInterval> | undefined;
@@ -42,10 +43,11 @@ export class RealtimeClient implements MotionControl {
     engine: () => Engine | null,
     onPeers: (peers: Peer[]) => void,
     changed: () => void,
+    openSocket:(url:URL)=>WebSocket=(url)=>new WebSocket(url),
   ) {
     this.engine = engine;
     this.onPeers = onPeers;
-    this.changed = changed;
+    this.changed = changed;this.openSocket=openSocket;
     this.prediction = new Prediction(
       () => this.engine()!.s,
       () => this.engine()?.network?.peers.map((p) => p.player) || [],
@@ -58,7 +60,7 @@ export class RealtimeClient implements MotionControl {
     if (this.stopped || this.socket) return;
     const url = new URL('/api/realtime?v=' + REALTIME_VERSION, location.href);
     url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(url);
+    const ws = this.openSocket(url);
     this.socket = ws;
     ws.onmessage = (event) => {
       if (

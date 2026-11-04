@@ -1,5 +1,11 @@
 # Roamcroft 2.0 — ana geliştirme planı
 
+4 Kasım [CrazyGames co-op yerel adayı](CRAZYGAMES_MULTIPLAYER.md): mevcut
+D1/DO/WS üzerinde token gateway, ayrı sunucu kimliği, SDK oda/davet ve Instant
+akışı uygulandı.258 test ve mevcut4WS runtime geçti. Canlı backend etkin değil;
+gerçek portal dört oyuncu/davet/token yenileme kabulü tamamlanmadı. Kullanıcı
+tek oyunculu Data Module hesabını gerçek QA'da doğruladı. Yayın/Submit yok.
+
 4 Kasım [portal giriş engeli düzeltmesi](CRAZYGAMES_ACCOUNT_FIX.md): SDK v3'te
 olmayan userId alanı kayıt önkoşulu olmaktan çıkarıldı. Data Module kendi
 hesap kapsamını yönetir; gerçek auth olayı eski store'u kapatır.251 test,

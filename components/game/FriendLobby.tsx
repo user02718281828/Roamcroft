@@ -33,7 +33,7 @@ export default function FriendLobby({
     pending.current = true;
     setBusy(true);
     try {
-      const response = await fetch('/api/lobby', {
+      const response = await (engine.network?.lobbyFetch||fetch)('/api/lobby', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -82,8 +82,8 @@ export default function FriendLobby({
           <button
             className="secondary-button"
             onClick={() =>
-              void navigator.clipboard
-                .writeText(room.code)
+              void Promise.resolve(engine.network?.inviteLink?.()??room.code)
+                .then(link=>navigator.clipboard.writeText(link))
                 .then(() => setCopied(true))
                 .catch(() => setError(sourceText("m_ff607fda5d")))
             }

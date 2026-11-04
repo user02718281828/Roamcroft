@@ -6,5 +6,10 @@ export function loadLocal(){if(!initial)throw Error('Data Module is not ready');
 export async function loadStored(){return loadLocal();}
 // Unload checkpoints must never write into a potentially changed SDK account.
 export function saveLocal(_state:State){return false;}
-export async function saveStored(state:State){return store?store.save(state):false;}
-export {serialize,deserialize,SAVE_KEY,BACKUP_KEY} from '../../lib/game/save';
+export async function saveStored(state:State){
+ if(!store)return false;
+ const saved=await store.save(state);
+ if(saved)initial=state;
+ return saved;
+}
+export {serialize,deserialize,SAVE_KEY,BACKUP_KEY} from '../../lib/game/save.ts';

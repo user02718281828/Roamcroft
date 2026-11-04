@@ -1,5 +1,15 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+4 Kasım portal co-op yerel adayı: `docs/CRAZYGAMES_MULTIPLAYER.md`. Kullanıcı
+hesaplı Data Module/yeniden açılış/misafir ayrımını gerçek QA'da geçtiğini
+bildirdi. Yeni co-op gateway varsayılan kapalıdır; yalnız /api/portal/* için
+exact-origin + IN_GAME_AUTH RS256/JWKS + gameId/expiry doğrulaması kullanır.
+İmzalı subject server HMAC namespace'inden ayrı mevcut world kimliğine gider;
+Data Module/native hesaplarla otomatik merge yoktur. Kalıcı identity secret
+kaybolmamalı/değiştirilmemeli. Üretimde env/secret veya deploy yapılmadı.
+258 test/typecheck/iki build ve mevcut4WS Worker runtime geçti. Gerçek portal
+JWT/WS/arkadaş/Instant kabulü bekler; ZIP tek başına backend'i etkinleştirmez.
+
 4 Kasım portal hesap açılışı: `docs/CRAZYGAMES_ACCOUNT_FIX.md`. Yanlış
 getUser().userId zorunluluğu kaldırıldı; Data Module SDK init sonrası yetkili
 kaynaktır, User ID/token sorgusu kayıt için yapılmaz. Auth event/dispose eski
