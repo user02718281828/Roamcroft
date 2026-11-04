@@ -1,4 +1,4 @@
-export type PortalSDK={init:()=>Promise<void>;game:{loadingStart:()=>void;loadingStop:()=>void;gameplayStart:()=>void;gameplayStop:()=>void;settings?:{muteAudio?:boolean};addSettingsChangeListener?:(fn:(s:{muteAudio?:boolean})=>void)=>void;removeSettingsChangeListener?:(fn:(s:{muteAudio?:boolean})=>void)=>void}};
+export type PortalSDK={init:()=>Promise<void>;data?:import('./crazygames-data').DataModule;user?:{isUserAccountAvailable:boolean;getUser:()=>Promise<{userId:string}|null>;addAuthListener:(fn:()=>void)=>void;removeAuthListener:(fn:()=>void)=>void};game:{loadingStart:()=>void;loadingStop:()=>void;gameplayStart:()=>void;gameplayStop:()=>void;settings?:{muteAudio?:boolean};addSettingsChangeListener?:(fn:(s:{muteAudio?:boolean})=>void)=>void;removeSettingsChangeListener?:(fn:(s:{muteAudio?:boolean})=>void)=>void}};
 export class CrazyGamesBridge {
  private sdk:PortalSDK|null=null;private loading=true;private playing=false;private sentLoading:boolean|null=null;private sentPlaying:boolean|null=null;private disposed=false;
  private mute:(value:boolean)=>void;
