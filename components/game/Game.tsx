@@ -108,7 +108,7 @@ import {
 } from '@/lib/game/expedition';
 import { registerGameTools } from '@/lib/game/webmcp';
 
-export default function Game({autoStart=false,serverMode=false,entry='play',onExit}:{autoStart?:boolean;serverMode?:boolean;entry?:'play'|'new'|'menu'|'settings';onExit?:()=>void}={}) {
+export default function Game({autoStart=false,serverMode=false,entry='play',onExit,platform}:{autoStart?:boolean;serverMode?:boolean;entry?:'play'|'new'|'menu'|'settings';onExit?:()=>void;platform?:{loading:(value:boolean)=>void;playing:(value:boolean)=>void;muted:boolean}}={}) {
   const [presentation]=useState(readPresentation);
   useLocale();
   const hotbar=useHotbar(),hotbarRef=useRef(hotbar);hotbarRef.current=hotbar;
@@ -211,8 +211,11 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     compactHud,
   };
   const inputBlocked=control.current.paused||!!panel;
+  const platformRef=useRef(platform);platformRef.current=platform;
+  useEffect(()=>{platform?.loading(!ready);platform?.playing(ready&&!paused&&!mainMenu&&!panel);return()=>{platform?.playing(false);};},[ready,paused,mainMenu,panel,platform?.loading,platform?.playing]);
+  useEffect(()=>{if(platform?.muted)void audio.current?.enable(false);},[platform?.muted,ready]);
   useEffect(()=>{
-    const resume=()=>{if(control.current.sound&&audio.current&&!audio.current.enabled)void audio.current.enable(true).then(setSoundState);};
+    const resume=()=>{if(!platformRef.current?.muted&&control.current.sound&&audio.current&&!audio.current.enabled)void audio.current.enable(true).then(setSoundState);};
     window.addEventListener('pointerdown',resume);window.addEventListener('keydown',resume);
     return()=>{window.removeEventListener('pointerdown',resume);window.removeEventListener('keydown',resume);};
   },[]);
@@ -248,6 +251,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     if(target)e.act(target.x,target.z,control.current.tool==='fish'?'fish':'hand');else e.emit(sourceText("m_6455e5a37b"));
   };
   const setSound = (value: boolean) => {
+    if(value&&platformRef.current?.muted)return;
     storePresentation({sound:value});
     void audio.current?.enable(value).then((enabled) => {
       setSoundState(enabled);
