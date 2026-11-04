@@ -95,6 +95,11 @@ test('a crop change rebuilds one chunk; crossing regions keeps geometry bounded'
     assert.ok(view.chunkMeshes.size <= 25);
     while (view.dirtyChunks.size) view.flushChunk();
     assert.equal(view.tiles.size, 3600);
+    for (let index=0;index<e.s.tiles.length;index++) {
+      const tile=e.s.tiles[index],entry=view.tileEntries![index]!;
+      assert.equal(entry.id,`${tile.x},${tile.z}`,'cached keys must follow the streamed window');
+      assert.equal(view.tiles.get(entry.id),entry);
+    }
     const matrix=new T.Matrix4();
     for(const tile of e.s.tiles){
       const slot=((tile.z%60+60)%60)*60+(tile.x%60+60)%60;

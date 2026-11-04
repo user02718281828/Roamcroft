@@ -1,5 +1,11 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+4 Kasım akıcılık: `docs/CRAZYGAMES_PERFORMANCE.md`. Güncel gerçek QA'da
+Balanced892×458 143,47FPS/p95 7,10ms; genel donma bu masaüstünde tekrarlanmadı.
+Yerel aday tek JSON payload taraması ve scene tile-key tahsis azaltmasıdır;
+kalite/kayıt şeması/online değişmedi. Yeni ZIP QA FPS kazanımı henüz ölçülmedi;
+profille save CPU/compression wall/SDK write ayrılır. Push/deploy/Submit yok.
+
 4 Kasım Data Module yerel adayı: `docs/CRAZYGAMES_DATA_MODULE.md` son kayıttır.
 Portal hedefinde SDK init+Data okuması Game'den önce; SDK yetkili kaynaktır,
 yerel farm fallback/unload yazısı yok. Sıkıştırılmış v1 zarf/current+backup,

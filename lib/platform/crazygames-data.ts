@@ -1,5 +1,6 @@
 import {serialize,deserialize} from '../game/save.ts';
 import {createState,type State} from '../game/model.ts';
+import {frameProfile} from '../game/profile.ts';
 export const DATA_KEY='roamcroft.farm.v1',DATA_LIMIT=1048576;
 export type DataModule={getItem:(key:string)=>string|null;setItem:(key:string,value:string)=>void};
 type RecordData={format:'roamcroft.cg.data.v1';current:string;backup:string|null};
@@ -38,11 +39,17 @@ export class CrazyGamesDataStore{
   if(this.writing)return false;this.writing=true;
   try{
    if(!this.loaded)throw Error('Data Module save has not loaded');
-   const snapshot=serialize(state),current=await pack(snapshot);
+   const serializationStarted=frameProfile.begin();
+   const snapshot=serialize(state);
+   frameProfile.end('saveSerializeCpu',serializationStarted);
+   const compressionStarted=frameProfile.begin(),current=await pack(snapshot);
+   frameProfile.end('saveCompressionWallTime',compressionStarted);
    const raw=JSON.stringify({format:'roamcroft.cg.data.v1',current,backup:this.current} satisfies RecordData);
    if(new TextEncoder().encode(JSON.stringify({[DATA_KEY]:raw})).length>DATA_LIMIT)throw Error('Data Module 1 MB limit exceeded. Previous save retained; export your farm.');
    await this.check();if(this.data.getItem(DATA_KEY)!==this.expected)throw Error('Cloud save changed. Reload; no overwrite performed.');
+   const sdkWriteStarted=frameProfile.begin();
    this.data.setItem(DATA_KEY,raw);
+   frameProfile.end('sdkSetItemCpu',sdkWriteStarted);
    if(this.data.getItem(DATA_KEY)!==raw)throw Error('SDK did not accept the save');
    this.expected=raw;this.current=current;this.problem('');return true;
   }catch(error){this.problem(error instanceof Error?error.message:'Data Module unavailable; save not confirmed');return false;}

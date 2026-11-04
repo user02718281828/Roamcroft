@@ -38,7 +38,7 @@ import {
   WINDOW,
 } from './world.ts';
 import type { Engine, Tile, Building, Animal, Enemy } from './model.ts';
-type TileVisual={key:string;group:T.Group;pending?:Tile;stamp?:[Tile['resource'],boolean,boolean,Tile['crop'],number,number,boolean,boolean]};
+type TileVisual={id:string;key:string;group:T.Group;pending?:Tile;stamp?:[Tile['resource'],boolean,boolean,Tile['crop'],number,number,boolean,boolean]};
 const terrainSlot=(s:Engine['s'],x:number,z:number)=>{const n=worldSize(s);return ((z%n+n)%n)*n+(x%n+n)%n;};
 
 // Procedural world meshes; atmospheric forest actors are outside gameplay picking.
@@ -1753,7 +1753,9 @@ export class ValleyScene {
     for (let index=0;index<s.tiles.length;index++) {
       const t=s.tiles[index],old=this.tileEntries[index],stamp=old?.stamp;
       const watered=t.water>0,stage=t.crop?Math.floor((t.growth/CROPS[t.crop].grow)*5):0,hasBuilding=occupiedIndices.has(index);
-      const id=tileKey(t.x,t.z),reserved=this.forestReserved.has(id);
+      // The indexed entry is rebuilt on a streamed window change. Reuse its
+      // coordinate key rather than allocating 3,600 strings each sync pass.
+      const id=old?.id??tileKey(t.x,t.z),reserved=this.forestReserved.has(id);
       if(stamp&&stamp[0]===t.resource&&stamp[1]===t.tilled&&stamp[2]===watered&&stamp[3]===t.crop&&stamp[4]===stage&&stamp[5]===currentSeason&&stamp[6]===hasBuilding&&stamp[7]===reserved)continue;
       const key=`${t.resource}-${t.tilled}-${watered}-${t.crop}-${stage}-${currentSeason}-${hasBuilding}-${reserved}`;
       if (old) this.root.remove(old.group);
@@ -1761,7 +1763,7 @@ export class ValleyScene {
       g.position.set(t.x, t.height, t.z);
       g.userData.tile = { x: t.x, z: t.z };
       g.updateMatrixWorld(true);
-      const entry:TileVisual={key,group:g,pending:t,stamp:[t.resource,t.tilled,watered,t.crop,stage,currentSeason,hasBuilding,reserved]};
+      const entry:TileVisual={id,key,group:g,pending:t,stamp:[t.resource,t.tilled,watered,t.crop,stage,currentSeason,hasBuilding,reserved]};
       this.tiles.set(id,entry);this.tileEntries[index]=entry;
       this.updateTurf(t, terrainSlot(s, t.x, t.z));
       this.dirtyChunks.add(chunkKey(t.x, t.z));

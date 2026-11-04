@@ -46,13 +46,14 @@ function checksum(text: string) {
 }
 export function serialize(state: State) {
   const payload = JSON.stringify(state);
-  return JSON.stringify({
+  // Reuse the exact bytes hashed above instead of traversing the whole farm twice.
+  const header = JSON.stringify({
     format: 'ocak-vadisi',
     version: SAVE_VERSION,
     savedAt: new Date().toISOString(),
     checksum: checksum(payload),
-    payload: state,
   });
+  return header.slice(0, -1) + ',"payload":' + payload + '}';
 }
 export function deserialize(text: string): State {
   assert(text.length < 32_000_000, sourceText("m_0806e1acd3"));

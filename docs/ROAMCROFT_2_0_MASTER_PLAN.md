@@ -1,5 +1,10 @@
 # Roamcroft 2.0 — ana geliştirme planı
 
+4 Kasım [CrazyGames akıcılık adayı](CRAZYGAMES_PERFORMANCE.md): güncel QA
+ölçüldü, sürekli düşük FPS yerel masaüstünde tekrarlanmadı. Tek taramalı kayıt
+ve scene key paylaşımı uygulandı; yeni paketin gerçek cihaz/QA önce-sonra
+ölçümü ve uzun oynanış kabulü eksik. Grafik kalitesi düşürülmedi; yayın yok.
+
 4 Kasım Data Module: [yerel kayıt adaptörü ve QA kapısı](CRAZYGAMES_DATA_MODULE.md).
 SDK-scoped yetkili portal farm kaydı/hesap guard/kota/sıkıştırma uygulandı;
 10 hedefli test/typecheck/build geçti. Yeni ZIP'in özel QA'ya yüklenip gerçek
