@@ -1,0 +1,2 @@
+export function readPresentation(){try{const value=JSON.parse(localStorage.getItem('roamcroft.presentation.v1')||'{}');return {quality:value?.quality===true,sound:value?.sound===true};}catch{return {quality:false,sound:false};}}
+export function storePresentation(value:Partial<ReturnType<typeof readPresentation>>){try{localStorage.setItem('roamcroft.presentation.v1',JSON.stringify({...readPresentation(),...value}));}catch{}}

@@ -24,6 +24,7 @@ import './camp-art.css';
 import './hotbar.css';
 import './hud-recovery.css';
 import './hud.css';
+import {readPresentation,storePresentation} from '@/lib/ui/presentation-preferences';
 import HudNotices from './HudNotices';
 import {advanceNotices,type HudNotice} from '@/lib/ui/notices';
 import Hotbar from './Hotbar';
@@ -108,6 +109,7 @@ import {
 import { registerGameTools } from '@/lib/game/webmcp';
 
 export default function Game({autoStart=false,serverMode=false,entry='play',onExit}:{autoStart?:boolean;serverMode?:boolean;entry?:'play'|'new'|'menu'|'settings';onExit?:()=>void}={}) {
+  const [presentation]=useState(readPresentation);
   useLocale();
   const hotbar=useHotbar(),hotbarRef=useRef(hotbar);hotbarRef.current=hotbar;
   const touch=useTouchPreferences();
@@ -125,7 +127,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     allowSave = useRef(true),
     coop = useRef<CoopClient | null>(null);
   const authority=useRef<ServerWorldClient|null>(null);
-  const renderSettings = useRef({ high: false });
+  const renderSettings = useRef({ high: presentation.quality });
   const [storageReady, setStorageReady] = useState(false);
   const initialMessage = useRef('');
   useEffect(() => {
@@ -169,8 +171,8 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     [panel, setPanel] = useState<Panel>(serverMode?'online':entry==='settings'?'settings':null),
     [selectedBuilding, setSelectedBuilding] = useState<number | null>(null),
     [selectedNPC, setSelectedNPC] = useState('narin'),
-    [sound, setSoundState] = useState(false),
-    [quality, setQuality] = useState(false),
+    [sound, setSoundState] = useState(presentation.sound),
+    [quality, setQuality] = useState(presentation.quality),
     [compactHud, setCompactHud] = useState(true),
     [saveStatus, setSaveStatus] = useState(''),
     [hover, setHover] = useState<{ x: number; z: number } | null>(null),
@@ -209,6 +211,11 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     compactHud,
   };
   const inputBlocked=control.current.paused||!!panel;
+  useEffect(()=>{
+    const resume=()=>{if(control.current.sound&&audio.current&&!audio.current.enabled)void audio.current.enable(true).then(setSoundState);};
+    window.addEventListener('pointerdown',resume);window.addEventListener('keydown',resume);
+    return()=>{window.removeEventListener('pointerdown',resume);window.removeEventListener('keydown',resume);};
+  },[]);
   if(scene.current)scene.current.inputEnabled=!inputBlocked;
   if (engine.current) {engine.current.placementRotation = rotation; engine.current.placementCorner = corner;}
   if (scene.current) {scene.current.placementRotation = rotation; scene.current.placementCorner = corner;}
@@ -241,6 +248,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     if(target)e.act(target.x,target.z,control.current.tool==='fish'?'fish':'hand');else e.emit(sourceText("m_6455e5a37b"));
   };
   const setSound = (value: boolean) => {
+    storePresentation({sound:value});
     void audio.current?.enable(value).then((enabled) => {
       setSoundState(enabled);
       if (value && !enabled)
@@ -362,7 +370,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     keys.current.clear();
     const music = new ValleyAudio();
     audio.current = music;
-    setSoundState(false);
+    setSoundState(readPresentation().sound);
     const unregister = registerGameTools(
       e,
       () => {
@@ -1184,6 +1192,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
             quality={quality}
             setQuality={(q) => {
               renderSettings.current.high = q;
+              storePresentation({quality:q});
               setQuality(q);
               scene.current?.setQuality(q);
             }}

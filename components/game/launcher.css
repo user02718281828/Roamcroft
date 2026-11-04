@@ -21,6 +21,8 @@
 .launch-actions button:disabled{opacity:.65;cursor:wait;}
 .launch-content .quality-setting{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0 8px;font-size:12px;color:#c6d5bd;}
 .launch-content select{min-height:44px;padding:6px 12px;border:1px solid #aa9460;border-radius:7px;background:#203b2f;color:#f5e9cb;font:inherit;}
+.launch-settings{display:flex;flex-direction:column;gap:18px;padding:24px;max-width:640px;max-height:calc(var(--app-height,100dvh) - 32px);overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;}
+.launch-settings h1,.launch-settings h2{font-family:Georgia,serif;color:#edcc82;}.launch-settings label{display:flex;gap:10px;align-items:center;min-height:44px;}.launch-settings button{min-height:44px;padding:8px 14px;border:1px solid #bba16c66;border-radius:8px;background:#314b37;color:#eee3c5;}.launch-settings fieldset{display:flex;gap:8px;flex-wrap:wrap;}.launch-settings .audio-levels label{flex-wrap:wrap;}.launch-settings input[type=range]{width:100%;}
 .launch-notes{font-size:12px;color:#c6d5bd;line-height:1.5;border-top:1px solid #bba16c40;margin-top:8px;}
 .launch-notes summary{cursor:pointer;min-height:44px;align-content:center;}
 .launch-notes p{margin:6px 0 12px;}

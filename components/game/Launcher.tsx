@@ -10,12 +10,14 @@ import {useGameViewport,enterGameFullscreen} from '@/lib/game/viewport';
 import LanguageSettings from './LanguageSettings';
 import LanguageMetadata from './LanguageMetadata';
 import LaunchArtwork from './LaunchArtwork';
+import LauncherSettings from './LauncherSettings';
 type Entry='play'|'new'|'menu'|'settings';
 type GameProps={autoStart?:boolean;serverMode?:boolean;entry?:Entry;onExit?:()=>void};
 export default function Launcher(){
   const locale=useLocale();useGameViewport();
   const [Game,setGame]=useState<ComponentType<GameProps>|null>(null),[serverMode,setServerMode]=useState(false),[entry,setEntry]=useState<Entry>('play');
   const [loading,setLoading]=useState(false),[error,setError]=useState(''),[saveHint,setSaveHint]=useState<DeviceSaveHint>('unknown');
+  const [settings,setSettings]=useState(false);
   useEffect(()=>{
     let canceled=false;
     if(Game)return;
@@ -31,6 +33,7 @@ export default function Launcher(){
     catch{setError(sourceText('m_23db1c0734'));setLoading(false);}
   };
   if(Game)return <><LanguageMetadata/><Game autoStart={entry==='play'} entry={entry} serverMode={serverMode} onExit={()=>{setGame(null);setLoading(false);setError('');}}/></>;
+  if(settings)return <main className="launch-screen"><LanguageMetadata/><LauncherSettings onClose={()=>setSettings(false)}/></main>;
   return <main className="launch-screen"><LanguageMetadata/>
     <section className="launch-card" aria-label={translate('m_77b3894fa1')}>
       <div className="launch-world">
@@ -49,7 +52,7 @@ export default function Launcher(){
           </button>
           <button className="launch-server" onClick={()=>void play(true)} disabled={loading}>{translate('m_4b3434427a')}</button>
           <button onClick={()=>void play(false,'new')} disabled={loading}>{translate('m_0a89501c7e')}</button>
-          <div className="launch-utilities"><button onClick={()=>void play(false,'settings')} disabled={loading}>{translate('m_80ad54ad05')}</button>
+          <div className="launch-utilities"><button onClick={()=>setSettings(true)} disabled={loading}>{translate('m_80ad54ad05')}</button>
             <button onClick={()=>void play(false,'menu')} disabled={loading}>{translate('launch.saves')}</button></div>
         </div>
         {error&&<p role="alert">{localize(error)}</p>}

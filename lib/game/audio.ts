@@ -3,20 +3,17 @@ import {spatialAmbience} from './ambience.ts';
 import type {AcousticCamera} from './ambience.ts';
 import {tileAt,season} from './model.ts';
 import type {State} from './model.ts';
-export type AudioLevels={music:number;ambience:number;effects:number};
-export const DEFAULT_AUDIO:AudioLevels={music:.45,ambience:.7,effects:.65};
+import {DEFAULT_AUDIO,cleanLevels,readAudioLevels,storeAudioLevels,type AudioLevels} from '../ui/audio-levels.ts';
+export {DEFAULT_AUDIO,cleanLevels,type AudioLevels} from '../ui/audio-levels.ts';
 export type ActionSound='axe'|'pickaxe'|'hoe'|'harvest'|'seed'|'water'|'fish'|'sword';
-export function cleanLevels(value:Partial<AudioLevels>):AudioLevels {
- return Object.fromEntries(Object.entries(DEFAULT_AUDIO).map(([key,fallback])=>{const n=value[key as keyof AudioLevels];return [key,typeof n==='number'&&Number.isFinite(n)?Math.max(0,Math.min(1,n)):fallback];})) as AudioLevels;
-}
 export class ValleyAudio {
  context:AudioContext|null=null;master:GainNode|null=null;enabled=false;
  levels={...DEFAULT_AUDIO};clock=0;note=0;lastBird=0;
  river:AudioBufferSourceNode|null=null;riverGain:GainNode|null=null;riverPan:StereoPannerNode|null=null;
  wind:AudioBufferSourceNode|null=null;windGain:GainNode|null=null;noiseBuffer:AudioBuffer|null=null;
  birdMix={gain:0,pan:0};insectMix={gain:0,pan:0};lastInsect=0;stepDistance=0;lastPosition:{x:number;z:number}|null=null;voices=0;
- constructor(){try{this.levels=cleanLevels(JSON.parse(localStorage.getItem('roamcroft.audio.v1')||'{}'));}catch{}}
- setLevels(levels:Partial<AudioLevels>){this.levels=cleanLevels({...this.levels,...levels});try{localStorage.setItem('roamcroft.audio.v1',JSON.stringify(this.levels));}catch{}}
+ constructor(){this.levels=readAudioLevels();}
+ setLevels(levels:Partial<AudioLevels>){this.levels=cleanLevels({...this.levels,...levels});storeAudioLevels(this.levels);}
  async enable(value:boolean){
   this.enabled=value;
   if(value){try{
