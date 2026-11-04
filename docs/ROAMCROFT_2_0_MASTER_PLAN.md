@@ -1,5 +1,11 @@
 # Roamcroft 2.0 — ana geliştirme planı
 
+4 Kasım Data Module: [yerel kayıt adaptörü ve QA kapısı](CRAZYGAMES_DATA_MODULE.md).
+SDK-scoped yetkili portal farm kaydı/hesap guard/kota/sıkıştırma uygulandı;
+10 hedefli test/typecheck/build geçti. Yeni ZIP'in özel QA'ya yüklenip gerçek
+get/set/yeniden açılış/account-switch/çok cihaz kabulü hâlâ eksik; Submit yok.
+Önceki Aşama1 yerel-farm/no-SDK fallback bilgileri tarihsel kalır.
+
 4 Kasım Aşama1: [CrazyGames gerçek HTML5 tek oyunculu paket](CRAZYGAMES_HTML5_STAGE1.md)
 yerelde üretildi. SDK v3 temel init/lifecycle/mute ve fallback mevcut; 14 dosya,
 2,35MB; ZIP1,19MB. Portal preview/fiziksel mobil henüz doğrulanmadı. Online,

@@ -1,5 +1,13 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+4 Kasım Data Module yerel adayı: `docs/CRAZYGAMES_DATA_MODULE.md` son kayıttır.
+Portal hedefinde SDK init+Data okuması Game'den önce; SDK yetkili kaynaktır,
+yerel farm fallback/unload yazısı yok. Sıkıştırılmış v1 zarf/current+backup,
+1048576 byte kotası, stale account/cloud değişimi guard'ları var.10 hedefli
+test/typecheck/portal build geçti. Gerçek yeni-build QA cloud/account-switch
+kabulü bekler; özel QA bağlantısını kaynak/belgeye sabitleme. D1/DO/official
+kayıt/WS değişmedi; push/main/deploy/Submit yok. Eski Aşama1 ZIP korunur.
+
 4 Kasım CrazyGames Aşama1: `docs/CRAZYGAMES_HTML5_STAGE1.md` son kayıt.
 Bağımsız Vite build aynı Game/Engine'i tek oyunculu kullanır; v3 SDK lifecycle/
 mute, no-SDK fallback; portalda PWA/online/reklam yok. 7 hedefli test/typecheck,
