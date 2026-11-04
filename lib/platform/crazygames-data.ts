@@ -20,25 +20,25 @@ async function unpack(text:string){
 }
 export class CrazyGamesDataStore{
  private active=true;private loaded=false;private expected:string|null=null;private current:string|null=null;private writing=false;
- private data:DataModule;private identity:()=>Promise<string>;private owner:string;private problem:(message:string)=>void;
- constructor(data:DataModule,identity:()=>Promise<string>,owner:string,problem:(message:string)=>void){this.data=data;this.identity=identity;this.owner=owner;this.problem=problem;}
+ private data:DataModule;private problem:(message:string)=>void;
+ constructor(data:DataModule,problem:(message:string)=>void){this.data=data;this.problem=problem;}
  invalidate(){this.active=false;}
  get isNew(){return this.loaded&&this.expected===null;}
- private async check(){if(!this.active||await this.identity()!==this.owner){this.invalidate();throw Error('Account changed. Reload before continuing.');}if(!this.active)throw Error('Account changed');}
+ private check(){if(!this.active)throw Error('Account changed. Reload before continuing.');}
  async load(){
-  await this.check();const raw=this.data.getItem(DATA_KEY);let state:State;
+  this.check();const raw=this.data.getItem(DATA_KEY);let state:State;
   if(raw===null)state=createState();else{
    const record=JSON.parse(raw) as RecordData;
    if(record.format!=='roamcroft.cg.data.v1'||typeof record.current!=='string')throw Error('Invalid Data Module save; original retained.');
    state=deserialize(await unpack(record.current));this.current=record.current;
   }
-  await this.check();if(this.data.getItem(DATA_KEY)!==raw)throw Error('Save changed while loading. Reload.');
+  this.check();if(this.data.getItem(DATA_KEY)!==raw)throw Error('Save changed while loading. Reload.');
   this.expected=raw;this.loaded=true;return state;
  }
  async save(state:State){
   if(this.writing)return false;this.writing=true;
   try{
-   if(!this.loaded)throw Error('Data Module save has not loaded');
+   this.check();if(!this.loaded)throw Error('Data Module save has not loaded');
    const serializationStarted=frameProfile.begin();
    const snapshot=serialize(state);
    frameProfile.end('saveSerializeCpu',serializationStarted);
@@ -46,7 +46,7 @@ export class CrazyGamesDataStore{
    frameProfile.end('saveCompressionWallTime',compressionStarted);
    const raw=JSON.stringify({format:'roamcroft.cg.data.v1',current,backup:this.current} satisfies RecordData);
    if(new TextEncoder().encode(JSON.stringify({[DATA_KEY]:raw})).length>DATA_LIMIT)throw Error('Data Module 1 MB limit exceeded. Previous save retained; export your farm.');
-   await this.check();if(this.data.getItem(DATA_KEY)!==this.expected)throw Error('Cloud save changed. Reload; no overwrite performed.');
+   this.check();if(this.data.getItem(DATA_KEY)!==this.expected)throw Error('Cloud save changed. Reload; no overwrite performed.');
    const sdkWriteStarted=frameProfile.begin();
    this.data.setItem(DATA_KEY,raw);
    frameProfile.end('sdkSetItemCpu',sdkWriteStarted);
@@ -55,4 +55,14 @@ export class CrazyGamesDataStore{
   }catch(error){this.problem(error instanceof Error?error.message:'Data Module unavailable; save not confirmed');return false;}
   finally{this.writing=false;}
  }
+}
+
+// Data Module owns account scoping; User Module IDs/tokens are not save keys.
+// SDK reloads Data Module games on login/logout. Invalidate early when an auth
+// event is available, including during asynchronous load/compression.
+export function createCrazyGamesDataSession(data:DataModule,auth:{addAuthListener?:(fn:()=>void)=>void;removeAuthListener?:(fn:()=>void)=>void}|undefined,onChange:()=>void,problem:(message:string)=>void){
+ const store=new CrazyGamesDataStore(data,problem);let active=true,listening=false;
+ const changed=()=>{if(!active)return;active=false;store.invalidate();onChange();};
+ try{if(auth?.addAuthListener){auth.addAuthListener(changed);listening=true;}}catch{/* Data Module remains usable; SDK owns account-change reloads. */}
+ return {store,dispose(){active=false;store.invalidate();if(listening)try{auth?.removeAuthListener?.(changed);}catch{}}};
 }

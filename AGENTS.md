@@ -1,5 +1,12 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+4 Kasım portal hesap açılışı: `docs/CRAZYGAMES_ACCOUNT_FIX.md`. Yanlış
+getUser().userId zorunluluğu kaldırıldı; Data Module SDK init sonrası yetkili
+kaynaktır, User ID/token sorgusu kayıt için yapılmaz. Auth event/dispose eski
+store'u geçersiz kılar; SDK login/logout reload sözleşmesi kullanılır. CAS,
+load-before-write/kota/backup ve performans korunur.251 test/typecheck/portal
+build geçti; gerçek hesaplı yeni-build QA kabulü bekler. Push/deploy/Submit yok.
+
 4 Kasım akıcılık: `docs/CRAZYGAMES_PERFORMANCE.md`. Güncel gerçek QA'da
 Balanced892×458 143,47FPS/p95 7,10ms; genel donma bu masaüstünde tekrarlanmadı.
 Yerel aday tek JSON payload taraması ve scene tile-key tahsis azaltmasıdır;

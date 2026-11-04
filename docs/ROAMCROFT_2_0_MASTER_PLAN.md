@@ -1,5 +1,10 @@
 # Roamcroft 2.0 — ana geliştirme planı
 
+4 Kasım [portal giriş engeli düzeltmesi](CRAZYGAMES_ACCOUNT_FIX.md): SDK v3'te
+olmayan userId alanı kayıt önkoşulu olmaktan çıkarıldı. Data Module kendi
+hesap kapsamını yönetir; gerçek auth olayı eski store'u kapatır.251 test,
+typecheck/portal build geçti; yeni ZIP'in hesaplı QA kabulü hâlâ bekler.
+
 4 Kasım [CrazyGames akıcılık adayı](CRAZYGAMES_PERFORMANCE.md): güncel QA
 ölçüldü, sürekli düşük FPS yerel masaüstünde tekrarlanmadı. Tek taramalı kayıt
 ve scene key paylaşımı uygulandı; yeni paketin gerçek cihaz/QA önce-sonra
