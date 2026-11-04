@@ -1,5 +1,15 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+4 Kasım yerel devam: `codex/crazygames-readiness`. Kullanıcı bağımsız Launcher
+Ayarlar, ölçümlü performans ve gerçek CrazyGames CDN/SDK hazırlığını yetkilendirdi;
+push/main/deploy/portal başvurusu yetkili değil. LauncherSettings motor/sahne
+başlatmaz; ortak ses/Touch/dil/rehber kontrollerini kullanır. Yeni sunum tercihi
+oyun kaydından ayrıdır; ses seviyelerinin eski anahtarı korunur. Devam kaydı
+`docs/CRAZYGAMES_READINESS.md`. Portal CDN→backend oturumu kritik kapıdır:
+yabancı origin testinde D1'den önce403; Strict çerez/CSP gevşetilmedi. Gerçek
+game ID/origin ve sunucu doğrulamalı portal kimliği olmadan paket/SDK/co-op
+tamamlandı sayılmaz. %10 FPS veya fiziksel cihaz kabulü henüz ölçülmedi.
+
 Son domain kararı: tek herkese açık adres `https://roamcroft.com`.
 Kullanıcı Dashboard'da eski workers.dev Production/Preview uçlarını kapattığını
 bildirdi; ancak30 Ekim15:16UTC iki no-cache canlı isteği Production için

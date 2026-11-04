@@ -1,5 +1,11 @@
 # Roamcroft 2.0 — ana geliştirme planı
 
+4 Kasım yerel çalışma: [CrazyGames + bağımsız Ayarlar durumu](CRAZYGAMES_READINESS.md).
+Ayarlar motor bağımlılığı kaldırıldı; render/module graph ve tercih testi mevcut.
+Ölçümlü %10 performans, gerçek tarayıcı akışı ve portal preview hâlâ eksik.
+CDN backend origin/kimlik kapısı çözülmeden SDK/ZIP/çok oyuncu teslimi yok;
+prod/main/push onayı yok. Mevcut özellikler ve kayıtlar korunur.
+
 Bu belge Roamcroft 2.0 vizyonunun tek ana iş sırası ve durum kaynağıdır.
 [AGENTS.md](../AGENTS.md) güvenlik/uyumluluk kuralları geçerlidir;
 [PORTAL_ROADMAP.md](PORTAL_ROADMAP.md) portal yayın kapılarını ayrıntılandırır.
