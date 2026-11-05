@@ -15,6 +15,8 @@ import './ui-v2.css';
 import { nextPanel } from '@/lib/ui/game-menu';
 import './foundation.css';
 import MainMenu from './MainMenu';
+import {prepareNewFarm, type StartProfile} from '@/lib/game/new-farm';
+import {largeStructure,structureFootprint} from '@/lib/game/footprint';
 import Joystick from './Joystick';
 import TouchAction from './TouchAction';
 import {useTouchPreferences} from '@/lib/ui/touch-preferences';
@@ -80,7 +82,6 @@ import {
   tileAt,
   buildingAt,
   xpNext,
-  createState,
 } from '@/lib/game/model';
 import type { State } from '@/lib/game/model';
 import {
@@ -116,6 +117,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
   const renderStarted=frameProfile.begin();
   useEffect(()=>{frameProfile.mount();return()=>frameProfile.dispose();},[]);
   const exitPending=useRef(false);
+  const resetPending=useRef(false);
   const host = useRef<HTMLDivElement>(null),
     mini = useRef<HTMLCanvasElement>(null),
     engine = useRef<Engine | null>(null),
@@ -245,7 +247,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     if(person){setSelectedNPC(person.id);setPanel('villagers');return;}
     const animal=e.s.animals.find(a=>Math.hypot(a.x-p.x,a.z-p.z)<1.8);
     if(animal){if(animal.ready)e.harvestAnimal(animal.id);else e.petAnimal(animal.id);return;}
-    const building=e.s.buildings.find(b=>Math.hypot(b.x-p.x,b.z-p.z)<1.8);
+    const building=e.s.buildings.find(b=>{const target=largeStructure(b)?structureFootprint(b).entrance:b;return Math.hypot(target.x-p.x,target.z-p.z)<1.8;});
     if(building){if(orchardStatus(building,e.s)?.ready){e.act(building.x,building.z,'hand');return;}setSelectedBuilding(building.id);setPanel('building');return;}
     const target=e.s.tiles.filter(t=>(t.resource||t.crop||(control.current.tool==='fish'&&t.terrain==='water'))&&Math.hypot(t.x-p.x,t.z-p.z)<1.8).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0];
     if(target)e.act(target.x,target.z,control.current.tool==='fish'?'fish':'hand');else e.emit(sourceText("m_6455e5a37b"));
@@ -331,20 +333,27 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
       );
     }
   };
-  const doReset = () => {
-    if(serverMode){engine.current?.emit(sourceText("m_dbb0a7206e"),'info');return;}
-    if(coop.current?.active){engine.current?.emit(sourceText("m_f7193a4977"),'bad');return;}
-    setMainMenu(false);
-    const seed = new Uint32Array(1);
-    crypto.getRandomValues(seed);
-    nextState.current = createState(seed[0]);
-    allowSave.current = true;
-    saveLocal(nextState.current);
-    void saveStored(nextState.current);
-    setTool('hand');
-    setPanel(null);
-    setPaused(false);
-    setEpoch((n) => n + 1);
+  const doReset = async (profile:StartProfile = 'standard') => {
+    if(serverMode)throw Error(sourceText("m_dbb0a7206e"));
+    if(coop.current?.active)throw Error(sourceText("m_f7193a4977"));
+    if(resetPending.current)throw Error(sourceText('start.saving'));
+    resetPending.current=true;
+    const previousSavePermission=allowSave.current;
+    allowSave.current=false;
+    try {
+      const seed = new Uint32Array(1);
+      crypto.getRandomValues(seed);
+      const state=await prepareNewFarm(seed[0],platform?'standard':profile,saveStored);
+      nextState.current=state;
+      setMainMenu(false);
+      setTool('hand');
+      setPanel(null);
+      setPaused(false);
+      setEpoch((n) => n + 1);
+    } catch(error) {
+      allowSave.current=previousSavePermission;
+      throw error;
+    } finally {resetPending.current=false;}
   };
   useEffect(() => {
     if (!storageReady) return;
@@ -493,7 +502,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
               control.current.tool === 'build'
                 ? control.current.selection
                 : null;
-            const pausedView=[view.target.x,view.target.z,view.angle,view.zoom,view.highQuality,view.canvas.width,view.canvas.height].join(',');
+            const pausedView=[view.target.x,view.target.z,view.angle,view.zoom,view.highQuality,view.canvas.width,view.canvas.height,e.structureRevision].join(',');
             if (!document.hidden && (!worldReady || !control.current.paused || authority.current?.shared || pausedView!==lastPausedView)){
               const sceneStarted=frameProfile.begin();
               view.render(control.current.paused&&!authority.current?.shared ? 0 : dt, frameDuration,
@@ -726,7 +735,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
       )}
       {s && (
         <>
-          {ready && mainMenu && !panel && <MainMenu initialConfirm={newPrompt} onPromptHandled={()=>setNewPrompt(false)} serverMode={serverMode} loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onGuide={()=>setPanel('guide')} onSave={doSave} onExit={doExit}/>}
+          {ready && mainMenu && !panel && <MainMenu allowProfiles={!platform} initialConfirm={newPrompt} onPromptHandled={()=>setNewPrompt(false)} serverMode={serverMode} loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onGuide={()=>setPanel('guide')} onSave={doSave} onExit={doExit}/>}
           <header className="game-header">
             <div className="brand">
               <div className="brand-icon">
@@ -1188,7 +1197,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
             onImport={doImport}
             onExport={doExport}
             onSave={()=>void doSave().catch(()=>{})}
-            onReset={doReset}
+            onReset={()=>{setPanel(null);setMainMenu(true);setNewPrompt(true);}}
             selectedBuilding={selectedBuilding}
             sound={sound}
             setSound={setSound}

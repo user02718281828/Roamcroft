@@ -1,5 +1,34 @@
 # Güncel checkpoint — 30 Ekim 2026
 
+5 Kasım büyük yapı yerel devamı: docs/NATIVE_LARGE_BUILDINGS_2026_11_05.md.
+Yeni farmhouse katalog footprint=[5,4]; eski türler tek hücre. footprint.ts
+boyut/kapı ortak sözleşmesi; yeni dönüş R1 batı, Three.js eksi Y; eski yönler
+değişmez. Building/State alanı veya SAVE_VERSION eklenmedi; eski build yeni
+türü tanımaz. Engine, A*, save ve shared oyuncu korumasını birlikte tut.
+İç mekânlar/diğer büyük yapılar/World3 tamamlanmadı. Commit/push/deploy yok.
+Final275 test/typecheck/iki build ve dört WS runtime geçti; tarayıcıda gerçek
+inşa/maliyet, çevreden kapıya rota, uyku, dört dönüş, kayıtla yeniden açılış,
+TR/EN ve 320px/yatay panel kabulü yapıldı. Fiziksel Android/WAN/FPS kanıtı yok.
+Engine.structureRevision kayda eklenmez; duraklatılmış menü/sahneyi yapı
+değişiminde bir kez yeniler. Checkpoint work/native-footprint-progress-20261105.
+
+5 Kasım ikinci native devam: docs/NATIVE_START_PROFILES_2026_11_05.md.
+createState/yükleme/sunucu varsayılanı değişmez; createNewFarm yalnız açık yeni
+cihaz onayında standard/lean erzak uygular. Portalda profil seçimi açılmaz.
+prepareNewFarm kayıt ACK bekler; Game eski Engine'i başarıdan önce değiştirmez.
+Yeni oyun beklerken eski pagehide yazısını tekrar açma; başarısızlık eski izinleri
+geri getirir. Final267/267/typecheck/normal+portal build ve dört WS runtime
+geçti; 320px iki hedef44px ve kayıtla yeniden açılış doğrulandı. Fiziksel cihaz
+ve insanlı30dk hâlâ eksik. Yayın yok. Yerel bundle+patch/yeni dosya yedeği
+work/native-progress-20261105; başka disk veya oyuncu kayıt yedeği değildir.
+
+5 Kasım native devam: kullanıcının on alanı ve tam yol haritası
+docs/NATIVE_ROADMAP_2026_11_05.md içinde korunur. Güncel dilim/kabul kapıları
+docs/NATIVE_GAMEPLAY_2026_11_05.md. CrazyGames adaylarını kaybetme; yeni portal
+işi beklemede. İki yeni görev mevcut craft/sell sayaçlarını kullanır, önceki
+20 görev ve SAVE_VERSION korunur. Yeni claimed ID'leri eski build allowlist'i
+tanımaz; geri dönüş uyumluluğu var deme. Bu görev push/deploy yetkisi içermez.
+
 4 Kasım portal co-op yerel adayı: `docs/CRAZYGAMES_MULTIPLAYER.md`. Kullanıcı
 hesaplı Data Module/yeniden açılış/misafir ayrımını gerçek QA'da geçtiğini
 bildirdi. Yeni co-op gateway varsayılan kapalıdır; yalnız /api/portal/* için

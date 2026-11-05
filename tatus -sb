@@ -1,0 +1,67 @@
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/app/page.tsx b/app/page.tsx[m
+[1mindex 53e7a5c..b85d0ff 100644[m
+[1m--- a/app/page.tsx[m
+[1m+++ b/app/page.tsx[m
+[36m@@ -1,5 +1,17 @@[m
+ 'use client';[m
+[32m+[m
+[32m+[m[32mimport * as Sentry from '@sentry/react';[m
+ import Launcher from '@/components/game/Launcher';[m
+[32m+[m
+[32m+[m[32mif (typeof window !== 'undefined' && !Sentry.getClient()) {[m
+[32m+[m[32m  Sentry.init({[m
+[32m+[m[32m    dsn: 'https://2930a348f46704e33cbec716f6980fb5@o4512335936815104.ingest.de.sentry.io/4512335980658768',[m
+[32m+[m[32m    tracesSampleRate: 0,[m
+[32m+[m[32m    replaysSessionSampleRate: 0,[m
+[32m+[m[32m    replaysOnErrorSampleRate: 0,[m
+[32m+[m[32m  });[m
+[32m+[m[32m}[m
+[32m+[m
+ export default function Home() {[m
+   return <Launcher />;[m
+[31m-}[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/package.json b/package.json[m
+[1mindex ef6e400..0ace8a9 100644[m
+[1m--- a/package.json[m
+[1m+++ b/package.json[m
+[36m@@ -1,6 +1,6 @@[m
+ {[m
+   "name": "roamcroft",[m
+[31m-  "version": "1.11.5",[m
+[32m+[m[32m  "version": "1.12.0",[m
+   "private": true,[m
+   "engines": {[m
+     "node": ">=22.13.0"[m
+[36m@@ -22,6 +22,7 @@[m
+   },[m
+   "dependencies": {[m
+     "@base-ui/react": "1.7.0",[m
+[32m+[m[32m    "@sentry/react": "^11.10.0",[m
+     "@shadcn/react": "0.3.0",[m
+     "class-variance-authority": "0.7.1",[m
+     "clsx": "2.1.1",[m
+[36m@@ -68,7 +69,7 @@[m
+     "ws": "^8.21.0"[m
+   },[m
+   "type": "module",[m
+[31m-  "description": "İzometrik çiftçilik, hayatta kalma ve köy kurma oyunu",[m
+[32m+[m[32m  "description": "An original isometric browser game about farming, exploration and cooperative village life.",[m
+   "overrides": {[m
+     "sharp": "0.35.4",[m
+     "@esbuild-kit/core-utils": {[m
+[1mdiff --git a/worker/security.mjs b/worker/security.mjs[m
+[1mindex 1111205..946954b 100644[m
+[1m--- a/worker/security.mjs[m
+[1m+++ b/worker/security.mjs[m
+[36m@@ -11,7 +11,7 @@[m [mexport function contentSecurityPolicy(nonce) {[m
+   if(nonce!==undefined&&!/^[a-f0-9]{32}$/.test(nonce))throw new Error('Geçersiz CSP nonce.');[m
+   return ["default-src 'self'",`script-src 'self'${nonce?` 'nonce-${nonce}'`:''}`,[m
+     "script-src-attr 'none'", "style-src 'self' 'unsafe-inline'", "img-src 'self' data: blob:",[m
+[31m-    "font-src 'self'", "connect-src 'self'", "worker-src 'self'", "media-src 'self' blob:",[m
+[32m+[m[32m    "font-src 'self'", "connect-src 'self' https://o4512335936815104.ingest.de.sentry.io", "worker-src 'self'", "media-src 'self' blob:",[m
+     "object-src 'none'", "base-uri 'none'", "frame-src 'none'", "frame-ancestors 'none'", "form-action 'self'"].join('; ');[m
+ }[m
+ [m

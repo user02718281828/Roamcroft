@@ -1,4 +1,5 @@
 import {blocksTile} from './collision.ts';
+import {largeStructure,structureFootprint} from './footprint.ts';
 import type {State} from './model.ts';
 import {tileIndex,worldOrigin,worldSize} from './world.ts';
 type Point={x:number;z:number};
@@ -12,7 +13,10 @@ export function findRoute(s:State,target:Point,origin:Point,adjacent=false,maxNo
   if(start<0)return null;
   const blocked=new Uint8Array(count);
   for(let i=0;i<count;i++){const t=s.tiles[i];blocked[i]=+blocksTile(t);}
-  for(const b of s.buildings){const i=tileIndex(s,b.x,b.z);if(i>=0)blocked[i]=1;}
+  for(const b of s.buildings){
+    if(largeStructure(b))for(const p of structureFootprint(b).cells){const i=tileIndex(s,p.x,p.z);if(i>=0)blocked[i]=1;}
+    else {const i=tileIndex(s,b.x,b.z);if(i>=0)blocked[i]=1;}
+  }
   const dist=new Float64Array(count);dist.fill(Infinity);dist[start]=0;
   const parent=new Int32Array(count);parent.fill(-1);
   const closed=new Uint8Array(count),heap=new Heap();heap.push(start,0);

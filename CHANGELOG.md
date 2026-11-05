@@ -1,3 +1,27 @@
+## Unreleased — Native early-game slice (5 November 2026)
+
+- Add a separately built 5×4 farmhouse exterior with four rotations, reserved
+  doorway, complete Engine/A* collision and save/shared-player validation.
+  Existing structures keep their original size. No interiors or World3 migration.
+- The new farmhouse supports sleep near its entrance using the existing rules;
+  original return-home and defeat destinations remain unchanged.
+- Refresh rotated/reshaped structures in paused menus and redraw changed
+  structures once without advancing the simulation or rendering continuously.
+
+- Optional lean starting supplies for explicitly confirmed new device farms;
+  preserve the standard start, existing farms and all server farm defaults.
+- Wait for persistence acknowledgement before replacing a farm. Keep the current
+  session and show an error on failure; unify new-game confirmation entry points.
+- Accessible TR/EN profile selection with scrollable small-screen confirmation.
+
+- Add first completed craft and first sale quests using existing earned counters;
+  one-time seed/storage-material rewards and 40 total XP, without extra gold.
+- Show item rewards in quest cards and link the new goals to crafting/market.
+  Reward rows wrap on narrow screens; both languages are supported.
+- Existing quests and starting resources remain unchanged. Save version stays 1;
+  old builds cannot read the new claimed quest IDs. No production release.
+- Full native roadmap and acceptance limits: `docs/NATIVE_GAMEPLAY_2026_11_05.md`.
+
 ## 1.14.0-alpha.3 — Quality Recovery
 
 - Quality recovery: shared seasonal tree models, hierarchical chunk culling,

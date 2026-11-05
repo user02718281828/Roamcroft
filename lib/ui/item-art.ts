@@ -84,6 +84,7 @@ const aliases: Record<string, string> = {
   angler: 'rod',
   animal: 'chicken',
   market: 'gold',
+  farmhouse: 'home',
   day: 'beacon',
   feedmill: 'feed',
   smokehouse: 'grilledfish',

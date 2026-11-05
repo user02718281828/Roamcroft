@@ -1,5 +1,6 @@
 'use client';
 import { sourceText } from '@/lib/i18n/source';
+import {largeStructure,structureFootprint} from '@/lib/game/footprint';
 import { localize, translate } from '@/lib/i18n/core';
 import { useLocale } from '@/lib/i18n/react';
 
@@ -157,7 +158,7 @@ export default function Panels({
 }) {
   useLocale();
   const s = engine.s,
-    [confirm, setConfirm] = useState<'reset' | 'demolish' | null>(null),
+    [confirm, setConfirm] = useState<'demolish' | null>(null),
     [quantity, setQuantity] = useState(1),
     file = useRef<HTMLInputElement>(null);
   usePanelHistory(!!panel, () => setPanel(null));
@@ -657,6 +658,19 @@ export default function Panels({
                           <div className="quest-rewards">
                             <span>◈ {q.reward.gold}</span>
                             <span>✦ {q.reward.xp} {translate("m_bf2be7a0aa")}</span>
+                            {Object.entries(q.reward.items).map(([id, amount]) => (
+                              <span key={id}>{amount} × {localize(ITEMS[id].name)}</span>
+                            ))}
+                            {!done && value < q.target && q.id === 'firstcraft' && (
+                              <button className="secondary-button" onClick={() => setPanel('craft')}>
+                                {translate('quests.openCraft')}
+                              </button>
+                            )}
+                            {!done && value < q.target && q.id === 'firstsale' && (
+                              <button className="secondary-button" onClick={() => setPanel('market')}>
+                                {translate('quests.openMarket')}
+                              </button>
+                            )}
                             <button
                               className="primary-button"
                               disabled={done || value < q.target}
@@ -1002,7 +1016,7 @@ export default function Panels({
                 <div className="building-buttons">
                   <button className="secondary-button" onClick={() => engine.rotateBuilding(b.id)}>{translate("m_545873dce4")}{(b.rotation || 0)*90}°</button>
                   {['fence','wall'].includes(b.type) && <button className="secondary-button" onClick={()=>engine.reshapeBuilding(b.id)}>{localize(b.corner ? sourceText("m_0bc2541fab") : sourceText("m_5a88dc46be"))}</button>}
-                  {b.type === 'home' && (
+                  {['home','farmhouse'].includes(b.type) && (
                     <button
                       className="primary-button"
                       onClick={() => {
@@ -1021,7 +1035,7 @@ export default function Panels({
                   )}
                   <button
                     className="secondary-button"
-                    onClick={() => onApproach(b.x, b.z)}
+                    onClick={() => {const target=largeStructure(b)?structureFootprint(b).entrance:b;onApproach(target.x,target.z);}}
                   >
                     {translate("m_20983697d0")}</button>
                   <button
@@ -1256,7 +1270,7 @@ export default function Panels({
                   <button
                     className="danger-button"
                     disabled={engine.network?.server}
-                    onClick={() => setConfirm('reset')}
+                    onClick={onReset}
                   >
                     <RotateCcw size={16} /> {translate("m_184f5fac3d")}</button>
                 </div>
@@ -1360,29 +1374,24 @@ export default function Panels({
         <AlertDialogContent className="game-confirm">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {localize(confirm === 'reset'
-                ? sourceText("m_fa539a903a")
-                : sourceText("m_7d983fd273"))}
+              {translate("m_7d983fd273")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {localize(confirm === 'reset'
-                ? sourceText("m_af3cdfc738")
-                : sourceText("m_0ee0224367"))}
+              {translate("m_0ee0224367")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{translate("m_39a8d28c1c")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                if (confirm === 'reset') onReset();
-                else if (b) {
+                if (b) {
                   engine.demolish(b.id);
                   setPanel(null);
                 }
                 setConfirm(null);
               }}
             >
-              {localize(confirm === 'reset' ? sourceText("m_0a89501c7e") : sourceText("m_4e29c62c0b"))}
+              {translate("m_4e29c62c0b")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

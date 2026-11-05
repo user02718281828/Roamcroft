@@ -157,6 +157,7 @@ export const CROPS: Record<
   },
 };
 export type BuildingDef = {
+  footprint?: readonly [number,number];
   name: string;
   icon: string;
   desc: string;
@@ -170,6 +171,9 @@ export type BuildingDef = {
   unique?: boolean;
 };
 export const BUILDINGS: Record<string, BuildingDef> = {
+  farmhouse: {name:sourceText('buildings.farmhouse.name'),icon:'home',desc:sourceText('buildings.farmhouse.help'),
+    footprint:[5,4],cost:{wood:120,stone:60,plank:20},level:3,hp:600,
+    category:sourceText('m_aeb79ca9a6'),color:0xb96348},
   appletree: { name: sourceText("m_76f9251510"), icon: 'appletree', desc: sourceText("m_bb0a50c612"), cost: { applesapling: 1, wood: 4 }, level: 1, hp: 120, category: sourceText("m_58b7a69368"), color: 0xb74c37, orchard: { fruit: 'apple', matureDays: 2, seasons: [0, 2] } },
   peartree: { name: sourceText("m_6880c4678f"), icon: 'peartree', desc: sourceText("m_ae799096df"), cost: { pearsapling: 1, wood: 4 }, level: 2, hp: 140, category: sourceText("m_58b7a69368"), color: 0xd4b34a, orchard: { fruit: 'pear', matureDays: 3, seasons: [1, 2] } },
   wall: {name:sourceText("m_510dae27f6"), icon:'stone', desc:sourceText("m_c67da0a884"), cost:{stone:5}, level:2, hp:240, category:sourceText("m_28925851ca"), color:0x8b998a},
@@ -570,6 +574,22 @@ export const QUESTS: {
     stat: 'plant',
     target: 6,
     reward: { gold: 50, xp: 45, items: { bread: 2 } },
+  },
+  {
+    id: 'firstcraft',
+    name: sourceText('quests.firstcraft.title'),
+    desc: sourceText('quests.firstcraft.help'),
+    stat: 'craft',
+    target: 1,
+    reward: { gold: 0, xp: 20, items: { carrotseed: 4 } },
+  },
+  {
+    id: 'firstsale',
+    name: sourceText('quests.firstsale.title'),
+    desc: sourceText('quests.firstsale.help'),
+    stat: 'sell',
+    target: 1,
+    reward: { gold: 0, xp: 20, items: { wood: 6, stone: 4 } },
   },
   {
     id: 'harvest',

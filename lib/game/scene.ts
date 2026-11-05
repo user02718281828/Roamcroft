@@ -6,7 +6,8 @@ import {frameProfile,GpuTimer} from './profile.ts';
 import {AnimalBatches} from './actor-batches.ts';
 import {AnimalPresentation} from './animal-presentation.ts';
 import { RemoteMotion } from '../coop/motion.ts';
-import { cottage, fruitTree } from './art-direction.ts';
+import { cottage, farmhouse, fruitTree } from './art-direction.ts';
+import {largeStructure,structureFootprint} from './footprint.ts';
 import {ForestTrees,forestPlant} from './forest-art.ts';
 import {forestReserved,forestDecoration,nearForest} from './forest-layout.ts';
 import {ForestLife} from './forest-life.ts';
@@ -154,6 +155,7 @@ export class ValleyScene {
   shadowClock = 0;
   clock = 0;
   syncClock = 0;
+  structureRevision = 0;
   resizeObserver: ResizeObserver;
   canvas: HTMLCanvasElement;
   onSelect: (x: number, z: number) => void;
@@ -1041,6 +1043,7 @@ export class ValleyScene {
     }
   }
   building(b: Building, g: T.Group) {
+    if(b.type==='farmhouse'){farmhouse(this,g,b.level);return;}
     const c = BUILDINGS[b.type].color;
     if(BUILDINGS[b.type].orchard){fruitTree(this,g,b,this.engine.s);return;}
     if(b.type==='home'){cottage(this,g,b.level);return;}
@@ -1769,19 +1772,22 @@ export class ValleyScene {
       this.dirtyChunks.add(chunkKey(t.x, t.z));
       changed = true;
     }
-    const visibleBuildings = s.buildings.filter((b) => tileAt(s, b.x, b.z));
+    const visibleBuildings = s.buildings.filter((b) => tileAt(s, b.x, b.z)||largeStructure(b)&&structureFootprint(b).cells.some(p=>tileAt(s,p.x,p.z)));
     const shadow = new T.Object3D();
     const nearbyShadows=visibleBuildings.filter(b=>Math.hypot(b.x-s.player.x,b.z-s.player.z)<18).slice(0,2048),light=sunlight(s.time);
     nearbyShadows.forEach((b, i) => {
+      const large=largeStructure(b),center=large?structureFootprint(b).center:b;
       shadow.position.set(
-        b.x - light.x*.015,
+        center.x - light.x*.015,
         (tileAt(s, b.x, b.z)?.height || 0) + 0.138,
-        b.z + 0.22,
+        center.z + 0.22,
       );
       shadow.rotation.set(-Math.PI / 2, 0, -0.45);
       shadow.scale.setScalar(
         ['sprinkler', 'fence'].includes(b.type) ? 0.35 : 1,
       );
+      if(large){const size=BUILDINGS[b.type].footprint!,odd=(b.rotation||0)%2;
+        shadow.rotation.set(-Math.PI/2,0,0);shadow.scale.set(size[odd?1:0]/2.9,size[odd?0:1]/2.2,1);}
       shadow.updateMatrix();
       this.buildingShadows.setMatrixAt(i, shadow.matrix);
     });
@@ -1806,11 +1812,12 @@ export class ValleyScene {
         releaseModel(old.group);
       }
       const g = new T.Group();
-      g.position.set(b.x, tileAt(s, b.x, b.z)?.height || 0, b.z);
+      const center=largeStructure(b)?structureFootprint(b).center:b;
+      g.position.set(center.x, tileAt(s, b.x, b.z)?.height || tileAt(s,center.x,center.z)?.height || 0, center.z);
       this.building(b, g);
       addWorkshopArt(b,g,this.mesh.bind(this));
       const millRotor=this.wheels.find(w=>w.parent===g);if(millRotor)g.userData.millRotor=millRotor;
-      g.rotation.y = (b.rotation || 0) * Math.PI / 2;
+      g.rotation.y = (b.rotation || 0) * Math.PI / 2 * (largeStructure(b)?-1:1);
       compactModel(g);
       g.userData.tile = { x: b.x, z: b.z };
       this.root.add(g);
@@ -2285,11 +2292,12 @@ export class ValleyScene {
     this.time += dt;
     this.waterTime.value = this.time;
     this.syncClock += dt;
-    if (this.syncClock > 0.25 || this.terrainTiles !== this.engine.s.tiles) {
+    if (this.syncClock > 0.25 || this.terrainTiles !== this.engine.s.tiles || this.structureRevision!==this.engine.structureRevision) {
       const started=frameProfile.begin();
       this.sync();
       frameProfile.end('sceneSync',started);
       this.syncClock = 0;
+      this.structureRevision=this.engine.structureRevision;
     }
     const chunkStarted=frameProfile.begin();
     this.flushChunk();
@@ -2533,16 +2541,18 @@ export class ValleyScene {
         });
       }
     }
-    this.ghost.rotation.y = this.placementRotation * Math.PI / 2;
+    this.ghost.rotation.y = this.placementRotation * Math.PI / 2 * (this.placement&&largeStructure({type:this.placement})?-1:1);
     this.ghost.visible = !!this.placement && !!this.hoverTile;
     if (this.ghost.visible && this.hoverTile) {
+      const pose={type:this.placement!,x:this.hoverTile.x,z:this.hoverTile.z,rotation:this.placementRotation};
+      const isLarge=largeStructure(pose),center=isLarge?structureFootprint(pose).center:this.hoverTile;
       this.ghost.position.set(
-        this.hoverTile.x,
+        center.x,
         0.03 + (tileAt(s, this.hoverTile.x, this.hoverTile.z)?.height || 0),
-        this.hoverTile.z,
+        center.z,
       );
       const tile = tileAt(s, this.hoverTile.x, this.hoverTile.z)!,
-        valid =
+        valid = isLarge ? this.engine.canPlaceLarge(pose.type,pose.x,pose.z,pose.rotation) :
           tile.terrain === 'grass' &&
           !tile.resource &&
           !tile.crop &&
@@ -2681,6 +2691,10 @@ export class ValleyScene {
       c.fillRect((t.x - o.x) * k, (t.z - o.z) * k, k + 0.5, k + 0.5);
     }
     for (const b of s.buildings) {
+      if(largeStructure(b)){
+        c.fillStyle='#eddbab';for(const p of structureFootprint(b).cells)c.fillRect((p.x-o.x)*k,(p.z-o.z)*k,k,k);
+        continue;
+      }
       c.fillStyle = b.type === 'home' ? '#eddbab' : '#d49c6b';
       c.fillRect((b.x - o.x) * k - 1, (b.z - o.z) * k - 1, k + 2, k + 2);
     }

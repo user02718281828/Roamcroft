@@ -1,5 +1,25 @@
 # Roamcroft 2.0 — ana geliştirme planı
 
+5 Kasım [ilk gerçek 5×4 yapı](NATIVE_LARGE_BUILDINGS_2026_11_05.md): yeni
+farmhouse, dört yön, tüm hücrelerde Engine/A*/kayıt çarpışması, korunan kapı
+ve gerçek Three.js dış model yerel adayda uygulanmıştır. Eski yapılar büyümez.
+G11 kısmi: büyük atölye/ahır/kümes/sera ve iç mekânlar yoktur. World3 hâlâ
+izole prototiptir. Yeni ev içeren kayıt eski build'de açılamaz; yayın yapılmadı.
+
+5 Kasım ikinci native paket: [güvenli yeni çiftlik ve başlangıç seçimi](NATIVE_START_PROFILES_2026_11_05.md).
+Standart başlangıç korunur; yalnız onaylı yeni cihaz çiftliğinde daha zorlu
+yalın erzak seçilebilir. Yeni çiftlik kayıt ACK'sinden önce açılmaz; hata/iptal
+eski çiftliği korur. C04/C06 kısmi: tamamen boş çiftlik ve insanlı ekonomi
+kabulü hâlâ eksik. Büyük yapılar/World3 ve portal yayını uygulanmış sayılmaz.
+
+5 Kasım güncel sıra: kullanıcı tüm oyunun geliştirilmesini istedi. Tam ekli
+[native yol haritası](NATIVE_ROADMAP_2026_11_05.md) ve
+[ilk küçük oynanış paketi / on alanın kabul kapıları](NATIVE_GAMEPLAY_2026_11_05.md)
+bu devamın güncel kaydıdır. Native deneyim öncelikli, CrazyGames çalışmaları
+korunarak beklemede. İlk dilim iki kısa üretim/satış görevi ve görünür eşya
+ödülleridir; büyük bina, iç mekân, World3 ve diğer hedefler tamamlanmış değildir.
+Yeni yayın yetkisi verilmedi. Aşağıdaki tarihler kendi checkpoint'lerini anlatır.
+
 4 Kasım [CrazyGames co-op yerel adayı](CRAZYGAMES_MULTIPLAYER.md): mevcut
 D1/DO/WS üzerinde token gateway, ayrı sunucu kimliği, SDK oda/davet ve Instant
 akışı uygulandı.258 test ve mevcut4WS runtime geçti. Canlı backend etkin değil;

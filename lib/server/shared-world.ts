@@ -5,6 +5,7 @@ import { advanceWorld, type WorldRecord } from './world.ts';
 import { captureState, makeDelta, type WorldDelta } from './delta.ts';
 import { SHARED_PROTOCOL } from './shared-protocol.ts';
 import { sleepBlockReason } from '../game/rest.ts';
+import {largeStructure,structureContains} from '../game/footprint.ts';
 
 export type SharedPlayer = {
   id: string;
@@ -288,14 +289,21 @@ export function advanceShared(
           (a) =>
             a.present &&
             a.seen > now - 5000 &&
-            Math.hypot(
+            (structureContains({type:String(c.args[0]),x:Number(c.args[1]),z:Number(c.args[2]),rotation:Number(c.args[3])},a.player.x,a.player.z)||Math.hypot(
               a.player.x - Number(c.args[1]),
               a.player.z - Number(c.args[2]),
-            ) < 0.8,
+            ) < 0.8),
         ))
     ) {
       e.emit(sourceText("m_d22ad972b5"), 'bad');
       continue;
+    }
+    if(c.method==='rotateBuilding'){
+      const b=e.s.buildings.find(b=>b.id===c.args[0]);
+      if(b&&largeStructure(b)&&Object.values(record.players).some(a=>a.present&&a.seen>now-5000&&
+        structureContains({...b,rotation:((b.rotation||0)+1)%4},a.player.x,a.player.z))){
+        e.emit(sourceText('buildings.spaceBlocked'),'bad');continue;
+      }
     }
     if (c.method === 'returnHome' && user !== owner) {
       Object.assign(

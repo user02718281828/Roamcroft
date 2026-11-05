@@ -23,6 +23,24 @@ function harness(){
   }};
 }
 const pulse=(seq:number,commands:unknown[]=[],pose={x:15,z:20,facing:0})=>({op:'pulse',pulse:{seq,commands,pose,paused:false}});
+test('server owns new early sale reward eligibility and duplicate claims cannot mint supplies',async()=>{
+  const h=harness();
+  try {
+    const session=await h.call({op:'session'}),cookie=session.headers.get('Set-Cookie')!.split(';')[0];
+    const denied=await h.call(pulse(1,[{seq:1,method:'claim',args:['firstsale']}]),cookie,session.data.nonce);
+    assert.equal(denied.status,200);
+    assert.ok(!denied.data.state.claimed.includes('firstsale'));
+    const sold=await h.call(pulse(2,[{seq:2,method:'trade',args:['wood',1,false]}]),cookie,denied.data.nonce);
+    const rewarded=await h.call(pulse(3,[{seq:3,method:'claim',args:['firstsale']}]),cookie,sold.data.nonce);
+    assert.equal(rewarded.status,200);
+    assert.ok(rewarded.data.state.claimed.includes('firstsale'));
+    assert.equal(rewarded.data.state.inventory.wood,sold.data.state.inventory.wood+6);
+    assert.equal(rewarded.data.state.inventory.stone,sold.data.state.inventory.stone+4);
+    const duplicate=await h.call(pulse(4,[{seq:4,method:'claim',args:['firstsale']}]),cookie,rewarded.data.nonce);
+    assert.deepEqual(duplicate.data.state.inventory,rewarded.data.state.inventory);
+    assert.equal(duplicate.data.state.gold,rewarded.data.state.gold);
+  } finally {h.sqlite.close();}
+});
 test('server sessions use hashed secrets and strict cookies; foreign origins and forged sessions fail',async()=>{
   const h=harness();assert.equal((await h.call({op:'session'},'','',{Origin:'https://evil.test'})).status,403);
   const session=await h.call({op:'session'});assert.equal(session.status,201);

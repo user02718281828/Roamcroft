@@ -7,6 +7,30 @@ type Artist = {
   box(p:T.Object3D,c:number,x:number,y:number,z:number,sx:number,sy:number,sz:number):T.Mesh;
   mesh(p:T.Object3D,k:string,c:number,x:number,y:number,z:number,sx?:number,sy?:number,sz?:number):T.Mesh;
 };
+
+/** Native 5×4 exterior. Local origin is its centre; front door faces +Z. */
+export function farmhouse(a:Artist,g:T.Group,level:number) {
+  a.box(g,0x9d9278,0,.12,0,4.9,.24,3.9);
+  a.box(g,0xdcc49b,0,1.22,0,4.6,2.1,3.6);
+  a.mesh(g,'roof',0x8f4636,0,2.27,0,3,1.7,2.62);
+  a.box(g,0x6f4c34,0,3.37,0,.18,.16,3.85);
+  for(const x of [-2.26,2.26])for(const z of [-1.76,1.76])a.box(g,0x694832,x,1.23,z,.12,2.13,.12);
+  a.box(g,0x6b4932,0,.83,1.825,.84,1.4,.08);
+  for(const x of [-.46,.46])a.box(g,0xf0d7a2,x,.86,1.86,.1,1.58,.1);
+  a.box(g,0xf0d7a2,0,1.63,1.86,1.02,.12,.12);
+  a.mesh(g,'sphere',0xe4b559,.25,.82,1.89,.055,.055,.04);
+  // The step is inside the separately reserved, walkable entrance tile.
+  a.box(g,0xb9a682,0,.05,2.05,1,.1,.5);
+  for(const x of [-1.5,1.5]){
+    a.box(g,0x694832,x,1.28,1.82,.86,.94,.1);
+    a.box(g,0x648f97,x,1.28,1.88,.7,.78,.03);
+    a.box(g,0xf0d7a2,x,1.28,1.91,.06,.8,.03);
+    a.box(g,0xf0d7a2,x,1.28,1.91,.74,.06,.03);
+  }
+  a.box(g,0x82766b,1.48,2.94,-.65,.4,1.25,.5);
+  if(level>=2)for(const x of [-1.5,1.5])a.box(g,0x668a67,x,.8,1.94,.96,.22,.26);
+  if(level>=3)a.box(g,0xb59261,0,1.98,1.89,1.2,.2,.12);
+}
 export function cottage(a:Artist,g:T.Group,level:number) {
   a.box(g,0xdcc49b,0,.86,0,1.2,1.25,1.12);
   a.box(g,0xb99b70,0,.31,0,1.3,.2,1.22);

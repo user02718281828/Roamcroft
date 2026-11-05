@@ -9,7 +9,9 @@ import {
   TALENTS,
 } from './data.ts';
 import { createState, SAVE_VERSION, SIZE } from './model.ts';
-import type { State } from './model.ts';
+import type { State, Building } from './model.ts';
+import {largeStructure,structureFootprint} from './footprint.ts';
+import {blocksTile} from './collision.ts';
 import {
   tileIndex,
   tileKey,
@@ -311,26 +313,31 @@ export function deserialize(text: string): State {
       assert(number(b.harvestDay, 0, s.day as number, true));
       assert((b.harvestDay as number) === 0 || (b.harvestDay as number) >= (b.plantedDay as number) + BUILDINGS[b.type].orchard!.matureDays);
     }
-    const key = `${b.x},${b.z}`;
-    assert(!positions.has(key));
-    positions.add(key);
     assert(number(b.x, -1e9, 1e9, true) && number(b.z, -1e9, 1e9, true));
-    const index = tileIndex(
-      s as unknown as State,
-      b.x as number,
-      b.z as number,
-    );
-    const t =
-      index >= 0
-        ? s.tiles[index]
-        : (s.world.edits[tileKey(b.x as number, b.z as number)] ??
-          generatedTile(
-            s.seed as number,
-            b.x as number,
-            b.z as number,
-            s.world.generation as number | undefined,
-          ));
-    assert(object(t) && t.terrain !== 'water' && !t.resource && !t.crop);
+    let baseHeight:number|undefined;
+    for(const cell of structureFootprint(b as unknown as Building).cells){
+      assert(number(cell.x,-1e9,1e9,true)&&number(cell.z,-1e9,1e9,true));
+      const key=tileKey(cell.x,cell.z);assert(!positions.has(key));positions.add(key);
+      const index = tileIndex(s as unknown as State,cell.x,cell.z);
+      const t = index >= 0 ? s.tiles[index] : (s.world.edits[key] ??
+        generatedTile(s.seed as number,cell.x,cell.z,s.world.generation as number | undefined));
+      assert(object(t) && t.terrain !== 'water' && !t.resource && !t.crop);
+      if(largeStructure(b as unknown as Building)){
+        assert(t.terrain==='grass');
+        baseHeight??=t.height as number;
+        assert(Math.abs((t.height as number)-baseHeight)<=.01);
+      }
+    }
+  }
+  for(const b of (s as unknown as State).buildings.filter(largeStructure)){
+    const door=structureFootprint(b).entrance,index=tileIndex(s as unknown as State,door.x,door.z);
+    assert(number(door.x,-1e9,1e9,true)&&number(door.z,-1e9,1e9,true)&&!positions.has(tileKey(door.x,door.z)));
+    const tile=index>=0?(s as unknown as State).tiles[index]:
+      (s as unknown as State).world.edits[tileKey(door.x,door.z)]||generatedTile(s.seed as number,door.x,door.z,s.world.generation as number|undefined);
+    const anchorIndex=tileIndex(s as unknown as State,b.x,b.z);
+    const anchor=anchorIndex>=0?(s as unknown as State).tiles[anchorIndex]:
+      (s as unknown as State).world.edits[tileKey(b.x,b.z)]||generatedTile(s.seed as number,b.x,b.z,s.world.generation as number|undefined);
+    assert(!blocksTile(tile)&&Math.abs(tile.height-anchor.height)<=.01);
   }
   for (const kind of ['home', 'market', 'beacon'])
     assert(s.buildings.filter((b) => b.type === kind).length <= 1);

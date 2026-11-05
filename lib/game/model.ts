@@ -12,6 +12,7 @@ import { sleepBlockReason, type SleepStatus } from './rest.ts';
 import { marketSells, tradeUnitPrice } from './economy.ts';
 export { tradeUnitPrice } from './economy.ts';
 import {blocksPoint} from './collision.ts';
+import {structureContains,structureFootprint,largeStructure,reservedEntrance,canPlaceLargeStructure} from './footprint.ts';
 import { schedule, type HumanAction, type AnimalAction } from './living.ts';
 import { findRoute } from './pathfinding.ts';
 import type { Peer } from '../coop/protocol.ts';
@@ -213,7 +214,7 @@ export function skillLevel(s: State, key: string) {
 }
 export function buildingAt(s: State, x: number, z: number) {
   return s.buildings.find(
-    (b) => b.x === Math.round(x) && b.z === Math.round(z),
+    (b) => structureContains(b,x,z),
   );
 }
 export function canAfford(s: State, cost: Bag) {
@@ -397,6 +398,7 @@ export function createState(seed = 84621): State {
   return s;
 }
 export class Engine {
+  structureRevision = 0;
   sharedAnchors?: {x:number;z:number}[];
   network: {lobbyFetch?:typeof fetch;inviteLink?:()=>Promise<string>;motion?:MotionControl;sleep?:SleepStatus|null;guest:boolean;server?:boolean;shared?:boolean;enterShared?:()=>Promise<void>;leaveShared?:()=>Promise<void>;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
   networkActor = false;
@@ -1097,7 +1099,7 @@ export class Engine {
     const s = this.s,
       d = BUILDINGS[type],
       t = tileAt(s, x, z);
-    if (!d || !t) return false;
+    if (!Object.hasOwn(BUILDINGS,type) || !d || !t || !Number.isSafeInteger(x) || !Number.isSafeInteger(z)) return false;
     if (s.level < d.level) {
       this.emit(sourceText("m_97af3dbd9a", { p0: d.level }), 'bad');
       return false;
@@ -1105,6 +1107,9 @@ export class Engine {
     if (d.unique && s.buildings.some((b) => b.type === type)) {
       this.emit(sourceText("m_8edd380493"), 'bad');
       return false;
+    }
+    if (d.footprint && !this.canPlaceLarge(type,x,z,rotation)) {
+      this.emit(sourceText('buildings.spaceBlocked'),'bad');return false;
     }
     if (
       NPCS.some((n) => n.x === x && n.z === z) ||
@@ -1114,6 +1119,7 @@ export class Engine {
       t.resource ||
       t.crop ||
       buildingAt(s, x, z) ||
+      reservedEntrance(s,x,z) ||
       Math.hypot(s.player.x - x, s.player.z - z) < 0.65 ||
       (Math.round(s.player.x) === t.x && Math.round(s.player.z) === t.z) ||
       s.animals.some((a) => Math.hypot(a.x - x, a.z - z) < 0.7) ||
@@ -1140,8 +1146,10 @@ export class Engine {
       enabled: true,
       ...(d.production ? { recipe: 'default', processing: false, repeat: false } : {}),
     });
-    t.tilled = false;
-    t.water = 0;
+    for(const p of structureFootprint({type,x,z,rotation}).cells){
+      const tile=tileAt(s,p.x,p.z)!;tile.tilled=false;tile.water=0;
+    }
+    this.structureRevision++;
     this.stat('build');
     if (d.orchard) this.stat('orchard');
     if (type === 'beacon') s.stats.beacon = 1;
@@ -1153,14 +1161,23 @@ export class Engine {
     if(this.network?.guest) return this.network.send('rotateBuilding',[id]);
     const b=this.s.buildings.find(b=>b.id===id);
     if (!b || this.s.mine) return false;
+    if(largeStructure(b)&&!this.canPlaceLarge(b.type,b.x,b.z,((b.rotation||0)+1)%4,b.id)) {
+      this.emit(sourceText('buildings.spaceBlocked'),'bad');return false;
+    }
     b.rotation=((b.rotation || 0)+1)%4;
+    this.structureRevision++;
+    this.emit(sourceText('buildings.rotated'),'info');
     return true;
+  }
+  canPlaceLarge(type:string,x:number,z:number,rotation:number,ignoreId?:number) {
+    const anchors=this.sharedAnchors??(this.network?.shared?this.network.peers.map(p=>p.player):[]);
+    return canPlaceLargeStructure(this.s,{type,x,z,rotation},ignoreId,[...this.npcMotion.values(),...anchors]);
   }
   reshapeBuilding(id: number) {
     if(this.network?.guest) return this.network.send('reshapeBuilding',[id]);
     const b=this.s.buildings.find(b=>b.id===id);
     if (!b || !['fence','wall'].includes(b.type)) return false;
-    b.corner=!b.corner; return true;
+    b.corner=!b.corner;this.structureRevision++;this.emit(sourceText('buildings.reshaped'),'info');return true;
   }
   toggleBuilding(id: number) {
     if(this.network?.guest) return this.network.send('toggleBuilding',[id]);
@@ -1220,6 +1237,7 @@ export class Engine {
       return false;
     }
     b.level++;
+    this.structureRevision++;
     b.hp = BUILDINGS[b.type].hp * b.level;
     this.stat('upgrade');
     this.gainXp(50, 'crafting');
@@ -1264,6 +1282,7 @@ export class Engine {
       ),
     );
     this.s.buildings = this.s.buildings.filter((b) => b.id !== id);
+    this.structureRevision++;
     this.emit(sourceText("m_b92972c0ae"));
     return true;
   }

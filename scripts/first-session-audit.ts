@@ -2,11 +2,12 @@ import { pathToFileURL } from 'node:url';
 import { Engine, createState, buildingAt, type State } from '../lib/game/model.ts';
 import { BUILDINGS, RECIPES, QUESTS, type Bag } from '../lib/game/data.ts';
 import { bagValue } from '../lib/game/economy.ts';
+import {createNewFarm} from '../lib/game/new-farm.ts';
 
 // Experiment-only. This module is not imported by the game or server.
 export const PROPOSAL = {id: 'sparse-proposal-v1', gold: 60, inventory: {wood: 8, stone: 6, fiber: 4, wheatseed: 6, carrotseed: 4, berry: 4, bread: 2}} as const;
-export function scenarioState(seed: number, profile: 'current' | 'proposal') {
-  const state = createState(seed);
+export function scenarioState(seed: number, profile: 'current' | 'proposal' | 'lean') {
+  const state = profile === 'lean' ? createNewFarm(seed,'lean') : createState(seed);
   if (profile === 'proposal') {state.gold = PROPOSAL.gold; state.inventory = {...PROPOSAL.inventory};}
   return state;
 }
@@ -17,7 +18,7 @@ export function startingOptions(state: State) {
     buildings: Object.keys(BUILDINGS).filter(id => {const d = BUILDINGS[id]; return d.level <= state.level && !(d.unique && state.buildings.some(b => b.type === id)) && affordable(state.inventory, d.cost);})};
 }
 
-export function simulateFirstLoop(seed: number, profile: 'current' | 'proposal') {
+export function simulateFirstLoop(seed: number, profile: 'current' | 'proposal' | 'lean') {
   const engine = new Engine(scenarioState(seed, profile)), state = engine.s;
   const start = startingOptions(state);
   let seconds = 0, hits = 0;
@@ -68,8 +69,8 @@ export function simulateFirstLoop(seed: number, profile: 'current' | 'proposal')
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const results = [42,84621,20261029].flatMap(seed => (['current','proposal'] as const).map(profile => {
+  const results = [42,84621,20261029].flatMap(seed => (['current','proposal','lean'] as const).map(profile => {
     const {state,...report}=simulateFirstLoop(seed,profile); return report;
   }));
-  console.log(JSON.stringify({note:'Deterministic scripted routes, not human times or retention. Proposal is not applied to the game.',proposal:PROPOSAL,results},null,2));
+  console.log(JSON.stringify({note:'Deterministic scripted routes, not human times or retention. Current is the unchanged default; proposal is the historical experiment; lean uses the explicit new-device-farm factory. No existing save or server farm is converted.',proposal:PROPOSAL,results},null,2));
 }
