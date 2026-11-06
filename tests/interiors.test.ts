@@ -7,6 +7,8 @@ import {deserialize as oldRead,serialize as oldWrite} from './fixtures/save-read
 import {validServerCommand} from '../lib/server/protocol.ts';
 import {MINE_ENTRANCE} from '../lib/game/expedition.ts';
 import {gameTools} from '../lib/game/webmcp.ts';
+import {RoomCore} from '../lib/server/room-core.ts';
+import {ensureSharedPlayer,sharedPacket,type SharedRecord} from '../lib/server/shared-world.ts';
 
 function fixture(){const e=new Engine(createState(42));Object.assign(e.s.player,{x:13,z:16});e.s.inventory={wood:200,stone:100,fiber:40,plank:30,berry:10,copperbar:5};return e;}
 function enter(){const e=fixture();assert.equal(e.enterHome(1),true);return e;}
@@ -22,6 +24,25 @@ test('read-only game tools distinguish indoor movement from the saved surface ch
   assert.deepEqual([result.player.x,result.player.z],[13,16]);
   result.interior.player.x=999;assert.equal(e.interior!.player.x,6);
   e.leaveHome();assert.equal((read.execute({}) as {interior:unknown}).interior,null);
+});
+
+test('decorated native farms retain storage, private bags and room data through four-player authority and restart',async()=>{
+  const e=enter();assert.equal(e.decorateHome('chest',5,5,0),true);e.leaveHome();
+  const decor=structuredClone(e.s.homeDecor),record:SharedRecord={world:{state:e.s},players:{},room:'interior-regression',history:[]};
+  for(const id of ['host','guest','third','fourth']){const p=ensureSharedPlayer(record,id,'host',id,1000);p.present=true;p.seen=1000;p.paused=true;}
+  const room=new RoomCore(record,'host',0);for(const id of Object.keys(record.players))room.connect(id,id,1000);
+  const p=record.players.host;
+  const response=await room.pulse('host','host',{op:'pulse',revision:room.revision,pulse:{seq:1,paused:true,pose:{...p.player},commands:[{seq:1,method:'transferStorage',args:['wood',2,true]}]}},p.nonce,1200);
+  assert.equal(response.status,200);assert.equal(room.engine.s.storage.wood,2);
+  for(const id of Object.keys(record.players)){
+    const packet=sharedPacket(room.record,'host',id,room.revision,undefined,1200);
+    assert.ok('state' in packet);assert.deepEqual(packet.state.homeDecor,decor);
+    if(id!=='host')assert.notDeepEqual(packet.bag.inventory,record.players.host.inventory);
+  }
+  const restored=new RoomCore(JSON.parse(JSON.stringify(room.record)),'host',room.revision);
+  assert.deepEqual(restored.engine.s.homeDecor,decor);assert.equal(restored.engine.storageCapacity(),1200);
+  assert.equal(restored.engine.interior,null);assert.equal(restored.engine.s.storage.wood,2);
+  assert.deepEqual(deserialize(serialize(restored.engine.s)).homeDecor,decor);
 });
 
 test('entering requires a real nearby home, safe surface checkpoint and standalone ownership',()=>{

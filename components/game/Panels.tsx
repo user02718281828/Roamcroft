@@ -1016,7 +1016,7 @@ export default function Panels({
                 </div>
                 <Progress value={(b.hp / (d.hp * b.level)) * 100} />
                 {d.production && <MachineCard engine={engine} building={b}/>}
-                {b.type==='chest' && <StoragePanel engine={engine}/>}
+                {(b.type==='chest'||s.homeDecor?.[String(b.id)]?.items.some(f=>f.type==='chest')) && <StoragePanel engine={engine}/>}
                 <div className="building-buttons">
                   {onEnterHome&&!engine.network&&['home','farmhouse'].includes(b.type)&&<>
                     <button type="button" className="primary-button" disabled={Math.hypot(s.player.x-structureEntrance(b).x,s.player.z-structureEntrance(b).z)>1.6} onClick={()=>onEnterHome(b.id)}>{translate('home.enter')}</button>

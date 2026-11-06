@@ -1,3 +1,8 @@
+**1.14.0-alpha.4 — Save compatibility base.** Reader-first rollout for the native
+farmhouse, early quests and room decoration. Native expansion UI is temporarily
+disabled; its separate activation follows verified CI/live acceptance. Existing
+outdoor play and co-op remain available. [Implementation, limits and rollback](docs/NATIVE_INTERIORS_2026_11_06.md).
+
 # Roamcroft
 
 An original isometric browser game about building a home in a living valley:

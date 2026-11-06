@@ -1,3 +1,10 @@
+## 1.14.0-alpha.4 — Reader-first compatibility base (6 November 2026)
+
+- Preserve farmhouse/new-quest/room readers before enabling new native UI.
+- Keep room chest capacity when expansion UI is disabled for safe rollback.
+- No SAVE_VERSION, D1/DO schema, identity, origin or economy reset.
+- Native expansion activation is a separate checked release; no portal work.
+
 ## Unreleased — Native early-game slice (5 November 2026)
 
 - Add a separately built 5×4 farmhouse exterior with four rotations, reserved

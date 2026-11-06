@@ -1,3 +1,8 @@
+**1.14.0-alpha.4 — Kayıt uyumluluk tabanı.** Yeni çiftlik evi/görev/iç mekân
+kayıtlarını okuyabilen taban önce yayımlanır; native özellik arayüzü sonraki
+doğrulanmış aktivasyona kadar kapalıdır. Dış dünya/co-op korunur.
+[Uygulama, kabul sınırları ve güvenli geri dönüş](docs/NATIVE_INTERIORS_2026_11_06.md).
+
 # Roamcroft
 
 Resmî adres: [roamcroft.com](https://roamcroft.com). Domain/SEO/marka paketi

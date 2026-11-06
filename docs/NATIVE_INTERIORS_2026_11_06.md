@@ -38,7 +38,8 @@ Time pauses indoors, explicitly explained in the TR/EN UI.
 - Reader-first release switch `lib/native-release.ts`: first ship all readers
   with native expansion UI disabled, then activate it in a separate release.
   The disabled release still understands rooms, farmhouse footprints, new
-  claimed IDs and interior storage capacity. That release is the fallback for
+  claimed IDs and interior storage capacity. Home building management also
+  exposes existing indoor chest storage when room entry is disabled. That release is the fallback for
   activation. Do not revert the reader additions or return new saves to b97e099.
 - Roll back application code only with a normal commit; never roll back/reset
   production databases or player saves. Preserve a save JSON before manual
@@ -87,3 +88,10 @@ their own final build and CI. Injected latency/reconnect/restart, simultaneous
 D1 writes, external-revision conflict and shared-sleep replay checks passed.
 These local network fixtures are not a WAN acceptance claim.
 Publication is still pending; no new-world or CrazyGames work was started.
+
+Reader-base preflight (alpha.4): native UI switch false; 288/288 full tests,
+typecheck, production build (2,998,875 bytes) and four-player Worker runtime
+passed. Extra regression verifies room data and chest contents through four
+players, private bags, server command handling and room reconstruction. Home
+building management keeps existing indoor storage accessible during rollback.
+No publication claimed until remote CI, Workers Builds and live checks pass.
