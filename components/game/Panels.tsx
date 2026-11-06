@@ -1,6 +1,8 @@
 'use client';
+import {NATIVE_EXPANSION_ENABLED} from '@/lib/native-release';
+import {visibleQuests} from '@/lib/game/quests';
 import { sourceText } from '@/lib/i18n/source';
-import {largeStructure,structureFootprint} from '@/lib/game/footprint';
+import {largeStructure,structureFootprint,structureEntrance} from '@/lib/game/footprint';
 import { localize, translate } from '@/lib/i18n/core';
 import { useLocale } from '@/lib/i18n/react';
 
@@ -126,6 +128,7 @@ export default function Panels({
   onExport,
   onSave,
   onReset,
+  onEnterHome,
   selectedBuilding,
   sound,
   setSound,
@@ -150,6 +153,7 @@ export default function Panels({
   onExport: () => void;
   onSave: () => void;
   onReset: () => void;
+  onEnterHome?: (id:number)=>void;
   selectedBuilding: number | null;
   sound: boolean;
   setSound: (v: boolean) => void;
@@ -411,7 +415,7 @@ export default function Panels({
                             ([id, x]) =>
                               (c === sourceText("m_f43a65ad82") || x.category === c) &&
                               id !== 'home' &&
-                              id !== 'market',
+                              id !== 'market' && (NATIVE_EXPANSION_ENABLED || id !== 'farmhouse'),
                           )
                           .map(([id, x]) => {
                             const unlocked = s.level >= x.level,
@@ -632,7 +636,7 @@ export default function Panels({
                           {translate("m_0b57624d24")}</p>
                       </div>
                     </div>
-                    {QUESTS.map((q, index) => {
+                    {visibleQuests(NATIVE_EXPANSION_ENABLED).map((q, index) => {
                       const value = Math.min(q.target, s.stats[q.stat] || 0),
                         done = s.claimed.includes(q.id);
                       return (
@@ -1014,6 +1018,10 @@ export default function Panels({
                 {d.production && <MachineCard engine={engine} building={b}/>}
                 {b.type==='chest' && <StoragePanel engine={engine}/>}
                 <div className="building-buttons">
+                  {onEnterHome&&!engine.network&&['home','farmhouse'].includes(b.type)&&<>
+                    <button type="button" className="primary-button" disabled={Math.hypot(s.player.x-structureEntrance(b).x,s.player.z-structureEntrance(b).z)>1.6} onClick={()=>onEnterHome(b.id)}>{translate('home.enter')}</button>
+                    <small>{translate('home.nearDoor')}</small>
+                  </>}
                   <button className="secondary-button" onClick={() => engine.rotateBuilding(b.id)}>{translate("m_545873dce4")}{(b.rotation || 0)*90}°</button>
                   {['fence','wall'].includes(b.type) && <button className="secondary-button" onClick={()=>engine.reshapeBuilding(b.id)}>{localize(b.corner ? sourceText("m_0bc2541fab") : sourceText("m_5a88dc46be"))}</button>}
                   {['home','farmhouse'].includes(b.type) && (
@@ -1035,7 +1043,7 @@ export default function Panels({
                   )}
                   <button
                     className="secondary-button"
-                    onClick={() => {const target=largeStructure(b)?structureFootprint(b).entrance:b;onApproach(target.x,target.z);}}
+                    onClick={() => {const target=['home','farmhouse'].includes(b.type)?structureEntrance(b):largeStructure(b)?structureFootprint(b).entrance:b;onApproach(target.x,target.z);}}
                   >
                     {translate("m_20983697d0")}</button>
                   <button

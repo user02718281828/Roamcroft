@@ -1,3 +1,4 @@
+import {NATIVE_EXPANSION_ENABLED} from '@/lib/native-release';
 import { sourceText } from '@/lib/i18n/source';
 import { localize, translate } from '@/lib/i18n/core';
 import { useLocale } from '@/lib/i18n/react';
@@ -57,7 +58,7 @@ export function SettlementPanel({ engine }: { engine: Engine }) {
   const story=settlementStory(engine.s);
   const s = engine.s,
     next = nextMilestone(s),
-    quest = recommendedQuest(s);
+    quest = recommendedQuest(s,NATIVE_EXPANSION_ENABLED);
   return (
     <section className="settlement-board" aria-label={translate("m_4d3e61ac52")}>
       <span className="eyebrow">{localize(settlementRank(s))}</span>

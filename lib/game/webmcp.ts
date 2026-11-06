@@ -50,6 +50,7 @@ export function gameTools(
             ? { mineFloor: s.mine.floor }
             : { x: s.world.x, z: s.world.z, width: Math.sqrt(s.tiles.length) },
           player: s.player,
+          interior: engine.interior?{homeId:engine.interior.homeId,player:{...engine.interior.player},pathLength:engine.interior.path.length}:null,
           inventory: s.inventory,
           gold: s.gold,
           jobs: s.jobs,

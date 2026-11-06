@@ -1,3 +1,5 @@
+6 Kasım güncel native devam: [GitHub format yedeği](GITHUB_BACKUP_2026_11_06.md) ve [gerçek ev iç mekânı](NATIVE_INTERIORS_2026_11_06.md). 17 dal ve iki prototip ayrı özel depoda doğrulandı. İç mekân cihaz çiftliğinde gerçek yürüme/dekorasyon dilimidir; ortak iç mekân ve World3 tamamlanmadı. Yeni kayıtları okuyabilen uyumluluk tabanı olmadan eski production sürümüne dönüş güvenli sayılmaz. Aşağıdaki önceki tarihli durumlar tarihseldir; son doğrulama/yayın durumu yeni belgeye kaydedilir.
+
 # Roamcroft 2.0 — ana geliştirme planı
 
 5 Kasım [ilk gerçek 5×4 yapı](NATIVE_LARGE_BUILDINGS_2026_11_05.md): yeni

@@ -13,6 +13,8 @@ import { marketSells, tradeUnitPrice } from './economy.ts';
 export { tradeUnitPrice } from './economy.ts';
 import {blocksPoint} from './collision.ts';
 import {structureContains,structureFootprint,largeStructure,reservedEntrance,canPlaceLargeStructure} from './footprint.ts';
+import {FURNITURE,defaultRoom,validRoom,roomWalkable,roomPath,furnitureAt,furnitureCells,ROOM_DOOR,ROOM_SPAWN,interiorChests,type HomeDecor,type InteriorSession,type FurnitureType} from './interiors.ts';
+import {structureEntrance} from './footprint.ts';
 import { schedule, type HumanAction, type AnimalAction } from './living.ts';
 import { findRoute } from './pathfinding.ts';
 import type { Peer } from '../coop/protocol.ts';
@@ -126,6 +128,7 @@ export type Enemy = {
 };
 export type Job = { recipe: string; remaining: number; total: number; recipient?: string };
 export type State = {
+  homeDecor?: HomeDecor;
   settlement: { name: string; milestones: string[] };
   bundles: { donations: Record<string, Bag>; completed: string[] };
   overflow: Bag;
@@ -398,6 +401,9 @@ export function createState(seed = 84621): State {
   return s;
 }
 export class Engine {
+  interior: InteriorSession | null = null;
+  homeMessage = '';
+  homeRevision = 0;
   structureRevision = 0;
   sharedAnchors?: {x:number;z:number}[];
   network: {lobbyFetch?:typeof fetch;inviteLink?:()=>Promise<string>;motion?:MotionControl;sleep?:SleepStatus|null;guest:boolean;server?:boolean;shared?:boolean;enterShared?:()=>Promise<void>;leaveShared?:()=>Promise<void>;send:(method:string,args:unknown[])=>boolean;peers:Peer[]} | null = null;
@@ -448,6 +454,7 @@ export class Engine {
     if (!state.mine && !preserveWindow) shiftWindow(state);
   }
   emit(text: string, kind: Event['kind'] = 'info', x?: number, z?: number, sound?: ActionSound) {
+    if(this.interior)this.homeMessage=text;
     this.events.push({ text, kind, x, z, sound });
     if (this.events.length > 15) this.events.shift();
   }
@@ -505,9 +512,105 @@ export class Engine {
     this.celebrate(sourceText("m_1d3c6c040c", { p0: this.s.settlement.name, p1: milestone.name }));
     return true;
   }
+  roomData() {return this.interior?this.s.homeDecor?.[String(this.interior.homeId)]:undefined;}
+  enterHome(id:number) {
+    if(this.interior||this.network||this.s.mine||this.s.enemies.length)return false;
+    const home=this.s.buildings.find(b=>b.id===id&&['home','farmhouse'].includes(b.type));
+    if(!home)return false;
+    const door=structureEntrance(home);
+    if(Math.hypot(this.s.player.x-door.x,this.s.player.z-door.z)>1.6){this.emit(sourceText('home.nearDoor'),'info');return false;}
+    const checkpoint=tileAt(this.s,this.s.player.x,this.s.player.z);
+    if(!checkpoint||checkpoint.resource||!walkable(this.s,this.s.player.x,this.s.player.z))return false;
+    if(!this.s.homeDecor?.[String(id)]&&Object.keys(this.s.homeDecor||{}).length>=128)return false;
+    this.s.homeDecor??={};this.s.homeDecor[String(id)]??=defaultRoom();
+    this.clearMovement();this.resting=false;this.fishing=null;
+    this.interior={homeId:id,player:{...ROOM_SPAWN,facing:Math.PI},path:[],storageOpen:false};
+    this.homeRevision++;this.emit(sourceText('home.entered'),'info');return true;
+  }
+  leaveHome() {
+    if(!this.interior)return false;
+    this.interior=null;this.clearMovement();this.structureRevision++;
+    this.emit(sourceText('home.left'),'info');return true;
+  }
+  moveInside(dx:number,dz:number,dt:number) {
+    const session=this.interior,room=this.roomData();if(!session||!room)return;
+    const d=Math.hypot(dx,dz);if(!d)return;
+    const p=session.player,step=Math.min(.1,Math.max(0,dt))*this.travelSpeed();
+    const x=p.x+dx/d*step,z=p.z+dz/d*step;
+    if(roomWalkable(room,x,p.z))p.x=x;
+    if(roomWalkable(room,p.x,z))p.z=z;
+    p.facing=Math.atan2(dx,dz);
+  }
+  goInside(x:number,z:number) {
+    const session=this.interior,room=this.roomData();
+    if(!session||!room||!Number.isSafeInteger(x)||!Number.isSafeInteger(z))return false;
+    const item=furnitureAt(room,x,z),target=item?furnitureCells(item):[{x,z}];
+    const options=target.map(p=>roomPath(room,session.player,p,!!item)).filter(p=>p!==null).sort((a,b)=>a.length-b.length);
+    if(!options.length)return false;
+    session.path=options[0];session.pending=item?.id;
+    if(!session.path.length&&item)this.interactHome(item.id);
+    return true;
+  }
+  tickInside(dt:number) {
+    const session=this.interior;if(!session)return;
+    const next=session.path[0];
+    if(next){const p=session.player,dx=next.x-p.x,dz=next.z-p.z,d=Math.hypot(dx,dz);
+      if(d<=dt*this.travelSpeed()){p.x=next.x;p.z=next.z;session.path.shift();}
+      else this.moveInside(dx,dz,dt);
+    }
+    if(!session.path.length&&session.pending!==undefined){const id=session.pending;session.pending=undefined;this.interactHome(id);}
+    if(this.interior&&Math.hypot(session.player.x-ROOM_DOOR.x,session.player.z-ROOM_DOOR.z)<.22)this.leaveHome();
+  }
+  interactHome(id?:number) {
+    const session=this.interior,room=this.roomData();if(!session||!room)return false;
+    const near=room.items.filter(f=>(id===undefined||f.id===id)&&['bed','chest'].includes(f.type)&&
+      furnitureCells(f).some(p=>Math.hypot(p.x-session.player.x,p.z-session.player.z)<=1.6));
+    const item=near[0];if(!item){this.emit(sourceText('home.nearFurniture'),'info');return false;}
+    if(item.type==='chest'){session.storageOpen=true;return true;}
+    this.interior=null;const before=this.events.length;
+    try{return this.sleep();}finally{this.interior=session;if(this.events.length>before)this.homeMessage=this.events.at(-1)!.text;}
+  }
+  decorateHome(type:FurnitureType,x:number,z:number,rotation:number,moveId?:number) {
+    const session=this.interior,room=this.roomData();if(!session||!room||!Object.hasOwn(FURNITURE,type))return false;
+    const previous=moveId===undefined?undefined:room.items.find(f=>f.id===moveId);
+    if(moveId!==undefined&&!previous)return false;
+    const item={id:previous?.id??room.nextId,type:previous?.type??type,x,z,rotation,paid:previous?.paid??true};
+    const candidate={...room,nextId:room.nextId+(previous?0:1),items:[...room.items.filter(f=>f.id!==moveId),item]};
+    if(!validRoom(candidate)||!roomWalkable(candidate,session.player.x,session.player.z)||!roomPath(candidate,session.player,ROOM_DOOR)){
+      this.emit(sourceText('home.blocked'),'bad');return false;
+    }
+    if(!previous&&!this.spend(FURNITURE[type].cost)){this.emit(sourceText('home.materials'),'bad');return false;}
+    this.s.homeDecor![String(session.homeId)]=candidate;session.path=[];session.pending=undefined;
+    this.homeRevision++;return true;
+  }
+  removeDecoration(id:number) {
+    const session=this.interior,room=this.roomData(),item=room?.items.find(f=>f.id===id);if(!session||!room||!item)return false;
+    if(item.type==='chest'&&Object.values(this.s.storage).reduce((n,v)=>n+v,0)>this.storageCapacity()-1200){
+      this.emit(sourceText('home.emptyChest'),'bad');return false;
+    }
+    room.items=room.items.filter(f=>f.id!==id);session.path=[];session.pending=undefined;
+    if(item.paid)this.add(FURNITURE[item.type].cost);
+    this.homeRevision++;return true;
+  }
+  styleHome(floor:string,wall:string) {
+    const room=this.roomData();if(!room)return false;
+    const candidate={...room,floor,wall};if(!validRoom(candidate))return false;
+    this.s.homeDecor![String(this.interior!.homeId)]=candidate;this.homeRevision++;return true;
+  }
+  salvageHome(id:number) {
+    const room=this.s.homeDecor?.[String(id)];if(!room)return;
+    delete this.s.homeDecor![String(id)];
+    for(const item of room.items)if(item.paid)this.add(FURNITURE[item.type].cost);
+    let excess=Math.max(0,Object.values(this.s.storage).reduce((n,v)=>n+v,0)-this.storageCapacity());
+    for(const key of Object.keys(this.s.storage).sort()){
+      const n=Math.min(excess,this.s.storage[key]);if(!n)continue;
+      this.s.storage[key]-=n;this.s.overflow[key]=(this.s.overflow[key]||0)+n;excess-=n;
+    }
+    this.homeRevision++;
+  }
   storageCapacity() {
     const buildings=this.s.mine?this.s.mine.surface.buildings:this.s.buildings;
-    return buildings.filter(b=>b.type==='chest').reduce((n,b)=>n+b.level*1200,0);
+    return buildings.filter(b=>b.type==='chest').reduce((n,b)=>n+b.level*1200,0)+interiorChests(this.s)*1200;
   }
   transferStorage(item:string,quantity:number,deposit:boolean) {
     if(this.network?.guest)return this.network.send('transferStorage',[item,quantity,deposit]);
@@ -651,6 +754,7 @@ export class Engine {
   }
 
   go(x: number, z: number, tool = 'hand', selection = 'wheat') {
+    if(this.interior){if(tool==='hand')this.goInside(x,z);return;}
     const t = tileAt(this.s, x, z);
     if (!t) return;
     this.resting = false;
@@ -680,6 +784,7 @@ export class Engine {
     return withinSharedRange(this.s.player,{x,z},anchors);
   }
   move(dx: number, dz: number, dt: number) {
+    if(this.interior){this.interior.path=[];this.interior.pending=undefined;this.moveInside(dx,dz,dt);return;}
     this.path = [];
     this.pending = null;
     this.resting = false;
@@ -712,6 +817,7 @@ export class Engine {
     }
   }
   returnHome() {
+    if(this.interior)return this.leaveHome();
     if(this.network?.server)return this.network.send('returnHome',[]);
     if(this.network?.guest) {this.emit(sourceText("m_dcb29f639a"),'info');return false;}
     if (this.s.mine || this.s.enemies.length) {
@@ -743,6 +849,7 @@ export class Engine {
     this.enemyPaths.clear();
   }
   enterMine(floor = 1) {
+    if(this.interior)return false;
     if(this.network?.server)return this.network.send('enterMine',[floor]);
     if(this.network?.guest) {this.emit(sourceText("m_dcb29f639a"),'info');return false;}
     if (
@@ -930,6 +1037,7 @@ export class Engine {
     return true;
   }
   act(x: number, z: number, tool: string, selection = 'wheat') {
+    if(this.interior){if(tool==='hand')this.goInside(x,z);return;}
     if(this.network?.guest) {
       if(tool==='build') return this.build(selection,x,z);
       return this.network.send('act',[x,z,tool,selection]);
@@ -1093,6 +1201,7 @@ export class Engine {
       );
   }
   build(type: string, x: number, z: number, rotation = this.placementRotation, corner = this.placementCorner) {
+    if(this.interior)return false;
     if(this.network?.guest) return this.network.send('build',[type,x,z,rotation,corner]);
     if (!Number.isInteger(rotation) || rotation < 0 || rotation > 3) return false;
     if (this.s.mine) return false;
@@ -1265,12 +1374,14 @@ export class Engine {
     return true;
   }
   demolish(id: number) {
+    if(this.interior)return false;
     if(this.network?.guest) return this.network.send('demolish',[id]);
     const b = this.s.buildings.find((b) => b.id === id);
     if (!b || b.type === 'home' || b.type === 'market') {
       this.emit(sourceText("m_f09122c2fc"), 'bad');
       return false;
     }
+    if(this.s.homeDecor?.[String(id)]?.items.length){this.emit(sourceText('home.emptyFirst'),'bad');return false;}
     const reserved = b.processing && machineRecipe(b);
     if (reserved) this.add(reserved.input);
     this.add(
@@ -1281,6 +1392,7 @@ export class Engine {
         ]),
       ),
     );
+    if(this.s.homeDecor)delete this.s.homeDecor[String(id)];
     this.s.buildings = this.s.buildings.filter((b) => b.id !== id);
     this.structureRevision++;
     this.emit(sourceText("m_b92972c0ae"));
@@ -2156,6 +2268,7 @@ export class Engine {
             if (obstacle.type === 'home' || obstacle.type === 'market')
               obstacle.hp = 1;
             else {
+              this.salvageHome(obstacle.id);
               s.buildings = s.buildings.filter((b) => b.id !== obstacle.id);
               this.emit(sourceText("m_9553260ef2", { p0: BUILDINGS[obstacle.type].name }), 'bad');
             }
@@ -2207,6 +2320,7 @@ export class Engine {
   }
   tick(dt: number) {
     dt = Math.max(0, Math.min(dt, 0.1));
+    if(this.interior){this.tickInside(dt);return;}
     this.actionCooldown = Math.max(0, this.actionCooldown - dt);
     this.playerAction.remaining=Math.max(0,this.playerAction.remaining-dt);
     const npcStarted=frameProfile.begin();this.updateVillagers(dt);frameProfile.end('npc',npcStarted);

@@ -1,3 +1,5 @@
+6 Kasım native devam: docs/GITHUB_BACKUP_2026_11_06.md ve docs/NATIVE_INTERIORS_2026_11_06.md güncel kayıttır. Kullanıcı tüm yerel Git yedeği ve test edilmiş, kayıt geri dönüşü güvenli native yayınları yetkilendirdi; CrazyGames işi beklemede. Ayrı private backup reposu Actions kapalı olarak 17 dal+iki prototipi korur. Gerçek oda runtime koordinatlarını State.player içine yazma; homeDecor isteğe bağlı kalır, SAVE_VERSION/D1/DO değişmez. İç mekân ilk dilimde network/mine/enemy durumunda kapalıdır. Native release flag yalnız yeni UI aktivasyonunu kontrol eder; rollback sırasında okuyucuları ve sandık kapasitesini kaldırma. Yeni kayıtları b97e099 okuyucusuna zorla açtırma. Fiziksel Android/WAN kabulü tarayıcı viewport testi değildir.
+
 # Güncel checkpoint — 30 Ekim 2026
 
 5 Kasım büyük yapı yerel devamı: docs/NATIVE_LARGE_BUILDINGS_2026_11_05.md.

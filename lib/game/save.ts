@@ -12,6 +12,7 @@ import { createState, SAVE_VERSION, SIZE } from './model.ts';
 import type { State, Building } from './model.ts';
 import {largeStructure,structureFootprint} from './footprint.ts';
 import {blocksTile} from './collision.ts';
+import {validHomeDecor} from './interiors.ts';
 import {
   tileIndex,
   tileKey,
@@ -409,6 +410,7 @@ export function deserialize(text: string): State {
     };
     assert(result.buildings.length === 0 && result.animals.length === 0);
   }
+  assert(validHomeDecor(result));
   return result;
 }
 let validatedPrevious: string | null = null;

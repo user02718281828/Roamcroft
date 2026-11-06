@@ -1,3 +1,5 @@
+6 Kasım güncellemesi: Gerçek 5×4 dış yapıdan sonra öncelik [oynanabilir ev iç mekânıdır](NATIVE_INTERIORS_2026_11_06.md). Cihaz çiftliği dilimi uygulanmıştır; co-op iç mekân ve World3 ayrı kabul kapılarıdır. [Tüm yerel dalların/prototiplerin GitHub yedeği](GITHUB_BACKUP_2026_11_06.md) doğrulandı. Eski tabloda prototip/yayın yok ifadeleri ilgili tarihsel aşamayı anlatır; hiçbir backlog maddesi silinmedi.
+
 # Roamcroft — TAM GELİŞTİRME YOL HARİTASI (5 Kasım 2026)
 
 > **Kapsam:** Yalnızca özgün, resmî `https://roamcroft.com` oyunu. CrazyGames geliştirmeleri **beklemede**. Bu belge kaynak kodu değiştirmez, çalışma dalını taşımaz ve canlıya dağıtım yetkisi vermez.

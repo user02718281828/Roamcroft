@@ -16,7 +16,7 @@ import { nextPanel } from '@/lib/ui/game-menu';
 import './foundation.css';
 import MainMenu from './MainMenu';
 import {prepareNewFarm, type StartProfile} from '@/lib/game/new-farm';
-import {largeStructure,structureFootprint} from '@/lib/game/footprint';
+import {largeStructure,structureFootprint,structureEntrance} from '@/lib/game/footprint';
 import Joystick from './Joystick';
 import TouchAction from './TouchAction';
 import {useTouchPreferences} from '@/lib/ui/touch-preferences';
@@ -39,6 +39,7 @@ import {MOBILE_QUERY} from '@/lib/game/viewport';
 import type { CoopClient } from '@/lib/coop/client';
 import { nextMilestone, settlementRank } from '@/lib/game/settlement';
 import { recommendedQuest } from '@/lib/game/quests';
+import {NATIVE_EXPANSION_ENABLED} from '@/lib/native-release';
 import { inventoryUsed, inventoryCapacity } from '@/lib/game/progression';
 import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import {
@@ -97,6 +98,7 @@ import { loadStored, saveStored } from '@/lib/game/storage';
 import { ValleyAudio } from '@/lib/game/audio';
 import type { ValleyScene } from '@/lib/game/scene';
 const Panels=lazy(()=>import('./Panels'));
+const InteriorView=lazy(()=>import('./InteriorView').catch(()=>({default:({onExit}:{onExit:()=>void})=><div className="game-loading"><p>{translate('home.unavailable')}</p><button type="button" onClick={onExit}>{translate('home.exit')}</button></div>})));
 import type { Panel } from './Panels';
 import { Progress } from '@/components/ui/progress';
 import { NPCS } from '@/lib/game/content';
@@ -224,8 +226,11 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
   if(scene.current)scene.current.inputEnabled=!inputBlocked;
   if (engine.current) {engine.current.placementRotation = rotation; engine.current.placementCorner = corner;}
   if (scene.current) {scene.current.placementRotation = rotation; scene.current.placementCorner = corner;}
+  const leaveInterior=()=>{keys.current.clear();joystick.current={x:0,y:0};engine.current?.leaveHome();refresh(n=>n+1);};
+  const enterInterior=(id:number)=>{if(platform||!NATIVE_EXPANSION_ENABLED)return;const e=engine.current;if(e?.enterHome(id)){keys.current.clear();joystick.current={x:0,y:0};setTool('hand');setPanel(null);setMainMenu(false);setPaused(false);refresh(n=>n+1);}};
   const interact=(useSelectedTool=false)=>{
     const e=engine.current;if(!e||control.current.paused||control.current.panel)return;
+    if(e.interior){e.interactHome();refresh(n=>n+1);return;}
     if(control.current.item){
       const id=control.current.item,intent=hotbarIntent({kind:'item',id},e.s.inventory);
       if(!intent?.available)return;
@@ -243,12 +248,14 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
       if(target)e.act(target.x,target.z,control.current.tool);else e.emit(sourceText('m_6455e5a37b'));
       return;
     }
+    const doorway=NATIVE_EXPANSION_ENABLED&&!platform&&e.s.buildings.find(b=>['home','farmhouse'].includes(b.type)&&Math.hypot(structureEntrance(b).x-p.x,structureEntrance(b).z-p.z)<.9);
+    if(doorway&&e.enterHome(doorway.id)){keys.current.clear();joystick.current={x:0,y:0};setTool('hand');refresh(n=>n+1);return;}
     const person=!e.s.mine&&NPCS.find(n=>{const position=e.npcMotion.get(n.id)||n;return Math.hypot(position.x-p.x,position.z-p.z)<2.2;});
     if(person){setSelectedNPC(person.id);setPanel('villagers');return;}
     const animal=e.s.animals.find(a=>Math.hypot(a.x-p.x,a.z-p.z)<1.8);
     if(animal){if(animal.ready)e.harvestAnimal(animal.id);else e.petAnimal(animal.id);return;}
     const building=e.s.buildings.find(b=>{const target=largeStructure(b)?structureFootprint(b).entrance:b;return Math.hypot(target.x-p.x,target.z-p.z)<1.8;});
-    if(building){if(orchardStatus(building,e.s)?.ready){e.act(building.x,building.z,'hand');return;}setSelectedBuilding(building.id);setPanel('building');return;}
+    if(building){if(NATIVE_EXPANSION_ENABLED&&!platform&&['home','farmhouse'].includes(building.type)&&e.enterHome(building.id)){keys.current.clear();joystick.current={x:0,y:0};setTool('hand');refresh(n=>n+1);return;}if(orchardStatus(building,e.s)?.ready){e.act(building.x,building.z,'hand');return;}setSelectedBuilding(building.id);setPanel('building');return;}
     const target=e.s.tiles.filter(t=>(t.resource||t.crop||(control.current.tool==='fish'&&t.terrain==='water'))&&Math.hypot(t.x-p.x,t.z-p.z)<1.8).sort((a,b)=>Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z))[0];
     if(target)e.act(target.x,target.z,control.current.tool==='fish'?'fish':'hand');else e.emit(sourceText("m_6455e5a37b"));
   };
@@ -343,7 +350,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
     try {
       const seed = new Uint32Array(1);
       crypto.getRandomValues(seed);
-      const state=await prepareNewFarm(seed[0],platform?'standard':profile,saveStored);
+      const state=await prepareNewFarm(seed[0],platform||!NATIVE_EXPANSION_ENABLED?'standard':profile,saveStored);
       nextState.current=state;
       setMainMenu(false);
       setTool('hand');
@@ -481,7 +488,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
               horizontal+=joystick.current.x;vertical+=joystick.current.y;
               const strength=keyboardMoving?1:Math.min(1,Math.hypot(horizontal,vertical));
               e.sprinting=keys.current.has('shift');
-              const angle = view.angle;
+              const angle = e.interior?Math.PI/4:view.angle;
               if (horizontal || vertical)
                 e.move(
                   horizontal * Math.cos(angle) + vertical * Math.sin(angle),
@@ -503,7 +510,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                 ? control.current.selection
                 : null;
             const pausedView=[view.target.x,view.target.z,view.angle,view.zoom,view.highQuality,view.canvas.width,view.canvas.height,e.structureRevision].join(',');
-            if (!document.hidden && (!worldReady || !control.current.paused || authority.current?.shared || pausedView!==lastPausedView)){
+            if (!e.interior && !document.hidden && (!worldReady || !control.current.paused || authority.current?.shared || pausedView!==lastPausedView)){
               const sceneStarted=frameProfile.begin();
               view.render(control.current.paused&&!authority.current?.shared ? 0 : dt, frameDuration,
                 worldReady&&!control.current.paused&&continuousFrame);
@@ -590,6 +597,12 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
       const tag = (ev.target as HTMLElement).tagName;
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
       const key = ev.key.toLowerCase();
+      if(e.interior){
+        if(ev.key==='Escape'){ev.preventDefault();leaveInterior();return;}
+        if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key)){ev.preventDefault();keys.current.add(key);}
+        if(key==='e'&&!ev.repeat){ev.preventDefault();e.interactHome();refresh(n=>n+1);}
+        return;
+      }
       if (ev.key === 'Escape') {
         if (control.current.panel) setPanel(null);
         else if (control.current.tool === 'build') setTool('hand');
@@ -684,7 +697,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
                 : s?.mine
                   ? sourceText("m_23b47d8342")
                   : sourceText("m_a751b91f52"));
-  const quest = s ? recommendedQuest(s) : null;
+  const quest = s ? recommendedQuest(s,NATIVE_EXPANSION_ENABLED) : null;
   const chooseBuild = (type: string) => {
     setBuild(type);
     setTool('build');
@@ -735,7 +748,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
       )}
       {s && (
         <>
-          {ready && mainMenu && !panel && <MainMenu allowProfiles={!platform} initialConfirm={newPrompt} onPromptHandled={()=>setNewPrompt(false)} serverMode={serverMode} loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onGuide={()=>setPanel('guide')} onSave={doSave} onExit={doExit}/>}
+          {ready && mainMenu && !panel && <MainMenu allowProfiles={NATIVE_EXPANSION_ENABLED&&!platform} initialConfirm={newPrompt} onPromptHandled={()=>setNewPrompt(false)} serverMode={serverMode} loadError={loadError} onContinue={()=>{setMainMenu(false);setPaused(false);}} onNew={doReset} onLoad={doImport} onSettings={()=>setPanel('settings')} onGuide={()=>setPanel('guide')} onSave={doSave} onExit={doExit}/>}
           <header className="game-header">
             <div className="brand">
               <div className="brand-icon">
@@ -1198,6 +1211,7 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
             onExport={doExport}
             onSave={()=>void doSave().catch(()=>{})}
             onReset={()=>{setPanel(null);setMainMenu(true);setNewPrompt(true);}}
+            onEnterHome={platform||!NATIVE_EXPANSION_ENABLED?undefined:enterInterior}
             selectedBuilding={selectedBuilding}
             sound={sound}
             setSound={setSound}
@@ -1217,6 +1231,9 @@ export default function Game({autoStart=false,serverMode=false,entry='play',onEx
           /></Suspense>}
         </>
       )}
+      {NATIVE_EXPANSION_ENABLED&&ready&&engine.current?.interior&&<Suspense fallback={<div className="game-loading"><p>{translate('home.loading')}</p><button type="button" onClick={leaveInterior}>{translate('home.exit')}</button></div>}>
+        <InteriorView engine={engine.current} artist={scene.current} onExit={leaveInterior} onMove={v=>{joystick.current=v;}} onSave={doSave} sensitivity={touch.sensitivity} hand={touch.hand} size={touch.size}/>
+      </Suspense>}
     </main>
   );
 }

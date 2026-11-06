@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Engine, createState } from '../lib/game/model.ts';
 import { QUESTS } from '../lib/game/data.ts';
-import { recommendedQuest } from '../lib/game/quests.ts';
+import { recommendedQuest,visibleQuests } from '../lib/game/quests.ts';
 import { serialize, deserialize } from '../lib/game/save.ts';
 import { localizeText } from '../lib/i18n/core.ts';
 import { SAVE_VERSION } from '../lib/game/model.ts';
@@ -14,6 +14,13 @@ void test('early recommendations teach gathering and farming before spending on 
   }
   assert.notEqual(recommendedQuest(s)?.id,'fruit');
   s.stats.orchard=1;assert.equal(recommendedQuest(s)?.id,'fruit');
+});
+void test('reader-only release does not offer new claim IDs before activation',()=>{
+  const s=createState(42);s.stats.craft=10;s.stats.sell=100;s.claimed=['gather','till','plant'];
+  assert.equal(visibleQuests(false).length,20);
+  assert.ok(!visibleQuests(false).some(q=>q.id==='firstcraft'||q.id==='firstsale'));
+  assert.ok(!['firstcraft','firstsale'].includes(recommendedQuest(s,false)?.id||''));
+  assert.equal(visibleQuests(true).length,22);
 });
 void test('ready rewards override recommendations and remain single-claim after save/load',()=>{
   const e=new Engine(createState(42));e.s.stats.orchard=1;
