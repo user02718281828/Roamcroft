@@ -1,3 +1,15 @@
+## 1.14.0-alpha.5 — Home Interiors (6 November 2026)
+
+- Activate real single-player house entry, indoor walking/collision, threshold
+  exit and keyboard/joystick/click controls for native device farms.
+- Seven furnishings with trusted costs, rotation, movement and safe refunds;
+  shared storage, existing bed rules, floor and wall finishes.
+- Keep indoor coordinates runtime-only and decoration validated in saves;
+  preserve exterior checkpoints, existing farms, co-op and SAVE_VERSION.
+- Activate the previously local farmhouse/early quests/new-farm profiles.
+- Keep alpha.4 readers/storage accounting as the application rollback base.
+- No new biomes, shared interiors, portal work or database migrations.
+
 ## 1.14.0-alpha.4 — Reader-first compatibility base (6 November 2026)
 
 - Preserve farmhouse/new-quest/room readers before enabling new native UI.
@@ -5,7 +17,7 @@
 - No SAVE_VERSION, D1/DO schema, identity, origin or economy reset.
 - Native expansion activation is a separate checked release; no portal work.
 
-## Unreleased — Native early-game slice (5 November 2026)
+## Native foundation included in alpha.5 (prepared 5 November 2026)
 
 - Add a separately built 5×4 farmhouse exterior with four rotations, reserved
   doorway, complete Engine/A* collision and save/shared-player validation.

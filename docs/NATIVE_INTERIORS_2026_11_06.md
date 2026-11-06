@@ -95,3 +95,22 @@ passed. Extra regression verifies room data and chest contents through four
 players, private bags, server command handling and room reconstruction. Home
 building management keeps existing indoor storage accessible during rollback.
 No publication claimed until remote CI, Workers Builds and live checks pass.
+
+
+## Reader base published; activation preflight
+
+Confirmed application fallback: **e56235bef57b0d642adef123b0f1303483c2541d**,
+version **1.14.0-alpha.4**. Normal fast-forward main push preserved history.
+GitHub verify 42219101949 and Workers Builds
+b2c91bd0-2b1a-4bb2-8033-6bc40956305c completed successfully. Live root returned
+HTTP 200/alpha.4, canonical https://roamcroft.com, intact CSP and existing
+VideoGame/WebApplication/free Offer. Historical workers.dev returned 404.
+Local production browser acceptance confirmed the legacy catalog and 20
+numbered quests with native UI disabled. Preserve this reader base for rollback.
+
+Alpha.5 activation candidate: native switch true; Node 22.13.0/npm 10.9.2,
+typecheck, **288/288 tests**, build **2,999,715 / 3,000,000 bytes**, and full
+four-player Worker runtime passed. No dependency versions or production schema
+changed. Generated Wrangler retains workers_dev=false and preview_urls=false.
+Activation publication/CI/live acceptance is recorded in the final checkpoint;
+it is not implied merely by these local checks.

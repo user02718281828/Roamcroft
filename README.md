@@ -1,9 +1,12 @@
-**1.14.0-alpha.4 — Save compatibility base.** Reader-first rollout for the native
-farmhouse, early quests and room decoration. Native expansion UI is temporarily
-disabled; its separate activation follows verified CI/live acceptance. Existing
-outdoor play and co-op remain available. [Implementation, limits and rollback](docs/NATIVE_INTERIORS_2026_11_06.md).
-
 # Roamcroft
+
+**1.14.0-alpha.5 — Home Interiors.** Real playable 3D rooms in device farms:
+walk in/out through the doorway, furnish and rotate seven furniture types,
+use existing storage and sleep rules, choose floors/walls and keep decoration
+across reloads. Includes the 5×4 farmhouse, early craft/sale quests and optional
+lean supplies for confirmed new device farms. Existing saves are preserved.
+Indoor time pauses; shared interiors are not enabled. Outdoor four-player beta
+co-op remains available. [Verification and rollback contract](docs/NATIVE_INTERIORS_2026_11_06.md).
 
 An original isometric browser game about building a home in a living valley:
 grow crops, craft supplies, explore the wilderness and share a farm with friends.
@@ -13,7 +16,7 @@ design sources to copy.
 
 [Türkçe](README.tr.md) · [Changelog](CHANGELOG.md) · [2.0 master plan](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**1.14.0-alpha.3 — Quality Recovery**.
+**Previous quality release: 1.14.0-alpha.3 — Quality Recovery**.
 Release source and acceptance limits: [alpha.3 release record](docs/verification-release-1.14.0-alpha.3.md).
 The previous confirmed production checkpoint is alpha.2/main `914bde9`;
 its successful CI, Cloudflare and origin checks are [recorded separately](docs/verification-release-1.14.0-alpha.2.md).

@@ -1,16 +1,19 @@
-**1.14.0-alpha.4 — Kayıt uyumluluk tabanı.** Yeni çiftlik evi/görev/iç mekân
-kayıtlarını okuyabilen taban önce yayımlanır; native özellik arayüzü sonraki
-doğrulanmış aktivasyona kadar kapalıdır. Dış dünya/co-op korunur.
-[Uygulama, kabul sınırları ve güvenli geri dönüş](docs/NATIVE_INTERIORS_2026_11_06.md).
-
 # Roamcroft
+
+**1.14.0-alpha.5 — Ev İç Mekânları.** Cihaz çiftliğinde gerçek 3D oda:
+kapıdan gir/çık, içeride yürü, yedi mobilya türünü yerleştir/döndür, sandığı ve
+mevcut uyku kurallarını kullan; zemin/duvar tercihini kayıtla koru. 5×4 çiftlik
+evi, ilk üretim/satış görevleri ve yalnız onaylı yeni cihaz çiftliğinde sade
+erzak seçimi de dahildir. Eski kayıtlar korunur. İçeride zaman durur; ortak
+iç mekân açılmadı. Mevcut dört kişilik dış dünya co-op betası korunur.
+[Doğrulama ve geri dönüş sözleşmesi](docs/NATIVE_INTERIORS_2026_11_06.md).
 
 Resmî adres: [roamcroft.com](https://roamcroft.com). Domain/SEO/marka paketi
 bu sürüme dahildir; [oynanış ve kayıt rehberi](https://roamcroft.com/how-to-play)
 bulunur. Tek herkese açık oyun adresi roamcroft.com'dur; eski workers.dev
-Production ve Preview adresleri kapalı kalmalıdır. Bu yerel koruma yayımlanmadı;
-30 Ekim salt okunur kontrolde eski Production hâlâ HTTP200 verdiğinden
-Dashboard kapanışı ayrıca doğrulanmalıdır. Eski IndexedDB/localStorage kayıtları
+Production ve Preview adresleri kapalı kalmalıdır. Dağıtım
+yapılandırması iki adresi de kapalı tutar; 30 Ekim HTTP200 gözlemi tarihsel
+bir kayıttır. Son durum güncel yayın doğrulamasından takip edilir. Eski IndexedDB/localStorage kayıtları
 origin'e bağlıdır ve otomatik taşınmaz. Tarayıcı profilini/site verilerini koru;
 var olan JSON yedeğini veya [güvenli kurtarma prosedürünü](docs/DOMAIN_POLICY.md)
 kullan. JSON sunucu sahipliğini taşımaz; adresin kapanması oyuncu verisini silmez.
@@ -26,7 +29,7 @@ ekin yetiştir, kaynak topla, üret, keşfet ve arkadaşlarınla çiftlik kur.
 
 [English](README.md) · [Değişiklikler](CHANGELOG.md) · [2.0 master planı](docs/ROAMCROFT_2_0_MASTER_PLAN.md)
 
-**1.14.0-alpha.3 — Quality Recovery**.
+**Önceki kalite sürümü: 1.14.0-alpha.3 — Quality Recovery**.
 Kaynak/kabul sınırları: [alpha.3 yayın kaydı](docs/verification-release-1.14.0-alpha.3.md).
 Önceki doğrulanmış canlı checkpoint alpha.2/main `914bde9`;
 CI/Workers Builds/iki origin kanıtı [ayrı kayıttadır](docs/verification-release-1.14.0-alpha.2.md).
